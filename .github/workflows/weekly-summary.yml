@@ -1,0 +1,33 @@
+name: Weekly Work Summary
+
+on:
+  schedule:
+    # 每週日早上 6:00 (台灣時間)
+    # UTC 時間為週六 22:00 (台灣時間 - 8小時)
+    - cron: '0 22 * * 0'
+  workflow_dispatch: # 允許手動觸發
+
+jobs:
+  weekly-summary:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Generate weekly summary
+      env:
+        NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        python weekly_summary.py
