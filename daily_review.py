@@ -1,14 +1,18 @@
 import os
 import json
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from notion_api import NotionApi
 from openai import OpenAI
 
 
 def get_yesterday_date():
-    """取得昨天的日期範圍（從 00:00:00 到 23:59:59）"""
-    today = datetime.now()
+    """取得昨天的日期範圍（從 00:00:00 到 23:59:59），使用 GMT+8 時區"""
+    # 設定 GMT+8 時區
+    tz_gmt8 = timezone(timedelta(hours=8))
+
+    # 取得當前 GMT+8 時間
+    today = datetime.now(tz_gmt8)
     yesterday = today - timedelta(days=1)
 
     # 設定時間為當天的開始和結束
