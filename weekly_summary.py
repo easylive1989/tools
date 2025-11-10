@@ -1,13 +1,15 @@
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from notion_api import NotionApi
 from openai import OpenAI
 
 
 def get_week_date_range():
+    tz_gmt8 = timezone(timedelta(hours=8))
+
     """計算上週日到上週六的日期範圍（適用於週日執行）"""
-    today = datetime.now()
+    today = datetime.now(tz_gmt8)
 
     # 如果今天是週日（weekday: 0=週一, 6=週日），上週六就是昨天
     if today.weekday() == 6:
