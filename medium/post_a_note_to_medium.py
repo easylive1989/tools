@@ -1,7 +1,9 @@
 import sys
+import os
 import requests
 import json
-import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from notion_api import NotionApi
 
 

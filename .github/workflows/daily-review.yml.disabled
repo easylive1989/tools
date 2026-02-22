@@ -31,4 +31,4 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         DAILY_REVIEW_DISCORD_WEBHOOK_URL: ${{ secrets.DAILY_REVIEW_DISCORD_WEBHOOK_URL }}
       run: |
-        python daily_review.py
+        python summary/daily_review.py

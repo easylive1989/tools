@@ -1,8 +1,4 @@
-Medium
-mp3
-client_secret*
-.DS_Store
-output.txt# Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -22,7 +18,6 @@ build/
 *.swo
 
 # Project specific
-Medium/
 mp3/
 client_secret*
 output.txt
