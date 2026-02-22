@@ -20,12 +20,22 @@ class DocxHandler:
 
         doc = Document(input_path)
 
-        # Calculate total work (Paragraphs + Table Cells)
-        total_steps = len(doc.paragraphs)
+        # Collect all paragraphs that need translation
+        para_refs = []
+        texts = []
+
+        for para in doc.paragraphs:
+            if para.text.strip():
+                para_refs.append(para)
+                texts.append(para.text)
+
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
-                    total_steps += len(cell.paragraphs)
+                    for para in cell.paragraphs:
+                        if para.text.strip():
+                            para_refs.append(para)
+                            texts.append(para.text)
 
         with Progress(
             SpinnerColumn(),
@@ -35,34 +45,17 @@ class DocxHandler:
             console=console,
             transient=True
         ) as progress:
-            task = progress.add_task("[green]Translating...", total=total_steps)
+            task = progress.add_task("[green]Translating...", total=len(texts))
 
-            # Translate Paragraphs
-            for para in doc.paragraphs:
-                if para.text.strip():
-                    # To preserve runs (bold/italic) is complex in Phase 1.
-                    # MVP Strategy: Translate the whole paragraph text and replace it.
-                    original_text = para.text
-                    translated_text = self.client.translate_text(original_text, self.target_lang)
+            translated_texts = self.client.translate_texts(
+                texts, self.target_lang,
+                on_complete=lambda: progress.advance(task)
+            )
 
-                    # Clear existing content
-                    para.clear()
-                    # Add translated text
-                    para.add_run(translated_text)
-                progress.advance(task)
-
-            # Translate Tables
-            for table in doc.tables:
-                for row in table.rows:
-                    for cell in row.cells:
-                        # Cells can contain paragraphs too
-                        for para in cell.paragraphs:
-                            if para.text.strip():
-                                original_text = para.text
-                                translated_text = self.client.translate_text(original_text, self.target_lang)
-                                para.clear()
-                                para.add_run(translated_text)
-                            progress.advance(task)
+        # Write back translated texts
+        for para, translated_text in zip(para_refs, translated_texts):
+            para.clear()
+            para.add_run(translated_text)
 
         doc.save(output_path)
         return output_path

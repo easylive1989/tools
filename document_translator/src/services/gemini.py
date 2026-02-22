@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import google.generativeai as genai
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable
@@ -102,3 +103,30 @@ class GeminiClient:
             return self._translate_via_cli(text, target_lang)
         else:
             return self._translate_via_api(text, target_lang)
+
+    def translate_texts(self, texts: list[str], target_lang: str,
+                        max_workers: int = 5, on_complete=None) -> list[str]:
+        """
+        Translates multiple texts in parallel using ThreadPoolExecutor.
+
+        Args:
+            texts: List of texts to translate.
+            target_lang: Target language.
+            max_workers: Maximum number of concurrent workers.
+            on_complete: Optional callback invoked after each translation completes.
+
+        Returns:
+            List of translated texts in the same order as input.
+        """
+        results = [None] * len(texts)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(self.translate_text, text, target_lang): i
+                for i, text in enumerate(texts)
+            }
+            for future in as_completed(futures):
+                idx = futures[future]
+                results[idx] = future.result()
+                if on_complete:
+                    on_complete()
+        return results

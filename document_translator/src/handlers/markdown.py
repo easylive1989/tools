@@ -1,6 +1,7 @@
 import os
 import re
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 from src.services.gemini import GeminiClient
 
 console = Console()
@@ -20,28 +21,20 @@ class MarkdownHandler:
         with open(input_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Split content by code blocks and frontmatter
-        # Regex to capture:
-        # 1. Frontmatter (YAML style between ---)
-        # 2. Code blocks (between ```)
-        # 3. Inline code (between `) - actually inline code is harder to split,
-        #    usually we treat paragraphs as units.
-        #    For MVP, let's split by major code blocks.
-
-        # Strategy: Use a regex to find code blocks, then everything between them is text to translate.
-
         pattern = re.compile(r'(```[\s\S]*?```|---[\s\S]*?---|`[^`\n]+`)')
-
         parts = pattern.split(content)
-        translated_parts = []
 
-        total_parts = len(parts)
+        # Build the structure and collect texts to translate
+        # Each entry in structure is either:
+        #   ("keep", text) - kept as-is (special blocks, empty parts)
+        #   ("translate", part_idx, para_idx) - placeholder referencing texts_to_translate
+        structure = []
+        texts_to_translate = []
 
-        for i, part in enumerate(parts):
+        for part in parts:
             if not part:
                 continue
 
-            # Check if this part is a special block (code or frontmatter)
             is_special = (
                 part.startswith('```') or
                 part.startswith('---') or
@@ -49,29 +42,51 @@ class MarkdownHandler:
             )
 
             if is_special:
-                translated_parts.append(part)
+                structure.append(("keep", part))
             else:
-                # This is a text block. It might contain multiple paragraphs.
-                # We should translate it.
-                # Optimization: Split by newlines to avoid sending huge blobs?
-                # Or just send the whole chunk if it's not too big.
-                # For safety and formatting, let's split by double newlines (paragraphs)
-
                 paragraphs = part.split('\n\n')
-                translated_paragraphs = []
+                part_entries = []
                 for p in paragraphs:
                     if p.strip():
-                        # Determine if it's a header or list item, etc.
-                        # Gemini usually handles "Translate this Markdown text" well.
-                        translated_text = self.client.translate_text(p, self.target_lang)
-                        translated_paragraphs.append(translated_text)
+                        idx = len(texts_to_translate)
+                        texts_to_translate.append(p)
+                        part_entries.append(("translate", idx))
                     else:
-                        translated_paragraphs.append(p)
+                        part_entries.append(("keep", p))
+                structure.append(("paragraphs", part_entries))
 
-                translated_parts.append('\n\n'.join(translated_paragraphs))
+        # Batch translate all collected texts
+        if texts_to_translate:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TaskProgressColumn(),
+                console=console,
+                transient=True
+            ) as progress:
+                task = progress.add_task("[green]Translating...", total=len(texts_to_translate))
 
-            # Simple progress log (real progress bar handled in main)
-            # console.log(f"Processed part {i+1}/{total_parts}")
+                translated_texts = self.client.translate_texts(
+                    texts_to_translate, self.target_lang,
+                    on_complete=lambda: progress.advance(task)
+                )
+        else:
+            translated_texts = []
+
+        # Reassemble the document
+        translated_parts = []
+        for entry in structure:
+            if entry[0] == "keep":
+                translated_parts.append(entry[1])
+            elif entry[0] == "paragraphs":
+                para_results = []
+                for sub in entry[1]:
+                    if sub[0] == "translate":
+                        para_results.append(translated_texts[sub[1]])
+                    else:
+                        para_results.append(sub[1])
+                translated_parts.append('\n\n'.join(para_results))
 
         final_content = "".join(translated_parts)
 
