@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+firebase-debug.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
