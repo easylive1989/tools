@@ -18,7 +18,7 @@ fi
 
 osascript -e 'display notification "翻譯中..." with title "翻譯"'
 
-TRANSLATED=$(printf '%s' "$SELECTED_TEXT" | gemini -p "檢測輸入文字的語言並將其翻譯為繁體中文（繁體中文）。僅輸出翻譯內容。不做解釋、不加引號、不做額外格式。翻譯內容有可能是一個單字，也有可能是一個句子，你只要忠實翻譯就好。" 2>/dev/null)
+TRANSLATED=$(printf '%s' "$SELECTED_TEXT" | gemini -m gemini-2.0-flash -p "檢測輸入文字的語言並將其翻譯為繁體中文（繁體中文）。僅輸出翻譯內容。不做解釋、不加引號、不做額外格式。翻譯內容有可能是一個單字，也有可能是一個句子，你只要忠實翻譯就好。" 2>/dev/null)
 
 if [ -z "$TRANSLATED" ]; then
     osascript -e 'display notification "翻譯失敗" with title "翻譯"'
