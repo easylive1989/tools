@@ -1,0 +1,30 @@
+name: 0050 Price Notify
+
+on:
+  schedule:
+    # 10:00 UTC+8 = 02:00 UTC，週一至週五（台股交易日）
+    - cron: '0 2 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance requests
+
+      - name: Fetch 0050 price and notify Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python stock_price_notify.py 0050.TW
