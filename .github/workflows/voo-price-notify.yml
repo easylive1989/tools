@@ -1,0 +1,30 @@
+name: VOO Price Notify
+
+on:
+  schedule:
+    # 22:45 UTC+8 = 14:45 UTC，週一至週五（美股交易日後）
+    - cron: '45 14 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance requests
+
+      - name: Fetch VOO price and notify Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python stock_price_notify.py VOO
