@@ -10,19 +10,39 @@ import yfinance as yf
 
 def fetch_stock_price(ticker: str) -> dict:
     stock = yf.Ticker(ticker)
-    # fast_info is more reliable for current price
-    fast = stock.fast_info
-    current_price = fast.last_price
-    prev_close = fast.previous_close
-
-    if current_price is None or prev_close is None:
-        raise ValueError(f"Unable to fetch price for {ticker}")
+    
+    # 改用 history 獲取價格，這是目前 yfinance 最穩定的方式
+    hist = stock.history(period="5d")
+    if hist.empty:
+        raise ValueError(f"No history data found for {ticker}")
+    
+    latest_data = hist.iloc[-1]
+    current_price = latest_data['Close']
+    
+    # 獲取前一天的收盤價
+    if len(hist) >= 2:
+        prev_close = hist.iloc[-2]['Close']
+    else:
+        # 如果只有一天數據，嘗試使用 Open 作為基準（雖然不精準但可避免報錯）
+        prev_close = latest_data['Open']
 
     change = current_price - prev_close
-    change_pct = (change / prev_close) * 100
-    info = stock.info
-    currency = info.get("currency", "")
-    name = info.get("shortName") or info.get("longName") or ticker
+    change_pct = (change / prev_close) * 100 if prev_close != 0 else 0
+    
+    # 針對 .info 加上保護，因為 00679B.TW 這類 ETF 容易觸發 'currentTradingPeriod' KeyError
+    name = ticker
+    currency = ""
+    try:
+        info = stock.info
+        name = info.get("shortName") or info.get("longName") or ticker
+        currency = info.get("currency", "")
+    except Exception as e:
+        print(f"Warning: Could not fetch metadata for {ticker} via .info: {e}")
+        # 如果失敗，嘗試從 history metadata 獲取一些資訊
+        try:
+            currency = stock.history_metadata.get('currency', '')
+        except:
+            pass
 
     return {
         "ticker": ticker,
