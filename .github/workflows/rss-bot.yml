@@ -1,0 +1,39 @@
+name: RSS Daily Patrol
+
+on:
+  schedule:
+    # 每天 UTC 時間 0 點執行（台灣時間早上 8 點）
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允許手動點擊按鈕執行，方便測試
+
+permissions:
+  contents: write # 允許 Action 將更新後的 history.json 寫回儲存庫
+
+jobs:
+  run-rss-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install feedparser requests
+
+      - name: Run RSS script
+        env:
+          DISCORD_RSS_WEBHOOK_URL: ${{ secrets.DISCORD_RSS_WEBHOOK_URL }}
+        run: python rss/main.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add rss/history.json
+          # 如果檔案有變動才 commit
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update RSS history"
+          git push

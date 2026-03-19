@@ -1,15 +1,14 @@
-name: 0050 Price Notify
+name: TW Stocks Price Notify
 
 on:
   schedule:
-    # 10:00 UTC+8 = 02:00 UTC，週一至週五（台股交易日）
-    - cron: '0 2 * * 1-5'
+    # 14:00 UTC+8 (收盤後) = 06:00 UTC，週一至週五
+    - cron: '0 6 * * 1-5'
   workflow_dispatch:
 
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,8 +22,8 @@ jobs:
         run: |
           pip install yfinance requests
 
-      - name: Fetch 0050 price and notify Discord
+      - name: Fetch TW stock prices and notify Discord
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_STOCK_WEBHOOK_URL: ${{ secrets.DISCORD_STOCK_WEBHOOK_URL }}
         run: |
-          python stock_price_notify.py 0050.TW
+          python stock/stock_notify.py --list stock/tw_stock_list.txt

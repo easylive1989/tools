@@ -1,0 +1,3 @@
+# 每行放置一個 RSS 或 Atom 網址
+https://blog.huli.tw/atom-ch.xml
+https://simonwillison.net/atom/everything/
