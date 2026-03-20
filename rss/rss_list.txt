@@ -1,3 +1,17 @@
 # 每行放置一個 RSS 或 Atom 網址
 https://blog.huli.tw/atom-ch.xml
 https://simonwillison.net/atom/everything/
+https://feeds.feedburner.com/ruanyifeng
+https://tidyfirst.substack.com/feed
+https://blog.flutter.dev/feed
+https://widgettricks.substack.com/feed
+https://medium.com/feed/flutter-community
+https://www.youtube.com/feeds/videos.xml?channel_id=UCwXdFgeE9KYzlDdR7TG9cMw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCXLV-KfDQAFUJ_as9H1Lfbw
+https://www.youtube.com/feeds/videos.xml?channel_id=UCNUzIz3TsiHSbgn_66kLIww
+https://antirez.com/rss
+https://gipi.tw/rss
+https://medium.com/feed/@mhadaily
+https://martinfowler.com/feed.atom
+https://newsletter.eng-leadership.com/feed
+https://newsletter.pragmaticengineer.com/feed
