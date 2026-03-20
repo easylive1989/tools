@@ -1,4 +1,46 @@
 {
-  "https://blog.huli.tw/atom-ch.xml": [],
-  "https://simonwillison.net/atom/everything/": []
+  "https://blog.huli.tw/atom-ch.xml": [
+    "https://blog.huli.tw/2026/03/19/coupang-insider-kms-and-jwt/",
+    "https://blog.huli.tw/2026/03/01/reverse-engineering-with-ai-ghidra-mcp/",
+    "https://blog.huli.tw/2025/11/16/learn-advanced-javascript-from-react/",
+    "https://blog.huli.tw/2025/09/27/chrome-built-in-prompt-api/",
+    "https://blog.huli.tw/2025/09/15/xss-without-semicolon-and-parentheses/",
+    "https://blog.huli.tw/2025/04/23/everyone-need-a-http-proxy-to-debug/",
+    "https://blog.huli.tw/2025/03/16/vscode-material-theme-is-not-a-malware/",
+    "https://blog.huli.tw/2025/01/06/navigator-sendbeacon-64kib-and-source-code/",
+    "https://blog.huli.tw/2024/09/23/hitconctf-corctf-sekaictf-2024-writeup/",
+    "https://blog.huli.tw/2024/09/07/idek-ctf-2024-iframe/"
+  ],
+  "https://simonwillison.net/atom/everything/": [
+    "https://simonwillison.net/2026/Mar/19/openai-acquiring-astral/#atom-everything",
+    "https://simonwillison.net/2026/Mar/18/llm-in-a-flash/#atom-everything",
+    "https://simonwillison.net/2026/Mar/18/snowflake-cortex-ai/#atom-everything",
+    "https://simonwillison.net/2026/Mar/17/ken-jin/#atom-everything",
+    "https://simonwillison.net/2026/Mar/17/mini-and-nano/#atom-everything",
+    "https://simonwillison.net/2026/Mar/17/tim-schilling/#atom-everything",
+    "https://simonwillison.net/guides/agentic-engineering-patterns/subagents/#atom-everything",
+    "https://simonwillison.net/2026/Mar/16/mistral-small-4/#atom-everything",
+    "https://simonwillison.net/2026/Mar/16/codex-subagents/#atom-everything",
+    "https://simonwillison.net/2026/Mar/16/blackmail/#atom-everything",
+    "https://simonwillison.net/2026/Mar/16/guilherme-rambo/#atom-everything",
+    "https://simonwillison.net/2026/Mar/16/coding-agents-for-data-analysis/#atom-everything",
+    "https://simonwillison.net/guides/agentic-engineering-patterns/how-coding-agents-work/#atom-everything",
+    "https://simonwillison.net/guides/agentic-engineering-patterns/what-is-agentic-engineering/#atom-everything",
+    "https://simonwillison.net/2026/Mar/14/jannis-leidel/#atom-everything",
+    "https://simonwillison.net/2026/Mar/14/pragmatic-summit/#atom-everything",
+    "https://simonwillison.net/2026/Mar/13/1m-context/#atom-everything",
+    "https://simonwillison.net/2026/Mar/13/craig-mod/#atom-everything",
+    "https://simonwillison.net/2026/Mar/13/liquid/#atom-everything",
+    "https://simonwillison.net/2026/Mar/12/malus/#atom-everything",
+    "https://simonwillison.net/2026/Mar/12/coding-after-coders/#atom-everything",
+    "https://simonwillison.net/2026/Mar/12/les-orchard/#atom-everything",
+    "https://simonwillison.net/2026/Mar/11/sorting-algorithms/#atom-everything",
+    "https://simonwillison.net/2026/Mar/11/john-carmack/#atom-everything",
+    "https://simonwillison.net/guides/agentic-engineering-patterns/better-code/#atom-everything",
+    "https://simonwillison.net/2026/Mar/9/production-query-plans-without-production-data/#atom-everything",
+    "https://simonwillison.net/2026/Mar/9/not-so-boring/#atom-everything",
+    "https://simonwillison.net/2026/Mar/8/joseph-weizenbaum/#atom-everything",
+    "https://simonwillison.net/2026/Mar/7/codex-for-open-source/#atom-everything",
+    "https://simonwillison.net/2026/Mar/6/ally-piechowski/#atom-everything"
+  ]
 }
