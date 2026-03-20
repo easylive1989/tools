@@ -3,7 +3,7 @@ name: Deploy Web-Tools to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'web-tools/**'
   workflow_dispatch:
