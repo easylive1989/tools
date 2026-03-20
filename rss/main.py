@@ -42,7 +42,7 @@ def send_to_discord(title, link, site_name):
     }
     
     try:
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        response = requests.post(DISCORD_RSS_WEBHOOK_URL, json=payload)
         response.raise_for_status()
         return True
     except Exception as e:
