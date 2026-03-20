@@ -2,8 +2,8 @@ name: US Stocks Price Notify
 
 on:
   schedule:
-    # 05:00 UTC+8 (收盤後) = 21:00 UTC，週二至週六
-    - cron: '0 21 * * 1-5'
+    # 23:00 UTC+8 = 15:00 UTC，週一至週五
+    - cron: '0 15 * * 1-5'
   workflow_dispatch:
 
 jobs:

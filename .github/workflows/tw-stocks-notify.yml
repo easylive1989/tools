@@ -2,8 +2,8 @@ name: TW Stocks Price Notify
 
 on:
   schedule:
-    # 14:00 UTC+8 (收盤後) = 06:00 UTC，週一至週五
-    - cron: '0 6 * * 1-5'
+    # 11:00 UTC+8 = 03:00 UTC，週一至週五
+    - cron: '0 3 * * 1-5'
   workflow_dispatch:
 
 jobs:
