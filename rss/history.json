@@ -101,6 +101,7 @@
     "yt:video:egZjhWNqrXc"
   ],
   "https://www.youtube.com/feeds/videos.xml?channel_id=UCXLV-KfDQAFUJ_as9H1Lfbw": [
+    "yt:video:F4t1h0izsTA",
     "yt:video:pHF7s-oOTx0",
     "yt:video:Q_yROwbr8z0",
     "yt:video:LKU2neZg8-s",
@@ -297,5 +298,40 @@
   ],
   "https://www.youtube.com/feeds/videos.xml?channel_id=UChhw6DlKKTQ9mYSpTfXUYqA": [
     "yt:video:4KfFB-dh71Y"
-  ]
+  ],
+  "https://ainews.liduos.com/rss.xml": [
+    "https://ainews.liduos.com/post/2026-03-20",
+    "https://ainews.liduos.com/post/2026-03-19",
+    "https://ainews.liduos.com/post/2026-03-18"
+  ],
+  "https://s.baoyu.io/feed.xml": [
+    "https://baoyu.io/blog/ai-learning-priority-quadrant",
+    "https://baoyu.io/blog/gumloop-max-interview"
+  ],
+  "https://matt.might.net/articles/feed.rss": [],
+  "https://blog.mzh.ren/zh/index.xml": [],
+  "https://blog.brachiosoft.com/index.xml": [],
+  "https://www.freecodecamp.org/news/rss/": [
+    "69bd2ff0edfa9acbe3847525",
+    "69bc51d6b238fd45a32f1cb0",
+    "69bc3c86b238fd45a32512ba",
+    "69bc38cfb238fd45a3231433",
+    "69bc348fb238fd45a320a2f7",
+    "69bc3429b238fd45a3206764",
+    "69bc3254b238fd45a31f6959",
+    "69bc31b3b238fd45a31f1291",
+    "69bb2fa98c55d6eefb6ce907",
+    "69bb2e078c55d6eefb6c2e8d"
+  ],
+  "https://blog.bytebytego.com/feed": [
+    "https://blog.bytebytego.com/p/event-sourcing-explained-benefits",
+    "https://blog.bytebytego.com/p/how-openai-codex-works"
+  ],
+  "https://android-developers.googleblog.com/": [],
+  "https://blog.codinghorror.com/rss/": [],
+  "https://www.ftium4.com/rss.xml": [
+    "https://www.ftium4.com/Google-Stitch-new-features-5-trends-in-AI-design-UI-in-advance.html"
+  ],
+  "https://www.ezindie.com/feed/rss.xml": [],
+  "https://hellogithub.com/rss": []
 }

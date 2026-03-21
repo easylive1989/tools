@@ -7,6 +7,7 @@ import requests
 import cloudscraper
 from datetime import datetime, timezone
 from markdownify import markdownify as md
+from readability import Document
 
 # 設定檔案路徑
 RSS_LIST_FILE = "rss/rss_list.txt"
@@ -107,10 +108,21 @@ def main():
                 html_content = ""
                 if "content" in entry:
                     html_content = entry.content[0].value
-                elif "summary" in entry:
-                    html_content = entry.summary
                 else:
-                    html_content = entry.get("description", "")
+                    try:
+                        print(f"Fetching original page for full content: {link}")
+                        article_res = scraper.get(link, timeout=15)
+                        article_res.raise_for_status()
+                        doc = Document(article_res.text)
+                        html_content = doc.summary()
+                        if not html_content or len(html_content) < 50:
+                            raise ValueError("Extracted content too short")
+                    except Exception as e:
+                        print(f"Fallback fetch failed ({e}), using summary instead.")
+                        if "summary" in entry:
+                            html_content = entry.summary
+                        else:
+                            html_content = entry.get("description", "")
                 
                 # 轉換為 Markdown
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
