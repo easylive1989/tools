@@ -59,7 +59,16 @@ def main():
 
     for url in rss_urls:
         print(f"Processing: {url}")
-        feed = feedparser.parse(url)
+        try:
+            # 加入 User-Agent，避免被 Substack 等平台阻擋
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"}
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            feed = feedparser.parse(response.content)
+        except Exception as e:
+            print(f"Error fetching {url}: {e}")
+            continue
+
         site_name = feed.feed.get("title", url)
         
         # 確保該 URL 在 history 中有對應的 list
