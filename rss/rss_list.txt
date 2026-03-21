@@ -47,3 +47,12 @@ https://newsletter.eng-leadership.com/feed
 
 # The Pragmatic Engineer
 https://newsletter.pragmaticengineer.com/feed
+
+# Continuous Delivery
+https://www.youtube.com/feeds/videos.xml?channel_id=UCCfqyGl3nq_V0bo64CjZh8g
+
+# Starter Story
+https://www.youtube.com/feeds/videos.xml?channel_id=UChhw6DlKKTQ9mYSpTfXUYqA
+
+# Android Developer Blog
+https://android-developers.googleblog.com/

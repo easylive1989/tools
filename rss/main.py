@@ -116,6 +116,22 @@ def main():
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
                 pub_date = entry.get("published", entry.get("updated", ""))
                 
+                # 如果是 YouTube 的文章，補上 iframe
+                if "youtube.com/watch" in link or "youtu.be/" in link:
+                    from urllib.parse import urlparse, parse_qs
+                    parsed_link = urlparse(link)
+                    video_id = ""
+                    if "youtube.com" in link:
+                        qs = parse_qs(parsed_link.query)
+                        if "v" in qs:
+                            video_id = qs["v"][0]
+                    elif "youtu.be" in link:
+                        video_id = parsed_link.path.strip("/")
+                        
+                    if video_id:
+                        iframe = f'<iframe width="560" height="315" src="https://www.youtube.com/embed/{video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n\n'
+                        md_text = iframe + md_text
+                
                 # 準備存檔至 Obsidian
                 safe_title = sanitize_filename(title)
                 safe_site = sanitize_filename(site_name)
