@@ -1,17 +1,49 @@
 # 每行放置一個 RSS 或 Atom 網址
+
+# Huli's blog
 https://blog.huli.tw/atom-ch.xml
+
+# Simon Willison's Weblog
 https://simonwillison.net/atom/everything/
+
+# 阮一峰的网络日志
 https://feeds.feedburner.com/ruanyifeng
+
+# Software Design: Tidy First?
 https://tidyfirst.substack.com/feed
+
+# Flutter - Medium
 https://blog.flutter.dev/feed
+
+# Widget Tricks
 https://widgettricks.substack.com/feed
+
+# Flutter Community - Medium
 https://medium.com/feed/flutter-community
+
+# Flutter
 https://www.youtube.com/feeds/videos.xml?channel_id=UCwXdFgeE9KYzlDdR7TG9cMw
+
+# IT咖啡馆
 https://www.youtube.com/feeds/videos.xml?channel_id=UCXLV-KfDQAFUJ_as9H1Lfbw
+
+# Flutter Community
 https://www.youtube.com/feeds/videos.xml?channel_id=UCNUzIz3TsiHSbgn_66kLIww
+
+# <antirez>
 https://antirez.com/rss
+
+# 游舒帆Gipi 的學習筆記
 https://gipi.tw/rss
+
+# Stories by Majid Hajian on Medium
 https://medium.com/feed/@mhadaily
+
+# Martin Fowler
 https://martinfowler.com/feed.atom
+
+# Engineering Leadership
 https://newsletter.eng-leadership.com/feed
+
+# The Pragmatic Engineer
 https://newsletter.pragmaticengineer.com/feed
