@@ -11,8 +11,6 @@ https://s.baoyu.io/feed.xml
 
 
 # 個人部落格
-# Huli's blog
-https://blog.huli.tw/atom-ch.xml
 
 # Simon Willison's Weblog
 https://simonwillison.net/atom/everything/
@@ -38,6 +36,8 @@ https://blog.mzh.ren/zh/index.xml
 # 軟體考古學家
 https://blog.brachiosoft.com/index.xml
 
+# 黑暗執行緒
+https://blog.darkthread.net/feed/rss/
 
 # 技術部落格
 # Flutter - Medium

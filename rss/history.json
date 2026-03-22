@@ -12,6 +12,8 @@
     "https://blog.huli.tw/2024/09/07/idek-ctf-2024-iframe/"
   ],
   "https://simonwillison.net/atom/everything/": [
+    "https://simonwillison.net/2026/Mar/21/profiling-hacker-news-users/#atom-everything",
+    "https://simonwillison.net/guides/agentic-engineering-patterns/using-git-with-coding-agents/#atom-everything",
     "https://simonwillison.net/2026/Mar/20/turbo-pascal/#atom-everything",
     "https://simonwillison.net/2026/Mar/20/cursor-on-kimi/#atom-everything",
     "https://simonwillison.net/2026/Mar/19/openai-acquiring-astral/#atom-everything",
@@ -46,6 +48,7 @@
     "https://simonwillison.net/2026/Mar/6/ally-piechowski/#atom-everything"
   ],
   "https://feeds.feedburner.com/ruanyifeng": [
+    "http://www.ruanyifeng.com/blog/2026/03/kimi-cursor.html",
     "http://www.ruanyifeng.com/blog/2026/03/weekly-issue-389.html",
     "http://www.ruanyifeng.com/blog/2026/03/weekly-issue-388.html",
     "http://www.ruanyifeng.com/blog/2026/03/arkclaw.html",
@@ -72,6 +75,7 @@
     "https://widgettricks.substack.com/p/newsletter-55"
   ],
   "https://medium.com/feed/flutter-community": [
+    "https://medium.com/p/045afd0fa493",
     "https://medium.com/p/9936ec135589",
     "https://medium.com/p/dda983826f5e",
     "https://medium.com/p/2ef9262ed962",
@@ -324,6 +328,7 @@
     "69bb2e078c55d6eefb6c2e8d"
   ],
   "https://blog.bytebytego.com/feed": [
+    "https://blog.bytebytego.com/p/ep207-top-12-github-ai-repositories",
     "https://blog.bytebytego.com/p/event-sourcing-explained-benefits",
     "https://blog.bytebytego.com/p/how-openai-codex-works"
   ],

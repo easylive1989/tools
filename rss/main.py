@@ -1,7 +1,23 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "cloudscraper",
+#     "feedparser",
+#     "markdownify",
+#     "readability-lxml",
+#     "requests",
+# ]
+# ///
+
 import os
 import json
 import re
 import time
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning, module='requests')
+warnings.filterwarnings("ignore", message=".*doesn't match a supported version.*")
+
 import feedparser
 import requests
 import cloudscraper
@@ -10,8 +26,9 @@ from markdownify import markdownify as md
 from readability import Document
 
 # 設定檔案路徑
-RSS_LIST_FILE = "rss/rss_list.txt"
-HISTORY_FILE = "rss/history.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.txt")
+HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MAX_HISTORY_PER_FEED = 50
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
 
