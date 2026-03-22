@@ -27,7 +27,7 @@ class GeminiClient:
         if self.use_cli:
             # CLI mode: no API key needed
             self.model_map = {
-                "flash": "gemini-2.0-flash",
+                "flash": "gemini-2.5-flash",
                 "pro": "gemini-2.5-pro"
             }
             return
@@ -40,7 +40,7 @@ class GeminiClient:
         genai.configure(api_key=api_key)
 
         self.model_map = {
-            "flash": "gemini-2.0-flash",
+            "flash": "gemini-2.5-flash",
             "pro": "gemini-2.5-pro"
         }
 
