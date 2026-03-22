@@ -133,6 +133,11 @@ def main():
                         print(f"Fetching original page for full content: {link}")
                         article_res = scraper.get(link, timeout=15)
                         article_res.raise_for_status()
+                        
+                        # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
+                        if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
+                            article_res.encoding = article_res.apparent_encoding or 'utf-8'
+                            
                         doc = Document(article_res.text)
                         html_content = doc.summary()
                         if not html_content or len(html_content) < 50:
