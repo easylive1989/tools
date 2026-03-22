@@ -338,5 +338,10 @@
     "https://www.ftium4.com/Google-Stitch-new-features-5-trends-in-AI-design-UI-in-advance.html"
   ],
   "https://www.ezindie.com/feed/rss.xml": [],
-  "https://hellogithub.com/rss": []
+  "https://hellogithub.com/rss": [],
+  "https://blog.darkthread.net/feed/rss/": [
+    "https://blog.darkthread.net/blog/how-ai-impact-skill-formation/",
+    "https://blog.darkthread.net/blog/speed-up-local-nuget-source/",
+    "https://blog.darkthread.net/blog/httpclient-streaming-w-progress/"
+  ]
 }

@@ -27,6 +27,7 @@ from readability import Document
 
 # 設定檔案路徑
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.txt")
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MAX_HISTORY_PER_FEED = 50
@@ -81,6 +82,8 @@ def main():
     if not rss_urls:
         print("No RSS URLs found.")
         return
+
+    total_new_entries = 0
 
     for url in rss_urls:
         print(f"Processing: {url}")
@@ -182,6 +185,7 @@ def main():
                     print(f"Error writing markdown {filepath}: {e}")
                 
                 new_entries.append(entry_id)
+                total_new_entries += 1
                 # 避免頻率限制
                 time.sleep(2)
         

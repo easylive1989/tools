@@ -10,7 +10,7 @@ UV_PATH="/Users/paulwu/.local/bin/uv"
 MARKER="RSS_AUTO_UPDATE_JOB"
 
 # crontab 指令內容：每小時 (0 * * * *) 執行一次，並將錯誤及標準輸出寫進 cron.log
-CRON_CMD="0 * * * * cd \"$DIR\" && $UV_PATH run main.py >> \"$DIR/cron.log\" 2>&1 # $MARKER"
+CRON_CMD="0 * * * * cd \"$DIR\" && $UV_PATH run rss.py >> \"$DIR/cron.log\" 2>&1 # $MARKER"
 
 # 檢查是否已經存在我們建立的排程
 if crontab -l 2>/dev/null | grep -q "$MARKER"; then
