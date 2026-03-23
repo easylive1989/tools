@@ -48,9 +48,9 @@ class MarkdownBilingualHandler:
 
         # Build structure:
         #   ("keep", text)           — code blocks, frontmatter, images, links, empty
-        #   ("translate", index)     — text paragraph referencing texts_to_translate
+        #   ("translate", text)      — text paragraph to translate
         structure = []
-        texts_to_translate = []
+        total_to_translate = 0
 
         for part in parts:
             if not part:
@@ -71,13 +71,12 @@ class MarkdownBilingualHandler:
                     if self._should_skip(p):
                         para_entries.append(("keep", p))
                     else:
-                        idx = len(texts_to_translate)
-                        texts_to_translate.append(p)
-                        para_entries.append(("translate", idx))
+                        total_to_translate += 1
+                        para_entries.append(("translate", p))
                 structure.append(("paragraphs", para_entries))
 
-        # Batch translate
-        if texts_to_translate:
+        # Incrementally translate and write to file
+        with open(output_path, 'w', encoding='utf-8') as out_f:
             with Progress(
                 SpinnerColumn(),
                 TextColumn("[progress.description]{task.description}"),
@@ -86,35 +85,40 @@ class MarkdownBilingualHandler:
                 console=console,
                 transient=True
             ) as progress:
-                task = progress.add_task("[green]Translating...", total=len(texts_to_translate))
-
-                translated_texts = self.client.translate_texts(
-                    texts_to_translate, self.target_lang,
-                    on_complete=lambda: progress.advance(task)
+                task = progress.add_task(
+                    "[green]Translating...", total=max(total_to_translate, 1)
                 )
-        else:
-            translated_texts = []
 
-        # Reassemble: for translated paragraphs, place translation below original
-        output_parts = []
-        for entry in structure:
-            if entry[0] == "keep":
-                output_parts.append(entry[1])
-            elif entry[0] == "paragraphs":
-                para_results = []
-                for sub in entry[1]:
-                    if sub[0] == "translate":
-                        original = texts_to_translate[sub[1]]
-                        translated = translated_texts[sub[1]]
-                        # Original paragraph followed by translation
-                        para_results.append(f"{original}\n\n{translated}")
-                    else:
-                        para_results.append(sub[1])
-                output_parts.append('\n\n'.join(para_results))
+                first_block = True
+                for entry in structure:
+                    if not first_block:
+                        # structure blocks were produced by regex split,
+                        # joining them back without separator preserves original content
+                        pass
+                    first_block = False
 
-        final_content = "".join(output_parts)
+                    if entry[0] == "keep":
+                        out_f.write(entry[1])
+                        out_f.flush()
+                    elif entry[0] == "paragraphs":
+                        first_para = True
+                        for sub in entry[1]:
+                            if not first_para:
+                                out_f.write('\n\n')
+                            first_para = False
 
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(final_content)
+                            if sub[0] == "translate":
+                                original = sub[1]
+                                preview = original.replace('\n', ' ')[:60]
+                                console.print(f"[dim]Translating: {preview}...[/dim]")
+                                translated = self.client.translate_text(
+                                    original, self.target_lang
+                                )
+                                out_f.write(f"{original}\n\n{translated}")
+                                out_f.flush()
+                                progress.advance(task)
+                            else:
+                                out_f.write(sub[1])
+                                out_f.flush()
 
         return output_path

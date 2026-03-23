@@ -69,9 +69,7 @@ class TestHandlers(unittest.TestCase):
 class TestMarkdownBilingualHandler(unittest.TestCase):
     def setUp(self):
         self.mock_client = MagicMock(spec=GeminiClient)
-        self.mock_client.translate_texts.side_effect = lambda texts, lang, **kwargs: [
-            f"[TR:{lang}] {t}" for t in texts
-        ]
+        self.mock_client.translate_text.side_effect = lambda text, lang: f"[TR:{lang}] {text}"
         self.target_lang = "Traditional Chinese"
         self.test_files = []
 
