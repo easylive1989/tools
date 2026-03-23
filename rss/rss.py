@@ -29,23 +29,24 @@ from readability import Document
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.txt")
-HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
-MAX_HISTORY_PER_FEED = 50
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
+HISTORY_FILE = os.path.join(OBSIDIAN_DIR, "history.json")
+MAX_HISTORY_PER_FEED = 50
 
-# 基準日期：只抓取此日期(包含)之後的文章
+# 基準日期：第一次 sync 或 last_sync 不存在時的 fallback
 FILTER_DATE = datetime(2026, 3, 18, tzinfo=timezone.utc)
 
 def sanitize_filename(name):
     # 去除不能作為檔名的非法字元
     return re.sub(r'[\\/:*?"<>|]', '_', name)
 
-def is_new_enough(entry):
+def is_new_enough(entry, cutoff_date):
+    """判斷文章是否在 cutoff_date 之後發布。"""
     parsed_time = entry.get("published_parsed") or entry.get("updated_parsed")
     if parsed_time:
         try:
             entry_date = datetime(*parsed_time[:6], tzinfo=timezone.utc)
-            return entry_date >= FILTER_DATE
+            return entry_date >= cutoff_date
         except Exception:
             pass
     # 若文章完全沒有提供時間資訊，預設放行
@@ -64,9 +65,18 @@ def load_history():
         return {}
     try:
         with open(HISTORY_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
     except (json.JSONDecodeError, FileNotFoundError):
         return {}
+
+    # 自動遷移舊格式：{ url: [id_list] } → { url: { "entries": [id_list], "last_sync": null } }
+    migrated = {}
+    for url, value in data.items():
+        if isinstance(value, list):
+            migrated[url] = {"entries": value, "last_sync": None}
+        else:
+            migrated[url] = value
+    return migrated
 
 def save_history(history):
     with open(HISTORY_FILE, "w", encoding="utf-8") as f:
@@ -105,18 +115,27 @@ def main():
 
         site_name = feed.feed.get("title", url)
         
-        # 確保該 URL 在 history 中有對應的 list
+        # 確保該 URL 在 history 中有對應的結構
         if url not in history:
-            history[url] = []
-            
+            history[url] = {"entries": [], "last_sync": None}
+
+        feed_history = history[url]
+        # 決定 cutoff 日期：優先使用 last_sync，否則用全域 FILTER_DATE
+        cutoff_date = FILTER_DATE
+        if feed_history.get("last_sync"):
+            try:
+                cutoff_date = datetime.fromisoformat(feed_history["last_sync"])
+            except (ValueError, TypeError):
+                pass
+
         new_entries = []
         for entry in feed.entries:
             # 優先順序：Atom 的 id > RSS 的 guid > 直接使用 link
             entry_id = entry.get("id", entry.get("guid", entry.get("link")))
             
-            if entry_id not in history[url]:
+            if entry_id not in feed_history["entries"]:
                 # 這是新文章！
-                if not is_new_enough(entry):
+                if not is_new_enough(entry, cutoff_date):
                     continue
 
                 title = entry.get("title", "No Title")
@@ -197,9 +216,12 @@ def main():
         # 更新歷史紀錄並清理
         if new_entries:
             # 將新紀錄加到最前面
-            history[url] = new_entries + history[url]
+            feed_history["entries"] = new_entries + feed_history["entries"]
             # 只保留最新的 MAX_HISTORY_PER_FEED 筆
-            history[url] = history[url][:MAX_HISTORY_PER_FEED]
+            feed_history["entries"] = feed_history["entries"][:MAX_HISTORY_PER_FEED]
+
+        # 每次 sync 都更新 last_sync 時間
+        feed_history["last_sync"] = datetime.now(timezone.utc).isoformat()
             
     save_history(history)
     print("Done.")
