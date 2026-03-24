@@ -70,7 +70,8 @@ https://android-developers.googleblog.com/
 # Coding Horror
 https://blog.codinghorror.com/rss/
 
-
+# Emily Bache
+https://coding-is-like-cooking.info/feed/
 
 
 # 技術週刊
