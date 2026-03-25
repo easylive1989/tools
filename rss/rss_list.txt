@@ -65,7 +65,7 @@ https://blog.bytebytego.com/feed
 https://martinfowler.com/feed.atom
 
 # Android Developer Blog
-https://android-developers.googleblog.com/
+https://android-developers.googleblog.com/atom.xml
 
 # Coding Horror
 https://blog.codinghorror.com/rss/
