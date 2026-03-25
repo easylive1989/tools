@@ -16,4 +16,4 @@
 # 啟動 Gemini 隨身翻譯 GUI
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-python3 "$SCRIPT_DIR/translator.py" &
+uv run --python "$(which python3)" "$SCRIPT_DIR/translator.py" &
