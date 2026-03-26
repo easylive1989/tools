@@ -121,6 +121,10 @@ text_in = tk.Text(
 text_in.pack(fill="both", expand=True)
 text_in.focus_set()
 text_in.bind("<Command-Return>", on_cmd_enter)
+
+initial_text = os.environ.get("TRANSLATOR_INITIAL_TEXT", "").strip()
+if initial_text:
+    text_in.insert("1.0", initial_text)
 text_in.bind("<Control-Return>", on_cmd_enter)
 root.bind("<Escape>", lambda e: root.destroy())
 
