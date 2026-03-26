@@ -90,9 +90,9 @@ def create_tab(source_text: str) -> int:
         "close": close_btn,
     })
 
-    # 顯示 Tab 列（第一次）
+    # 顯示 Tab 列（第一次），確保在輸出區上方
     if not frame_tabs.winfo_ismapped():
-        frame_tabs.pack(fill="x", pady=(0, 2))
+        frame_tabs.pack(fill="x", pady=(0, 2), before=frame_out)
 
     switch_tab(tid)
     return tid
@@ -158,6 +158,7 @@ def translate_text():
         return
 
     tab_id = create_tab(input_text)
+    text_in.delete("1.0", tk.END)
 
     def run():
         result = _do_translate(input_text)
@@ -224,6 +225,7 @@ text_in.bind("<Control-Return>", on_cmd_enter)
 initial_text = os.environ.get("TRANSLATOR_INITIAL_TEXT", "").strip()
 if initial_text:
     text_in.insert("1.0", initial_text)
+    root.after(100, translate_text)
 
 root.bind("<Escape>", lambda e: root.destroy())
 
@@ -244,6 +246,13 @@ tk.Button(
     bg="#e5e5ea", fg="#1d1d1f", activebackground="#d1d1d6",
     relief="flat", padx=12, pady=6, cursor="hand2", command=clear_all,
 ).pack(side="left", padx=(8, 0))
+
+tk.Button(
+    frame_btns, text="📝 Apple Notes", font=FONT_BTN,
+    bg="#e5e5ea", fg="#1d1d1f", activebackground="#d1d1d6",
+    relief="flat", padx=12, pady=6, cursor="hand2",
+    command=lambda: subprocess.Popen(["open", "-a", "Notes"]),
+).pack(side="right")
 
 # 輸出區（Tab 列 + 文字匡）
 frame_out_wrapper = tk.Frame(root, bg=C_BG)
