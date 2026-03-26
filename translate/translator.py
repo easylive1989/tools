@@ -131,6 +131,7 @@ frame_btns.pack(fill="x", pady=4)
 btn_translate = tk.Button(
     frame_btns, text="翻譯  ⌘↩", font=FONT_BTN,
     bg=C_BTN, fg=C_BTN_FG, activebackground="#005bbf",
+    disabledforeground="#a0a0a0",
     relief="flat", padx=16, pady=6, cursor="hand2", command=translate_text,
 )
 btn_translate.pack(side="left")
