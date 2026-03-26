@@ -1,2 +1,2 @@
 source ~/Dropbox/ideavimrc
-nmap zso :source /Users/paulwu/.ideavimrc<CR>
+nmap zso :source $HOME/.ideavimrc<CR>
