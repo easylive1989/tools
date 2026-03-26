@@ -1,87 +1,48 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pexpect"]
+# dependencies = []
 # ///
 """
 Gemini 隨身翻譯 GUI
-- 啟動時開啟單一 gemini CLI process（pexpect）
-- 後續翻譯只透過 stdin/stdout 傳訊，不重啟 process
+- 每次翻譯呼叫 gemini -p（非互動模式），乾淨無 TUI 干擾
 - ⌘↩ 翻譯，Esc 關閉
 """
 
 import tkinter as tk
 import threading
+import subprocess
 import os
 import re
 
 os.environ["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + os.environ.get("PATH", "")
 
-# 用兩個哨兵標記翻譯結果的頭尾，避免被 echo 或 prompt 干擾
-_BEGIN = "XXTRANSBEGINXX"
-_END   = "XXTRANSENDXX"
-
-_INIT_MSG = (
+_ANSI_RE = re.compile(r'\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r')
+_SYSTEM_PROMPT = (
     "你是翻譯工具。規則：若輸入為中文翻譯成英文，否則翻譯成繁體中文。"
     "僅輸出翻譯結果，不加解釋、引號或其他格式。"
-    f"每次翻譯前輸出 {_BEGIN}，完成後輸出 {_END}。"
-    f"請確認並回覆：{_BEGIN}已準備就緒{_END}"
 )
 
-_ANSI_RE = re.compile(r'\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r')
 
-
-def _strip(s: str) -> str:
-    return _ANSI_RE.sub('', s).strip()
-
-
-# ── 持久 Gemini Session ──────────────────────────────────────
-class _GeminiSession:
-    """整個 app 生命週期只建立一次的 gemini CLI session。"""
-
-    def __init__(self):
-        self._child = None
-        self._lock  = threading.Lock()
-        self._ready = threading.Event()
-        self._error: str | None = None
-        threading.Thread(target=self._init, daemon=True).start()
-
-    def _init(self):
-        try:
-            import pexpect
-            self._child = pexpect.spawn(
-                "gemini", encoding="utf-8", timeout=60, env=os.environ.copy()
-            )
-            self._child.sendline(_INIT_MSG)
-            self._child.expect(_END, timeout=30)
-        except ImportError:
-            self._error = "找不到 pexpect，請執行：pip3 install pexpect"
-        except Exception as e:
-            self._error = str(e)
-        finally:
-            self._ready.set()
-
-    def translate(self, text: str, timeout: int = 30) -> str:
-        """送出文字並等待翻譯結果（在背景 thread 呼叫）。"""
-        if not self._ready.wait(timeout=35):
-            return "錯誤：Gemini 初始化超時"
-        if self._error:
-            return f"錯誤：{self._error}"
-
-        with self._lock:
-            try:
-                import pexpect
-                self._child.sendline(text)
-                self._child.expect(_BEGIN, timeout=timeout)
-                self._child.expect(_END,   timeout=timeout)
-                return _strip(self._child.before or "")
-            except Exception as e:
-                import pexpect as _px
-                return "錯誤：翻譯超時" if isinstance(e, _px.TIMEOUT) else f"錯誤：{e}"
-
-
-# 程式啟動時立即開始初始化（背景進行，不阻塞 UI）
-_session = _GeminiSession()
+def _do_translate(text: str, timeout: int = 60) -> str:
+    prompt = f"{_SYSTEM_PROMPT}\n\n翻譯：{text}"
+    try:
+        result = subprocess.run(
+            ["gemini", "-m", "gemini-2.5-flash", "-p", prompt],
+            capture_output=True, text=True, timeout=timeout,
+            env=os.environ.copy(),
+        )
+        output = _ANSI_RE.sub('', result.stdout).strip()
+        if not output and result.stderr:
+            err = _ANSI_RE.sub('', result.stderr).strip()
+            return f"錯誤：{err[:200]}"
+        return output or "錯誤：無回應"
+    except subprocess.TimeoutExpired:
+        return "錯誤：翻譯超時"
+    except FileNotFoundError:
+        return "錯誤：找不到 gemini 指令"
+    except Exception as e:
+        return f"錯誤：{e}"
 
 
 # ── UI 邏輯 ──────────────────────────────────────────────────
@@ -94,7 +55,7 @@ def translate_text():
     _set_output("翻譯中…", editable=False)
 
     def run():
-        result = _session.translate(input_text)
+        result = _do_translate(input_text)
         root.after(0, lambda: show_result(result))
 
     threading.Thread(target=run, daemon=True).start()
