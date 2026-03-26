@@ -39,6 +39,9 @@ https://blog.brachiosoft.com/index.xml
 # 黑暗執行緒
 https://blog.darkthread.net/feed/rss/
 
+
+
+
 # 技術部落格
 # Flutter - Medium
 https://blog.flutter.dev/feed
@@ -74,6 +77,8 @@ https://blog.codinghorror.com/rss/
 https://coding-is-like-cooking.info/feed/
 
 
+
+
 # 技術週刊
 # 阮一峰的网络日志
 https://feeds.feedburner.com/ruanyifeng
@@ -104,3 +109,6 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UChhw6DlKKTQ9mYSpTfXUYqA
 
 # HelloGitHub 月刊 
 https://hellogithub.com/rss
+
+# Flutter Tap
+https://fluttertap.com/rss
