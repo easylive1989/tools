@@ -201,9 +201,10 @@ root.resizable(True, True)
 root.attributes("-topmost", True)
 root.configure(bg="#f5f5f5", padx=14, pady=12)
 
-FONT_LABEL = ("Helvetica Neue", 11)
-FONT_TEXT  = ("Helvetica Neue", 14)
-FONT_BTN   = ("Helvetica Neue", 12)
+FONT_LABEL    = ("Helvetica Neue", 11)
+FONT_TEXT     = ("Helvetica Neue", 14)
+FONT_BTN      = ("Helvetica Neue", 12)
+font_size_out = 14
 C_BG       = "#f5f5f5"
 C_TEXT_BG  = "#ffffff"
 C_BTN      = "#0071e3"
@@ -253,6 +254,25 @@ tk.Button(
     relief="flat", padx=12, pady=6, cursor="hand2",
     command=lambda: subprocess.Popen(["open", "-a", "Notes"]),
 ).pack(side="right")
+
+def _change_font_size(delta: int):
+    global font_size_out
+    font_size_out = max(8, min(32, font_size_out + delta))
+    text_out.config(font=("Helvetica Neue", font_size_out))
+
+tk.Button(
+    frame_btns, text="+", font=FONT_BTN,
+    bg="#e5e5ea", fg="#1d1d1f", activebackground="#d1d1d6",
+    relief="flat", padx=10, pady=6, cursor="hand2",
+    command=lambda: _change_font_size(1),
+).pack(side="right", padx=(0, 4))
+
+tk.Button(
+    frame_btns, text="−", font=FONT_BTN,
+    bg="#e5e5ea", fg="#1d1d1f", activebackground="#d1d1d6",
+    relief="flat", padx=10, pady=6, cursor="hand2",
+    command=lambda: _change_font_size(-1),
+).pack(side="right", padx=(0, 4))
 
 # 輸出區（Tab 列 + 文字匡）
 frame_out_wrapper = tk.Frame(root, bg=C_BG)
