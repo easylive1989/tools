@@ -24,21 +24,33 @@ _SYSTEM_PROMPT = (
     "僅輸出翻譯結果，不加解釋、引號或其他格式。"
 )
 
+_procs: list[subprocess.Popen] = []
+_procs_lock = threading.Lock()
+
 
 def _do_translate(text: str, timeout: int = 60) -> str:
     prompt = f"{_SYSTEM_PROMPT}\n\n翻譯：{text}"
     try:
-        result = subprocess.run(
+        proc = subprocess.Popen(
             ["gemini", "-m", "gemini-2.5-flash", "-p", prompt],
-            capture_output=True, text=True, timeout=timeout,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
             env=os.environ.copy(),
         )
-        output = _ANSI_RE.sub('', result.stdout).strip()
-        if not output and result.stderr:
-            err = _ANSI_RE.sub('', result.stderr).strip()
+        with _procs_lock:
+            _procs.append(proc)
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout)
+        finally:
+            with _procs_lock:
+                if proc in _procs:
+                    _procs.remove(proc)
+        output = _ANSI_RE.sub('', stdout).strip()
+        if not output and stderr:
+            err = _ANSI_RE.sub('', stderr).strip()
             return f"錯誤：{err[:200]}"
         return output or "錯誤：無回應"
     except subprocess.TimeoutExpired:
+        proc.kill()
         return "錯誤：翻譯超時"
     except FileNotFoundError:
         return "錯誤：找不到 gemini 指令"
@@ -228,7 +240,13 @@ if initial_text:
     text_in.insert("1.0", initial_text)
     root.after(100, translate_text)
 
-root.bind("<Escape>", lambda e: root.destroy())
+def on_quit(_=None):
+    with _procs_lock:
+        for proc in _procs:
+            proc.kill()
+    root.destroy()
+
+root.bind("<Escape>", on_quit)
 
 # 按鈕列
 frame_btns = tk.Frame(root, bg=C_BG)
