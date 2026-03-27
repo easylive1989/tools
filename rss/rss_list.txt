@@ -112,3 +112,6 @@ https://hellogithub.com/rss
 
 # Flutter Tap
 https://fluttertap.com/rss
+
+# GDevelop
+https://gamedevjsweekly.com/feed.xml
