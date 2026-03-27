@@ -1,0 +1,13 @@
+[project]
+name = "discord-recorder"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "sounddevice>=0.4.6",
+    "soundfile>=0.12.1",
+    "numpy>=1.24.0",
+    "openai-whisper>=20231117",
+]
+
+[project.scripts]
+record = "record_blackhole:main"
