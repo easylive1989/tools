@@ -27,4 +27,5 @@ fi
 osascript -e 'tell application "System Events" to keystroke "c" using command down'
 sleep 0.1
 SELECTED_TEXT=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
-TRANSLATOR_INITIAL_TEXT="$SELECTED_TEXT" "$BINARY" &
+TRANSLATOR_INITIAL_TEXT="$SELECTED_TEXT" nohup "$BINARY" >/dev/null 2>&1 &
+disown $!
