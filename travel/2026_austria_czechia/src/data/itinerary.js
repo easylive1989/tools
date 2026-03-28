@@ -24,7 +24,7 @@ export const days = [
     hotel: {
       name: 'a&o 維也納中央火車站飯店',
       address: 'Sonnwendgasse 11, Favoriten, Vienna',
-      mapUrl: 'https://maps.app.goo.gl/NqNPCmvYhz3j5pMX7',
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=a%26o+Hostel+Wien+Hauptbahnhof',
     },
     events: [
       {
@@ -90,7 +90,7 @@ export const days = [
         title: '聖斯德望主教座堂',
         subtitle: 'Stephansplatz，維也納地標',
         notes: ['安可鐘整點報時，12 點特別', '免費入場，爬塔需購票'],
-        mapUrl: 'https://maps.app.goo.gl/qZdVnRmMpMnNTh1V9',
+        mapUrl: 'https://www.google.com/maps/place/Stephansdom/@48.2085878,16.3725042,17z',
       },
       {
         time: '10:30',
@@ -99,7 +99,7 @@ export const days = [
         title: '格拉本大街與黑死病紀念柱',
         subtitle: 'Graben 步行街',
         notes: ['德梅爾咖啡店 (Demel) 外帶皇帝煎餅', '維也納聖彼得教堂'],
-        mapUrl: 'https://maps.app.goo.gl/oVn6mVdmPTAWXvCA7',
+        mapUrl: 'https://www.google.com/maps/place/Pestsäule/@48.2087334,16.3697165,18z',
       },
       {
         time: '12:00',
@@ -112,7 +112,7 @@ export const days = [
           '薩赫蛋糕 Sachertorte',
           '莫札特蛋糕 Mozarttorte',
         ],
-        mapUrl: 'https://maps.app.goo.gl/J9kG8VDPxkqUnFX69',
+        mapUrl: 'https://www.google.com/maps/place/Café+Mozart/@48.2042832,16.3694552,17z',
       },
       {
         time: '14:00',
@@ -125,7 +125,7 @@ export const days = [
           'Bratwurst 煎香腸',
           '可到阿爾貝蒂娜博物館二樓享用',
         ],
-        mapUrl: 'https://maps.app.goo.gl/KZB9XVKXaHJR8ZYk9',
+        mapUrl: 'https://www.google.com/maps/place/Bitzinger/@48.2040964,16.3685027,18z',
       },
       {
         time: '14:30',
@@ -139,7 +139,7 @@ export const days = [
           '奧地利國家圖書館',
           '外面免費參觀',
         ],
-        mapUrl: 'https://maps.app.goo.gl/sLJ2jQBwzfvLhkRw5',
+        mapUrl: 'https://www.google.com/maps/place/Hofburg/@48.2056578,16.3647803,17z',
       },
       {
         time: '18:30',
@@ -152,7 +152,7 @@ export const days = [
           'Kartoffelsalat 馬鈴薯沙拉',
           '⚠️ 注意：沒點飲料會被罵！',
         ],
-        mapUrl: 'https://maps.app.goo.gl/kEoJDxhznP5SuTr67',
+        mapUrl: 'https://www.google.com/maps/place/Figlmüller+Bäckerstraße/@48.2092519,16.3755254,17z',
       },
       {
         time: '晚上',
@@ -184,7 +184,7 @@ export const days = [
     hotel: {
       name: 'a&o 維也納中央火車站飯店',
       address: 'Sonnwendgasse 11, Favoriten, Vienna',
-      mapUrl: 'https://maps.app.goo.gl/NqNPCmvYhz3j5pMX7',
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=a%26o+Hostel+Wien+Hauptbahnhof',
     },
     events: [
       {
@@ -202,7 +202,7 @@ export const days = [
         title: '抵達美泉宮',
         subtitle: 'Schloß Schönbrunn, Schönbrunner Schloßstraße 47',
         notes: ['提早到可先拍無人宮殿照'],
-        mapUrl: 'https://maps.app.goo.gl/qjvHx1Jnn3vT3cqC9',
+        mapUrl: 'https://www.google.com/maps/place/Schönbrunn+Palace/@48.1845346,16.3118441,17z',
       },
       {
         time: '09:15',
@@ -237,7 +237,7 @@ export const days = [
           '義大利餃',
           'Baklava 土耳其甜品',
         ],
-        mapUrl: 'https://maps.app.goo.gl/bCPvk5EoS7qivpDG6',
+        mapUrl: 'https://www.google.com/maps/place/Naschmarkt/@48.1987706,16.3618285,17z',
       },
       {
         time: '14:00',
@@ -250,7 +250,7 @@ export const days = [
           '下宮 €16.5',
           '重點：克林姆《吻》畫作',
         ],
-        mapUrl: 'https://maps.app.goo.gl/rH3G9aR5gHJZ9Kb98',
+        mapUrl: 'https://www.google.com/maps/place/Upper+Belvedere/@48.1913425,16.3806854,17z',
       },
       {
         time: '17:30',
@@ -262,7 +262,7 @@ export const days = [
           'Tafelspitz 水煮牛肉（招牌）',
           'Wiener Schnitzel 維也納炸排',
         ],
-        mapUrl: 'https://maps.app.goo.gl/u5e3Lv8nW1oXb2eZ8',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Plachutta+Wollzeile+Vienna',
       },
       {
         time: '20:00',
@@ -271,7 +271,7 @@ export const days = [
         title: '維也納音樂廳 Musikverein 音樂會',
         subtitle: 'Musikvereinsplatz 1, 1010 Wien',
         notes: ['正式場合，建議著正式服裝'],
-        mapUrl: 'https://maps.app.goo.gl/pN3ZSNanGFCNE1cR9',
+        mapUrl: 'https://www.google.com/maps/place/Musikverein/@48.2006098,16.3722458,17z',
       },
     ],
     phrases: [
@@ -362,7 +362,7 @@ export const days = [
           '⚠️ 裡面非常冷，需要帶外套！',
           '行程約 2 小時',
         ],
-        mapUrl: 'https://maps.app.goo.gl/aHDLJfH3xzMbWPiT8',
+        mapUrl: 'https://www.google.com/maps/place/Salzwelten+Hallstatt/@47.5574,13.6537,16z',
       },
       {
         time: '16:30',
@@ -432,7 +432,7 @@ export const days = [
           '可在纜車站寄放行李',
           '建議先看即時攝影機確認天氣',
         ],
-        mapUrl: 'https://maps.app.goo.gl/CiXPGcQGHpLJkHpx7',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwölferhorn+Seilbahn+St+Gilgen',
       },
       {
         time: '下午',
@@ -501,7 +501,7 @@ export const days = [
           '刑求博物館（恐怖有趣）',
           '居高臨下薩爾茲堡全景',
         ],
-        mapUrl: 'https://maps.app.goo.gl/jNRjRUPBhKmFSufc7',
+        mapUrl: 'https://www.google.com/maps/place/Festung+Hohensalzburg/@47.7952943,13.0458559,17z',
       },
       {
         time: '12:00',
@@ -514,7 +514,7 @@ export const days = [
           'Kasnocken 起司麵疙瘩',
           'Schweinsbraten 烤豬肉',
         ],
-        mapUrl: 'https://maps.app.goo.gl/2VVvzBynbRBdWMwW9',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwettlers+Wirtshaus+Salzburg',
       },
       {
         time: '14:00',
@@ -523,7 +523,7 @@ export const days = [
         title: '莫札特出生地 Mozarts Geburtshaus',
         subtitle: 'Getreidegasse 9, Salzburg',
         notes: ['步行前往', '展示莫札特的童年生活'],
-        mapUrl: 'https://maps.app.goo.gl/TnrApvz9Ux7NvLq26',
+        mapUrl: 'https://www.google.com/maps/place/Mozarts+Geburtshaus/@47.8002506,13.043695,17z',
       },
       {
         time: '15:00',
@@ -532,7 +532,7 @@ export const days = [
         title: 'Balkan Grill Walter (Bosna Grill)',
         subtitle: 'Getreidegasse，薩爾茲堡名物熱狗堡',
         notes: ['Bosna 香料熱狗堡，1950 年代傳統'],
-        mapUrl: 'https://maps.app.goo.gl/RVgM2cC3EFhHZYfG9',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Balkan+Grill+Walter+Bosna+Salzburg',
       },
       {
         time: '15:30',
@@ -541,7 +541,7 @@ export const days = [
         title: '米拉貝爾宮花園 Mirabellgarten',
         subtitle: '花園免費，步行前往',
         notes: ['《真善美》取景地', '噴水池與花卉'],
-        mapUrl: 'https://maps.app.goo.gl/KbFH1XUc2wJFoEyv5',
+        mapUrl: 'https://www.google.com/maps/place/Mirabellgarten/@47.8052993,13.0404015,17z',
       },
       {
         time: '18:00',
@@ -556,7 +556,7 @@ export const days = [
           'Leberkäse 肝酪',
           '自己拿托盤選食物',
         ],
-        mapUrl: 'https://maps.app.goo.gl/bsmTMzM87U9KWGDh9',
+        mapUrl: 'https://www.google.com/maps/place/Augustiner+Bräu+Mülln/@47.8030891,13.031887,17z',
       },
     ],
     phrases: [
@@ -622,7 +622,7 @@ export const days = [
         title: '護城熊',
         subtitle: '庫倫洛夫城堡護城河，有活生生的棕熊',
         notes: ['免費觀看'],
-        mapUrl: 'https://maps.app.goo.gl/YM5y2nJSXeAL9d4j9',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Castle+Bears+Český+Krumlov',
       },
       {
         time: '下午',
@@ -631,7 +631,7 @@ export const days = [
         title: '斗篷橋 Cloak Bridge',
         subtitle: '庫倫洛夫城堡的多層拱橋',
         notes: ['俯瞰城鎮最佳角度'],
-        mapUrl: 'https://maps.app.goo.gl/kHiP4N7vRdnhDQVN6',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Cloak+Bridge+Český+Krumlov',
       },
       {
         time: '下午',
@@ -640,7 +640,7 @@ export const days = [
         title: '克倫洛夫城堡公園 & 觀景台',
         subtitle: '庫倫洛夫城堡花園與城鎮觀景台',
         notes: ['遠眺城鎮與河流全景'],
-        mapUrl: 'https://maps.app.goo.gl/aZWdCnPxhHhHZ7kF7',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Český+Krumlov+Castle+Gardens',
       },
       {
         time: '下午',
@@ -661,7 +661,7 @@ export const days = [
           'Cibulačka 洋蔥麵包湯',
           '中世紀地窖風格，氣氛極佳',
         ],
-        mapUrl: 'https://maps.app.goo.gl/a3JpPfUAuJC8Xdya9',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Krčma+Šatlava+Český+Krumlov',
       },
     ],
     phrases: [
@@ -692,7 +692,7 @@ export const days = [
         title: '捷克克魯姆洛夫城堡',
         subtitle: '庫倫諾夫城堡（需購票入場）',
         notes: ['彩繪塔 CZK 500（必看！）'],
-        mapUrl: 'https://maps.app.goo.gl/EpK6FS47c1FN2Qww6',
+        mapUrl: 'https://www.google.com/maps/place/Český+Krumlov+Castle/@48.8120024,14.3143543,17z',
       },
       {
         time: '早上',
@@ -714,7 +714,7 @@ export const days = [
           '烤肋排',
           '河景用餐，景色絕佳',
         ],
-        mapUrl: 'https://maps.app.goo.gl/UjaBQ5yjp9mMr8RB8',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Papa+Living+Restaurant+Český+Krumlov',
       },
       {
         time: '下午',
@@ -798,7 +798,7 @@ export const days = [
           '城堡全票 450 CZK',
           '含聖維特大教堂、舊皇宮、聖喬治教堂、黃金巷',
         ],
-        mapUrl: 'https://maps.app.goo.gl/qgVpjUWjFJXq2zYT6',
+        mapUrl: 'https://www.google.com/maps/place/St.+Vitus+Cathedral/@50.0906128,14.4003396,17z',
       },
       {
         time: '10:00',
@@ -807,7 +807,7 @@ export const days = [
         title: '布拉格城堡 Prague Castle',
         subtitle: '含舊皇宮、聖喬治教堂',
         notes: ['世界最大城堡之一'],
-        mapUrl: 'https://maps.app.goo.gl/nxU4CxFDmwXX12WA8',
+        mapUrl: 'https://www.google.com/maps/place/Prague+Castle/@50.0906128,14.4003396,16z',
       },
       {
         time: '11:00',
@@ -828,7 +828,7 @@ export const days = [
           'Ribs 豬肋排',
           'bramborákem 豬油炸馬鈴薯餅',
         ],
-        mapUrl: 'https://maps.app.goo.gl/cT7VcQMYVxajKDNv7',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Pork%27s+Mostecka+Prague',
       },
       {
         time: '13:30',
@@ -840,7 +840,7 @@ export const days = [
           '30 座聖人雕像',
           '登老城橋塔可俯瞰全橋',
         ],
-        mapUrl: 'https://maps.app.goo.gl/R79gj9GNqETFhpNs5',
+        mapUrl: 'https://www.google.com/maps/place/Charles+Bridge/@50.0864856,14.4112295,17z',
       },
       {
         time: '15:00',
@@ -855,7 +855,7 @@ export const days = [
           '巴洛克圖書館（世界最美之一）',
           '天文台 & 觀景台',
         ],
-        mapUrl: 'https://maps.app.goo.gl/oEuaBkT7Vy2NE5Qi7',
+        mapUrl: 'https://www.google.com/maps/place/Clementinum/@50.0869203,14.4169508,17z',
       },
       {
         time: '16:30',
@@ -867,7 +867,7 @@ export const days = [
           '⚠️ 要提早去預訂 4:15 或 4:30 的船',
           '復古木船穿越拱橋，浪漫感十足',
         ],
-        mapUrl: 'https://maps.app.goo.gl/xzh4fPvXCXcFTaHi8',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Prague+Venice+boat+tour+Charles+Bridge',
       },
       {
         time: '18:00',
@@ -876,7 +876,7 @@ export const days = [
         title: '舊市政廳與天文鐘塔樓',
         subtitle: 'Staroměstské náměstí，舊城廣場',
         notes: ['天文鐘整點報時（人偶遊行）', '可登塔俯瞰舊城廣場'],
-        mapUrl: 'https://maps.app.goo.gl/kFUfRbFJJMYhPkzc9',
+        mapUrl: 'https://www.google.com/maps/place/Prague+Astronomical+Clock/@50.0870743,14.4202512,17z',
       },
       {
         time: '晚上',
@@ -920,7 +920,7 @@ export const days = [
           '老猶太公墓（層層疊疊的墓碑，震撼人心）',
           '遊玩約 2 小時',
         ],
-        mapUrl: 'https://maps.app.goo.gl/5jN6UZkBq9RBGAkr5',
+        mapUrl: 'https://www.google.com/maps/place/Josefov/@50.0904136,14.4168697,17z',
       },
       {
         time: '11:00',
@@ -934,7 +934,7 @@ export const days = [
           '蜂蜜、花草茶',
           '開放約 10:00-18:30',
         ],
-        mapUrl: 'https://maps.app.goo.gl/xLGwL3bEFW2VTnkW8',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Botanicus+Týn+Prague',
       },
       {
         time: '12:00',
@@ -958,7 +958,7 @@ export const days = [
           '登頂可眺望舊城區',
           '建於 1475 年',
         ],
-        mapUrl: 'https://maps.app.goo.gl/yWrqwGDRBJYkQzW97',
+        mapUrl: 'https://www.google.com/maps/place/Powder+Tower/@50.0872764,14.4252138,17z',
       },
       {
         time: '14:30',
@@ -983,7 +983,7 @@ export const days = [
           '日落前登塔看夕陽，景色絕美',
           '日落約 19:30',
         ],
-        mapUrl: 'https://maps.app.goo.gl/Lhb9Xf6CHmqYZy5W8',
+        mapUrl: 'https://www.google.com/maps/place/Petřín/@50.0835097,14.3982072,17z',
       },
       {
         time: '晚上',
