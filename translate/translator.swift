@@ -291,7 +291,6 @@ struct ContentView: View {
                                 )
                             }
                         }
-                        .padding(.leading, 4)
                     }
                     .frame(height: tabHeight)
                 }
@@ -314,7 +313,8 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: pasteToInputNotification)) { notification in
             if let text = notification.object as? String {
-                inputText += text
+                inputText = text
+                translate()
             }
         }
     }
