@@ -11,6 +11,7 @@ private let userName = ProcessInfo.processInfo.environment["USER"] ?? "user"
 private let pidFilePath = "/tmp/translator_gui_\(userName).pid"
 private let inputFilePath = "/tmp/translator_gui_\(userName).txt"
 private let translateRequestNotification = Notification.Name("TranslateRequest")
+private let pasteToInputNotification = Notification.Name("PasteToInput")
 
 private let ansiRegex = try! NSRegularExpression(
     pattern: #"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r"#
@@ -261,6 +262,11 @@ struct ContentView: View {
                 translate()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: pasteToInputNotification)) { notification in
+            if let text = notification.object as? String {
+                inputText += text
+            }
+        }
     }
 
     private func translate() {
@@ -330,6 +336,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             if event.keyCode == 53 { NSApp.terminate(nil); return nil }
+            // Cmd+V 且輸入框未 focus → 強制貼到輸入框
+            if event.keyCode == 9 && event.modifierFlags.contains(.command),
+               !(NSApp.keyWindow?.firstResponder is NSTextView),
+               let text = NSPasteboard.general.string(forType: .string) {
+                NotificationCenter.default.post(name: pasteToInputNotification, object: text)
+                return nil
+            }
             return event
         }
 
