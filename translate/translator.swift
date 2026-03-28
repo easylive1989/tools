@@ -306,6 +306,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var sigusr1Source: DispatchSourceSignal?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        setupMenu()
+
         let initialText = ProcessInfo.processInfo.environment["TRANSLATOR_INITIAL_TEXT"] ?? ""
 
         let contentView = ContentView(initialText: initialText, runner: runner)
@@ -349,6 +351,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         src.resume()
         sigusr1Source = src
+    }
+
+    private func setupMenu() {
+        let mainMenu = NSMenu()
+
+        // App menu
+        let appMenuItem = NSMenuItem()
+        mainMenu.addItem(appMenuItem)
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "結束隨身翻譯", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenuItem.submenu = appMenu
+
+        // Edit menu（Cmd+V/C/X/A/Z 等都需要這個）
+        let editMenuItem = NSMenuItem()
+        mainMenu.addItem(editMenuItem)
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenuItem.submenu = editMenu
+
+        NSApp.mainMenu = mainMenu
     }
 
     func applicationWillTerminate(_ notification: Notification) {
