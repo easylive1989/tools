@@ -5,65 +5,97 @@ struct DayDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
 
-                // ── Day Meta ─────────────────────────────────────────────────
-                GroupBox("基本資料") {
-                    Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
-                        GridRow {
-                            Text("天數").foregroundStyle(.secondary)
-                            HStack {
-                                Text("第").foregroundStyle(.secondary)
-                                TextField("", value: $day.day, format: .number)
-                                    .frame(width: 50)
-                                    .textFieldStyle(.roundedBorder)
-                                Text("天").foregroundStyle(.secondary)
-                            }
-                        }
-                        GridRow {
-                            Text("日期").foregroundStyle(.secondary)
-                            DatePickerRow(dateString: $day.date)
-                        }
-                        GridRow {
-                            Text("標題").foregroundStyle(.secondary)
-                            TextField("例：出發 → 維也納抵達", text: $day.title)
-                                .textFieldStyle(.roundedBorder)
-                        }
-                        GridRow {
-                            Text("城市 / 國旗").foregroundStyle(.secondary)
-                            HStack(spacing: 8) {
-                                TextField("例：台灣 → 維也納", text: $day.city)
-                                    .textFieldStyle(.roundedBorder)
-                                FlagPicker(flag: $day.flag)
-                            }
-                        }
+
+                HStack(alignment: .top, spacing: 16) {
+
+                    // ── Left: 行程 + 英文字卡 ─────────────────────────────────
+                    VStack(spacing: 16) {
+                        EventListEditor(events: $day.events)
+                        PhraseListEditor(
+                            title: "英文字卡",
+                            phrases: $day.phrases
+                        )
                     }
-                    .padding(4)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+
+                    // ── Right: 基本資料 + 住宿 + 今日重點 ─────────────────────
+                    VStack(spacing: 16) {
+                        // 基本資料
+                        SectionCard {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Label("基本資料", systemImage: "info.circle")
+                                    .font(.subheadline).fontWeight(.semibold)
+                                    .foregroundStyle(.secondary)
+
+                                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+                                    GridRow {
+                                        Text("天期").foregroundStyle(.secondary)
+                                        HStack(spacing: 6) {
+                                            Text("第").foregroundStyle(.secondary)
+                                            TextField("", value: $day.day, format: .number)
+                                                .frame(width: 44)
+                                                .textFieldStyle(.roundedBorder)
+                                            Text("天").foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    GridRow {
+                                        Text("日期").foregroundStyle(.secondary)
+                                        DatePickerRow(dateString: $day.date)
+                                    }
+                                    Divider().gridCellUnsizedAxes(.horizontal)
+                                    GridRow {
+                                        Text("標題").foregroundStyle(.secondary)
+                                        TextField("出發 → 維也納", text: $day.title)
+                                            .textFieldStyle(.roundedBorder)
+                                    }
+                                    Divider().gridCellUnsizedAxes(.horizontal)
+                                    GridRow {
+                                        Text("城市").foregroundStyle(.secondary)
+                                        HStack(spacing: 8) {
+                                            TextField("台灣 → 維也納", text: $day.city)
+                                                .textFieldStyle(.roundedBorder)
+                                            FlagPicker(flag: $day.flag)
+                                        }
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        HotelEditor(hotel: $day.hotel)
+
+                        StringListEditor(
+                            title: "今日重點",
+                            systemImage: "star.fill",
+                            items: $day.highlights,
+                            placeholder: "新增重點..."
+                        )
+                    }
+                    .frame(width: 320)
                 }
-
-                // ── Highlights ───────────────────────────────────────────────
-                StringListEditor(
-                    title: "今日重點",
-                    systemImage: "star.fill",
-                    items: $day.highlights,
-                    placeholder: "新增重點..."
-                )
-
-                // ── Hotel ────────────────────────────────────────────────────
-                HotelEditor(hotel: $day.hotel)
-
-                // ── Events ───────────────────────────────────────────────────
-                EventListEditor(events: $day.events)
-
-                // ── Phrases ──────────────────────────────────────────────────
-                PhraseListEditor(
-                    title: "英文字卡",
-                    phrases: $day.phrases
-                )
             }
             .padding(20)
         }
+        .background(Color(NSColor.windowBackgroundColor))
         .navigationTitle("第 \(day.day) 天 · \(day.title)")
+    }
+}
+
+// MARK: - Section Card (replaces GroupBox for cleaner look)
+
+struct SectionCard<Content: View>: View {
+    let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
+
+    var body: some View {
+        content
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(NSColor.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.06), radius: 4, x: 0, y: 2)
     }
 }
 
@@ -74,9 +106,14 @@ struct HotelEditor: View {
     @State private var isExpanded = true
 
     var body: some View {
-        GroupBox {
-            if let _ = hotel {
-                VStack(alignment: .leading, spacing: 8) {
+        SectionCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Label("住宿", systemImage: "bed.double.fill")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+
+                if hotel != nil {
                     Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                         GridRow {
                             Text("名稱").foregroundStyle(.secondary)
@@ -102,42 +139,74 @@ struct HotelEditor: View {
                             ))
                         }
                     }
-                    .padding(4)
 
                     // Notes
-                    StringListEditor(
-                        title: "備註",
-                        systemImage: "note.text",
-                        items: Binding(
-                            get: { hotel?.notes ?? [] },
-                            set: { hotel?.notes = $0 }
-                        ),
-                        placeholder: "新增備註..."
-                    )
+                    Divider()
+                    HotelNotesEditor(notes: Binding(
+                        get: { hotel?.notes ?? [] },
+                        set: { hotel?.notes = $0 }
+                    ))
 
-                    Button("移除住宿資訊", role: .destructive) {
-                        hotel = nil
+                    Button("移除住宿資訊", role: .destructive) { hotel = nil }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.red)
+                        .font(.footnote)
+                } else {
+                    HStack {
+                        Text("尚未設定住宿").foregroundStyle(.tertiary)
+                        Spacer()
+                        Button("新增住宿") { hotel = Hotel() }
+                            .buttonStyle(.bordered)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+// MARK: - Hotel Notes Editor
+
+struct HotelNotesEditor: View {
+    @Binding var notes: [String]
+    @State private var newNote = ""
+    @FocusState private var focusNew: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label("備註", systemImage: "note.text")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            ForEach(Array(notes.enumerated()), id: \.offset) { idx, _ in
+                HStack {
+                    Image(systemName: "line.3.horizontal")
+                        .foregroundStyle(.tertiary).font(.footnote)
+                    TextField("備註內容", text: $notes[idx])
+                        .textFieldStyle(.plain)
+                    Button {
+                        notes.remove(at: idx)
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundStyle(.red.opacity(0.7))
                     }
                     .buttonStyle(.borderless)
-                    .foregroundStyle(.red)
-                    .padding(.top, 4)
                 }
-            } else {
-                HStack {
-                    Image(systemName: "bed.double")
-                        .foregroundStyle(.secondary)
-                    Text("尚未設定住宿")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("新增住宿") {
-                        hotel = Hotel()
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding(4)
             }
-        } label: {
-            Label("住宿", systemImage: "bed.double.fill")
+
+            HStack {
+                Image(systemName: "plus.circle").foregroundStyle(Color.accentColor)
+                TextField("新增備註...", text: $newNote)
+                    .textFieldStyle(.plain)
+                    .focused($focusNew)
+                    .onSubmit {
+                        let t = newNote.trimmingCharacters(in: .whitespaces)
+                        guard !t.isEmpty else { return }
+                        notes.append(t)
+                        newNote = ""
+                        focusNew = true
+                    }
+            }
         }
     }
 }
@@ -154,22 +223,29 @@ struct StringListEditor: View {
     @FocusState private var focusNew: Bool
 
     var body: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
-                    HStack {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundStyle(.tertiary)
-                            .font(.caption)
-                        TextField("", text: $items[idx])
-                            .textFieldStyle(.plain)
-                        Button {
-                            items.remove(at: idx)
-                        } label: {
-                            Image(systemName: "minus.circle.fill")
-                                .foregroundStyle(.red.opacity(0.7))
+        SectionCard {
+            VStack(alignment: .leading, spacing: 10) {
+                Label(title, systemImage: systemImage)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(Array(items.enumerated()), id: \.offset) { idx, item in
+                        HStack {
+                            Image(systemName: "line.3.horizontal")
+                                .foregroundStyle(.tertiary)
+                                .font(.footnote)
+                            TextField("", text: $items[idx])
+                                .textFieldStyle(.plain)
+                            Button {
+                                items.remove(at: idx)
+                            } label: {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundStyle(.red.opacity(0.7))
+                            }
+                            .buttonStyle(.borderless)
                         }
-                        .buttonStyle(.borderless)
                     }
                 }
 
@@ -179,15 +255,10 @@ struct StringListEditor: View {
                     TextField(placeholder, text: $newItem)
                         .textFieldStyle(.plain)
                         .focused($focusNew)
-                        .onSubmit {
-                            commitNew()
-                        }
+                        .onSubmit { commitNew() }
                 }
-                .padding(.top, 2)
             }
-            .padding(4)
-        } label: {
-            Label(title, systemImage: systemImage)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -348,15 +419,13 @@ struct MapUrlField: View {
         TextField("Google Maps URL", text: $url)
             .textFieldStyle(.roundedBorder)
             .overlay(alignment: .trailing) {
-                Button {
-                    NSWorkspace.shared.open(searchUrl)
-                } label: {
-                    Image(systemName: url.isEmpty ? "magnifyingglass" : "map.fill")
-                        .foregroundStyle(url.isEmpty ? Color.secondary : Color.accentColor)
-                        .padding(.trailing, 8)
-                }
-                .buttonStyle(.plain)
-                .help(url.isEmpty ? "在 Google Maps 搜尋" : "在瀏覽器開啟此連結")
+                Image(systemName: url.isEmpty ? "magnifyingglass" : "map.fill")
+                    .foregroundStyle(url.isEmpty ? Color.secondary : Color.accentColor)
+                    .padding(.trailing, 8)
+                    .onTapGesture {
+                        NSWorkspace.shared.open(searchUrl)
+                    }
+                    .help(url.isEmpty ? "在 Google Maps 搜尋" : "在瀏覽器開啟此連結")
             }
     }
 }

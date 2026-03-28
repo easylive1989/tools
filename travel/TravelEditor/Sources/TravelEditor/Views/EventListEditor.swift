@@ -9,9 +9,16 @@ struct EventListEditor: View {
     @State private var editingIndex: Int? = nil
     @State private var showingAdd = false
     @State private var draggingID: UUID? = nil
+    @State private var hoveredID: UUID? = nil
 
     var body: some View {
-        GroupBox {
+        Group {
+        SectionCard {
+            VStack(alignment: .leading, spacing: 10) {
+            Label("行程", systemImage: "calendar")
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
             VStack(alignment: .leading, spacing: 0) {
                 if events.isEmpty {
                     Text("尚無行程項目")
@@ -23,6 +30,22 @@ struct EventListEditor: View {
                         ForEach(Array(events.enumerated()), id: \.element.id) { idx, event in
                             EventRowView(event: event)
                                 .opacity(draggingID == event.id ? 0.4 : 1.0)
+                                .overlay(alignment: .trailing) {
+                                    if hoveredID == event.id {
+                                        Button {
+                                            let i = idx
+                                            withAnimation { events.removeSubrange(i...i) }
+                                        } label: {
+                                            Image(systemName: "trash")
+                                                .foregroundStyle(.red)
+                                                .padding(8)
+                                                .background(.regularMaterial, in: Circle())
+                                        }
+                                        .buttonStyle(.plain)
+                                        .padding(.trailing, 8)
+                                    }
+                                }
+                                .onHover { hoveredID = $0 ? event.id : nil }
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     editingEvent = event
@@ -65,10 +88,9 @@ struct EventListEditor: View {
                 .buttonStyle(.borderless)
                 .padding(.top, 6)
             }
-            .padding(4)
-        } label: {
-            Label("行程", systemImage: "calendar")
-        }
+            } // end VStack
+        } // end SectionCard
+        } // end Group
         .sheet(item: $editingEvent) { event in
             EventEditorSheet(
                 event: event,
@@ -104,39 +126,39 @@ struct EventRowView: View {
     let event: Event
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .top, spacing: 10) {
             Image(systemName: "line.3.horizontal")
                 .foregroundStyle(.tertiary)
-                .font(.body)
-                .padding(.top, 6)
+                .font(.system(size: 15))
+                .padding(.top, 8)
 
             // Time + icon column
             VStack(alignment: .trailing, spacing: 2) {
                 Text(event.time.isEmpty ? "--:--" : event.time)
-                    .font(.subheadline.monospacedDigit())
+                    .font(.system(size: 18, design: .monospaced))
                     .foregroundStyle(.secondary)
                 Text(event.icon.isEmpty ? event.type.defaultIcon : event.icon)
-                    .font(.title)
+                    .font(.system(size: 34))
             }
-            .frame(width: 72, alignment: .trailing)
+            .frame(width: 82, alignment: .trailing)
 
             // Content
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack(spacing: 7) {
                     Text(event.title.isEmpty ? "（未命名）" : event.title)
-                        .font(.headline)
+                        .font(.system(size: 20, weight: .semibold))
                         .lineLimit(1)
                     TypeBadge(type: event.type)
                 }
                 if !event.subtitle.isEmpty {
                     Text(event.subtitle)
-                        .font(.subheadline)
+                        .font(.system(size: 18))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
                 if !event.notes.isEmpty {
                     Text(event.notes.prefix(2).joined(separator: "・"))
-                        .font(.footnote)
+                        .font(.system(size: 16))
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
@@ -145,7 +167,7 @@ struct EventRowView: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .font(.caption)
+                .font(.system(size: 14))
                 .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 6)
@@ -169,10 +191,9 @@ struct TypeBadge: View {
 
     var body: some View {
         Text(type.label)
-            .font(.footnote)
-            .fontWeight(.medium)
-            .padding(.horizontal, 5)
-            .padding(.vertical, 1)
+            .font(.system(size: 14, weight: .medium))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
             .background(color.opacity(0.15))
             .foregroundStyle(color)
             .clipShape(RoundedRectangle(cornerRadius: 4))

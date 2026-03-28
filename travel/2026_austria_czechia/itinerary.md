@@ -90,7 +90,7 @@ Albertinaplatz 2, Vienna
 - Bratwurst 煎香腸
 - 可到阿爾貝蒂娜博物館二樓享用
 
-#### [14:30] sight 📸 📸 🏰 霍夫堡皇宮區域散步
+#### [14:30] sight 📸 📸 📸 📸 📸 🏰 霍夫堡皇宮區域散步
 Hofburg Imperial Palace
 📍 https://www.google.com/maps/place/Hofburg/@48.2056578,16.3647803,17z
 - SiSi 博物館（茜茜公主）
@@ -105,7 +105,7 @@ Bäckerstraße 6, 1010 Wien
 - Kartoffelsalat 馬鈴薯沙拉
 - ⚠️ 注意：沒點飲料會被罵！
 
-#### [晚上] hotel 🏨 🏨 🏨 入住飯店
+#### [晚上] hotel 🏨 🏨 🏨 🏨 🏨 🏨 入住飯店
 a&o 維也納中央火車站飯店
 - Sonnwendgasse 11, Favoriten, Vienna
 
@@ -143,12 +143,12 @@ a&o 維也納中央火車站飯店
 U1 Südtiroler Platz → Karlsplatz，轉 U4 往 Hütteldorf → Schönbrunn 站
 - 步行 5-10 分鐘到宮殿入口
 
-#### [08:30] sight 📸 📸 🏰 抵達美泉宮
+#### [08:30] sight 📸 📸 📸 📸 📸 🏰 抵達美泉宮
 Schloß Schönbrunn, Schönbrunner Schloßstraße 47
 📍 https://www.google.com/maps/place/Schönbrunn+Palace/@48.1845346,16.3118441,17z
 - 提早到可先拍無人宮殿照
 
-#### [09:15] sight 📸 📸 🎧 美泉宮 Grand Tour 入場
+#### [09:15] sight 📸 📸 📸 📸 📸 🎧 美泉宮 Grand Tour 入場
 語音導覽約 60 分鐘，含 40 間房間
 - 票價：Grand Tour €38
 - 有中文語音導覽
@@ -179,7 +179,7 @@ Wollzeile 38, 1010 Wien
 - Tafelspitz 水煮牛肉（招牌）
 - Wiener Schnitzel 維也納炸排
 
-#### [20:00] sight 📸 📸 🎻 維也納音樂廳 Musikverein 音樂會
+#### [20:00] sight 📸 📸 📸 📸 📸 🎻 維也納音樂廳 Musikverein 音樂會
 Musikvereinsplatz 1, 1010 Wien
 📍 https://www.google.com/maps/place/Musikverein/@48.2006098,16.3722458,17z
 - 正式場合，建議著正式服裝
@@ -235,7 +235,7 @@ Hallstatt Bahnhof 碼頭 → Hallstatt 村莊
 - 有沙威瑪
 - 湖景餐廳
 
-#### [下午] hotel 🏨 🏨 🏨 入住飯店
+#### [下午] hotel 🏨 🏨 🏨 🏨 🏨 🏨 入住飯店
 哈修塔特當地住宿
 - 放下行李後繼續遊覽
 
@@ -247,7 +247,7 @@ Hallstatt Bahnhof 碼頭 → Hallstatt 村莊
 - ⚠️ 裡面非常冷，需要帶外套！
 - 行程約 2 小時
 
-#### [16:30] sight 📸 📸 🌊 瀑布健行
+#### [16:30] sight 📸 📸 📸 📸 📸 🌊 瀑布健行
 Waldbachstrub 瀑布步道
 - 村旁健行步道
 - 風景優美
@@ -304,7 +304,7 @@ St. Gilgen，開放 09:00-17:00
 聖吉爾根 → 薩爾茲堡火車總站
 - 車程約 1 小時
 
-#### [下午] hotel 🏨 🏨 🏨 入住 a&o Salzburg Hauptbahnhof
+#### [下午] hotel 🏨 🏨 🏨 🏨 🏨 🏨 入住 a&o Salzburg Hauptbahnhof
 薩爾茲堡火車總站旁
 - 4/4-4/6，需額外付 €14.2 城市稅
 
@@ -343,7 +343,7 @@ St. Gilgen，開放 09:00-17:00
 往 Salzburg Polizeidirektion 方向，在 Rathaus 站下車
 - 步行到高地城堡纜車站
 
-#### [09:30] sight 📸 📸 🏰 高地要塞 Festung Hohensalzburg
+#### [09:30] sight 📸 📸 📸 📸 📸 🏰 高地要塞 Festung Hohensalzburg
 開放 09:00-17:30，遊玩約 2 小時
 📍 https://www.google.com/maps/place/Festung+Hohensalzburg/@47.7952943,13.0458559,17z
 - 木偶博物館
@@ -358,7 +358,7 @@ Kaigasse 3, Salzburg
 - Kasnocken 起司麵疙瘩
 - Schweinsbraten 烤豬肉
 
-#### [14:00] sight 📸 📸 🎵 莫札特出生地 Mozarts Geburtshaus
+#### [14:00] sight 📸 📸 📸 📸 📸 🎵 莫札特出生地 Mozarts Geburtshaus
 Getreidegasse 9, Salzburg
 📍 https://www.google.com/maps/place/Mozarts+Geburtshaus/@47.8002506,13.043695,17z
 - 步行前往
@@ -369,7 +369,7 @@ Getreidegasse，薩爾茲堡名物熱狗堡
 📍 https://www.google.com/maps/search/?api=1&query=Balkan+Grill+Walter+Bosna+Salzburg
 - Bosna 香料熱狗堡，1950 年代傳統
 
-#### [15:30] sight 📸 📸 🌸 米拉貝爾宮花園 Mirabellgarten
+#### [15:30] sight 📸 📸 📸 📸 📸 🌸 米拉貝爾宮花園 Mirabellgarten
 花園免費，步行前往
 📍 https://www.google.com/maps/place/Mirabellgarten/@47.8052993,13.0404015,17z
 - 《真善美》取景地
@@ -425,16 +425,17 @@ Salzburg Alpensiedlung → Český Krumlov
 
 #### [12:45] info ℹ️ 💱 換匯捷克克朗 CZK
 換匯所 N°59
+📍 https://www.google.com/maps/place/N%C2%B059/@48.8119472,14.3138432,17.25z/data=!4m6!3m5!1s0x47735d761cf4769b:0xdcb4cda8650c5ad!8m2!3d48.8123147!4d14.3173162!16s%2Fg%2F1v8g9vbq!5m1!1e1?entry=tts&g_ep=EgoyMDI2MDMxMS4wIPu8ASoASAFQAw%3D%3D&skid=b85265ad-c687-4f9c-ba40-b8eb43783854
 - ⚠️ 捷克使用克朗，不用歐元！
 - 推薦在正規換匯所換，勿在機場換
 - 建議換 5000-8000 CZK
 
-#### [下午] sight 📸 📸 🐻 護城熊
+#### [下午] sight 📸 📸 📸 📸 📸 🐻 護城熊
 庫倫洛夫城堡護城河，有活生生的棕熊
 📍 https://www.google.com/maps/search/?api=1&query=Castle+Bears+Český+Krumlov
 - 免費觀看
 
-#### [下午] sight 📸 📸 🌉 斗篷橋 Cloak Bridge
+#### [下午] sight 📸 📸 📸 📸 📸 🌉 斗篷橋 Cloak Bridge
 庫倫洛夫城堡的多層拱橋
 📍 https://www.google.com/maps/search/?api=1&query=Cloak+Bridge+Český+Krumlov
 - 俯瞰城鎮最佳角度
@@ -444,7 +445,7 @@ Salzburg Alpensiedlung → Český Krumlov
 📍 https://www.google.com/maps/search/?api=1&query=Český+Krumlov+Castle+Gardens
 - 遠眺城鎮與河流全景
 
-#### [下午] hotel 🏨 🏨 🏨 入住飯店
+#### [下午] hotel 🏨 🏨 🏨 🏨 🏨 🏨 入住飯店
 Hotel Krumlovská pohádka
 - Široká 74, Český Krumlov
 
@@ -479,19 +480,13 @@ Hotel Krumlovská pohádka
 名稱：City Pop 2NIGHT Prague
 地址：布拉格市區
 地圖：https://maps.app.goo.gl/FNjxNNFJcDtQmYp4A
-備註：4/7-4/10 入住
-備註：需額外付 300 CZK 城市稅
 
 ### 行程
 
-#### [早上] sight 📸 📸 🏰 捷克克魯姆洛夫城堡
+#### [早上] sight 📸 📸 📸 📸 📸 🏰 捷克克魯姆洛夫城堡
 庫倫諾夫城堡（需購票入場）
 📍 https://www.google.com/maps/place/Český+Krumlov+Castle/@48.8120024,14.3143543,17z
 - 彩繪塔 CZK 500（必看！）
-
-#### [早上] info 🎟️ 購票建議
-可順便買明天布拉格的蠟像館門票
-- 預購省時間、可能有折扣
 
 #### [11:30] food 🍽️ 午餐：Papa's Living Restaurant（已訂位）
 河岸景觀餐廳
@@ -514,7 +509,7 @@ Hotel Krumlovská pohádka
 #### [約 20:00] transport 🏙️ 抵達布拉格
 Na Knížecí 巴士站，布拉格市區
 
-#### [晚上] hotel 🏨 🏨 🏨 入住 City Pop 2NIGHT Prague
+#### [晚上] hotel 🏨 🏨 🏨 🏨 🏨 🏨 入住 City Pop 2NIGHT Prague
 布拉格市區
 - 4/7-4/10 入住
 - 需額外付 300 CZK
@@ -561,7 +556,7 @@ Na Knížecí 巴士站，布拉格市區
 - 城堡全票 450 CZK
 - 含聖維特大教堂、舊皇宮、聖喬治教堂、黃金巷
 
-#### [10:00] sight 📸 📸 🏰 布拉格城堡 Prague Castle
+#### [10:00] sight 📸 📸 📸 📸 📸 🏰 布拉格城堡 Prague Castle
 含舊皇宮、聖喬治教堂
 📍 https://www.google.com/maps/place/Prague+Castle/@50.0906128,14.4003396,16z
 - 世界最大城堡之一
@@ -578,13 +573,13 @@ Mostecká 10, Praha 1
 - Ribs 豬肋排
 - bramborákem 豬油炸馬鈴薯餅
 
-#### [13:30] sight 📸 📸 🌉 查理大橋漫步 & 老城橋塔
+#### [13:30] sight 📸 📸 📸 📸 📸 🌉 查理大橋漫步 & 老城橋塔
 Karlův most，伏爾塔瓦河上的石橋
 📍 https://www.google.com/maps/place/Charles+Bridge/@50.0864856,14.4112295,17z
 - 30 座聖人雕像
 - 登老城橋塔可俯瞰全橋
 
-#### [15:00] sight 📸 📸 📚 Clementinum 克萊門特學院（已預約）
+#### [15:00] sight 📸 📸 📸 📸 📸 📚 Clementinum 克萊門特學院（已預約）
 Mariánské náměstí 5, Praha 1
 📍 https://www.google.com/maps/place/Clementinum/@50.0869203,14.4169508,17z
 - 380 CZK
@@ -599,7 +594,7 @@ Prague Venice，查理大橋下
 - ⚠️ 要提早去預訂 4:15 或 4:30 的船
 - 復古木船穿越拱橋，浪漫感十足
 
-#### [18:00] sight 📸 📸 🕐 舊市政廳與天文鐘塔樓
+#### [18:00] sight 📸 📸 📸 📸 📸 🕐 舊市政廳與天文鐘塔樓
 Staroměstské náměstí，舊城廣場
 📍 https://www.google.com/maps/place/Prague+Astronomical+Clock/@50.0870743,14.4202512,17z
 - 天文鐘整點報時（人偶遊行）
@@ -680,7 +675,7 @@ Náměstí Republiky 上車，Újezd 站下車
 - 日落前登塔看夕陽，景色絕美
 - 日落約 19:30
 
-#### [晚上] sight 📸 📸 🌙 天文鐘夜景（可選）
+#### [晚上] sight 📸 📸 📸 📸 📸 🌙 天文鐘夜景（可選）
 舊城廣場夜景，到 20:00
 - 日落約 19:30
 - 夜景非常美麗

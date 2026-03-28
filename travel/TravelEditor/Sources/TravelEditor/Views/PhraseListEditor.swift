@@ -13,10 +13,15 @@ struct PhraseListEditor: View {
     }
 
     var body: some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 8) {
-                // Category filter
-                ScrollView(.horizontal, showsIndicators: false) {
+        SectionCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Label(title, systemImage: "text.bubble")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    // Category filter
                     HStack(spacing: 6) {
                         FilterChip(label: "全部", isActive: filterCategory == nil) {
                             filterCategory = nil
@@ -60,9 +65,6 @@ struct PhraseListEditor: View {
                 .buttonStyle(.borderless)
                 .padding(.top, 4)
             }
-            .padding(4)
-        } label: {
-            Label(title, systemImage: "text.bubble")
         }
     }
 }
