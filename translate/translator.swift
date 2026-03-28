@@ -88,7 +88,46 @@ actor GeminiRunner {
     }
 }
 
+// MARK: - Shapes
+
+/// 三邊框（上、左、右），底部開口，供 active tab 使用
+private struct ThreeSidedBorder: Shape {
+    let cornerRadius: CGFloat
+    func path(in rect: CGRect) -> Path {
+        let r = cornerRadius
+        var p = Path()
+        p.move(to: CGPoint(x: 0, y: rect.maxY + 1))
+        p.addLine(to: CGPoint(x: 0, y: r))
+        p.addQuadCurve(to: CGPoint(x: r, y: 0), control: .zero)
+        p.addLine(to: CGPoint(x: rect.maxX - r, y: 0))
+        p.addQuadCurve(to: CGPoint(x: rect.maxX, y: r),
+                       control: CGPoint(x: rect.maxX, y: 0))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY + 1))
+        return p
+    }
+}
+
+/// 只有上方兩個圓角的形狀
+private struct TopRoundedShape: Shape {
+    let cornerRadius: CGFloat
+    func path(in rect: CGRect) -> Path {
+        let r = cornerRadius
+        var p = Path()
+        p.move(to: CGPoint(x: 0, y: rect.maxY))
+        p.addLine(to: CGPoint(x: 0, y: r))
+        p.addQuadCurve(to: CGPoint(x: r, y: 0), control: .zero)
+        p.addLine(to: CGPoint(x: rect.maxX - r, y: 0))
+        p.addQuadCurve(to: CGPoint(x: rect.maxX, y: r),
+                       control: CGPoint(x: rect.maxX, y: 0))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        p.closeSubpath()
+        return p
+    }
+}
+
 // MARK: - TabButton View
+
+private let tabHeight: CGFloat = 30
 
 struct TabButton: View {
     let tab: TranslationTab
@@ -100,28 +139,42 @@ struct TabButton: View {
         HStack(spacing: 0) {
             Button(action: onSelect) {
                 Text("Tab \(tab.ordinal)")
-                    .font(.system(size: 12))
-                    .padding(.leading, 10)
+                    .font(.system(size: 12, weight: isActive ? .semibold : .regular))
+                    .foregroundColor(isActive ? Color(red: 0.2, green: 0.44, blue: 0.9) : .secondary)
+                    .padding(.leading, 12)
                     .padding(.trailing, 4)
-                    .padding(.vertical, 5)
+                    .padding(.vertical, 6)
             }
             .buttonStyle(.plain)
 
             Button(action: onClose) {
                 Text("×")
-                    .font(.system(size: 12))
+                    .font(.system(size: 11))
                     .foregroundColor(.secondary)
-                    .padding(.trailing, 8)
-                    .padding(.vertical, 5)
+                    .padding(.trailing, 10)
+                    .padding(.vertical, 6)
             }
             .buttonStyle(.plain)
         }
-        .background(isActive ? Color.orange : Color(nsColor: .controlBackgroundColor))
-        .cornerRadius(5)
-        .overlay(
-            RoundedRectangle(cornerRadius: 5)
-                .stroke(Color(nsColor: .separatorColor), lineWidth: 0.5)
+        .frame(height: tabHeight)
+        .background(
+            isActive
+                ? Color(nsColor: .windowBackgroundColor)
+                : Color(nsColor: .controlColor)
         )
+        .clipShape(TopRoundedShape(cornerRadius: 6))
+        .overlay(
+            Group {
+                if isActive {
+                    ThreeSidedBorder(cornerRadius: 6)
+                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                } else {
+                    TopRoundedShape(cornerRadius: 6)
+                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                }
+            }
+        )
+        .zIndex(isActive ? 1 : 0)
     }
 }
 
@@ -175,14 +228,6 @@ struct ContentView: View {
                 .buttonStyle(.plain)
                 .keyboardShortcut(.return, modifiers: .command)
 
-                Button("清除") { clearInput() }
-                    .buttonStyle(.plain)
-                    .font(.system(size: 12))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(6)
-
                 Spacer()
 
                 Button("−") { changeFontSize(-1) }
@@ -215,38 +260,43 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
             }
 
-            // Tab 列（有 tab 才顯示）
-            if !tabs.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 4) {
-                        ForEach(tabs) { tab in
-                            TabButton(
-                                tab: tab,
-                                isActive: tab.id == activeTabID,
-                                onSelect: { activeTabID = tab.id },
-                                onClose: { closeTab(id: tab.id) }
-                            )
-                        }
-                    }
-                    .padding(.vertical, 2)
+            // Tab 列 + 輸出區（ZStack 讓 active tab 與內容框融合）
+            ZStack(alignment: .topLeading) {
+                // 輸出區（內容框）
+                ScrollView {
+                    Text(outputText)
+                        .font(.system(size: fontSize))
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(8)
                 }
-                .frame(height: 34)
-            }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(nsColor: .textBackgroundColor))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                )
+                .padding(.top, tabs.isEmpty ? 0 : tabHeight - 1)
 
-            // 輸出區
-            ScrollView {
-                Text(outputText)
-                    .font(.system(size: fontSize))
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
+                // Tab 列（疊在內容框頂端）
+                if !tabs.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(alignment: .bottom, spacing: 2) {
+                            ForEach(tabs) { tab in
+                                TabButton(
+                                    tab: tab,
+                                    isActive: tab.id == activeTabID,
+                                    onSelect: { activeTabID = tab.id },
+                                    onClose: { closeTab(id: tab.id) }
+                                )
+                            }
+                        }
+                        .padding(.leading, 4)
+                    }
+                    .frame(height: tabHeight)
+                }
             }
             .frame(maxHeight: .infinity)
-            .background(Color(nsColor: .textBackgroundColor))
-            .overlay(
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-            )
         }
         .padding(14)
         .background(Color(nsColor: .windowBackgroundColor))
