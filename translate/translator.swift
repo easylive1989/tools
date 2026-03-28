@@ -234,32 +234,9 @@ struct ContentView: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
             }
 
-            // 第二排：字體大小
-            HStack(spacing: 8) {
-                Spacer()
-
-                Button("−") { changeFontSize(-1) }
-                    .buttonStyle(.plain)
-                    .font(.system(size: 12))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
-
-                Button("+") { changeFontSize(1) }
-                    .buttonStyle(.plain)
-                    .font(.system(size: 12))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
-            }
-
             // Tab 列 + 輸出區（ZStack 讓 active tab 與內容框融合）
             ZStack(alignment: .topLeading) {
-                // 輸出區（內容框）
+                // 輸出區（內容框）— 永遠預留 tabHeight 空間給上方列
                 ScrollView {
                     Text(outputText)
                         .font(.system(size: fontSize))
@@ -273,10 +250,10 @@ struct ContentView: View {
                     RoundedRectangle(cornerRadius: 4)
                         .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                 )
-                .padding(.top, tabs.isEmpty ? 0 : tabHeight - 1)
+                .padding(.top, tabHeight - 1)
 
-                // Tab 列（疊在內容框頂端）
-                if !tabs.isEmpty {
+                // Tab 列（疊在內容框頂端）+ −/+ 靠右
+                HStack(spacing: 4) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(alignment: .bottom, spacing: 2) {
                             ForEach(tabs) { tab in
@@ -289,8 +266,29 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .frame(height: tabHeight)
+                    .layoutPriority(0)
+
+                    Button("−") { changeFontSize(-1) }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                        .layoutPriority(1)
+
+                    Button("+") { changeFontSize(1) }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                        .layoutPriority(1)
                 }
+                .frame(height: tabHeight)
             }
             .frame(maxHeight: .infinity)
         }
