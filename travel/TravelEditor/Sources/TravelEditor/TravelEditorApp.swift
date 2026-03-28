@@ -79,9 +79,17 @@ class AppStore: ObservableObject {
         }
     }
 
-    // Called when itinerary changes
+    // Called when itinerary changes — debounced auto-save after 1s
+    private var autosaveTask: Task<Void, Never>?
+
     func markDirty() {
         isDirty = true
+        autosaveTask?.cancel()
+        autosaveTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled, let self else { return }
+            await MainActor.run { self.save() }
+        }
     }
 }
 

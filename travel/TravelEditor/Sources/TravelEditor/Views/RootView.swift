@@ -23,9 +23,13 @@ struct RootView: View {
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(.primary)
                         if store.isDirty {
-                            Circle()
-                                .fill(Color.accentColor)
-                                .frame(width: 7, height: 7)
+                            Text("儲存中…")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(.green)
                         }
                     }
                     .padding(.horizontal, 10)
