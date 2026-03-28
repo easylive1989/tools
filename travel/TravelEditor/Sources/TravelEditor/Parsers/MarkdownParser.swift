@@ -226,10 +226,8 @@ enum MarkdownParser {
 
 extension String {
     var containsEmoji: Bool {
-        unicodeScalars.contains { scalar in
-            (scalar.value >= 0x1F600 && scalar.value <= 0x1FFFF)
-                || (scalar.value >= 0x2600 && scalar.value <= 0x27BF)
-                || scalar.value == 0xFE0F
+        unicodeScalars.contains {
+            $0.properties.isEmoji && $0.properties.isEmojiPresentation
         }
     }
 }

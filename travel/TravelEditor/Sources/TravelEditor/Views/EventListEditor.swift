@@ -149,6 +149,11 @@ struct EventRowView: View {
                         .font(.system(size: 20, weight: .semibold))
                         .lineLimit(1)
                     TypeBadge(type: event.type)
+                    if !event.mapUrl.isEmpty {
+                        Image(systemName: "map.fill")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.accentColor.opacity(0.7))
+                    }
                 }
                 if !event.subtitle.isEmpty {
                     Text(event.subtitle)

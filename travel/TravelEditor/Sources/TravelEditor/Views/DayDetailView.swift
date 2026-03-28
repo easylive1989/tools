@@ -407,26 +407,9 @@ struct FlagPicker: View {
 struct MapUrlField: View {
     @Binding var url: String
 
-    private var searchUrl: URL {
-        // If already a valid URL, open it directly; otherwise open Google Maps search
-        if !url.isEmpty, let u = URL(string: url), u.scheme != nil {
-            return u
-        }
-        return URL(string: "https://www.google.com/maps/search/")!
-    }
-
     var body: some View {
         TextField("Google Maps URL", text: $url)
             .textFieldStyle(.roundedBorder)
-            .overlay(alignment: .trailing) {
-                Image(systemName: url.isEmpty ? "magnifyingglass" : "map.fill")
-                    .foregroundStyle(url.isEmpty ? Color.secondary : Color.accentColor)
-                    .padding(.trailing, 8)
-                    .onTapGesture {
-                        NSWorkspace.shared.open(searchUrl)
-                    }
-                    .help(url.isEmpty ? "在 Google Maps 搜尋" : "在瀏覽器開啟此連結")
-            }
     }
 }
 
