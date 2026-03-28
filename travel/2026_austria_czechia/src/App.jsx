@@ -1,5 +1,29 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { days, commonPhrases } from './data/itinerary.js'
+
+// ===== Helper: TTS =====
+function useTTS() {
+  const [speaking, setSpeaking] = useState(false)
+
+  const speak = useCallback((text) => {
+    if (!window.speechSynthesis) return
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.9
+    utterance.onstart = () => setSpeaking(true)
+    utterance.onend = () => setSpeaking(false)
+    utterance.onerror = () => setSpeaking(false)
+    window.speechSynthesis.speak(utterance)
+  }, [])
+
+  const cancel = useCallback(() => {
+    if (window.speechSynthesis) window.speechSynthesis.cancel()
+    setSpeaking(false)
+  }, [])
+
+  return { speak, cancel, speaking }
+}
 
 // ===== Helper: Type Label =====
 const TYPE_LABELS = {
@@ -21,11 +45,31 @@ function Toast({ message, onDone }) {
 
 // ===== Phrase Full View =====
 function PhraseFullView({ phrase, onClose }) {
+  const { speak, cancel, speaking } = useTTS()
+
+  // 進入大字版時自動播放
+  useEffect(() => {
+    speak(phrase.en)
+    return () => cancel()
+  }, [phrase.en])
+
+  const handleSpeak = (e) => {
+    e.stopPropagation()
+    speak(phrase.en)
+  }
+
   return (
     <div className="phrase-full-view" onClick={onClose}>
       <button className="phrase-full-close" onClick={onClose}>✕</button>
       <div className="phrase-full-zh">{phrase.zh}</div>
       <div className="phrase-full-en">{phrase.en}</div>
+      <button
+        className={`phrase-full-tts ${speaking ? 'speaking' : ''}`}
+        onClick={handleSpeak}
+        title="朗讀英文"
+      >
+        {speaking ? '🔊' : '🔈'}
+      </button>
       <div className="phrase-full-hint">點任意處關閉</div>
     </div>
   )
@@ -33,6 +77,8 @@ function PhraseFullView({ phrase, onClose }) {
 
 // ===== Phrase Card =====
 function PhraseCard({ phrase, onFullView, onCopied }) {
+  const { speak, speaking } = useTTS()
+
   const handleCopy = (e) => {
     e.stopPropagation()
     if (navigator.clipboard) {
@@ -40,26 +86,32 @@ function PhraseCard({ phrase, onFullView, onCopied }) {
     }
   }
 
+  const handleSpeak = (e) => {
+    e.stopPropagation()
+    speak(phrase.en)
+  }
+
   return (
     <div className="phrase-card" onClick={() => onFullView(phrase)}>
       <div className="phrase-zh">{phrase.zh}</div>
       <div className="phrase-en">{phrase.en}</div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-        <span className="phrase-tap-hint">點擊顯示大字版 · 方便給外國人看</span>
-        <button
-          onClick={handleCopy}
-          style={{
-            background: '#eff6ff',
-            border: '1px solid #bfdbfe',
-            borderRadius: 5,
-            padding: '2px 8px',
-            fontSize: '0.65rem',
-            color: '#3b82f6',
-            cursor: 'pointer',
-          }}
-        >
-          複製
-        </button>
+        <span className="phrase-tap-hint">點擊大字版 · 方便給外國人看</span>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button
+            onClick={handleSpeak}
+            className={`phrase-btn ${speaking ? 'speaking' : ''}`}
+            title="朗讀英文"
+          >
+            {speaking ? '🔊' : '🔈'}
+          </button>
+          <button
+            onClick={handleCopy}
+            className="phrase-btn"
+          >
+            複製
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -470,6 +470,33 @@ body {
   margin-top: 4px;
 }
 
+/* ===== Phrase Buttons (TTS + Copy) ===== */
+.phrase-btn {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.phrase-btn:active {
+  transform: scale(0.92);
+}
+
+.phrase-btn.speaking {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  animation: pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
 /* ===== FAB (Floating Action Button) ===== */
 .fab {
   position: fixed;
@@ -633,6 +660,31 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.phrase-full-tts {
+  margin-top: 32px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  font-size: 1.8rem;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.phrase-full-tts:active {
+  transform: scale(0.9);
+}
+
+.phrase-full-tts.speaking {
+  background: rgba(255,255,255,0.25);
+  animation: pulse 0.8s ease-in-out infinite;
 }
 
 .phrase-full-hint {
