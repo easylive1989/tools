@@ -198,24 +198,18 @@ struct ContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // 輸入區標籤
-            Text("輸入文字")
-                .font(.system(size: 11))
-                .foregroundColor(.secondary)
-
-            // 輸入框
-            TextEditor(text: $inputText)
-                .font(.system(size: 14))
-                .frame(height: 72)
-                .scrollContentBackground(.hidden)
-                .background(Color(nsColor: .textBackgroundColor))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
-
-            // 按鈕列
+            // 第一排：輸入框 + 翻譯按鈕
             HStack(spacing: 8) {
+                TextEditor(text: $inputText)
+                    .font(.system(size: 14))
+                    .frame(height: 28)
+                    .scrollContentBackground(.hidden)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+
                 Button(action: translate) {
                     Text("翻譯  ⌘↩")
                         .font(.system(size: 12, weight: .medium))
@@ -227,7 +221,10 @@ struct ContentView: View {
                 }
                 .buttonStyle(.plain)
                 .keyboardShortcut(.return, modifiers: .command)
+            }
 
+            // 第二排：字體 + Apple Notes
+            HStack(spacing: 8) {
                 Spacer()
 
                 Button("−") { changeFontSize(-1) }
