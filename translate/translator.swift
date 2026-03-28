@@ -186,6 +186,7 @@ struct ContentView: View {
                     .padding(.vertical, 6)
                     .background(Color(nsColor: .controlBackgroundColor))
                     .cornerRadius(6)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
 
                 Button("+") { changeFontSize(1) }
                     .buttonStyle(.plain)
@@ -194,6 +195,7 @@ struct ContentView: View {
                     .padding(.vertical, 6)
                     .background(Color(nsColor: .controlBackgroundColor))
                     .cornerRadius(6)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
 
                 Button("📝 Apple Notes") {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Notes.app"))
@@ -204,6 +206,7 @@ struct ContentView: View {
                 .padding(.vertical, 6)
                 .background(Color(nsColor: .controlBackgroundColor))
                 .cornerRadius(6)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
             }
 
             // Tab 列（有 tab 才顯示）
@@ -297,14 +300,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hosting = NSHostingController(rootView: contentView)
 
         window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 1050),
             styleMask: [.titled, .closable, .resizable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
-        window.title = "Gemini 隨身翻譯"
+        window.title = "隨身翻譯"
         window.level = .floating
-        window.minSize = NSSize(width: 380, height: 320)
+        window.minSize = NSSize(width: 380, height: 600)
         window.contentViewController = hosting
         window.center()
         window.isReleasedWhenClosed = false
