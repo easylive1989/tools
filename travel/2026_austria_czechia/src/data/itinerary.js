@@ -10,7 +10,7 @@ export const commonPhrases = [
   { zh: '請給我收據', en: 'Can I have a receipt, please?', category: 'general' },
   { zh: '我對＿過敏', en: 'I\'m allergic to __.', category: 'food' },
   { zh: '救命！', en: 'Help!', category: 'emergency' },
-  { zh: '我需要醫生', en: 'I need a doctor.', category: 'emergency' },
+  { zh: '我需要醫生', en: 'I need a doctor.', category: 'emergency' }
 ]
 
 export const days = [
@@ -20,8 +20,13 @@ export const days = [
     title: '出發 → 維也納抵達',
     city: '台灣 → 維也納',
     flag: '🇦🇹',
-    highlights: ['長途飛行 ~13小時', '維也納老城區初探', '莫札特咖啡館午餐（已訂位）', 'Figlmüller 超大炸牛排晚餐'],
-    hotel: {
+    highlights: [
+      '長途飛行 ~13小時',
+      '維也納老城區初探',
+      '莫札特咖啡館午餐（已訂位）',
+      'Figlmüller 超大炸牛排晚餐',
+    ],
+    hotel:     {
       name: 'a&o 維也納中央火車站飯店',
       address: 'Sonnwendgasse 11, Favoriten, Vienna',
       mapUrl: 'https://www.google.com/maps/search/?api=1&query=a%26o+Hostel+Wien+Hauptbahnhof',
@@ -33,7 +38,9 @@ export const days = [
         icon: '🚌',
         title: '搭 20 號公車出發',
         subtitle: '太原六號橋 → 臺中車站(大智北路)',
-        notes: ['預計 11:13 到達臺中車站'],
+        notes: [
+          '預計 11:13 到達臺中車站',
+        ],
       },
       {
         time: '12:00',
@@ -49,7 +56,10 @@ export const days = [
         icon: '✈️',
         title: '抵達桃園機場',
         subtitle: '航班起飛前 3 小時報到',
-        notes: ['提早辦理登機手續', '確認護照、保險等文件'],
+        notes: [
+          '提早辦理登機手續',
+          '確認護照、保險等文件',
+        ],
       },
       {
         time: '18:40',
@@ -57,7 +67,9 @@ export const days = [
         icon: '✈️',
         title: '飛機起飛',
         subtitle: '桃園機場 → 維也納國際機場',
-        notes: ['飛行時間約 13 小時'],
+        notes: [
+          '飛行時間約 13 小時',
+        ],
       },
       {
         time: '(隔天) 06:50',
@@ -65,7 +77,9 @@ export const days = [
         icon: '🛬',
         title: '維也納機場落地',
         subtitle: 'Vienna International Airport (VIE)',
-        notes: ['換算時差，奧地利 UTC+2 (夏令時)'],
+        notes: [
+          '換算時差，奧地利 UTC+2 (夏令時)',
+        ],
       },
       {
         time: '07:30',
@@ -73,7 +87,10 @@ export const days = [
         icon: '🚂',
         title: '搭 OBB 火車到維也納中央車站',
         subtitle: '機場 → Wien Hauptbahnhof',
-        notes: ['注意：EC 列車沒有專用行李架', 'RJX 列車有行李架，優先選擇'],
+        notes: [
+          '注意：EC 列車沒有專用行李架',
+          'RJX 列車有行李架，優先選擇',
+        ],
       },
       {
         time: '09:00',
@@ -81,7 +98,9 @@ export const days = [
         icon: '🚇',
         title: '搭地鐵 U1 前往市中心',
         subtitle: 'Südtiroler Platz → Stephansplatz（往 Leopoldau 方向）',
-        notes: ['購買 Vienna City Card 或單程票'],
+        notes: [
+          '購買 Vienna City Card 或單程票',
+        ],
       },
       {
         time: '10:00',
@@ -89,8 +108,11 @@ export const days = [
         icon: '⛪',
         title: '聖斯德望主教座堂',
         subtitle: 'Stephansplatz，維也納地標',
-        notes: ['安可鐘整點報時，12 點特別', '免費入場，爬塔需購票'],
         mapUrl: 'https://www.google.com/maps/place/Stephansdom/@48.2085878,16.3725042,17z',
+        notes: [
+          '安可鐘整點報時，12 點特別',
+          '免費入場，爬塔需購票',
+        ],
       },
       {
         time: '10:30',
@@ -98,8 +120,11 @@ export const days = [
         icon: '🗺️',
         title: '格拉本大街與黑死病紀念柱',
         subtitle: 'Graben 步行街',
-        notes: ['德梅爾咖啡店 (Demel) 外帶皇帝煎餅', '維也納聖彼得教堂'],
         mapUrl: 'https://www.google.com/maps/place/Pestsäule/@48.2087334,16.3697165,18z',
+        notes: [
+          '德梅爾咖啡店 (Demel) 外帶皇帝煎餅',
+          '維也納聖彼得教堂',
+        ],
       },
       {
         time: '12:00',
@@ -107,12 +132,12 @@ export const days = [
         icon: '☕',
         title: '莫札特咖啡館 Café Mozart（已訂位）',
         subtitle: 'Albertinaplatz 2, Vienna',
+        mapUrl: 'https://www.google.com/maps/place/Café+Mozart/@48.2042832,16.3694552,17z',
         notes: [
           '推薦：蘋果捲 Apfelstrudel',
           '薩赫蛋糕 Sachertorte',
           '莫札特蛋糕 Mozarttorte',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Café+Mozart/@48.2042832,16.3694552,17z',
       },
       {
         time: '14:00',
@@ -120,12 +145,12 @@ export const days = [
         icon: '🌭',
         title: '維也納香腸攤 Bitzinger',
         subtitle: '阿爾貝蒂娜博物館旁，Augustinerstraße 1',
+        mapUrl: 'https://www.google.com/maps/place/Bitzinger/@48.2040964,16.3685027,18z',
         notes: [
           'Käsekrainer 起司香腸',
           'Bratwurst 煎香腸',
           '可到阿爾貝蒂娜博物館二樓享用',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Bitzinger/@48.2040964,16.3685027,18z',
       },
       {
         time: '14:30',
@@ -133,13 +158,13 @@ export const days = [
         icon: '🏰',
         title: '霍夫堡皇宮區域散步',
         subtitle: 'Hofburg Imperial Palace',
+        mapUrl: 'https://www.google.com/maps/place/Hofburg/@48.2056578,16.3647803,17z',
         notes: [
           'SiSi 博物館（茜茜公主）',
           '西班牙馬術學校',
           '奧地利國家圖書館',
           '外面免費參觀',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Hofburg/@48.2056578,16.3647803,17z',
       },
       {
         time: '18:30',
@@ -147,12 +172,12 @@ export const days = [
         icon: '🍽️',
         title: '晚餐：Figlmüller Bäckerstraße',
         subtitle: 'Bäckerstraße 6, 1010 Wien',
+        mapUrl: 'https://www.google.com/maps/place/Figlmüller+Bäckerstraße/@48.2092519,16.3755254,17z',
         notes: [
           '招牌：Figlmüller Schnitzel（超大炸牛排）',
           'Kartoffelsalat 馬鈴薯沙拉',
           '⚠️ 注意：沒點飲料會被罵！',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Figlmüller+Bäckerstraße/@48.2092519,16.3755254,17z',
       },
       {
         time: '晚上',
@@ -160,18 +185,20 @@ export const days = [
         icon: '🏨',
         title: '入住飯店',
         subtitle: 'a&o 維也納中央火車站飯店',
-        notes: ['Sonnwendgasse 11, Favoriten, Vienna'],
+        notes: [
+          'Sonnwendgasse 11, Favoriten, Vienna',
+        ],
       },
     ],
     phrases: [
-      { zh: '我要到維也納中央車站，這班車有停嗎？', en: 'Does this train stop at Wien Hauptbahnhof?', category: 'transport' },
-      { zh: '請問月台在哪裡？', en: 'Which platform, please?', category: 'transport' },
-      { zh: '我有訂位，姓名是＿', en: 'I have a reservation under the name __.', category: 'food' },
-      { zh: '一張到 Stephansplatz 的票', en: 'One ticket to Stephansplatz, please.', category: 'transport' },
-      { zh: '請問有英文菜單嗎？', en: 'Do you have an English menu?', category: 'food' },
-      { zh: '我要點這個', en: 'I\'d like this one, please.', category: 'food' },
-      { zh: '買單', en: 'The bill, please.', category: 'food' },
-      { zh: '一份起司香腸加麵包和芥末', en: 'One Käsekrainer with bread and mustard, please.', category: 'food' },
+        { zh: '我要到維也納中央車站，這班車有停嗎？', en: 'Does this train stop at Wien Hauptbahnhof?', category: 'transport' },
+        { zh: '請問月台在哪裡？', en: 'Which platform, please?', category: 'transport' },
+        { zh: '我有訂位，姓名是＿', en: 'I have a reservation under the name __.', category: 'food' },
+        { zh: '一張到 Stephansplatz 的票', en: 'One ticket to Stephansplatz, please.', category: 'transport' },
+        { zh: '請問有英文菜單嗎？', en: 'Do you have an English menu?', category: 'food' },
+        { zh: '我要點這個', en: 'I\'d like this one, please.', category: 'food' },
+        { zh: '買單', en: 'The bill, please.', category: 'food' },
+        { zh: '一份起司香腸加麵包和芥末', en: 'One Käsekrainer with bread and mustard, please.', category: 'food' },
     ],
   },
   {
@@ -180,8 +207,13 @@ export const days = [
     title: '維也納：美泉宮、納許市場、美景宮、音樂會',
     city: '維也納',
     flag: '🇦🇹',
-    highlights: ['美泉宮 Grand Tour（含中文語音導覽）', '納許市場逛街覓食', '美景宮看克林姆畫作', '維也納音樂廳音樂會'],
-    hotel: {
+    highlights: [
+      '美泉宮 Grand Tour（含中文語音導覽）',
+      '納許市場逛街覓食',
+      '美景宮看克林姆畫作',
+      '維也納音樂廳音樂會',
+    ],
+    hotel:     {
       name: 'a&o 維也納中央火車站飯店',
       address: 'Sonnwendgasse 11, Favoriten, Vienna',
       mapUrl: 'https://www.google.com/maps/search/?api=1&query=a%26o+Hostel+Wien+Hauptbahnhof',
@@ -193,7 +225,9 @@ export const days = [
         icon: '🚇',
         title: '出發前往美泉宮',
         subtitle: 'U1 Südtiroler Platz → Karlsplatz，轉 U4 往 Hütteldorf → Schönbrunn 站',
-        notes: ['步行 5-10 分鐘到宮殿入口'],
+        notes: [
+          '步行 5-10 分鐘到宮殿入口',
+        ],
       },
       {
         time: '08:30',
@@ -201,8 +235,10 @@ export const days = [
         icon: '🏰',
         title: '抵達美泉宮',
         subtitle: 'Schloß Schönbrunn, Schönbrunner Schloßstraße 47',
-        notes: ['提早到可先拍無人宮殿照'],
         mapUrl: 'https://www.google.com/maps/place/Schönbrunn+Palace/@48.1845346,16.3118441,17z',
+        notes: [
+          '提早到可先拍無人宮殿照',
+        ],
       },
       {
         time: '09:15',
@@ -230,6 +266,7 @@ export const days = [
         icon: '🛒',
         title: '納許市場 Naschmarkt',
         subtitle: 'Naschmarkt, 1060 Wien，逛約 1.5 小時',
+        mapUrl: 'https://www.google.com/maps/place/Naschmarkt/@48.1987706,16.3618285,17z',
         notes: [
           '⚠️ 多數攤位只收現金！',
           'Georg am Naschmarkt 烤餅（罌粟籽口味）',
@@ -237,7 +274,6 @@ export const days = [
           '義大利餃',
           'Baklava 土耳其甜品',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Naschmarkt/@48.1987706,16.3618285,17z',
       },
       {
         time: '14:00',
@@ -245,12 +281,12 @@ export const days = [
         icon: '🖼️',
         title: '美景宮 Belvedere Palace',
         subtitle: 'Prinz Eugen-Straße 27, Wien（從納許市場步行）',
+        mapUrl: 'https://www.google.com/maps/place/Upper+Belvedere/@48.1913425,16.3806854,17z',
         notes: [
           '上宮 €19.5（克林姆、梵谷、莫內）',
           '下宮 €16.5',
           '重點：克林姆《吻》畫作',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Upper+Belvedere/@48.1913425,16.3806854,17z',
       },
       {
         time: '17:30',
@@ -258,11 +294,11 @@ export const days = [
         icon: '🍽️',
         title: '晚餐：Plachutta Wollzeile',
         subtitle: 'Wollzeile 38, 1010 Wien',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Plachutta+Wollzeile+Vienna',
         notes: [
           'Tafelspitz 水煮牛肉（招牌）',
           'Wiener Schnitzel 維也納炸排',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Plachutta+Wollzeile+Vienna',
       },
       {
         time: '20:00',
@@ -270,16 +306,18 @@ export const days = [
         icon: '🎻',
         title: '維也納音樂廳 Musikverein 音樂會',
         subtitle: 'Musikvereinsplatz 1, 1010 Wien',
-        notes: ['正式場合，建議著正式服裝'],
         mapUrl: 'https://www.google.com/maps/place/Musikverein/@48.2006098,16.3722458,17z',
+        notes: [
+          '正式場合，建議著正式服裝',
+        ],
       },
     ],
     phrases: [
-      { zh: '請問美泉宮怎麼走？', en: 'Excuse me, how do I get to Schönbrunn Palace?', category: 'transport' },
-      { zh: '語音導覽機在哪裡領取？', en: 'Where can I pick up the audio guide?', category: 'general' },
-      { zh: '這裡只收現金嗎？', en: 'Do you only accept cash?', category: 'general' },
-      { zh: '有沒有更便宜的？', en: 'Is there anything cheaper?', category: 'general' },
-      { zh: '兩張上宮的票', en: 'Two tickets for the Upper Belvedere, please.', category: 'general' },
+        { zh: '請問美泉宮怎麼走？', en: 'Excuse me, how do I get to Schönbrunn Palace?', category: 'transport' },
+        { zh: '語音導覽機在哪裡領取？', en: 'Where can I pick up the audio guide?', category: 'general' },
+        { zh: '這裡只收現金嗎？', en: 'Do you only accept cash?', category: 'general' },
+        { zh: '有沒有更便宜的？', en: 'Is there anything cheaper?', category: 'general' },
+        { zh: '兩張上宮的票', en: 'Two tickets for the Upper Belvedere, please.', category: 'general' },
     ],
   },
   {
@@ -288,8 +326,13 @@ export const days = [
     title: '哈修塔特 Hallstatt',
     city: '維也納 → 哈修塔特',
     flag: '🇦🇹',
-    highlights: ['長途火車前往哈修塔特', '渡輪橫越哈修塔特湖', '鹽礦探險（世界最古老鹽礦）', '童話小鎮漫步'],
-    hotel: {
+    highlights: [
+      '長途火車前往哈修塔特',
+      '渡輪橫越哈修塔特湖',
+      '鹽礦探險（世界最古老鹽礦）',
+      '童話小鎮漫步',
+    ],
+    hotel:     {
       name: '哈修塔特當地住宿',
       address: 'Hallstatt, 上奧地利州',
     },
@@ -316,7 +359,9 @@ export const days = [
         icon: '🚂',
         title: '火車出發',
         subtitle: 'Wien Westbahnhof → Hallstatt Bahnhof',
-        notes: ['車程約 3 小時'],
+        notes: [
+          '車程約 3 小時',
+        ],
       },
       {
         time: '10:54',
@@ -332,7 +377,10 @@ export const days = [
         icon: '⛵',
         title: '搭渡輪前往哈修塔特村',
         subtitle: 'Hallstatt Bahnhof 碼頭 → Hallstatt 村莊',
-        notes: ['一小時一班', '航程約 15 分鐘'],
+        notes: [
+          '一小時一班',
+          '航程約 15 分鐘',
+        ],
       },
       {
         time: '12:00',
@@ -340,7 +388,11 @@ export const days = [
         icon: '🥙',
         title: '午餐：村內隨意覓食',
         subtitle: '哈修塔特村內小店',
-        notes: ['有麵包店', '有沙威瑪', '湖景餐廳'],
+        notes: [
+          '有麵包店',
+          '有沙威瑪',
+          '湖景餐廳',
+        ],
       },
       {
         time: '下午',
@@ -348,7 +400,9 @@ export const days = [
         icon: '🏨',
         title: '入住飯店',
         subtitle: '哈修塔特當地住宿',
-        notes: ['放下行李後繼續遊覽'],
+        notes: [
+          '放下行李後繼續遊覽',
+        ],
       },
       {
         time: '14:00',
@@ -356,13 +410,13 @@ export const days = [
         icon: '⛏️',
         title: '哈修塔特鹽礦 Hallstatt Salzwelten',
         subtitle: '世界最古老的鹽礦，開放 09:00-17:00',
+        mapUrl: 'https://www.google.com/maps/place/Salzwelten+Hallstatt/@47.5574,13.6537,16z',
         notes: [
           '搭纜車上下 €34',
           '走路上去 €24（省纜車費）',
           '⚠️ 裡面非常冷，需要帶外套！',
           '行程約 2 小時',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Salzwelten+Hallstatt/@47.5574,13.6537,16z',
       },
       {
         time: '16:30',
@@ -370,14 +424,17 @@ export const days = [
         icon: '🌊',
         title: '瀑布健行',
         subtitle: 'Waldbachstrub 瀑布步道',
-        notes: ['村旁健行步道', '風景優美'],
+        notes: [
+          '村旁健行步道',
+          '風景優美',
+        ],
       },
     ],
     phrases: [
-      { zh: '請問幾點有下一班渡輪？', en: 'When is the next ferry?', category: 'transport' },
-      { zh: '兩張渡輪票', en: 'Two tickets for the ferry, please.', category: 'transport' },
-      { zh: '搭纜車上去多少錢？', en: 'How much is the cable car ticket?', category: 'general' },
-      { zh: '裡面冷嗎？需要帶外套嗎？', en: 'Is it cold inside? Should I bring a jacket?', category: 'general' },
+        { zh: '請問幾點有下一班渡輪？', en: 'When is the next ferry?', category: 'transport' },
+        { zh: '兩張渡輪票', en: 'Two tickets for the ferry, please.', category: 'transport' },
+        { zh: '搭纜車上去多少錢？', en: 'How much is the cable car ticket?', category: 'general' },
+        { zh: '裡面冷嗎？需要帶外套嗎？', en: 'Is it cold inside? Should I bring a jacket?', category: 'general' },
     ],
   },
   {
@@ -386,11 +443,19 @@ export const days = [
     title: '哈修塔特 → 聖吉爾根 → 薩爾茲堡',
     city: '哈修塔特 → 聖吉爾根 → 薩爾茲堡',
     flag: '🇦🇹',
-    highlights: ['清晨渡湖離開哈修塔特', '聖吉爾根十二角峰纜車', '抵達薩爾茲堡', '藍帶豬排晚餐'],
-    hotel: {
+    highlights: [
+      '清晨渡湖離開哈修塔特',
+      '聖吉爾根十二角峰纜車',
+      '抵達薩爾茲堡',
+      '藍帶豬排晚餐',
+    ],
+    hotel:     {
       name: 'a&o Salzburg Hauptbahnhof',
       address: 'Salzburg 火車總站旁',
-      notes: ['4/4-4/6 入住', '需額外付 €14.2 城市稅'],
+      notes: [
+          '4/4-4/6 入住',
+          '需額外付 €14.2 城市稅',
+        ],
     },
     events: [
       {
@@ -399,7 +464,9 @@ export const days = [
         icon: '⛵',
         title: '搭渡船離開哈修塔特',
         subtitle: '哈修塔特村 → Hallstatt Bahnhof',
-        notes: ['航程約 15 分鐘'],
+        notes: [
+          '航程約 15 分鐘',
+        ],
       },
       {
         time: '早上',
@@ -427,12 +494,12 @@ export const days = [
         icon: '🚡',
         title: '聖吉爾根 十二角峰纜車 Zwölferhorn',
         subtitle: 'St. Gilgen，開放 09:00-17:00',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwölferhorn+Seilbahn+St+Gilgen',
         notes: [
           '票價 €36',
           '可在纜車站寄放行李',
           '建議先看即時攝影機確認天氣',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwölferhorn+Seilbahn+St+Gilgen',
       },
       {
         time: '下午',
@@ -440,7 +507,9 @@ export const days = [
         icon: '🚌',
         title: '搭 Bus 150 前往薩爾茲堡',
         subtitle: '聖吉爾根 → 薩爾茲堡火車總站',
-        notes: ['車程約 1 小時'],
+        notes: [
+          '車程約 1 小時',
+        ],
       },
       {
         time: '下午',
@@ -448,7 +517,9 @@ export const days = [
         icon: '🏨',
         title: '入住 a&o Salzburg Hauptbahnhof',
         subtitle: '薩爾茲堡火車總站旁',
-        notes: ['4/4-4/6，需額外付 €14.2 城市稅'],
+        notes: [
+          '4/4-4/6，需額外付 €14.2 城市稅',
+        ],
       },
       {
         time: '晚上',
@@ -463,10 +534,10 @@ export const days = [
       },
     ],
     phrases: [
-      { zh: '請問行李可以放在下面的行李艙嗎？', en: 'Can I put my luggage in the storage compartment below?', category: 'transport' },
-      { zh: '我要到薩爾茲堡，請問這班公車有去嗎？', en: 'Does this bus go to Salzburg?', category: 'transport' },
-      { zh: '纜車幾點最後一班下山？', en: 'What time is the last cable car down?', category: 'transport' },
-      { zh: '可以幫我寄放行李嗎？', en: 'Can I store my luggage here?', category: 'general' },
+        { zh: '請問行李可以放在下面的行李艙嗎？', en: 'Can I put my luggage in the storage compartment below?', category: 'transport' },
+        { zh: '我要到薩爾茲堡，請問這班公車有去嗎？', en: 'Does this bus go to Salzburg?', category: 'transport' },
+        { zh: '纜車幾點最後一班下山？', en: 'What time is the last cable car down?', category: 'transport' },
+        { zh: '可以幫我寄放行李嗎？', en: 'Can I store my luggage here?', category: 'general' },
     ],
   },
   {
@@ -475,8 +546,13 @@ export const days = [
     title: '薩爾茲堡',
     city: '薩爾茲堡',
     flag: '🇦🇹',
-    highlights: ['高地要塞 Festung Hohensalzburg', 'Zwettler\'s 薩爾茲堡特色午餐（已訂位）', '莫札特出生地', 'Augustiner Bräu 百人大廳喝啤酒'],
-    hotel: {
+    highlights: [
+      '高地要塞 Festung Hohensalzburg',
+      'Zwettler\'s 薩爾茲堡特色午餐（已訂位）',
+      '莫札特出生地',
+      'Augustiner Bräu 百人大廳喝啤酒',
+    ],
+    hotel:     {
       name: 'a&o Salzburg Hauptbahnhof',
       address: 'Salzburg 火車總站旁',
     },
@@ -487,7 +563,9 @@ export const days = [
         icon: '🚌',
         title: '搭 3 號公車',
         subtitle: '往 Salzburg Polizeidirektion 方向，在 Rathaus 站下車',
-        notes: ['步行到高地城堡纜車站'],
+        notes: [
+          '步行到高地城堡纜車站',
+        ],
       },
       {
         time: '09:30',
@@ -495,13 +573,13 @@ export const days = [
         icon: '🏰',
         title: '高地要塞 Festung Hohensalzburg',
         subtitle: '開放 09:00-17:30，遊玩約 2 小時',
+        mapUrl: 'https://www.google.com/maps/place/Festung+Hohensalzburg/@47.7952943,13.0458559,17z',
         notes: [
           '木偶博物館',
           '要塞博物館',
           '刑求博物館（恐怖有趣）',
           '居高臨下薩爾茲堡全景',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Festung+Hohensalzburg/@47.7952943,13.0458559,17z',
       },
       {
         time: '12:00',
@@ -509,12 +587,12 @@ export const days = [
         icon: '🍽️',
         title: '午餐：Zwettler\'s Wirtshaus（已訂位）',
         subtitle: 'Kaigasse 3, Salzburg',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwettlers+Wirtshaus+Salzburg',
         notes: [
           'Salzburger Nockerl 舒芙雷（招牌甜點）',
           'Kasnocken 起司麵疙瘩',
           'Schweinsbraten 烤豬肉',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Zwettlers+Wirtshaus+Salzburg',
       },
       {
         time: '14:00',
@@ -522,8 +600,11 @@ export const days = [
         icon: '🎵',
         title: '莫札特出生地 Mozarts Geburtshaus',
         subtitle: 'Getreidegasse 9, Salzburg',
-        notes: ['步行前往', '展示莫札特的童年生活'],
         mapUrl: 'https://www.google.com/maps/place/Mozarts+Geburtshaus/@47.8002506,13.043695,17z',
+        notes: [
+          '步行前往',
+          '展示莫札特的童年生活',
+        ],
       },
       {
         time: '15:00',
@@ -531,8 +612,10 @@ export const days = [
         icon: '🌭',
         title: 'Balkan Grill Walter (Bosna Grill)',
         subtitle: 'Getreidegasse，薩爾茲堡名物熱狗堡',
-        notes: ['Bosna 香料熱狗堡，1950 年代傳統'],
         mapUrl: 'https://www.google.com/maps/search/?api=1&query=Balkan+Grill+Walter+Bosna+Salzburg',
+        notes: [
+          'Bosna 香料熱狗堡，1950 年代傳統',
+        ],
       },
       {
         time: '15:30',
@@ -540,8 +623,11 @@ export const days = [
         icon: '🌸',
         title: '米拉貝爾宮花園 Mirabellgarten',
         subtitle: '花園免費，步行前往',
-        notes: ['《真善美》取景地', '噴水池與花卉'],
         mapUrl: 'https://www.google.com/maps/place/Mirabellgarten/@47.8052993,13.0404015,17z',
+        notes: [
+          '《真善美》取景地',
+          '噴水池與花卉',
+        ],
       },
       {
         time: '18:00',
@@ -549,6 +635,7 @@ export const days = [
         icon: '🍺',
         title: '晚餐：Augustiner Bräu Mülln',
         subtitle: 'Augustinergasse 4, Salzburg',
+        mapUrl: 'https://www.google.com/maps/place/Augustiner+Bräu+Mülln/@47.8030891,13.031887,17z',
         notes: [
           '數百人同聚大廳喝酒的熱鬧體驗',
           'Schweinshaxe 烤豬腳',
@@ -556,15 +643,14 @@ export const days = [
           'Leberkäse 肝酪',
           '自己拿托盤選食物',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Augustiner+Bräu+Mülln/@47.8030891,13.031887,17z',
       },
     ],
     phrases: [
-      { zh: '請問莫札特出生地怎麼走？', en: 'Excuse me, where is Mozart\'s Birthplace?', category: 'transport' },
-      { zh: '兩張要塞的票', en: 'Two tickets for the fortress, please.', category: 'general' },
-      { zh: '一份烤豬腳', en: 'One pork knuckle, please.', category: 'food' },
-      { zh: '一杯啤酒', en: 'One beer, please.', category: 'food' },
-      { zh: '舒芙雷是什麼？', en: 'What is Salzburger Nockerl?', category: 'food' },
+        { zh: '請問莫札特出生地怎麼走？', en: 'Excuse me, where is Mozart\'s Birthplace?', category: 'transport' },
+        { zh: '兩張要塞的票', en: 'Two tickets for the fortress, please.', category: 'general' },
+        { zh: '一份烤豬腳', en: 'One pork knuckle, please.', category: 'food' },
+        { zh: '一杯啤酒', en: 'One beer, please.', category: 'food' },
+        { zh: '舒芙雷是什麼？', en: 'What is Salzburger Nockerl?', category: 'food' },
     ],
   },
   {
@@ -573,8 +659,13 @@ export const days = [
     title: '薩爾茲堡 → 庫倫諾夫',
     city: '薩爾茲堡 → Český Krumlov',
     flag: '🇨🇿',
-    highlights: ['FlixBus 跨國前往捷克', '進入捷克，換兌克朗', '庫倫諾夫中世紀小鎮初探', '地窖餐廳晚餐'],
-    hotel: {
+    highlights: [
+      'FlixBus 跨國前往捷克',
+      '進入捷克，換兌克朗',
+      '庫倫諾夫中世紀小鎮初探',
+      '地窖餐廳晚餐',
+    ],
+    hotel:     {
       name: 'Hotel Krumlovská pohádka',
       address: 'Široká 74, Český Krumlov',
     },
@@ -585,7 +676,9 @@ export const days = [
         icon: '🚌',
         title: '步行搭 3 號公車',
         subtitle: '往 Salzburg-Süd S-Bahn 方向，在 Salzburg Alpensiedlung P+R 下車',
-        notes: ['車程約 30 分鐘'],
+        notes: [
+          '車程約 30 分鐘',
+        ],
       },
       {
         time: '09:20',
@@ -593,7 +686,10 @@ export const days = [
         icon: '🚌',
         title: '搭 FlixBus',
         subtitle: 'Salzburg Alpensiedlung → Český Krumlov',
-        notes: ['步行到 Flix Bus 車站', '跨奧捷邊境'],
+        notes: [
+          '步行到 Flix Bus 車站',
+          '跨奧捷邊境',
+        ],
       },
       {
         time: '12:30',
@@ -621,8 +717,10 @@ export const days = [
         icon: '🐻',
         title: '護城熊',
         subtitle: '庫倫洛夫城堡護城河，有活生生的棕熊',
-        notes: ['免費觀看'],
         mapUrl: 'https://www.google.com/maps/search/?api=1&query=Castle+Bears+Český+Krumlov',
+        notes: [
+          '免費觀看',
+        ],
       },
       {
         time: '下午',
@@ -630,8 +728,10 @@ export const days = [
         icon: '🌉',
         title: '斗篷橋 Cloak Bridge',
         subtitle: '庫倫洛夫城堡的多層拱橋',
-        notes: ['俯瞰城鎮最佳角度'],
         mapUrl: 'https://www.google.com/maps/search/?api=1&query=Cloak+Bridge+Český+Krumlov',
+        notes: [
+          '俯瞰城鎮最佳角度',
+        ],
       },
       {
         time: '下午',
@@ -639,8 +739,10 @@ export const days = [
         icon: '🏞️',
         title: '克倫洛夫城堡公園 & 觀景台',
         subtitle: '庫倫洛夫城堡花園與城鎮觀景台',
-        notes: ['遠眺城鎮與河流全景'],
         mapUrl: 'https://www.google.com/maps/search/?api=1&query=Český+Krumlov+Castle+Gardens',
+        notes: [
+          '遠眺城鎮與河流全景',
+        ],
       },
       {
         time: '下午',
@@ -648,7 +750,9 @@ export const days = [
         icon: '🏨',
         title: '入住飯店',
         subtitle: 'Hotel Krumlovská pohádka',
-        notes: ['Široká 74, Český Krumlov'],
+        notes: [
+          'Široká 74, Český Krumlov',
+        ],
       },
       {
         time: '18:00',
@@ -656,20 +760,20 @@ export const days = [
         icon: '🍽️',
         title: '晚餐：Krčma Šatlava（地窖餐廳）',
         subtitle: 'Šatlavská 170, Český Krumlov',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Krčma+Šatlava+Český+Krumlov',
         notes: [
           'Pečené vepřové koleno 烤豬腳',
           'Cibulačka 洋蔥麵包湯',
           '中世紀地窖風格，氣氛極佳',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Krčma+Šatlava+Český+Krumlov',
       },
     ],
     phrases: [
-      { zh: '請問在哪裡可以換捷克克朗？', en: 'Where can I exchange money for Czech koruna?', category: 'general' },
-      { zh: '請問護城熊在哪裡？', en: 'Excuse me, where are the castle bears?', category: 'transport' },
-      { zh: '一份烤豬腳', en: 'One roast pork knee, please.', category: 'food' },
-      { zh: '一碗洋蔥湯', en: 'One onion soup, please.', category: 'food' },
-      { zh: '這附近有 ATM 嗎？', en: 'Is there an ATM nearby?', category: 'general' },
+        { zh: '請問在哪裡可以換捷克克朗？', en: 'Where can I exchange money for Czech koruna?', category: 'general' },
+        { zh: '請問護城熊在哪裡？', en: 'Excuse me, where are the castle bears?', category: 'transport' },
+        { zh: '一份烤豬腳', en: 'One roast pork knee, please.', category: 'food' },
+        { zh: '一碗洋蔥湯', en: 'One onion soup, please.', category: 'food' },
+        { zh: '這附近有 ATM 嗎？', en: 'Is there an ATM nearby?', category: 'general' },
     ],
   },
   {
@@ -678,11 +782,19 @@ export const days = [
     title: '庫倫諾夫 → 布拉格',
     city: 'Český Krumlov → 布拉格',
     flag: '🇨🇿',
-    highlights: ['庫倫諾夫城堡彩繪塔（門票）', 'Papa\'s Living 河岸午餐（已訂位）', '煙囪捲 Trdelník', '傍晚巴士前往布拉格'],
-    hotel: {
+    highlights: [
+      '庫倫諾夫城堡彩繪塔（門票）',
+      'Papa\'s Living 河岸午餐（已訂位）',
+      '煙囪捲 Trdelník',
+      '傍晚巴士前往布拉格',
+    ],
+    hotel:     {
       name: 'City Pop 2NIGHT Prague',
       address: '布拉格市區',
-      notes: ['4/7-4/10 入住', '需額外付 300 CZK 城市稅'],
+      notes: [
+          '4/7-4/10 入住',
+          '需額外付 300 CZK 城市稅',
+        ],
     },
     events: [
       {
@@ -691,8 +803,10 @@ export const days = [
         icon: '🏰',
         title: '捷克克魯姆洛夫城堡',
         subtitle: '庫倫諾夫城堡（需購票入場）',
-        notes: ['彩繪塔 CZK 500（必看！）'],
         mapUrl: 'https://www.google.com/maps/place/Český+Krumlov+Castle/@48.8120024,14.3143543,17z',
+        notes: [
+          '彩繪塔 CZK 500（必看！）',
+        ],
       },
       {
         time: '早上',
@@ -700,7 +814,9 @@ export const days = [
         icon: '🎟️',
         title: '購票建議',
         subtitle: '可順便買明天布拉格的蠟像館門票',
-        notes: ['預購省時間、可能有折扣'],
+        notes: [
+          '預購省時間、可能有折扣',
+        ],
       },
       {
         time: '11:30',
@@ -708,13 +824,13 @@ export const days = [
         icon: '🍽️',
         title: '午餐：Papa\'s Living Restaurant（已訂位）',
         subtitle: '河岸景觀餐廳',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Papa+Living+Restaurant+Český+Krumlov',
         notes: [
           '義大利麵',
           '千層麵',
           '烤肋排',
           '河景用餐，景色絕佳',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Papa+Living+Restaurant+Český+Krumlov',
       },
       {
         time: '下午',
@@ -722,7 +838,10 @@ export const days = [
         icon: '🍩',
         title: '點心：煙囪捲 Trdelník',
         subtitle: '庫倫諾夫街頭小吃',
-        notes: ['捷克傳統甜點', '現烤熱騰騰的好吃'],
+        notes: [
+          '捷克傳統甜點',
+          '現烤熱騰騰的好吃',
+        ],
       },
       {
         time: '17:00',
@@ -749,7 +868,10 @@ export const days = [
         icon: '🏨',
         title: '入住 City Pop 2NIGHT Prague',
         subtitle: '布拉格市區',
-        notes: ['4/7-4/10 入住', '需額外付 300 CZK'],
+        notes: [
+          '4/7-4/10 入住',
+          '需額外付 300 CZK',
+        ],
       },
       {
         time: '晚上',
@@ -757,14 +879,16 @@ export const days = [
         icon: '🍕',
         title: '晚餐',
         subtitle: '抵達布拉格後隨意覓食',
-        notes: ['抵達較晚，找附近餐廳即可'],
+        notes: [
+          '抵達較晚，找附近餐廳即可',
+        ],
       },
     ],
     phrases: [
-      { zh: '請問去布拉格的巴士在哪裡搭？', en: 'Where do I catch the bus to Prague?', category: 'transport' },
-      { zh: '我要選靠右邊的座位', en: 'I\'d like a seat on the right side, please.', category: 'transport' },
-      { zh: '一份煙囪捲', en: 'One Trdelník, please.', category: 'food' },
-      { zh: '彩繪塔幾點關門？', en: 'What time does the Painted Tower close?', category: 'general' },
+        { zh: '請問去布拉格的巴士在哪裡搭？', en: 'Where do I catch the bus to Prague?', category: 'transport' },
+        { zh: '我要選靠右邊的座位', en: 'I\'d like a seat on the right side, please.', category: 'transport' },
+        { zh: '一份煙囪捲', en: 'One Trdelník, please.', category: 'food' },
+        { zh: '彩繪塔幾點關門？', en: 'What time does the Painted Tower close?', category: 'general' },
     ],
   },
   {
@@ -773,8 +897,14 @@ export const days = [
     title: '布拉格：城堡區',
     city: '布拉格',
     flag: '🇨🇿',
-    highlights: ['布拉格城堡（聖維特大教堂、黃金巷）', 'Pork\'s Mostecka 豬排午餐（已訂位）', '查理大橋漫步', 'Clementinum 巴洛克圖書館導覽（已預約）', '伏爾塔瓦河小木船遊船'],
-    hotel: {
+    highlights: [
+      '布拉格城堡（聖維特大教堂、黃金巷）',
+      'Pork\'s Mostecka 豬排午餐（已訂位）',
+      '查理大橋漫步',
+      'Clementinum 巴洛克圖書館導覽（已預約）',
+      '伏爾塔瓦河小木船遊船',
+    ],
+    hotel:     {
       name: 'City Pop 2NIGHT Prague',
       address: '布拉格市區',
     },
@@ -785,7 +915,9 @@ export const days = [
         icon: '🚃',
         title: '搭 22 號電車前往城堡區',
         subtitle: '往 Pohořelec 或 Pražský hrad 方向',
-        notes: ['從市區搭電車上山'],
+        notes: [
+          '從市區搭電車上山',
+        ],
       },
       {
         time: '09:00',
@@ -793,12 +925,12 @@ export const days = [
         icon: '⛪',
         title: '聖維特大教堂',
         subtitle: '布拉格城堡內，哥德式大教堂',
+        mapUrl: 'https://www.google.com/maps/place/St.+Vitus+Cathedral/@50.0906128,14.4003396,17z',
         notes: [
           '⚠️ 彩繪玻璃窗必看：慕夏的作品',
           '城堡全票 450 CZK',
           '含聖維特大教堂、舊皇宮、聖喬治教堂、黃金巷',
         ],
-        mapUrl: 'https://www.google.com/maps/place/St.+Vitus+Cathedral/@50.0906128,14.4003396,17z',
       },
       {
         time: '10:00',
@@ -806,8 +938,10 @@ export const days = [
         icon: '🏰',
         title: '布拉格城堡 Prague Castle',
         subtitle: '含舊皇宮、聖喬治教堂',
-        notes: ['世界最大城堡之一'],
         mapUrl: 'https://www.google.com/maps/place/Prague+Castle/@50.0906128,14.4003396,16z',
+        notes: [
+          '世界最大城堡之一',
+        ],
       },
       {
         time: '11:00',
@@ -815,7 +949,10 @@ export const days = [
         icon: '⚗️',
         title: '黃金巷 Golden Lane',
         subtitle: '布拉格城堡內的煉金術士街道',
-        notes: ['卡夫卡曾在 22 號住過', '小巧可愛的中世紀街道'],
+        notes: [
+          '卡夫卡曾在 22 號住過',
+          '小巧可愛的中世紀街道',
+        ],
       },
       {
         time: '12:00',
@@ -823,12 +960,12 @@ export const days = [
         icon: '🍖',
         title: '午餐：Pork\'s Mostecka（已訂位）',
         subtitle: 'Mostecká 10, Praha 1',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Pork%27s+Mostecka+Prague',
         notes: [
           'Pork knuckle 烤豬肘（招牌）',
           'Ribs 豬肋排',
           'bramborákem 豬油炸馬鈴薯餅',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Pork%27s+Mostecka+Prague',
       },
       {
         time: '13:30',
@@ -836,11 +973,11 @@ export const days = [
         icon: '🌉',
         title: '查理大橋漫步 & 老城橋塔',
         subtitle: 'Karlův most，伏爾塔瓦河上的石橋',
+        mapUrl: 'https://www.google.com/maps/place/Charles+Bridge/@50.0864856,14.4112295,17z',
         notes: [
           '30 座聖人雕像',
           '登老城橋塔可俯瞰全橋',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Charles+Bridge/@50.0864856,14.4112295,17z',
       },
       {
         time: '15:00',
@@ -848,6 +985,7 @@ export const days = [
         icon: '📚',
         title: 'Clementinum 克萊門特學院（已預約）',
         subtitle: 'Mariánské náměstí 5, Praha 1',
+        mapUrl: 'https://www.google.com/maps/place/Clementinum/@50.0869203,14.4169508,17z',
         notes: [
           '380 CZK',
           '英文導覽約 50 分鐘',
@@ -855,7 +993,6 @@ export const days = [
           '巴洛克圖書館（世界最美之一）',
           '天文台 & 觀景台',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Clementinum/@50.0869203,14.4169508,17z',
       },
       {
         time: '16:30',
@@ -863,11 +1000,11 @@ export const days = [
         icon: '🚣',
         title: '伏爾塔瓦河遊船：復古小木船',
         subtitle: 'Prague Venice，查理大橋下',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Prague+Venice+boat+tour+Charles+Bridge',
         notes: [
           '⚠️ 要提早去預訂 4:15 或 4:30 的船',
           '復古木船穿越拱橋，浪漫感十足',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Prague+Venice+boat+tour+Charles+Bridge',
       },
       {
         time: '18:00',
@@ -875,8 +1012,11 @@ export const days = [
         icon: '🕐',
         title: '舊市政廳與天文鐘塔樓',
         subtitle: 'Staroměstské náměstí，舊城廣場',
-        notes: ['天文鐘整點報時（人偶遊行）', '可登塔俯瞰舊城廣場'],
         mapUrl: 'https://www.google.com/maps/place/Prague+Astronomical+Clock/@50.0870743,14.4202512,17z',
+        notes: [
+          '天文鐘整點報時（人偶遊行）',
+          '可登塔俯瞰舊城廣場',
+        ],
       },
       {
         time: '晚上',
@@ -884,16 +1024,19 @@ export const days = [
         icon: '🛒',
         title: '晚餐：超市採購',
         subtitle: '附近超市（Albert / Billa）',
-        notes: ['省錢策略：超市買食材', '捷克啤酒超便宜！'],
+        notes: [
+          '省錢策略：超市買食材',
+          '捷克啤酒超便宜！',
+        ],
       },
     ],
     phrases: [
-      { zh: '請問 22 號電車在哪裡搭？', en: 'Where do I catch tram number 22?', category: 'transport' },
-      { zh: '我預約了下午 3 點的導覽', en: 'I have a booking for the 3 o\'clock tour.', category: 'general' },
-      { zh: '請問可以預訂 4 點半的船嗎？', en: 'Can I book the 4:30 boat tour?', category: 'general' },
-      { zh: '黃金巷在哪裡？', en: 'Where is the Golden Lane?', category: 'transport' },
-      { zh: '一份烤豬肘', en: 'One pork knuckle, please.', category: 'food' },
-      { zh: '請問天文鐘的表演幾點？', en: 'What time is the Astronomical Clock performance?', category: 'general' },
+        { zh: '請問 22 號電車在哪裡搭？', en: 'Where do I catch tram number 22?', category: 'transport' },
+        { zh: '我預約了下午 3 點的導覽', en: 'I have a booking for the 3 o\'clock tour.', category: 'general' },
+        { zh: '請問可以預訂 4 點半的船嗎？', en: 'Can I book the 4:30 boat tour?', category: 'general' },
+        { zh: '黃金巷在哪裡？', en: 'Where is the Golden Lane?', category: 'transport' },
+        { zh: '一份烤豬肘', en: 'One pork knuckle, please.', category: 'food' },
+        { zh: '請問天文鐘的表演幾點？', en: 'What time is the Astronomical Clock performance?', category: 'general' },
     ],
   },
   {
@@ -902,11 +1045,19 @@ export const days = [
     title: '布拉格：猶太區、舊城、佩特任山',
     city: '布拉格',
     flag: '🇨🇿',
-    highlights: ['猶太區老猶太公墓', 'Botanicus 購物（精油、手工皂）', 'La Republica 烤鴨午餐（已訂位）', '42 號復古觀光電車', '佩特任山纜車看夕陽'],
-    hotel: {
+    highlights: [
+      '猶太區老猶太公墓',
+      'Botanicus 購物（精油、手工皂）',
+      'La Republica 烤鴨午餐（已訂位）',
+      '42 號復古觀光電車',
+      '佩特任山纜車看夕陽',
+    ],
+    hotel:     {
       name: 'City Pop 2NIGHT Prague',
       address: '布拉格市區',
-      notes: ['隔天 4/10 10:40 飛機，7:40 需到機場'],
+      notes: [
+          '隔天 4/10 10:40 飛機，7:40 需到機場',
+        ],
     },
     events: [
       {
@@ -915,12 +1066,12 @@ export const days = [
         icon: '✡️',
         title: '猶太區 Prague Jewish Town',
         subtitle: 'Josefov，布拉格猶太社區',
+        mapUrl: 'https://www.google.com/maps/place/Josefov/@50.0904136,14.4168697,17z',
         notes: [
           '西班牙猶太會堂（西班牙風格，最華麗）',
           '老猶太公墓（層層疊疊的墓碑，震撼人心）',
           '遊玩約 2 小時',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Josefov/@50.0904136,14.4168697,17z',
       },
       {
         time: '11:00',
@@ -928,13 +1079,13 @@ export const days = [
         icon: '🛍️',
         title: 'Botanicus 購物',
         subtitle: 'Týn 3, Praha 1（提恩庭院門市）',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Botanicus+Týn+Prague',
         notes: [
           '捷克必買伴手禮',
           '天然精油、手工皂',
           '蜂蜜、花草茶',
           '開放約 10:00-18:30',
         ],
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Botanicus+Týn+Prague',
       },
       {
         time: '12:00',
@@ -953,12 +1104,12 @@ export const days = [
         icon: '🏗️',
         title: '火藥塔登頂',
         subtitle: 'Náměstí Republiky，舊城門塔',
+        mapUrl: 'https://www.google.com/maps/place/Powder+Tower/@50.0872764,14.4252138,17z',
         notes: [
           '約 190 CZK',
           '登頂可眺望舊城區',
           '建於 1475 年',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Powder+Tower/@50.0872764,14.4252138,17z',
       },
       {
         time: '14:30',
@@ -977,13 +1128,13 @@ export const days = [
         icon: '⛰️',
         title: '佩特任山 Petřín Hill',
         subtitle: 'Újezd 站搭纜車上山',
+        mapUrl: 'https://www.google.com/maps/place/Petřín/@50.0835097,14.3982072,17z',
         notes: [
           '搭纜車上山（一般大眾運輸票即可）',
           '瞭望塔 Petřínská rozhledna（小版艾菲爾鐵塔）',
           '日落前登塔看夕陽，景色絕美',
           '日落約 19:30',
         ],
-        mapUrl: 'https://www.google.com/maps/place/Petřín/@50.0835097,14.3982072,17z',
       },
       {
         time: '晚上',
@@ -1011,12 +1162,12 @@ export const days = [
       },
     ],
     phrases: [
-      { zh: '猶太區的入場券可以在哪裡買？', en: 'Where can I buy tickets for the Jewish Quarter?', category: 'general' },
-      { zh: '請問火藥塔怎麼走？', en: 'Where is the Powder Tower?', category: 'transport' },
-      { zh: '一份烤鴨胸', en: 'One grilled duck breast, please.', category: 'food' },
-      { zh: '請問佩特任纜車在哪裡搭？', en: 'Where is the Petřín funicular?', category: 'transport' },
-      { zh: '機場快線在哪裡搭？', en: 'Where do I catch the Airport Express?', category: 'transport' },
-      { zh: '請問幾點有班次到機場？', en: 'What time is the next bus to the airport?', category: 'transport' },
+        { zh: '猶太區的入場券可以在哪裡買？', en: 'Where can I buy tickets for the Jewish Quarter?', category: 'general' },
+        { zh: '請問火藥塔怎麼走？', en: 'Where is the Powder Tower?', category: 'transport' },
+        { zh: '一份烤鴨胸', en: 'One grilled duck breast, please.', category: 'food' },
+        { zh: '請問佩特任纜車在哪裡搭？', en: 'Where is the Petřín funicular?', category: 'transport' },
+        { zh: '機場快線在哪裡搭？', en: 'Where do I catch the Airport Express?', category: 'transport' },
+        { zh: '請問幾點有班次到機場？', en: 'What time is the next bus to the airport?', category: 'transport' },
     ],
-  },
+  }
 ]

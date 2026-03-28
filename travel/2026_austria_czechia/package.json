@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "parse": "node scripts/md-to-data.js",
+    "dev": "node scripts/md-to-data.js && vite",
+    "build": "node scripts/md-to-data.js && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
