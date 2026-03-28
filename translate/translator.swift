@@ -198,7 +198,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // 第一排：輸入框 + 翻譯按鈕
+            // 第一排：輸入框 + 翻譯按鈕 + 📝
             HStack(spacing: 8) {
                 TextEditor(text: $inputText)
                     .font(.system(size: 14))
@@ -221,9 +221,20 @@ struct ContentView: View {
                 }
                 .buttonStyle(.plain)
                 .keyboardShortcut(.return, modifiers: .command)
+
+                Button("📝") {
+                    NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Notes.app"))
+                }
+                .buttonStyle(.plain)
+                .font(.system(size: 14))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(Color(nsColor: .controlBackgroundColor))
+                .cornerRadius(6)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
             }
 
-            // 第二排：字體 + Apple Notes
+            // 第二排：字體大小
             HStack(spacing: 8) {
                 Spacer()
 
@@ -244,17 +255,6 @@ struct ContentView: View {
                     .background(Color(nsColor: .controlBackgroundColor))
                     .cornerRadius(6)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
-
-                Button("📝 Apple Notes") {
-                    NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Notes.app"))
-                }
-                .buttonStyle(.plain)
-                .font(.system(size: 12))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .cornerRadius(6)
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
             }
 
             // Tab 列 + 輸出區（ZStack 讓 active tab 與內容框融合）
