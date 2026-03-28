@@ -7,6 +7,11 @@ private let SYSTEM_PROMPT =
     "你是翻譯工具。規則：若輸入為中文翻譯成英文，否則翻譯成繁體中文。" +
     "僅輸出翻譯結果，不加解釋、引號或其他格式。"
 
+private let userName = ProcessInfo.processInfo.environment["USER"] ?? "user"
+private let pidFilePath = "/tmp/translator_gui_\(userName).pid"
+private let inputFilePath = "/tmp/translator_gui_\(userName).txt"
+private let translateRequestNotification = Notification.Name("TranslateRequest")
+
 private let ansiRegex = try! NSRegularExpression(
     pattern: #"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r"#
 )
@@ -110,7 +115,7 @@ struct TabButton: View {
             }
             .buttonStyle(.plain)
         }
-        .background(isActive ? Color(nsColor: .white) : Color(nsColor: .controlBackgroundColor))
+        .background(isActive ? Color.orange : Color(nsColor: .controlBackgroundColor))
         .cornerRadius(5)
         .overlay(
             RoundedRectangle(cornerRadius: 5)
@@ -250,6 +255,12 @@ struct ContentView: View {
                 translate()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: translateRequestNotification)) { notification in
+            if let text = notification.object as? String, !text.isEmpty {
+                inputText = text
+                translate()
+            }
+        }
     }
 
     private func translate() {
@@ -292,6 +303,7 @@ struct ContentView: View {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     let runner = GeminiRunner()
+    var sigusr1Source: DispatchSourceSignal?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let initialText = ProcessInfo.processInfo.environment["TRANSLATOR_INITIAL_TEXT"] ?? ""
@@ -318,9 +330,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if event.keyCode == 53 { NSApp.terminate(nil); return nil }
             return event
         }
+
+        // 寫入 PID 檔
+        try? "\(ProcessInfo.processInfo.processIdentifier)"
+            .write(toFile: pidFilePath, atomically: true, encoding: .utf8)
+
+        // 監聽 SIGUSR1：收到後讀 input 檔並觸發翻譯
+        signal(SIGUSR1, SIG_IGN)
+        let src = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
+        src.setEventHandler { [weak self] in
+            let text = (try? String(contentsOfFile: inputFilePath, encoding: .utf8))?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if !text.isEmpty {
+                NotificationCenter.default.post(name: translateRequestNotification, object: text)
+            }
+            self?.window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        src.resume()
+        sigusr1Source = src
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        try? FileManager.default.removeItem(atPath: pidFilePath)
         Task { await runner.cancelAll() }
     }
 

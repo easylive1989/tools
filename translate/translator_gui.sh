@@ -27,5 +27,20 @@ fi
 osascript -e 'tell application "System Events" to keystroke "c" using command down'
 sleep 0.1
 SELECTED_TEXT=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
+
+PID_FILE="/tmp/translator_gui_${USER}.pid"
+INPUT_FILE="/tmp/translator_gui_${USER}.txt"
+
+# 若程式已在執行，送文字給它即可
+if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if kill -0 "$PID" 2>/dev/null; then
+        printf '%s' "$SELECTED_TEXT" > "$INPUT_FILE"
+        kill -USR1 "$PID"
+        exit 0
+    fi
+fi
+
+# 啟動新 instance
 TRANSLATOR_INITIAL_TEXT="$SELECTED_TEXT" nohup "$BINARY" >/dev/null 2>&1 &
 disown $!
