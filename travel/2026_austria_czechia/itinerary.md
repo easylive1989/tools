@@ -480,7 +480,7 @@ Salzburg Alpensiedlung → Český Krumlov
 Hotel Krumlovská pohádka
 - Široká 74, Český Krumlov
 
-#### [18:00] food 🍽️ 🍽️ 🍽️ 🍽️ 晚餐：Krčma Šatlava（地窖餐廳）
+#### [18:00] food 🍽️ 晚餐：Krčma Šatlava（地窖餐廳）
 Šatlavská 170, Český Krumlov
 📍 https://www.google.com/maps/search/?api=1&query=Krčma+Šatlava+Český+Krumlov
 - Pečené vepřové koleno 烤豬腳
@@ -532,16 +532,19 @@ Hotel Krumlovská pohádka
 - 捷克傳統甜點
 - 現烤熱騰騰的好吃
 
-#### [17:00] transport 🚌 搭巴士前往布拉格
+#### [17:00] transport 🚌 搭 Flix Bus 前往布拉格
 庫倫諾夫 AN → 布拉格 Na Knížecí 站
+📍 https://www.google.com/maps/place/Autobusov%C3%A9+n%C3%A1dra%C5%BE%C3%AD+%C4%8Cesk%C3%BD+Krumlov/@48.8108855,14.3202456,17.05z/data=!4m6!3m5!1s0x47735d4f77e78bc7:0xdfb2f6029d281d1c!8m2!3d48.8116193!4d14.3225475!16s%2Fg%2F11fq_zxw1l!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 - 車程約 3 小時
 - 💡 選位技巧：選右側 (Right side) 可看鄉村風景
 
 #### [約 20:00] transport 🚌 🏙️ 抵達布拉格
 Na Knížecí 巴士站，布拉格市區
+📍 https://www.google.com/maps/place/Florenc+Bus+Terminal/@50.0872611,14.4383341,16.12z/data=!4m6!3m5!1s0x470b94bd7a72ba51:0xcdabc4c521b0b380!8m2!3d50.0892903!4d14.4428929!16s%2Fg%2F11cjj34njt!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 
 #### [晚上] hotel 🏨 🏨 入住 City Pop 2NIGHT Prague
 布拉格市區
+📍 https://www.google.com/maps/place/Legerova+1627%2F61,+120+00+Nov%C3%A9+M%C4%9Bsto,+%E6%8D%B7%E5%85%8B/@50.076798,14.4302339,17z/data=!3m1!4b1!4m6!3m5!1s0x470b948c48386397:0xeba084ca9e40f8c8!8m2!3d50.076798!4d14.4302339!16s%2Fg%2F11c5lsqjv5?entry=tts&g_ep=EgoyMDI2MDEyNS4wIPu8ASoASAFQAw%3D%3D&skid=0384262b-5acd-402d-88e2-264e3bdcce97
 - 4/7-4/10 入住
 - 需額外付 300 CZK
 
@@ -609,6 +612,10 @@ Karlův most，伏爾塔瓦河上的石橋
 📍 https://www.google.com/maps/place/Charles+Bridge/@50.0864856,14.4112295,17z
 - 30 座聖人雕像
 - 登老城橋塔可俯瞰全橋
+
+#### [14:30] info 先去預約 16:30 的船班
+避免沒位置坐，看時間能不能去看看老城橋塔博物館
+📍 https://www.google.com/maps/place/Prague+Venice+Boat+Trip/@50.0865332,14.4120241,18z/data=!4m10!1m2!2m1!1z5b6p5Y-k5bCP5pyo6Ii5IOW4g-aLieagvCDkvI_loZTnk6bniL7msrM!3m6!1s0x470b94e5e58eb59f:0xaa4b2e0331376e12!8m2!3d50.0865635!4d14.4140229!15sCinlvqnlj6TlsI_mnKjoiLkg5biD5ouJ5qC8IOS8j-WhlOeTpueIvuays1owIi7lvqnlj6Qg5bCPIOacqOiIuSDluIPmi4nmoLwg5LyPIOWhlCDnk6bniL4g5rKzkgEQYm9hdF90b3VyX2FnZW5jeZoBRENpOURRVWxSUVVOdlpFTm9kSGxqUmpsdlQyMVNNR05XVGtkVGJrcG1aRmRTUjFwSWFEWlZhM2hhWVdwS1JXVnJSUkFC4AEA-gEFCIwBECU!16s%2Fg%2F11ggdth0px!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 
 #### [15:00] sight 📸 Clementinum 克萊門特學院（已預約）
 Mariánské náměstí 5, Praha 1
