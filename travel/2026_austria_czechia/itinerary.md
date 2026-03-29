@@ -65,31 +65,31 @@ Südtiroler Platz → Stephansplatz（往 Leopoldau 方向）
 
 #### [10:00] sight ⛪ 聖斯德望主教座堂
 Stephansplatz，維也納地標
-📍 https://www.google.com/maps/place/Stephansdom/@48.2085878,16.3725042,17z
+📍 https://www.google.com/maps/place/%E8%81%96%E6%96%AF%E5%BE%B7%E6%9C%9B%E4%B8%BB%E6%95%99%E5%BA%A7%E5%A0%82/data=!4m2!3m1!1s0x476d079f223feccf:0x179757f3fadc3159?sa=X&ved=1t:155783&ictx=111
 - 安可鐘整點報時，12 點特別
 - 免費入場，爬塔需購票
 
 #### [10:30] sight 📸 🗺️ 格拉本大街與黑死病紀念柱
 Graben 步行街
-📍 https://www.google.com/maps/place/Pestsäule/@48.2087334,16.3697165,18z
+📍 https://www.google.com/maps/place/%E9%BB%91%E6%AD%BB%E7%97%85%E7%B4%80%E5%BF%B5%E6%9F%B1/@48.2084114,16.3734707,17z/data=!4m6!3m5!1s0x476d0798e9d2ed2b:0x19ca8b2e98ba5488!8m2!3d48.2087219!4d16.3698073!16zL20vMGNzcTgz!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 - 德梅爾咖啡店 (Demel) 外帶皇帝煎餅
 - 維也納聖彼得教堂
 
 #### [12:00] food ☕ 莫札特咖啡館 Café Mozart（已訂位）
 Albertinaplatz 2, Vienna
-📍 https://www.google.com/maps/place/Café+Mozart/@48.2042832,16.3694552,17z
+📍 https://www.google.com/maps/place/%E8%8E%AB%E6%9C%AD%E7%89%B9%E5%92%96%E5%95%A1%E9%A4%A8/@48.2087254,16.3672324,17z/data=!3m1!5s0x476d079c6d8d984d:0x87aa09af5b240d27!4m6!3m5!1s0x476d079c7350a9b9:0x5d54ebb3b1dc1785!8m2!3d48.2042832!4d16.3694552!16s%2Fg%2F11ksfxcmm!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 - 推薦：蘋果捲 Apfelstrudel
 - 薩赫蛋糕 Sachertorte
 - 莫札特蛋糕 Mozarttorte
 
-#### [14:00] food 🍽️ 🍽️ 🌭 維也納香腸攤 Bitzinger
+#### [14:00] food 🍽️ 🌭 維也納香腸攤 Bitzinger
 阿爾貝蒂娜博物館旁，Augustinerstraße 1
-📍 https://www.google.com/maps/place/Bitzinger/@48.2040964,16.3685027,18z
+📍 https://www.google.com/maps/place/Bitzinger/@48.2040999,16.3659278,17z/data=!3m1!4b1!4m6!3m5!1s0x476d079b8b7b1441:0x19f957dd80a5703!8m2!3d48.2040964!4d16.3685027!16s%2Fg%2F1ptzmv1nr!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 - Käsekrainer 起司香腸
 - Bratwurst 煎香腸
 - 可到阿爾貝蒂娜博物館二樓享用
 
-#### [14:30] sight 📸 📸 霍夫堡皇宮區域散步
+#### [14:30] sight 📸 霍夫堡皇宮區域散步
 Hofburg Imperial Palace
 📍 https://www.google.com/maps/place/Hofburg/@48.2056578,16.3647803,17z
 - SiSi 博物館（茜茜公主）
@@ -97,9 +97,9 @@ Hofburg Imperial Palace
 - 奧地利國家圖書館
 - 外面免費參觀
 
-#### [18:30] food 🍽️ 🍽️ 晚餐：Figlmüller Bäckerstraße
+#### [18:30] food 🍽️ 晚餐：Figlmüller Bäckerstraße
 Bäckerstraße 6, 1010 Wien
-📍 https://www.google.com/maps/place/Figlmüller+Bäckerstraße/@48.2092519,16.3755254,17z
+📍 https://www.google.com/maps/place/Figlm%C3%BCller+%E2%80%93+Restaurant+B%C3%A4ckerstra%C3%9Fe/@48.2093154,16.3730022,17z/data=!3m1!4b1!4m6!3m5!1s0x476d079f82844f6d:0x7e5baade64dd9f0d!8m2!3d48.2093119!4d16.3755771!16s%2Fg%2F11b7rn9201!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MDMyNC4wIKXMDSoASAFQAw%3D%3D
 - 招牌：Figlmüller Schnitzel（超大炸牛排）
 - Kartoffelsalat 馬鈴薯沙拉
 - ⚠️ 注意：沒點飲料會被罵！
