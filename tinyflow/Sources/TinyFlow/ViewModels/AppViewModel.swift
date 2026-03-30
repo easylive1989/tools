@@ -10,6 +10,10 @@ class AppViewModel: ObservableObject {
 
     private var streamingTask: Task<Void, Never>?
 
+    init() {
+        sessions = SessionStorage.loadAll()
+    }
+
     var activeSession: Session? {
         sessions.first { $0.id == activeSessionId }
     }
@@ -17,33 +21,22 @@ class AppViewModel: ObservableObject {
     // MARK: - Session Management
 
     func createSession(name: String, cliType: CLIType, folder: String) {
-        // Merge any previously persisted sessions for this folder
-        let existing = SessionStorage.load(for: folder)
-        for s in existing where !sessions.contains(where: { $0.id == s.id }) {
-            sessions.append(s)
-        }
-
         let session = Session(name: name, cliType: cliType, folder: folder)
         sessions.append(session)
         activeSessionId = session.id
-        persistSessions(for: folder)
+        persist()
     }
 
     func deleteSession(_ session: Session) {
-        let folder = session.folder
         sessions.removeAll { $0.id == session.id }
         if activeSessionId == session.id {
             activeSessionId = sessions.first?.id
         }
-        persistSessions(for: folder)
+        persist()
     }
 
     func loadAndSelectSession(_ session: Session) {
         activeSessionId = session.id
-        let existing = SessionStorage.load(for: session.folder)
-        for s in existing where !sessions.contains(where: { $0.id == s.id }) {
-            sessions.append(s)
-        }
     }
 
     // MARK: - Messaging
@@ -111,7 +104,7 @@ class AppViewModel: ObservableObject {
                 }
             }
 
-            persistSessions(for: folder)
+            persist()
             isStreaming = false
         }
     }
@@ -159,8 +152,7 @@ class AppViewModel: ObservableObject {
         sessions[idx].updatedAt = Date()
     }
 
-    private func persistSessions(for folder: String) {
-        let folderSessions = sessions.filter { $0.folder == folder }
-        SessionStorage.save(folderSessions, for: folder)
+    private func persist() {
+        SessionStorage.saveAll(sessions)
     }
 }
