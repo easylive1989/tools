@@ -1,0 +1,12 @@
+# Swift Package Manager
+.build/
+
+# macOS app bundle
+*.app
+
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcworkspace
