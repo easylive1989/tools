@@ -58,8 +58,6 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCwXdFgeE9KYzlDdR7TG9cMw
 # Flutter Community
 https://www.youtube.com/feeds/videos.xml?channel_id=UCNUzIz3TsiHSbgn_66kLIww
 
-# freeCodeCamp Programming Tutorials: Python, JavaScript, Git &amp; More
-https://www.freecodecamp.org/news/rss/
 
 # ByteByteGo
 https://blog.bytebytego.com/feed

@@ -2,16 +2,26 @@ import Foundation
 import SwiftUI
 
 @MainActor
-class AppViewModel: ObservableObject {
+public class AppViewModel: ObservableObject {
     @Published var sessions: [Session] = []
     @Published var activeSessionId: UUID? = nil
     @Published var isStreaming: Bool = false
     @Published var showNewSessionSheet: Bool = false
 
+    private let cliRunner: CLIRunning
+    private let storage: SessionStoring
     private var streamingTask: Task<Void, Never>?
 
-    init() {
-        sessions = SessionStorage.loadAll()
+    public init() {
+        self.cliRunner = LiveCLIRunner()
+        self.storage = LiveSessionStorage()
+        sessions = self.storage.loadAll()
+    }
+
+    init(cliRunner: CLIRunning, storage: SessionStoring) {
+        self.cliRunner = cliRunner
+        self.storage = storage
+        sessions = storage.loadAll()
     }
 
     var activeSession: Session? {
@@ -57,7 +67,7 @@ class AppViewModel: ObservableObject {
             var streamingMsgId: UUID? = nil
             var receivedCLISessionId: String? = nil
 
-            let stream = CLIRunner.run(
+            let stream = cliRunner.run(
                 cliType: cliType,
                 message: content,
                 sessionId: cliSessionId,
@@ -153,6 +163,6 @@ class AppViewModel: ObservableObject {
     }
 
     private func persist() {
-        SessionStorage.saveAll(sessions)
+        storage.saveAll(sessions)
     }
 }

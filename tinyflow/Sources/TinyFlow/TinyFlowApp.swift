@@ -1,4 +1,5 @@
 import SwiftUI
+import TinyFlowCore
 
 @main
 struct TinyFlowApp: App {
