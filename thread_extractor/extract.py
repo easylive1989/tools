@@ -16,7 +16,7 @@ import requests
 from bs4 import BeautifulSoup
 
 DATABASE_ID = "3018303f78f7804c8253c266986003c4"
-NOTION_TOKEN = os.environ.get("NOTION_TOKEN")
+NOTION_TOKEN = os.environ.get("NOTION_SECRET")
 NOTION_VERSION = "2022-06-28"
 MAX_VIDEO_MB = 5.0
 
@@ -350,7 +350,7 @@ def save_to_notion(text: str, images: list, video_url: str, url: str):
 
 def main():
     if not NOTION_TOKEN:
-        print("請設定環境變數 NOTION_TOKEN")
+        print("請設定環境變數 NOTION_SECRET")
         sys.exit(1)
 
     if len(sys.argv) < 2:
