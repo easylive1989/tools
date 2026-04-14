@@ -30,4 +30,4 @@ jobs:
         NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        python summary/weekly_summary.py
+        python personal_retro/weekly_summary.py
