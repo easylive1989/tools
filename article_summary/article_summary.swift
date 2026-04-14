@@ -4,7 +4,7 @@ import WebKit
 
 // MARK: - Constants & Helpers
 
-private let SYSTEM_PROMPT = """
+private let ARTICLE_PROMPT = """
 你是一個專業的文章總結工具。請閱讀以下文章內容，並以繁體中文產生結構化總結。
 
 輸出格式：
@@ -12,7 +12,7 @@ private let SYSTEM_PROMPT = """
 - （列出 3-5 個關鍵重點）
 
 ## 關鍵論點
-- （列出文章的核心論點與支持依據）
+- （列出核心論點與支持依據）
 
 ## 結論
 （一段簡潔的結論總結）
@@ -118,18 +118,13 @@ actor ArticleSummarizer {
     private var liveTasks: [UUID: Process] = [:]
 
     func summarize(id: UUID, url: String) async -> (title: String, summary: String) {
-        // 階段 1：抓取文章
         let (title, bodyText) = await fetchArticle(url: url)
-
         if bodyText.isEmpty {
             return (title: title.isEmpty ? url : title, summary: "錯誤：無法取得文章內容")
         }
-
-        // 限制文字長度避免 prompt 過長
         let truncatedBody = String(bodyText.prefix(15000))
-
-        // 階段 2：呼叫 Gemini CLI 產生總結
-        let summary = await callGemini(id: id, articleText: truncatedBody)
+        let prompt = "\(ARTICLE_PROMPT)\n\n文章內容：\n\(truncatedBody)"
+        let summary = await callGeminiWithPrompt(id: id, prompt: prompt)
         return (title: title.isEmpty ? url : title, summary: summary)
     }
 
@@ -156,8 +151,7 @@ actor ArticleSummarizer {
         }
     }
 
-    private func callGemini(id: UUID, articleText: String) async -> String {
-        let prompt = "\(SYSTEM_PROMPT)\n\n文章內容：\n\(articleText)"
+    private func callGeminiWithPrompt(id: UUID, prompt: String) async -> String {
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (env["PATH"] ?? "")
 
