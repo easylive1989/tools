@@ -143,30 +143,29 @@ def main():
                 
                 print(f"New post: {title}")
                 
-                # 取得文章內文
+                # 一律從原網頁重新抓取文章內文
                 html_content = ""
-                if "content" in entry:
-                    html_content = entry.content[0].value
-                else:
-                    try:
-                        print(f"Fetching original page for full content: {link}")
-                        article_res = scraper.get(link, timeout=15)
-                        article_res.raise_for_status()
-                        
-                        # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
-                        if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
-                            article_res.encoding = article_res.apparent_encoding or 'utf-8'
-                            
-                        doc = Document(article_res.text)
-                        html_content = doc.summary()
-                        if not html_content or len(html_content) < 50:
-                            raise ValueError("Extracted content too short")
-                    except Exception as e:
-                        print(f"Fallback fetch failed ({e}), using summary instead.")
-                        if "summary" in entry:
-                            html_content = entry.summary
-                        else:
-                            html_content = entry.get("description", "")
+                try:
+                    print(f"Fetching original page for full content: {link}")
+                    article_res = scraper.get(link, timeout=15)
+                    article_res.raise_for_status()
+
+                    # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
+                    if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
+                        article_res.encoding = article_res.apparent_encoding or 'utf-8'
+
+                    doc = Document(article_res.text)
+                    html_content = doc.summary()
+                    if not html_content or len(html_content) < 50:
+                        raise ValueError("Extracted content too short")
+                except Exception as e:
+                    print(f"Fetch from web failed ({e}), fallback to RSS content.")
+                    if "content" in entry:
+                        html_content = entry.content[0].value
+                    elif "summary" in entry:
+                        html_content = entry.summary
+                    else:
+                        html_content = entry.get("description", "")
                 
                 # 轉換為 Markdown
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
