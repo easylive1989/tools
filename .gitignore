@@ -32,7 +32,7 @@ ehthumbs.db
 Thumbs.db
 
 # Compiled binaries
-article_summary/article_summary_app
+summarize/article_summary_app
 
 # Logs
 cron.log

@@ -1,11 +1,12 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 import WebKit
 
 // MARK: - Constants & Helpers
 
 private let ARTICLE_PROMPT = """
-你是一個專業的文章總結工具。請閱讀以下文章內容，並以繁體中文產生結構化總結。
+你是一個專業的內容總結工具。請閱讀以下內容，並以繁體中文產生結構化總結。
 
 輸出格式：
 ## 重點摘要
@@ -117,15 +118,31 @@ struct SummaryTab: Identifiable {
 actor ArticleSummarizer {
     private var liveTasks: [UUID: Process] = [:]
 
-    func summarize(id: UUID, url: String) async -> (title: String, summary: String) {
-        let (title, bodyText) = await fetchArticle(url: url)
+    func summarize(id: UUID, input: String) async -> (title: String, summary: String) {
+        // 判斷輸入是檔案路徑還是 URL
+        if isMediaFile(path: input) {
+            let filename = (input as NSString).lastPathComponent
+            // Gemini CLI 支援在 prompt 中以 @path 引用檔案，由 CLI 處理多模態附件
+            let prompt = "\(ARTICLE_PROMPT)\n\n內容：\n@\(input)"
+            let summary = await callGeminiWithPrompt(id: id, prompt: prompt)
+            return (title: filename, summary: summary)
+        }
+
+        let (title, bodyText) = await fetchArticle(url: input)
         if bodyText.isEmpty {
-            return (title: title.isEmpty ? url : title, summary: "錯誤：無法取得文章內容")
+            return (title: title.isEmpty ? input : title, summary: "錯誤：無法取得文章內容")
         }
         let truncatedBody = String(bodyText.prefix(15000))
-        let prompt = "\(ARTICLE_PROMPT)\n\n文章內容：\n\(truncatedBody)"
+        let prompt = "\(ARTICLE_PROMPT)\n\n內容：\n\(truncatedBody)"
         let summary = await callGeminiWithPrompt(id: id, prompt: prompt)
-        return (title: title.isEmpty ? url : title, summary: summary)
+        return (title: title.isEmpty ? input : title, summary: summary)
+    }
+
+    private func isMediaFile(path: String) -> Bool {
+        let mediaExts: Set<String> = ["mp3", "m4a", "wav", "aac", "flac", "mp4", "mov", "m4v"]
+        let ext = (path as NSString).pathExtension.lowercased()
+        guard mediaExts.contains(ext) else { return false }
+        return FileManager.default.fileExists(atPath: path)
     }
 
     private func fetchArticle(url urlString: String) async -> (title: String, body: String) {
@@ -511,13 +528,37 @@ struct ContentView: View {
                         )
 
                     if inputText.isEmpty {
-                        Text("貼入文章 URL…")
+                        Text("貼入 URL、拖放檔案…")
                             .font(.system(size: 14))
                             .foregroundColor(.secondary)
                             .padding(.leading, 5)
                             .allowsHitTesting(false)
                     }
                 }
+                .onDrop(of: [UTType.fileURL], isTargeted: nil) { providers in
+                    guard let provider = providers.first else { return false }
+                    _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                        if let url = url {
+                            DispatchQueue.main.async {
+                                inputText = url.path
+                                summarize()
+                            }
+                        }
+                    }
+                    return true
+                }
+
+                Button(action: pickFile) {
+                    Text("📎")
+                        .font(.system(size: 14))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .help("選擇音訊或影片檔案")
 
                 Button(action: summarize) {
                     Text("總結  ⌘↩")
@@ -601,7 +642,7 @@ struct ContentView: View {
         inputText = ""
 
         Task {
-            let (title, summary) = await summarizer.summarize(id: tab.id, url: text)
+            let (title, summary) = await summarizer.summarize(id: tab.id, input: text)
             if let idx = tabs.firstIndex(where: { $0.id == tab.id }) {
                 tabs[idx].title = title
                 tabs[idx].result = summary
@@ -620,6 +661,21 @@ struct ContentView: View {
 
     private func changeFontSize(_ delta: CGFloat) {
         fontSize = max(8, min(32, fontSize + delta))
+    }
+
+    private func pickFile() {
+        let panel = NSOpenPanel()
+        panel.title = "選擇音訊或影片檔案"
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        if let audio = UTType("public.audio"), let movie = UTType("public.movie") {
+            panel.allowedContentTypes = [audio, movie]
+        }
+        if panel.runModal() == .OK, let url = panel.url {
+            inputText = url.path
+            summarize()
+        }
     }
 }
 
