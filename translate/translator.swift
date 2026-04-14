@@ -159,7 +159,7 @@ struct TabButton: View {
         .frame(height: tabHeight)
         .background(
             isActive
-                ? Color(nsColor: .windowBackgroundColor)
+                ? Color(nsColor: .controlBackgroundColor)
                 : Color(nsColor: .controlColor)
         )
         .clipShape(TopRoundedShape(cornerRadius: 6))
