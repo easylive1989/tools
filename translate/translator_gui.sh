@@ -19,9 +19,16 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BINARY="$SCRIPT_DIR/translator_app"
 SOURCE="$SCRIPT_DIR/translator.swift"
 
-# 若 binary 不存在或 source 較新則重新編譯
-if [ ! -f "$BINARY" ] || [ "$SOURCE" -nt "$BINARY" ]; then
-    swiftc "$SOURCE" -o "$BINARY"
+# 用 build stamp 綁定「OS 版本 + source mtime」：任何一項改變就重編。
+# 這樣可避免 binary 被帶到不同 macOS 版本時因 dyld 不相容而無法啟動。
+STAMP_FILE="$BINARY.stamp"
+OS_VERSION="$(sw_vers -productVersion 2>/dev/null || echo unknown)"
+SOURCE_MTIME="$(stat -f %m "$SOURCE" 2>/dev/null || echo 0)"
+EXPECTED_STAMP="${OS_VERSION}|${SOURCE_MTIME}"
+CURRENT_STAMP="$(cat "$STAMP_FILE" 2>/dev/null || true)"
+
+if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
+    swiftc "$SOURCE" -o "$BINARY" && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
 fi
 
 osascript -e 'tell application "System Events" to keystroke "c" using command down'
