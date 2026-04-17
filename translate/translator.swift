@@ -188,10 +188,20 @@ struct ContentView: View {
     @State private var tabs: [TranslationTab] = []
     @State private var activeTabID: UUID? = nil
     @State private var fontSize: CGFloat = 14
+    @State private var copiedRecently: Bool = false
+
+    private var activeTab: TranslationTab? {
+        guard let id = activeTabID else { return nil }
+        return tabs.first(where: { $0.id == id })
+    }
+
+    private var canCopy: Bool {
+        guard let tab = activeTab else { return false }
+        return !tab.isTranslating && !tab.result.isEmpty
+    }
 
     private var outputText: String {
-        guard let id = activeTabID,
-              let tab = tabs.first(where: { $0.id == id }) else { return "" }
+        guard let tab = activeTab else { return "" }
         let result = tab.isTranslating ? "翻譯中…" : tab.result
         return "【原文】\n\(tab.source)\n\n────────────────────\n\n【翻譯】\n\(result)"
     }
@@ -267,6 +277,18 @@ struct ContentView: View {
                         }
                     }
                     .layoutPriority(0)
+
+                    Button(copiedRecently ? "✓" : "📋") { copyResult() }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                        .layoutPriority(1)
+                        .disabled(!canCopy)
+                        .opacity(canCopy ? 1 : 0.4)
 
                     Button("−") { changeFontSize(-1) }
                         .buttonStyle(.plain)
@@ -346,6 +368,18 @@ struct ContentView: View {
 
     private func changeFontSize(_ delta: CGFloat) {
         fontSize = max(8, min(32, fontSize + delta))
+    }
+
+    private func copyResult() {
+        guard let tab = activeTab, !tab.isTranslating, !tab.result.isEmpty else { return }
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(tab.result, forType: .string)
+        copiedRecently = true
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            copiedRecently = false
+        }
     }
 }
 
