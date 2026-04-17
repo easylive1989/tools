@@ -35,8 +35,8 @@ python src/docx_translator.py <file> [--use-cli] [--target-lang "Traditional Chi
 # Discord audio recorder + transcriber
 cd transcribe && python record_blackhole.py [--transcribe]
 
-# Ledger analysis (runs from repo root, needs NOTION_SECRET)
-python ledger_analysis.py
+# Ledger analysis (needs NOTION_SECRET)
+python ledger_analysis/ledger_analysis.py
 
 # Stock notifications (runs via GitHub Actions)
 python stock/stock_notify.py
