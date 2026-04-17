@@ -5,7 +5,9 @@ import SwiftUI
 
 private let SYSTEM_PROMPT =
     "你是翻譯工具。規則：若輸入為中文翻譯成英文，否則翻譯成繁體中文。" +
-    "僅輸出翻譯結果，不加解釋、引號或其他格式。"
+    "僅輸出翻譯結果，不加解釋、引號或額外格式。" +
+    "保留原文的排版結構：若原文是 Markdown 格式（如標題、粗體、清單等），翻譯結果也須維持相同的 Markdown 格式；" +
+    "若原文以換行分隔段落，翻譯結果也須在對應位置以相同方式換行。"
 
 private let userName = ProcessInfo.processInfo.environment["USER"] ?? "user"
 private let pidFilePath = "/tmp/translator_gui_\(userName).pid"
