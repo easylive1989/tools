@@ -31,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE_DIR))
 from notify import send_notification
 
-RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.txt")
+RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.json")
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
 HISTORY_FILE = os.path.join(OBSIDIAN_DIR, "history.json")
 MAX_HISTORY_PER_FEED = 50
@@ -79,8 +79,8 @@ def load_rss_list():
     if not os.path.exists(RSS_LIST_FILE):
         return []
     with open(RSS_LIST_FILE, "r", encoding="utf-8") as f:
-        # 過濾掉註解與空行
-        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        data = json.load(f)
+    return data.get("feeds", [])
 
 def load_history():
     if not os.path.exists(HISTORY_FILE):
@@ -108,16 +108,17 @@ def main():
     # 確保 Obsidian 資料夾存在
     os.makedirs(OBSIDIAN_DIR, exist_ok=True)
     
-    rss_urls = load_rss_list()
+    feed_list = load_rss_list()
     history = load_history()
-    
-    if not rss_urls:
+
+    if not feed_list:
         print("No RSS URLs found.")
         return
 
     total_new_entries = 0
 
-    for url in rss_urls:
+    for feed_config in feed_list:
+        url = feed_config["url"]
         print(f"Processing: {url}")
         try:
             # 使用 cloudscraper 模擬真實瀏覽器，繞過 Substack / Cloudflare 的反爬蟲機制
@@ -135,7 +136,7 @@ def main():
             print(f"Error fetching {url}: {e}")
             continue
 
-        site_name = feed.feed.get("title", url)
+        site_name = feed_config.get("name") or feed.feed.get("title", url)
         
         # 確保該 URL 在 history 中有對應的結構
         if url not in history:

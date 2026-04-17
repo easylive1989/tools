@@ -1,0 +1,202 @@
+{
+  "feeds": [
+    {
+      "name": "AI 开发者日报",
+      "url": "https://ainews.liduos.com/rss.xml",
+      "section": "AI",
+      "auto_translate": false
+    },
+    {
+      "name": "宝玉的分享",
+      "url": "https://s.baoyu.io/feed.xml",
+      "section": "AI",
+      "auto_translate": false
+    },
+    {
+      "name": "Simon Willison's Weblog",
+      "url": "https://simonwillison.net/atom/everything/",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Matt Might",
+      "url": "https://matt.might.net/articles/feed.rss",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Software Design: Tidy First?",
+      "url": "https://tidyfirst.substack.com/feed",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "<antirez>",
+      "url": "https://antirez.com/rss",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "游舒帆Gipi 的學習筆記",
+      "url": "https://gipi.tw/rss",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Stories by Majid Hajian on Medium",
+      "url": "https://medium.com/feed/@mhadaily",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "码农真经的博客",
+      "url": "https://blog.mzh.ren/zh/index.xml",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "軟體考古學家",
+      "url": "https://blog.brachiosoft.com/index.xml",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "黑暗執行緒",
+      "url": "https://blog.darkthread.net/feed/rss/",
+      "section": "個人部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Flutter - Medium",
+      "url": "https://blog.flutter.dev/feed",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Widget Tricks",
+      "url": "https://widgettricks.substack.com/feed",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Flutter Community - Medium",
+      "url": "https://medium.com/feed/flutter-community",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Flutter",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCwXdFgeE9KYzlDdR7TG9cMw",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Flutter Community",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNUzIz3TsiHSbgn_66kLIww",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "ByteByteGo",
+      "url": "https://blog.bytebytego.com/feed",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Martin Fowler",
+      "url": "https://martinfowler.com/feed.atom",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Android Developer Blog",
+      "url": "https://android-developers.googleblog.com/atom.xml",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Coding Horror",
+      "url": "https://blog.codinghorror.com/rss/",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "Emily Bache",
+      "url": "https://coding-is-like-cooking.info/feed/",
+      "section": "技術部落格",
+      "auto_translate": false
+    },
+    {
+      "name": "阮一峰的网络日志",
+      "url": "https://feeds.feedburner.com/ruanyifeng",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "IT咖啡馆",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXLV-KfDQAFUJ_as9H1Lfbw",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "Engineering Leadership",
+      "url": "https://newsletter.eng-leadership.com/feed",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "The Pragmatic Engineer",
+      "url": "https://newsletter.pragmaticengineer.com/feed",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "Engineering Leadership",
+      "url": "https://newsletter.eng-leadership.com/feed",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "龙爪槐守望者",
+      "url": "https://www.ftium4.com/rss.xml",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "让小产品的独立变现更简单 - ezindie.com",
+      "url": "https://www.ezindie.com/feed/rss.xml",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "Continuous Delivery",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCfqyGl3nq_V0bo64CjZh8g",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "Starter Story",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UChhw6DlKKTQ9mYSpTfXUYqA",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "HelloGitHub 月刊",
+      "url": "https://hellogithub.com/rss",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "Flutter Tap",
+      "url": "https://fluttertap.com/rss",
+      "section": "技術週刊",
+      "auto_translate": false
+    },
+    {
+      "name": "GDevelop",
+      "url": "https://gamedevjsweekly.com/feed.xml",
+      "section": "技術週刊",
+      "auto_translate": false
+    }
+  ]
+}
