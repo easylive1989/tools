@@ -1,9 +1,13 @@
 import os
+import re
 import shutil
 import subprocess
 import google.generativeai as genai
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable
+
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
 
 
 def is_gemini_cli_available() -> bool:
@@ -33,20 +37,24 @@ class GeminiClient:
         target_model = self.model_map.get(model_name.lower(), model_name)
         self.model = genai.GenerativeModel(target_model)
 
-    def _generate_via_cli(self, prompt: str) -> str:
+    def _generate_via_cli(self, prompt: str, timeout: int = 120) -> str:
         target_model = self.model_map.get(self.model_name.lower(), self.model_name)
+        env = os.environ.copy()
+        env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
 
         result = subprocess.run(
             ["gemini", "-m", target_model, "-o", "text", prompt],
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=timeout,
+            env=env,
         )
 
         if result.returncode != 0:
-            raise RuntimeError(f"Gemini CLI error: {result.stderr.strip()}")
+            err = _ANSI_RE.sub("", result.stderr).strip()
+            raise RuntimeError(f"Gemini CLI error: {err}")
 
-        return result.stdout.strip()
+        return _ANSI_RE.sub("", result.stdout).strip()
 
     @retry(
         retry=retry_if_exception_type((ResourceExhausted, ServiceUnavailable)),
@@ -57,8 +65,8 @@ class GeminiClient:
         response = self.model.generate_content(prompt)
         return response.text.strip()
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, timeout: int = 120) -> str:
         if self.use_cli:
-            return self._generate_via_cli(prompt)
+            return self._generate_via_cli(prompt, timeout=timeout)
         else:
             return self._generate_via_api(prompt)

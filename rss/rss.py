@@ -30,7 +30,8 @@ from readability import Document
 # 設定檔案路徑
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE_DIR))
-from notify import send_notification
+from common.notify import send_notification
+from common.gemini import GeminiClient
 
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
 RSS_LIST_FILE = os.path.join(OBSIDIAN_DIR, "rss_list.json")
@@ -72,28 +73,13 @@ _TRANSLATE_SYSTEM_PROMPT = (
     "- 保持原文段落換行結構不變。\n"
 )
 
-_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
-
-
 def translate_markdown(text: str) -> str | None:
     """呼叫 Gemini CLI 將 Markdown 文字翻譯成繁體中文，失敗回傳 None。"""
     prompt = f"{_TRANSLATE_SYSTEM_PROMPT}\n---原文---\n{text}"
-    env = os.environ.copy()
-    env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
     try:
-        result = subprocess.run(
-            ["gemini", "-m", "gemini-2.5-flash", "-p", prompt],
-            capture_output=True,
-            text=True,
-            timeout=300,
-            env=env,
-        )
-        output = _ANSI_RE.sub("", result.stdout).strip()
-        if not output:
-            err = _ANSI_RE.sub("", result.stderr).strip()
-            print(f"  Translation warning: {err[:200] or 'empty output'}")
-            return None
-        return output
+        client = GeminiClient(model_name="flash", use_cli=True)
+        output = client.generate(prompt, timeout=300)
+        return output or None
     except subprocess.TimeoutExpired:
         print("  Translation warning: timeout after 300s")
         return None
