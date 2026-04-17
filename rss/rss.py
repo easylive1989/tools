@@ -216,13 +216,8 @@ def main():
                     if not html_content or len(html_content) < 50:
                         raise ValueError("Extracted content too short")
                 except Exception as e:
-                    print(f"Fetch from web failed ({e}), fallback to RSS content.")
-                    if "content" in entry:
-                        html_content = entry.content[0].value
-                    elif "summary" in entry:
-                        html_content = entry.summary
-                    else:
-                        html_content = entry.get("description", "")
+                    print(f"Fetch from web failed ({e}), skipping.")
+                    continue
                 
                 # 轉換為 Markdown
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
