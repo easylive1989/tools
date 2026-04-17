@@ -183,13 +183,6 @@ def main():
             history[url] = {"entries": [], "last_sync": None}
 
         feed_history = history[url]
-        # 決定 cutoff 日期：優先使用 last_sync，否則用全域 FILTER_DATE
-        cutoff_date = FILTER_DATE
-        if feed_history.get("last_sync"):
-            try:
-                cutoff_date = datetime.fromisoformat(feed_history["last_sync"])
-            except (ValueError, TypeError):
-                pass
 
         new_entries = []
         for entry in feed.entries:
@@ -198,7 +191,7 @@ def main():
             
             if entry_id not in feed_history["entries"]:
                 # 這是新文章！
-                if not is_new_enough(entry, cutoff_date):
+                if not is_new_enough(entry, FILTER_DATE):
                     continue
 
                 title = entry.get("title", "No Title")
