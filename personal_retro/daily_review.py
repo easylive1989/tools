@@ -1,11 +1,11 @@
 import os
 import sys
 import json
-import requests
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from notion_api import NotionApi
+from common.notion import NotionApi
+from common.notify import send_to_discord
 from openai import OpenAI
 
 
@@ -312,25 +312,11 @@ def generate_daily_summary(daily_content, openai_api_key):
         raise Exception(f"OpenAI API 錯誤: {e}")
 
 
-def send_to_discord(webhook_url, summary, date):
-    """將總結發送到 Discord"""
-    print("正在發送總結到 Discord...")
-
-    # 格式化訊息
-    message = {
+def _build_discord_payload(summary, date):
+    """建立要發送到 Discord 的 payload"""
+    return {
         "content": f"📊 **每日工作回顧** - {date.strftime('%Y-%m-%d')}\n\n{summary}"
     }
-
-    response = requests.post(
-        webhook_url,
-        json=message,
-        headers={"Content-Type": "application/json"}
-    )
-
-    if response.status_code == 204:
-        print("成功發送到 Discord")
-    else:
-        raise Exception(f"發送到 Discord 失敗: {response.status_code} - {response.text}")
 
 
 def main():
@@ -376,7 +362,8 @@ def main():
         summary = generate_daily_summary(daily_content, openai_api_key)
 
         # 步驟 6: 發送到 Discord
-        send_to_discord(discord_webhook_url, summary, start_date)
+        payload = _build_discord_payload(summary, start_date)
+        send_to_discord(discord_webhook_url, payload)
 
         print("\n✓ 每日工作回顧已完成！")
 

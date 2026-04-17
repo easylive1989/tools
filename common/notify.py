@@ -3,6 +3,7 @@
 
 import argparse
 import subprocess
+import requests
 
 
 def send_notification(
@@ -22,6 +23,12 @@ def send_notification(
     if open_url:
         cmd += ["-open", open_url]
     subprocess.run(cmd, check=True)
+
+
+def send_to_discord(webhook_url: str, payload: dict, timeout: int = 10) -> None:
+    """POST a payload as JSON to a Discord webhook URL."""
+    resp = requests.post(webhook_url, json=payload, timeout=timeout)
+    resp.raise_for_status()
 
 
 def main() -> None:

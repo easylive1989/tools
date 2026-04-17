@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from notion_api import NotionApi
+from common.notion import NotionApi
 from openai import OpenAI
 
 

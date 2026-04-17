@@ -1,4 +1,4 @@
-# notify.py 使用說明
+# common/notify.py 使用說明
 
 macOS 桌面通知發送工具，基於 `terminal-notifier`。
 
@@ -12,16 +12,16 @@ brew install terminal-notifier
 
 ```bash
 # 基本通知
-python notify.py "Hello World"
+python -m common.notify "Hello World"
 
 # 自訂標題
-python notify.py "內容" -t "標題"
+python -m common.notify "內容" -t "標題"
 
 # 點擊通知時開啟指定 App
-python notify.py "開啟 Safari" -a com.apple.Safari
+python -m common.notify "開啟 Safari" -a com.apple.Safari
 
 # 點擊通知時開啟 URL
-python notify.py "查看連結" -o "https://example.com"
+python -m common.notify "查看連結" -o "https://example.com"
 ```
 
 ## 參數
@@ -36,7 +36,7 @@ python notify.py "查看連結" -o "https://example.com"
 ## 作為模組使用
 
 ```python
-from notify import send_notification
+from common.notify import send_notification
 
 send_notification("完成", title="任務通知")
 send_notification("點我", open_url="https://example.com")

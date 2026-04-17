@@ -1,51 +1,22 @@
 import os
-import shutil
-import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import google.generativeai as genai
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable
 
+# Ensure repo root is in sys.path so `common` package is importable
+_repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
 
-def is_gemini_cli_available() -> bool:
-    """Check if gemini CLI is installed locally."""
-    return shutil.which("gemini") is not None
+from common.gemini import GeminiClient as _BaseGeminiClient, is_gemini_cli_available
+
+__all__ = ["GeminiClient", "is_gemini_cli_available"]
 
 
 class GeminiClient:
     def __init__(self, model_name: str = "flash", use_cli: bool = False):
-        """
-        Initialize the Gemini Client.
-
-        Args:
-            model_name (str): "flash" or "pro". Defaults to "flash".
-            use_cli (bool): If True, use gemini CLI instead of API.
-        """
+        self._client = _BaseGeminiClient(model_name=model_name, use_cli=use_cli)
         self.use_cli = use_cli
         self.model_name = model_name
-
-        if self.use_cli:
-            # CLI mode: no API key needed
-            self.model_map = {
-                "flash": "gemini-2.5-flash",
-                "pro": "gemini-2.5-pro"
-            }
-            return
-
-        # API mode: requires API key
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY environment variable not set.")
-
-        genai.configure(api_key=api_key)
-
-        self.model_map = {
-            "flash": "gemini-2.5-flash",
-            "pro": "gemini-2.5-pro"
-        }
-
-        target_model = self.model_map.get(model_name.lower(), model_name)
-        self.model = genai.GenerativeModel(target_model)
 
     def _build_prompt(self, text: str, target_lang: str) -> str:
         return (
@@ -55,35 +26,6 @@ class GeminiClient:
             "Just provide the translation.\n\n"
             f"Text: {text}"
         )
-
-    def _translate_via_cli(self, text: str, target_lang: str) -> str:
-        """Translate text using the gemini CLI."""
-        prompt = self._build_prompt(text, target_lang)
-        target_model = self.model_map.get(self.model_name.lower(), self.model_name)
-
-        result = subprocess.run(
-            ["gemini", "-m", target_model, "-o", "text", prompt],
-            input=text,
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
-
-        if result.returncode != 0:
-            raise RuntimeError(f"Gemini CLI error: {result.stderr.strip()}")
-
-        return result.stdout.strip()
-
-    @retry(
-        retry=retry_if_exception_type((ResourceExhausted, ServiceUnavailable)),
-        wait=wait_exponential(multiplier=2, min=4, max=60),
-        stop=stop_after_attempt(20)
-    )
-    def _translate_via_api(self, text: str, target_lang: str) -> str:
-        """Translate text using the Gemini API."""
-        prompt = self._build_prompt(text, target_lang)
-        response = self.model.generate_content(prompt)
-        return response.text.strip()
 
     def translate_text(self, text: str, target_lang: str = "Traditional Chinese") -> str:
         """
@@ -98,11 +40,8 @@ class GeminiClient:
         """
         if not text or not text.strip():
             return text
-
-        if self.use_cli:
-            return self._translate_via_cli(text, target_lang)
-        else:
-            return self._translate_via_api(text, target_lang)
+        prompt = self._build_prompt(text, target_lang)
+        return self._client.generate(prompt)
 
     def translate_texts(self, texts: list[str], target_lang: str,
                         max_workers: int = 5, on_complete=None) -> list[str]:

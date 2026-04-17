@@ -8,6 +8,9 @@ import time
 import requests
 import yfinance as yf
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from common.notify import send_to_discord
+
 def fetch_stock_price(ticker: str) -> dict:
     stock = yf.Ticker(ticker)
     
@@ -83,10 +86,6 @@ def build_discord_message(data: dict) -> dict:
     }
 
     return {"embeds": [embed]}
-
-def send_to_discord(webhook_url: str, payload: dict) -> None:
-    resp = requests.post(webhook_url, json=payload, timeout=10)
-    resp.raise_for_status()
 
 def load_stock_list(file_path: str) -> list:
     if not os.path.exists(file_path):
