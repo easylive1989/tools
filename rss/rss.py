@@ -32,8 +32,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE_DIR))
 from notify import send_notification
 
-RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.json")
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
+RSS_LIST_FILE = os.path.join(OBSIDIAN_DIR, "rss_list.json")
 HISTORY_FILE = os.path.join(OBSIDIAN_DIR, "history.json")
 MAX_HISTORY_PER_FEED = 50
 
