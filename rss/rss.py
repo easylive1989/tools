@@ -255,7 +255,7 @@ def main():
                 safe_title = sanitize_filename(title)
                 safe_site = sanitize_filename(site_name)
                 # 使用 [主站名] [文章/影片] 標題 當作檔名
-                filename = f"[{safe_site}] [{content_type}] {safe_title}.md"
+                filename = f"[{content_type}] [{safe_site}] {safe_title}.md"
                 filepath = os.path.join(OBSIDIAN_DIR, filename)
                 labeled_title = f"[{content_type}] {title}"
 
