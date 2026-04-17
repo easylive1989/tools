@@ -10,9 +10,10 @@
 # ///
 
 import os
+import re
+import subprocess
 import sys
 import json
-import re
 import time
 import warnings
 
@@ -60,6 +61,45 @@ def classify_content_type(entry, link):
         if mime.startswith("video/"):
             return "影片"
     return "文章"
+
+
+_TRANSLATE_SYSTEM_PROMPT = (
+    "你是翻譯工具。將輸入內容翻譯成繁體中文。\n"
+    "規則：\n"
+    "- 僅輸出翻譯結果，不加解釋、引號或額外格式。\n"
+    "- 保留原文 Markdown 排版（標題、粗體、清單、連結、圖片語法等）。\n"
+    "- 若原文已是繁體中文，直接回傳原文即可。\n"
+    "- 保持原文段落換行結構不變。\n"
+)
+
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
+
+
+def translate_markdown(text: str) -> str | None:
+    """呼叫 Gemini CLI 將 Markdown 文字翻譯成繁體中文，失敗回傳 None。"""
+    prompt = f"{_TRANSLATE_SYSTEM_PROMPT}\n---原文---\n{text}"
+    env = os.environ.copy()
+    env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
+    try:
+        result = subprocess.run(
+            ["gemini", "-m", "gemini-2.5-flash", "-p", prompt],
+            capture_output=True,
+            text=True,
+            timeout=300,
+            env=env,
+        )
+        output = _ANSI_RE.sub("", result.stdout).strip()
+        if not output:
+            err = _ANSI_RE.sub("", result.stderr).strip()
+            print(f"  Translation warning: {err[:200] or 'empty output'}")
+            return None
+        return output
+    except subprocess.TimeoutExpired:
+        print("  Translation warning: timeout after 300s")
+        return None
+    except Exception as e:
+        print(f"  Translation warning: {e}")
+        return None
 
 
 def is_new_enough(entry, cutoff_date):
@@ -194,7 +234,14 @@ def main():
                 # 轉換為 Markdown
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
                 pub_date = entry.get("published", entry.get("updated", ""))
-                
+
+                # 自動翻譯（在 YouTube iframe 之前執行，只翻譯內文本身）
+                if feed_config.get("auto_translate") and md_text.strip():
+                    print("  Translating...")
+                    translated = translate_markdown(md_text)
+                    if translated:
+                        md_text = f"{md_text}\n\n---\n\n## 翻譯（繁體中文）\n\n{translated}"
+
                 # 如果是 YouTube 的文章，補上 iframe
                 if "youtube.com/watch" in link or "youtu.be/" in link:
                     from urllib.parse import urlparse, parse_qs
