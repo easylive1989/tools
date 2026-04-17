@@ -32,4 +32,4 @@ jobs:
         # 將 Notion API secret 設為環境變數
         NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
       run: |
-        python ledger_analysis.py
+        python ledger_analysis/ledger_analysis.py
