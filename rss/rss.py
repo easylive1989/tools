@@ -10,6 +10,7 @@
 # ///
 
 import os
+import sys
 import json
 import re
 import time
@@ -27,6 +28,8 @@ from readability import Document
 
 # 設定檔案路徑
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(BASE_DIR))
+from notify import send_notification
 
 RSS_LIST_FILE = os.path.join(BASE_DIR, "rss_list.txt")
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
@@ -39,6 +42,25 @@ FILTER_DATE = datetime(2026, 3, 18, tzinfo=timezone.utc)
 def sanitize_filename(name):
     # 去除不能作為檔名的非法字元
     return re.sub(r'[\\/:*?"<>|]', '_', name)
+
+def classify_content_type(entry, link):
+    """判斷內容是影片還是文章，回傳 '影片' 或 '文章'。"""
+    if "youtube.com/watch" in link or "youtu.be/" in link:
+        return "影片"
+    # 檢查 RSS enclosures 是否包含影片類型
+    enclosures = entry.get("enclosures", [])
+    for enc in enclosures:
+        mime = enc.get("type", "")
+        if mime.startswith("video/"):
+            return "影片"
+    # 檢查 media:content 標籤
+    media_content = entry.get("media_content", [])
+    for media in media_content:
+        mime = media.get("type", "")
+        if mime.startswith("video/"):
+            return "影片"
+    return "文章"
+
 
 def is_new_enough(entry, cutoff_date):
     """判斷文章是否在 cutoff_date 之後發布。"""
@@ -140,8 +162,9 @@ def main():
 
                 title = entry.get("title", "No Title")
                 link = entry.get("link", "")
-                
-                print(f"New post: {title}")
+                content_type = classify_content_type(entry, link)
+
+                print(f"New post [{content_type}]: {title}")
                 
                 # 一律從原網頁重新抓取文章內文
                 html_content = ""
@@ -190,19 +213,20 @@ def main():
                 # 準備存檔至 Obsidian
                 safe_title = sanitize_filename(title)
                 safe_site = sanitize_filename(site_name)
-                # 使用 [主站名] 文章標題 當作檔名
-                filename = f"[{safe_site}] {safe_title}.md"
+                # 使用 [主站名] [文章/影片] 標題 當作檔名
+                filename = f"[{safe_site}] [{content_type}] {safe_title}.md"
                 filepath = os.path.join(OBSIDIAN_DIR, filename)
-                
+                labeled_title = f"[{content_type}] {title}"
+
                 try:
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write("---\n")
-                        f.write(f"title: \"{title}\"\n")
+                        f.write(f"title: \"{labeled_title}\"\n")
                         f.write(f"source: \"{site_name}\"\n")
                         f.write(f"link: \"{link}\"\n")
                         f.write(f"date: \"{pub_date}\"\n")
                         f.write("---\n\n")
-                        f.write(f"# {title}\n\n")
+                        f.write(f"# {labeled_title}\n\n")
                         f.write(md_text)
                 except Exception as e:
                     print(f"Error writing markdown {filepath}: {e}")
@@ -224,6 +248,10 @@ def main():
             
     save_history(history)
     print("Done.")
+    send_notification(
+        f"共抓取 {total_new_entries} 篇新文章／影片",
+        title="RSS 同步完成",
+    )
 
 if __name__ == "__main__":
     main()
