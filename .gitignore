@@ -36,3 +36,6 @@ summarize/article_summary_app
 
 # Logs
 cron.log
+
+# Git worktrees
+.worktrees/
