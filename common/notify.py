@@ -25,9 +25,9 @@ def send_notification(
     subprocess.run(cmd, check=True)
 
 
-def send_to_discord(webhook_url: str, payload: dict) -> None:
+def send_to_discord(webhook_url: str, payload: dict, timeout: int = 10) -> None:
     """POST a payload as JSON to a Discord webhook URL."""
-    resp = requests.post(webhook_url, json=payload)
+    resp = requests.post(webhook_url, json=payload, timeout=timeout)
     resp.raise_for_status()
 
 

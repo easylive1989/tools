@@ -14,7 +14,7 @@ class NotionApi:
         )
 
     def patch_page(self, page_id: str, properties: dict):
-        requests.patch(
+        return requests.patch(
             f"https://api.notion.com/v1/pages/{page_id}",
             data = json.dumps(properties),
             headers = self.__header()
