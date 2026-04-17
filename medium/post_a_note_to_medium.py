@@ -4,7 +4,7 @@ import requests
 import json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from notion_api import NotionApi
+from common.notion import NotionApi
 
 
 def get_notion_page_content(page_id: str):

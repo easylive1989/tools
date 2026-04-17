@@ -1,4 +1,4 @@
-from notion_api import NotionApi
+from common.notion import NotionApi
 import datetime
 import calendar
 import os
