@@ -27,13 +27,14 @@ import requests
 import cloudscraper
 from datetime import datetime, timezone
 from markdownify import markdownify as md
-from readability import Document
 
 # 設定檔案路徑
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE_DIR))
+sys.path.insert(0, BASE_DIR)
 from common.notify import send_notification
 from common.gemini import GeminiClient
+from extractors import dispatch as dispatch_extractor, requires_page_fetch
 
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
 RSS_LIST_FILE = os.path.join(OBSIDIAN_DIR, "rss_list.json")
@@ -187,24 +188,28 @@ def main():
                 content_type = classify_content_type(entry, link)
 
                 print(f"New post [{content_type}]: {title}")
-                
-                # 一律從原網頁重新抓取文章內文
-                html_content = ""
-                try:
-                    print(f"Fetching original page for full content: {link}")
-                    article_res = scraper.get(link, timeout=15)
-                    article_res.raise_for_status()
 
-                    # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
-                    if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
-                        article_res.encoding = article_res.apparent_encoding or 'utf-8'
+                extractor_name = feed_config.get("extractor", "readability")
+                page_html = ""
+                if requires_page_fetch(extractor_name):
+                    try:
+                        print(f"Fetching original page for full content: {link}")
+                        article_res = scraper.get(link, timeout=15)
+                        article_res.raise_for_status()
 
-                    doc = Document(article_res.text)
-                    html_content = doc.summary()
-                    if not html_content or len(html_content) < 50:
-                        raise ValueError("Extracted content too short")
-                except Exception as e:
-                    print(f"Fetch from web failed ({e}), skipping.")
+                        # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
+                        if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
+                            article_res.encoding = article_res.apparent_encoding or 'utf-8'
+                        page_html = article_res.text
+                    except Exception as e:
+                        print(f"Fetch from web failed ({e}), skipping.")
+                        continue
+
+                html_content = dispatch_extractor(
+                    extractor_name, page_html, entry, feed_config, scraper
+                )
+                if not html_content or len(html_content) < 50:
+                    print(f"  Extractor '{extractor_name}' returned empty/short content, skipping.")
                     continue
                 
                 # 轉換為 Markdown
