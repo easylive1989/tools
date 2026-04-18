@@ -1,5 +1,29 @@
 import AppKit
+import ApplicationServices
 import SwiftUI
+
+// MARK: - CLI Mode: --get-selection
+// 透過 Accessibility API 讀取當前 focused element 的選取文字，印到 stdout 後離開。
+// 首次呼叫會觸發系統授權提示（系統設定 → 隱私權 → 輔助使用）。
+
+if CommandLine.arguments.contains("--get-selection") {
+    let promptKey = "AXTrustedCheckOptionPrompt" as CFString
+    _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
+
+    let systemWide = AXUIElementCreateSystemWide()
+    var focused: CFTypeRef?
+    if AXUIElementCopyAttributeValue(
+        systemWide, kAXFocusedUIElementAttribute as CFString, &focused
+    ) == .success, let element = focused {
+        var value: CFTypeRef?
+        if AXUIElementCopyAttributeValue(
+            element as! AXUIElement, kAXSelectedTextAttribute as CFString, &value
+        ) == .success, let text = value as? String {
+            print(text, terminator: "")
+        }
+    }
+    exit(0)
+}
 
 // MARK: - Constants & Helpers
 

@@ -31,9 +31,7 @@ if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
     swiftc "$SOURCE" -o "$BINARY" && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
 fi
 
-osascript -e 'tell application "System Events" to keystroke "c" using command down'
-sleep 0.1
-SELECTED_TEXT=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
+SELECTED_TEXT=$("$BINARY" --get-selection 2>/dev/null || true)
 
 PID_FILE="/tmp/translator_gui_${USER}.pid"
 INPUT_FILE="/tmp/translator_gui_${USER}.txt"
