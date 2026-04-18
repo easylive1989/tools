@@ -33,6 +33,8 @@ Thumbs.db
 
 # Compiled binaries
 summarize/article_summary_app
+translate/translator_app
+translate/translator_app.stamp
 
 # Logs
 cron.log
