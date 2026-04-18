@@ -27,9 +27,11 @@ SOURCE_MTIME="$(stat -f %m "$SOURCE" 2>/dev/null || echo 0)"
 EXPECTED_STAMP="${OS_VERSION}|${SOURCE_MTIME}"
 CURRENT_STAMP="$(cat "$STAMP_FILE" 2>/dev/null || true)"
 
+SIGN_IDENTITY="Developer ID Application: Cheng Hua Wu (T9UXT366P9)"
+
 if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
     swiftc "$SOURCE" -o "$BINARY" \
-        && codesign --force --sign - "$BINARY" \
+        && codesign --force --sign "$SIGN_IDENTITY" "$BINARY" \
         && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
 fi
 
