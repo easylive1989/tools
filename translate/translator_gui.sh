@@ -28,7 +28,9 @@ EXPECTED_STAMP="${OS_VERSION}|${SOURCE_MTIME}"
 CURRENT_STAMP="$(cat "$STAMP_FILE" 2>/dev/null || true)"
 
 if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
-    swiftc "$SOURCE" -o "$BINARY" && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
+    swiftc "$SOURCE" -o "$BINARY" \
+        && codesign --force --sign - "$BINARY" \
+        && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
 fi
 
 SELECTED_TEXT=$("$BINARY" --get-selection 2>/dev/null || true)
