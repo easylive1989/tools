@@ -10,11 +10,18 @@ if CommandLine.arguments.contains("--get-selection") {
     let promptKey = "AXTrustedCheckOptionPrompt" as CFString
     _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
 
-    // 等 focus 從 Raycast 回到原本的 app（最多 500ms）
+    // 讀出 translator_app GUI instance 的 PID（若有在跑），之後排除它，
+    // 避免使用者在 translator_app 輸出框裡選了文字時，AX 回傳到自己。
+    let selfPIDPath = "/tmp/translator_gui_\(ProcessInfo.processInfo.environment["USER"] ?? "user").pid"
+    let selfPID = pid_t((try? String(contentsOfFile: selfPIDPath, encoding: .utf8))?
+        .trimmingCharacters(in: .whitespacesAndNewlines) ?? "") ?? 0
+
+    // 等 focus 從 Raycast / translator_app 回到來源 app（最多 500ms）
     var frontmostPID: pid_t = 0
     for _ in 0..<10 {
         if let app = NSWorkspace.shared.frontmostApplication,
-           app.bundleIdentifier != "com.raycast.macos" {
+           app.bundleIdentifier != "com.raycast.macos",
+           app.processIdentifier != selfPID {
             frontmostPID = app.processIdentifier
             break
         }

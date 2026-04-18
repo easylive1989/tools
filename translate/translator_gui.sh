@@ -36,12 +36,17 @@ if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
 fi
 
 # 先試 Accessibility API（不動剪貼簿）；若失敗（例如 Electron 類 app 不支援 AX），
-# 退回 Cmd+C 複製。
+# 退回 Cmd+C 複製。用剪貼簿前後比對判斷 Cmd+C 是否真的有複製到東西：
+# 沒選取 / 射到 translator_app 自己 → 剪貼簿不變 → 當作無效，避免重新翻譯舊內容。
 SELECTED_TEXT=$("$BINARY" --get-selection 2>/dev/null || true)
 if [ -z "$SELECTED_TEXT" ]; then
+    OLD_CLIPBOARD=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
     osascript -e 'tell application "System Events" to keystroke "c" using command down'
     sleep 0.1
-    SELECTED_TEXT=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
+    NEW_CLIPBOARD=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
+    if [ -n "$NEW_CLIPBOARD" ] && [ "$NEW_CLIPBOARD" != "$OLD_CLIPBOARD" ]; then
+        SELECTED_TEXT="$NEW_CLIPBOARD"
+    fi
 fi
 
 PID_FILE="/tmp/translator_gui_${USER}.pid"
