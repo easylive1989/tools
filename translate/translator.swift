@@ -10,16 +10,29 @@ if CommandLine.arguments.contains("--get-selection") {
     let promptKey = "AXTrustedCheckOptionPrompt" as CFString
     _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
 
-    let systemWide = AXUIElementCreateSystemWide()
-    var focused: CFTypeRef?
-    if AXUIElementCopyAttributeValue(
-        systemWide, kAXFocusedUIElementAttribute as CFString, &focused
-    ) == .success, let element = focused {
-        var value: CFTypeRef?
+    // 等 focus 從 Raycast 回到原本的 app（最多 500ms）
+    var frontmostPID: pid_t = 0
+    for _ in 0..<10 {
+        if let app = NSWorkspace.shared.frontmostApplication,
+           app.bundleIdentifier != "com.raycast.macos" {
+            frontmostPID = app.processIdentifier
+            break
+        }
+        Thread.sleep(forTimeInterval: 0.05)
+    }
+
+    if frontmostPID > 0 {
+        let appEl = AXUIElementCreateApplication(frontmostPID)
+        var focused: CFTypeRef?
         if AXUIElementCopyAttributeValue(
-            element as! AXUIElement, kAXSelectedTextAttribute as CFString, &value
-        ) == .success, let text = value as? String {
-            print(text, terminator: "")
+            appEl, kAXFocusedUIElementAttribute as CFString, &focused
+        ) == .success, let element = focused {
+            var value: CFTypeRef?
+            if AXUIElementCopyAttributeValue(
+                element as! AXUIElement, kAXSelectedTextAttribute as CFString, &value
+            ) == .success, let text = value as? String {
+                print(text, terminator: "")
+            }
         }
     }
     exit(0)

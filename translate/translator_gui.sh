@@ -35,7 +35,14 @@ if [ ! -f "$BINARY" ] || [ "$CURRENT_STAMP" != "$EXPECTED_STAMP" ]; then
         && printf '%s' "$EXPECTED_STAMP" > "$STAMP_FILE"
 fi
 
+# 先試 Accessibility API（不動剪貼簿）；若失敗（例如 Electron 類 app 不支援 AX），
+# 退回 Cmd+C 複製。
 SELECTED_TEXT=$("$BINARY" --get-selection 2>/dev/null || true)
+if [ -z "$SELECTED_TEXT" ]; then
+    osascript -e 'tell application "System Events" to keystroke "c" using command down'
+    sleep 0.1
+    SELECTED_TEXT=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
+fi
 
 PID_FILE="/tmp/translator_gui_${USER}.pid"
 INPUT_FILE="/tmp/translator_gui_${USER}.txt"
