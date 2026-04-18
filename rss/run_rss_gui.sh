@@ -17,4 +17,4 @@ export PATH="/opt/homebrew/bin:$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 cd "$(dirname "$0")" || exit 1
 
-uv run rss_gui.py
+uv run --python /usr/local/bin/python3.13 rss_gui.py

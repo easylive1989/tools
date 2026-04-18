@@ -3,9 +3,11 @@
 # dependencies = [
 #     "cloudscraper",
 #     "feedparser",
+#     "google-generativeai",
 #     "markdownify",
 #     "readability-lxml",
 #     "requests",
+#     "tenacity",
 # ]
 # ///
 

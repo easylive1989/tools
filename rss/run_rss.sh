@@ -2,14 +2,14 @@
 
 # Required parameters:
 # @raycast.schemaVersion 1
-# @raycast.title Run RSS
+# @raycast.title RSS 更新
 # @raycast.mode silent
 
 # Optional parameters:
 # @raycast.icon 🤖
 
 # Documentation:
-# @raycast.description Run RSS
+# @raycast.description RSS 更新
 # @raycast.author wu_paul
 # @raycast.authorURL https://raycast.com/wu_paul
 
