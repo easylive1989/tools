@@ -24,6 +24,14 @@ class Config:
     def workdir(self) -> Path:
         return self.state_home / "workdir"
 
+    @property
+    def skills_dir(self) -> Path:
+        return self.state_home / "skills"
+
+    @property
+    def cron_path(self) -> Path:
+        return self.state_home / "cron.toml"
+
 
 def load_config(path: Path | None = None) -> Config:
     state_home = Path(os.environ.get("CLAW_HOME", DEFAULT_HOME))

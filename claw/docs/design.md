@@ -282,6 +282,34 @@ env 覆蓋：`CLAW_DISCORD_TOKEN`、`CLAW_CHANNEL_ID`、`CLAW_CLI_KIND`、`CLAW_
 
 ---
 
+## Skills（類似 openclaw / Claude Code）
+
+- 目錄：`~/.pclaw/skills/<name>/SKILL.md`
+- 檔案格式：YAML frontmatter（`name`, `description`）+ markdown body
+- Body 內用 `{{input}}` 當 placeholder（user 輸入會塞進去；沒寫 placeholder 就自動 append）
+- 觸發：Discord 訊息以 `/<name>` 開頭 → `skills.parse_slash` → `SkillRegistry.get(name).render(args)` → 送進 CLI
+- 不存在的 slash 名稱：pass-through 當普通訊息處理
+- 啟動時掃描一次；要重新載入就 unload/load launchd agent
+
+## 定時任務
+
+- 設定：`~/.pclaw/cron.toml`，格式：
+
+```toml
+[[jobs]]
+name = "morning-briefing"
+schedule = "0 8 * * 1-5"    # 標準 5 欄 cron
+skill = "summary"            # 選配，用 skill template 包一層
+prompt = "..."              # skill 為空就直接當 CLI prompt 送
+```
+
+- 引擎：`apscheduler.schedulers.asyncio.AsyncIOScheduler`，跟 bot 同一個 event loop
+- 啟動時機：`on_ready`（等連上 Gateway 再開始，避免還沒登入就觸發）
+- 關閉：`close()` 時 `scheduler.shutdown(wait=False)`
+- 每次觸發：`ClawBot._run_cron_job` → `channel.send("⏰ <name>")` seed 訊息 → `seed.create_thread(...)` → 跑 CLI → `replies.send_reply(thread, result)`
+- 結果 = 主頻道 top-level 看到 `⏰ <name>` + 可展開的 thread 內有 CLI 回覆；user 可在 thread 內繼續對話（會走原本 `on_message` 流程，認到 thread ↔ session 對應）
+- `coalesce=True` + `misfire_grace_time=3600`：bot 離線期間累積的觸發只會合併成一次、且 1 小時內會補跑
+
 ## 已知未驗證的行為
 
 - `gemini -r <id> -p "..."` 在非互動模式下的 resume 行為是本設計的關鍵假設（help 未明說；實務可行性由作者報告為準）。MVP 首次真實跑通是驗證點 5。

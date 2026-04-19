@@ -8,7 +8,9 @@ from . import reactions, replies
 from .backfill import backfill_channel
 from .cli import BaseCliAdapter, CliError, get_adapter
 from .config import Config
+from .cron import CronJob, CronScheduler, load_jobs
 from .dispatcher import Dispatcher, Job
+from .skills import Skill, SkillRegistry, parse_slash
 from .storage import Storage
 
 
@@ -38,6 +40,8 @@ class ClawBot(discord.Client):
             config.cli_kind, workdir=config.workdir, model=config.cli_model
         )
         self.dispatcher = Dispatcher(self._handle_job, config.max_concurrency)
+        self.skills = SkillRegistry(config.skills_dir)
+        self.cron = CronScheduler(load_jobs(config.cron_path), self._run_cron_job)
         Path(config.state_home / "logs").mkdir(parents=True, exist_ok=True)
         self._notify("connecting")
 
@@ -49,6 +53,7 @@ class ClawBot(discord.Client):
     async def on_ready(self) -> None:
         log.info("logged in as %s (id=%s)", self.user, self.user.id if self.user else "?")
         self._notify("ready")
+        self.cron.start()
         await self._run_backfill()
 
     async def on_resumed(self) -> None:
@@ -73,6 +78,8 @@ class ClawBot(discord.Client):
         if msg.author.bot or msg.author.id == (self.user.id if self.user else 0):
             return
 
+        effective_content = self._expand_slash(msg)
+
         self.storage.record_message(
             message_id=str(msg.id),
             channel_id=str(msg.channel.id),
@@ -82,9 +89,10 @@ class ClawBot(discord.Client):
             created_at=int(msg.created_at.timestamp()),
         )
         await reactions.mark_queued(msg)
-        await self.dispatcher.submit(Job(message=msg))
+        await self.dispatcher.submit(Job(message=msg, effective_content=effective_content))
 
     async def close(self) -> None:
+        self.cron.shutdown()
         await self.dispatcher.shutdown()
         self.storage.close()
         await super().close()
@@ -97,6 +105,18 @@ class ClawBot(discord.Client):
         if isinstance(msg.channel, discord.Thread) and msg.channel.parent_id == self.config.channel_id:
             return True
         return False
+
+    def _expand_slash(self, msg: discord.Message) -> str | None:
+        slash = parse_slash(msg.content)
+        if slash is None:
+            return None
+        name, args = slash
+        skill = self.skills.get(name)
+        if skill is None:
+            log.info("slash /%s has no matching skill; passing through verbatim", name)
+            return None
+        log.info("expanding /%s skill (%d chars of input)", name, len(args))
+        return skill.render(args)
 
     async def _run_backfill(self) -> None:
         try:
@@ -115,21 +135,17 @@ class ClawBot(discord.Client):
 
         try:
             if isinstance(msg.channel, discord.Thread):
-                await self._handle_thread_message(msg)
+                await self._handle_thread_message(job)
             else:
-                await self._handle_top_level_message(msg)
+                await self._handle_top_level_message(job)
             await reactions.mark_done(msg)
             self.storage.finish_task(str(msg.id))
         except CliError as e:
             log.warning("CLI error on %s: %s", msg.id, e)
-            target = msg.channel if isinstance(msg.channel, discord.Thread) else msg
             err_text = str(e)[:1500]
             try:
-                if isinstance(target, discord.Thread):
-                    await target.send(f"❌ CLI 錯誤：\n```\n{err_text}\n```")
-                else:
-                    # no thread was created; reply in channel
-                    await msg.channel.send(f"❌ CLI 錯誤：\n```\n{err_text}\n```")
+                target = msg.channel if isinstance(msg.channel, discord.Thread) else msg.channel
+                await target.send(f"❌ CLI 錯誤：\n```\n{err_text}\n```")
             except discord.HTTPException:
                 log.exception("failed to post error message")
             await reactions.mark_error(msg)
@@ -144,18 +160,20 @@ class ClawBot(discord.Client):
                 str(self.config.channel_id), str(msg.id)
             )
 
-    async def _handle_top_level_message(self, msg: discord.Message) -> None:
+    async def _handle_top_level_message(self, job: Job) -> None:
+        msg = job.message
         thread = await msg.create_thread(name=_thread_name(msg.content))
         self.storage.upsert_thread(
             thread_id=str(thread.id),
             parent_msg_id=str(msg.id),
             cli_kind=self.adapter.kind,
         )
-        result = await self.adapter.run(msg.content, session_id=None)
+        result = await self.adapter.run(job.prompt, session_id=None)
         self.storage.set_cli_session(str(thread.id), result.session_id)
         await replies.send_reply(thread, result.reply)
 
-    async def _handle_thread_message(self, msg: discord.Message) -> None:
+    async def _handle_thread_message(self, job: Job) -> None:
+        msg = job.message
         assert isinstance(msg.channel, discord.Thread)
         thread_row = self.storage.get_thread(str(msg.channel.id))
         session_id = thread_row.cli_session_id if thread_row else None
@@ -168,12 +186,50 @@ class ClawBot(discord.Client):
                 parent_msg_id=str(msg.channel.id),
                 cli_kind=self.adapter.kind,
             )
-            result = await self.adapter.run(msg.content, session_id=None)
+            result = await self.adapter.run(job.prompt, session_id=None)
             self.storage.set_cli_session(str(msg.channel.id), result.session_id)
         else:
-            result = await self.adapter.run(msg.content, session_id=session_id)
+            result = await self.adapter.run(job.prompt, session_id=session_id)
 
         await replies.send_reply(msg.channel, result.reply)
+
+    # --- Cron ---------------------------------------------------------
+
+    async def _run_cron_job(self, job: CronJob) -> None:
+        channel = await self.fetch_channel(self.config.channel_id)
+        if not isinstance(channel, discord.TextChannel):
+            log.error("cron channel %s is not a text channel", self.config.channel_id)
+            return
+
+        prompt = self._expand_cron_prompt(job)
+
+        # Post a seed message so the thread has somewhere to attach + the user
+        # can see what triggered this run.
+        seed = await channel.send(f"⏰ **{job.name}**")
+        thread = await seed.create_thread(name=job.name[:50] or "cron")
+        self.storage.upsert_thread(
+            thread_id=str(thread.id),
+            parent_msg_id=str(seed.id),
+            cli_kind=self.adapter.kind,
+        )
+
+        try:
+            result = await self.adapter.run(prompt, session_id=None)
+        except CliError as e:
+            await thread.send(f"❌ CLI 錯誤：\n```\n{str(e)[:1500]}\n```")
+            return
+
+        self.storage.set_cli_session(str(thread.id), result.session_id)
+        await replies.send_reply(thread, result.reply)
+
+    def _expand_cron_prompt(self, job: CronJob) -> str:
+        if job.skill:
+            skill: Skill | None = self.skills.get(job.skill)
+            if skill is None:
+                log.warning("cron job %s references unknown skill %s", job.name, job.skill)
+                return job.prompt
+            return skill.render(job.prompt)
+        return job.prompt
 
 
 async def run_bot(config: Config, status_callback: StatusCallback | None = None) -> None:

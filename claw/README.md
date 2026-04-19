@@ -76,6 +76,61 @@ launchctl load ~/Library/LaunchAgents/com.paulwu.claw.plist
 
 `KeepAlive=true` restarts the process on crash. After sleep/wake, `discord.py` reconnects to the gateway and fires `on_resumed`, which triggers the backfill.
 
+## Skills
+
+Named prompt templates stored as `~/.pclaw/skills/<name>/SKILL.md`. Trigger in Discord with `/<name> [args]`:
+
+```
+/summary 這是一段很長的文章 ...
+/translate This English text should come back in Traditional Chinese.
+/daily-retro 今天跟設計師討論了新的 onboarding 流程
+```
+
+`SKILL.md` format (YAML frontmatter + body, `{{input}}` marks where args go):
+
+```markdown
+---
+name: summary
+description: 把長文章整理成三點摘要
+---
+
+請把下面的內容整理成三個要點：
+
+{{input}}
+```
+
+Three ready-to-use examples live in `examples/skills/`. Copy them to `~/.pclaw/skills/` and reload the agent:
+
+```bash
+mkdir -p ~/.pclaw/skills
+cp -R examples/skills/* ~/.pclaw/skills/
+launchctl unload ~/Library/LaunchAgents/com.paulwu.claw.plist
+launchctl load   ~/Library/LaunchAgents/com.paulwu.claw.plist
+```
+
+Slash commands that don't match a known skill are passed through as normal prompts.
+
+## Scheduled tasks
+
+`~/.pclaw/cron.toml` with standard 5-field cron entries:
+
+```toml
+[[jobs]]
+name = "morning-briefing"
+schedule = "0 8 * * 1-5"
+skill = "summary"
+prompt = "把昨天我關注的科技新聞整理一下"
+
+[[jobs]]
+name = "weekly-retro"
+schedule = "0 22 * * 0"
+prompt = "這週值得感謝的三件事是什麼？"
+```
+
+At fire time the bot posts a `⏰ <name>` seed message into the main channel, creates a thread, runs the CLI, and replies in the thread — same flow as a manual message, so you can keep chatting in the thread to follow up.
+
+See `examples/cron.toml` for a commented template.
+
 ## Tests
 
 ```bash

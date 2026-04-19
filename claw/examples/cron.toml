@@ -1,0 +1,20 @@
+# Copy to ~/.pclaw/cron.toml and edit.
+#
+# schedule 欄位用標準 cron 五欄格式：minute hour dom month dow
+# 時區跟 launchd 下的 bot 進程一致（macOS 預設 = 系統時區）。
+#
+# 每個 job 會在指定時間由 bot 在主頻道貼一則 "⏰ <name>" 的 top-level
+# 訊息、從它建 thread、在 thread 內跑 CLI 並回覆。你可以到 thread 內
+# 接續對話，跟手動觸發的流程完全一樣。
+
+# [[jobs]]
+# name = "morning-briefing"
+# schedule = "0 8 * * 1-5"       # 週一到週五早上 8 點
+# skill = "summary"               # 使用 summary skill，prompt 會被當 input 填進去
+# prompt = "把昨天我關注的科技新聞整理一下"
+
+# [[jobs]]
+# name = "weekly-retro"
+# schedule = "0 22 * * 0"        # 週日晚上 10 點
+# prompt = "這週值得感謝的三件事是什麼？回答時請用繁體中文。"
+# 沒指定 skill 就把 prompt 直接丟給 CLI

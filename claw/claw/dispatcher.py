@@ -12,6 +12,11 @@ log = logging.getLogger(__name__)
 @dataclass
 class Job:
     message: discord.Message
+    effective_content: str | None = None
+
+    @property
+    def prompt(self) -> str:
+        return self.effective_content if self.effective_content is not None else self.message.content
 
 
 JobHandler = Callable[[Job], Awaitable[None]]
