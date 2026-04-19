@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.paulwu.claw</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/paulwu/.local/bin/uv</string>
+        <string>run</string>
+        <string>--directory</string>
+        <string>/Users/paulwu/Documents/Github/tools/claw</string>
+        <string>python</string>
+        <string>-m</string>
+        <string>claw</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/paulwu/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/paulwu/Documents/Github/tools/claw</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>ThrottleInterval</key>
+    <integer>15</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/paulwu/.pclaw/logs/stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/paulwu/.pclaw/logs/stderr.log</string>
+</dict>
+</plist>

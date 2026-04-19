@@ -1,0 +1,26 @@
+[project]
+name = "claw"
+version = "0.1.0"
+description = "Local Discord-driven AI assistant that dispatches messages to a configured CLI (gemini/claude/codex)."
+requires-python = ">=3.12"
+dependencies = [
+    "discord.py>=2.3",
+    "rumps>=0.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["claw"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
