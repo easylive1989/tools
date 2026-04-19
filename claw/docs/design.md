@@ -282,6 +282,13 @@ env 覆蓋：`CLAW_DISCORD_TOKEN`、`CLAW_CHANNEL_ID`、`CLAW_CLI_KIND`、`CLAW_
 
 ---
 
+## 附件（圖片 / 檔案）
+
+- Discord `message.attachments` 的每個檔案下載到 `~/.pclaw/workdir/attachments/<message_id>/<sanitized_filename>`
+- Prompt 尾端追加 gemini 的 `@<relative_path>` 語法，讓 CLI 以 multimodal 方式把檔案載入（圖片/PDF/純文字/聲音皆可）
+- 失敗（最常是長時間離線後 Discord CDN 簽章 URL 過期）會 log warning 跳過，不擋住文字部分的處理
+- 觸發時機在 `_handle_job` 內，所以 `on_message` 和 backfill 都走同一條路
+
 ## Skills（類似 openclaw / Claude Code）
 
 - 目錄：`~/.pclaw/skills/<name>/SKILL.md`

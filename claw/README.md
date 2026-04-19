@@ -76,6 +76,10 @@ launchctl load ~/Library/LaunchAgents/com.paulwu.claw.plist
 
 `KeepAlive=true` restarts the process on crash. After sleep/wake, `discord.py` reconnects to the gateway and fires `on_resumed`, which triggers the backfill.
 
+## Attachments
+
+Drop any image, PDF, text file, or audio into a Discord message and claw will download it under `~/.pclaw/workdir/attachments/<message-id>/` and splice `@path` references into the prompt so Gemini picks it up natively (multimodal). No extra syntax needed — just attach and send.
+
 ## Skills
 
 Named prompt templates stored as `~/.pclaw/skills/<name>/SKILL.md`. Trigger in Discord with `/<name> [args]`:

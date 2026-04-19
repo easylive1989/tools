@@ -5,6 +5,7 @@ from typing import Callable
 import discord
 
 from . import reactions, replies
+from .attachments import build_attachment_prompt, download_attachments
 from .backfill import backfill_channel
 from .cli import BaseCliAdapter, CliError, get_adapter
 from .config import Config
@@ -134,10 +135,11 @@ class ClawBot(discord.Client):
         self.storage.start_task(str(msg.id))
 
         try:
+            prompt = await self._prepare_prompt(job)
             if isinstance(msg.channel, discord.Thread):
-                await self._handle_thread_message(job)
+                await self._handle_thread_message(job, prompt)
             else:
-                await self._handle_top_level_message(job)
+                await self._handle_top_level_message(job, prompt)
             await reactions.mark_done(msg)
             self.storage.finish_task(str(msg.id))
         except CliError as e:
@@ -160,7 +162,12 @@ class ClawBot(discord.Client):
                 str(self.config.channel_id), str(msg.id)
             )
 
-    async def _handle_top_level_message(self, job: Job) -> None:
+    async def _prepare_prompt(self, job: Job) -> str:
+        """Augment the base prompt with @references for any Discord attachments."""
+        rel_paths = await download_attachments(job.message, self.config.workdir)
+        return build_attachment_prompt(job.prompt, rel_paths)
+
+    async def _handle_top_level_message(self, job: Job, prompt: str) -> None:
         msg = job.message
         thread = await msg.create_thread(name=_thread_name(msg.content))
         self.storage.upsert_thread(
@@ -168,11 +175,11 @@ class ClawBot(discord.Client):
             parent_msg_id=str(msg.id),
             cli_kind=self.adapter.kind,
         )
-        result = await self.adapter.run(job.prompt, session_id=None)
+        result = await self.adapter.run(prompt, session_id=None)
         self.storage.set_cli_session(str(thread.id), result.session_id)
         await replies.send_reply(thread, result.reply)
 
-    async def _handle_thread_message(self, job: Job) -> None:
+    async def _handle_thread_message(self, job: Job, prompt: str) -> None:
         msg = job.message
         assert isinstance(msg.channel, discord.Thread)
         thread_row = self.storage.get_thread(str(msg.channel.id))
@@ -186,10 +193,10 @@ class ClawBot(discord.Client):
                 parent_msg_id=str(msg.channel.id),
                 cli_kind=self.adapter.kind,
             )
-            result = await self.adapter.run(job.prompt, session_id=None)
+            result = await self.adapter.run(prompt, session_id=None)
             self.storage.set_cli_session(str(msg.channel.id), result.session_id)
         else:
-            result = await self.adapter.run(job.prompt, session_id=session_id)
+            result = await self.adapter.run(prompt, session_id=session_id)
 
         await replies.send_reply(msg.channel, result.reply)
 
