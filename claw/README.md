@@ -70,6 +70,8 @@ launchctl load ~/Library/LaunchAgents/com.paulwu.claw.plist
 To stop / reload:
 
 ```bash
+./reload.sh                  # quick reload + tails stderr
+# or manually:
 launchctl unload ~/Library/LaunchAgents/com.paulwu.claw.plist
 launchctl load ~/Library/LaunchAgents/com.paulwu.claw.plist
 ```
