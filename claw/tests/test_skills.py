@@ -47,10 +47,25 @@ def test_render_appends_when_no_placeholder(tmp_path: Path) -> None:
     assert rendered.endswith("today is monday")
 
 
-def test_missing_frontmatter_is_skipped(tmp_path: Path) -> None:
+def test_plain_description_fallback(tmp_path: Path) -> None:
+    """SKILL.md files without YAML frontmatter still load; name falls back to the
+    directory name and description is pulled from a leading `description:` line."""
+    d = tmp_path / "catalyst-calendar"
+    d.mkdir()
+    (d / "SKILL.md").write_text(
+        "# Catalyst Calendar\n\ndescription: Track upcoming stock catalysts.\n\n## Workflow\n",
+        encoding="utf-8",
+    )
+    reg = SkillRegistry(tmp_path)
+    skill = reg.get("catalyst-calendar")
+    assert skill is not None
+    assert skill.description == "Track upcoming stock catalysts."
+
+
+def test_truly_empty_file_is_skipped(tmp_path: Path) -> None:
     bad = tmp_path / "broken"
     bad.mkdir()
-    (bad / "SKILL.md").write_text("no frontmatter here", encoding="utf-8")
+    (bad / "SKILL.md").write_text("   \n\n   ", encoding="utf-8")
 
     reg = SkillRegistry(tmp_path)
     assert reg.get("broken") is None

@@ -140,6 +140,19 @@ launchctl load   ~/Library/LaunchAgents/com.paulwu.claw.plist
 
 Slash commands that don't match a known skill are passed through as normal prompts.
 
+### Pulling skills from upstream plugin repos
+
+You can drop any third-party `SKILL.md` pack into `~/.pclaw/skills/`. The loader accepts both YAML-frontmatter and plaintext `description:` formats. Example — pull Anthropic's equity-research skills:
+
+```bash
+tmp=$(mktemp -d)
+gh repo clone anthropics/financial-services-plugins "$tmp/fsp" -- --depth=1
+cp -R "$tmp/fsp/equity-research/skills"/* ~/.pclaw/skills/
+rm -rf "$tmp"
+./install-skills.sh   # wires them into Claude + Gemini
+./reload.sh           # reloads pclaw's SkillRegistry
+```
+
 ### Exposing skills to the CLI natively
 
 Pclaw's own `/skill` routing always works. But if you also want Claude / Gemini to **auto-activate** skills from their own registries (so they kick in even when you didn't type `/`), run:
