@@ -176,27 +176,36 @@ class ClawBot(discord.Client):
             cli_kind=self.adapter.kind,
         )
         result = await self.adapter.run(prompt, session_id=None)
-        self.storage.set_cli_session(str(thread.id), result.session_id)
+        self.storage.set_cli_session(str(thread.id), result.session_id, self.adapter.kind)
         await replies.send_reply(thread, result.reply)
 
     async def _handle_thread_message(self, job: Job, prompt: str) -> None:
         msg = job.message
         assert isinstance(msg.channel, discord.Thread)
         thread_row = self.storage.get_thread(str(msg.channel.id))
-        session_id = thread_row.cli_session_id if thread_row else None
 
-        if session_id is None:
-            # Thread exists but we have no session record (e.g. bot lost DB or
-            # the thread pre-dates this bot). Treat this turn as a fresh session.
+        # Reuse an existing session only when it was created by the currently
+        # configured CLI. If the user switched CLIs (gemini→claude etc.) or
+        # we've lost the DB entry entirely, start a fresh session for this
+        # thread under the current adapter.
+        can_resume = (
+            thread_row is not None
+            and thread_row.cli_kind == self.adapter.kind
+            and thread_row.cli_session_id is not None
+        )
+
+        if can_resume:
+            result = await self.adapter.run(prompt, session_id=thread_row.cli_session_id)
+        else:
             self.storage.upsert_thread(
                 thread_id=str(msg.channel.id),
                 parent_msg_id=str(msg.channel.id),
                 cli_kind=self.adapter.kind,
             )
             result = await self.adapter.run(prompt, session_id=None)
-            self.storage.set_cli_session(str(msg.channel.id), result.session_id)
-        else:
-            result = await self.adapter.run(prompt, session_id=session_id)
+            self.storage.set_cli_session(
+                str(msg.channel.id), result.session_id, self.adapter.kind
+            )
 
         await replies.send_reply(msg.channel, result.reply)
 
@@ -226,7 +235,7 @@ class ClawBot(discord.Client):
             await thread.send(f"❌ CLI 錯誤：\n```\n{str(e)[:1500]}\n```")
             return
 
-        self.storage.set_cli_session(str(thread.id), result.session_id)
+        self.storage.set_cli_session(str(thread.id), result.session_id, self.adapter.kind)
         await replies.send_reply(thread, result.reply)
 
     def _expand_cron_prompt(self, job: CronJob) -> str:

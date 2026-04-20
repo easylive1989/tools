@@ -130,10 +130,10 @@ class Storage:
             (thread_id, parent_msg_id, cli_session_id, cli_kind, int(time.time())),
         )
 
-    def set_cli_session(self, thread_id: str, cli_session_id: str) -> None:
+    def set_cli_session(self, thread_id: str, cli_session_id: str, cli_kind: str) -> None:
         self._conn.execute(
-            "UPDATE threads SET cli_session_id = ? WHERE thread_id = ?",
-            (cli_session_id, thread_id),
+            "UPDATE threads SET cli_session_id = ?, cli_kind = ? WHERE thread_id = ?",
+            (cli_session_id, cli_kind, thread_id),
         )
 
     def get_thread(self, thread_id: str) -> ThreadRow | None:
