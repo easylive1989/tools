@@ -85,6 +85,28 @@ async def test_prompt_sent_via_stdin_not_argv(adapter: ClaudeAdapter) -> None:
     assert captured[0].received_stdin == "幫我找一下 0050 的價格".encode("utf-8")
 
 
+async def test_allowed_tools_passed(adapter: ClaudeAdapter) -> None:
+    captured: list[FakeProc] = []
+
+    async def fake_exec(*args, **kwargs):
+        proc = FakeProc(0, b"ok\n")
+        proc.args = args
+        captured.append(proc)
+        return proc
+
+    with patch("asyncio.create_subprocess_exec", side_effect=fake_exec):
+        await adapter.run("x", session_id=None)
+
+    args = captured[0].args
+    assert "--allowedTools" in args
+    # Read must be in the allow-list so @ref attachments resolve.
+    assert "Read" in args
+    assert "WebSearch" in args
+    # Write/Bash/Edit stay blocked.
+    assert "Bash" not in args
+    assert "Write" not in args
+
+
 async def test_non_zero_raises(adapter: ClaudeAdapter) -> None:
     async def fake_exec(*args, **kwargs):
         return FakeProc(1, b"", b"bad auth\n")

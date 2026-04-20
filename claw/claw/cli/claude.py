@@ -9,6 +9,13 @@ from .base import BaseCliAdapter, CliError, CliResult
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
 
+# Tools auto-approved in -p mode. All read- or fetch-only: Read handles @ref
+# attachments, WebSearch/WebFetch satisfy "what's the price of X" style queries,
+# Glob/Grep let Claude look through the attachment workdir. Anything with side
+# effects (Bash/Edit/Write/NotebookEdit) stays behind Claude's default permission
+# prompt, which silently no-ops under --print.
+_ALLOWED_TOOLS = ["Read", "WebSearch", "WebFetch", "Glob", "Grep"]
+
 
 def _strip_ansi(text: str) -> str:
     return _ANSI_RE.sub("", text)
@@ -49,9 +56,9 @@ class ClaudeAdapter(BaseCliAdapter):
             args += ["--session-id", session_id]
         else:
             args += ["--resume", session_id]
-        # Prompt goes via stdin, not as a positional arg, to avoid collisions
-        # with Claude Code's variadic option parsing (e.g. --tools/--allowedTools
-        # greedily absorbing following positionals).
+        args += ["--allowedTools", *_ALLOWED_TOOLS]
+        # Prompt goes via stdin (no trailing positional) so --allowedTools's
+        # variadic parser doesn't greedily swallow it.
         return args
 
     async def _invoke(self, args: list[str], prompt: str) -> str:
