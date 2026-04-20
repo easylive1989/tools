@@ -80,6 +80,28 @@ launchctl load ~/Library/LaunchAgents/com.paulwu.claw.plist
 
 `KeepAlive=true` restarts the process on crash. After sleep/wake, `discord.py` reconnects to the gateway and fires `on_resumed`, which triggers the backfill.
 
+## Memory
+
+Pclaw maintains cross-thread memory at `~/.pclaw/memory.md`. On first startup the bot also creates `~/.pclaw/CLAUDE.md` and `~/.pclaw/GEMINI.md` as symlinks to it, so both CLIs auto-load the file at the top of every new session's context.
+
+To add something: `/remember <text>` in Discord. The message gets 🧠 reaction, and a dated bullet is appended. Example:
+
+```
+/remember 我只喝無糖飲料
+```
+
+`~/.pclaw/memory.md`:
+
+```markdown
+# pclaw memory
+
+每當你請 pclaw「記住」什麼，就會追加在這裡...
+
+- 2026-04-20: 我只喝無糖飲料
+```
+
+You can also edit the file by hand. Bot restart not needed — the CLI reads it on every new CLI session.
+
 ## Attachments
 
 Drop any image, PDF, text file, or audio into a Discord message and claw will download it under `~/.pclaw/workdir/attachments/<message-id>/` and splice `@path` references into the prompt so Gemini picks it up natively (multimodal). No extra syntax needed — just attach and send.

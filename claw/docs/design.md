@@ -306,6 +306,14 @@ env 覆蓋：`CLAW_DISCORD_TOKEN`、`CLAW_CHANNEL_ID`、`CLAW_CLI_KIND`、`CLAW_
 
 ---
 
+## 長期記憶
+
+- 檔：`~/.pclaw/memory.md`（bot 啟動時自動建立含 header 的 stub）
+- 符號連結：`~/.pclaw/CLAUDE.md` 和 `~/.pclaw/GEMINI.md` 指向它，讓 Claude Code 和 Gemini CLI 在每次新 session 載入時自動把內容加入 system prompt context
+- 寫入：`/remember <text>` 內建指令（不經 dispatcher / CLI），直接 append 帶日期的 bullet；成功反應 🧠
+- 讀：使用者可直接編輯 `memory.md`；改完不用重啟 bot（下一個新 CLI session 自然讀到新版）
+- 內建指令 vs skill：`/remember` 在 `_handle_builtin` 優先攔截，不會去找 `SkillRegistry`；其他以後可能的內建指令（`/forget`, `/memory`）都走這條路徑
+
 ## 附件（圖片 / 檔案）
 
 - Discord `message.attachments` 的每個檔案下載到 `~/.pclaw/attachments/<message_id>/<sanitized_filename>`

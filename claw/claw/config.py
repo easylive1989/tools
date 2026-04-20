@@ -35,6 +35,10 @@ class Config:
     def cron_path(self) -> Path:
         return self.state_home / "cron.toml"
 
+    @property
+    def memory_path(self) -> Path:
+        return self.state_home / "memory.md"
+
 
 def load_config(path: Path | None = None) -> Config:
     state_home = Path(os.environ.get("CLAW_HOME", DEFAULT_HOME))

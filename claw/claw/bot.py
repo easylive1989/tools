@@ -4,7 +4,7 @@ from typing import Callable
 
 import discord
 
-from . import reactions, replies
+from . import memory, reactions, replies
 from .attachments import build_attachment_prompt, download_attachments
 from .backfill import backfill_channel
 from .cli import BaseCliAdapter, CliError, get_adapter
@@ -44,6 +44,8 @@ class ClawBot(discord.Client):
         self.skills = SkillRegistry(config.skills_dir)
         self.cron = CronScheduler(load_jobs(config.cron_path), self._run_cron_job)
         Path(config.state_home / "logs").mkdir(parents=True, exist_ok=True)
+        memory.ensure_memory_file(config.memory_path)
+        memory.ensure_cli_symlinks(config.state_home)
         self._notify("connecting")
 
     # --- Discord lifecycle hooks --------------------------------------
@@ -79,6 +81,9 @@ class ClawBot(discord.Client):
         if msg.author.bot or msg.author.id == (self.user.id if self.user else 0):
             return
 
+        if await self._handle_builtin(msg):
+            return
+
         effective_content = self._expand_slash(msg)
 
         self.storage.record_message(
@@ -106,6 +111,36 @@ class ClawBot(discord.Client):
         if isinstance(msg.channel, discord.Thread) and msg.channel.parent_id == self.config.channel_id:
             return True
         return False
+
+    async def _handle_builtin(self, msg: discord.Message) -> bool:
+        """Intercept pclaw-internal slash commands that don't go through the CLI.
+
+        Returns True if the message was handled; False to let normal dispatch
+        continue. These commands execute synchronously and don't create threads.
+        """
+        slash = parse_slash(msg.content)
+        if slash is None:
+            return False
+        name, args = slash
+        if name == "remember":
+            await self._cmd_remember(msg, args)
+            return True
+        return False
+
+    async def _cmd_remember(self, msg: discord.Message, text: str) -> None:
+        if not text.strip():
+            await msg.add_reaction("❌")
+            try:
+                await msg.reply("`/remember` 需要內容，例如 `/remember 我喜歡喝無糖茶`")
+            except discord.HTTPException:
+                pass
+            return
+        entry = memory.append_memory(self.config.memory_path, text)
+        log.info("memory appended: %s", entry)
+        try:
+            await msg.add_reaction("🧠")
+        except discord.HTTPException:
+            pass
 
     def _expand_slash(self, msg: discord.Message) -> str | None:
         slash = parse_slash(msg.content)
