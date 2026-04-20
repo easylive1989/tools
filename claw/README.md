@@ -118,6 +118,20 @@ launchctl load   ~/Library/LaunchAgents/com.paulwu.claw.plist
 
 Slash commands that don't match a known skill are passed through as normal prompts.
 
+### Exposing skills to the CLI natively
+
+Pclaw's own `/skill` routing always works. But if you also want Claude / Gemini to **auto-activate** skills from their own registries (so they kick in even when you didn't type `/`), run:
+
+```bash
+./install-skills.sh
+```
+
+This symlinks each `~/.pclaw/skills/<name>` into:
+- `~/.claude/skills/<name>` (Claude Code picks it up on next run)
+- `gemini skills link <path> --consent` (Gemini keeps a symlink under `~/.gemini/skills/`)
+
+Because they're symlinks, editing the pclaw source reflects in both CLIs immediately; no reinstall needed.
+
 ## Scheduled tasks
 
 `~/.pclaw/cron.toml` with standard 5-field cron entries:
