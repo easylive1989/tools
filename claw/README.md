@@ -170,6 +170,19 @@ Because these are symlinks, editing a SKILL.md under `~/.pclaw/skills/` takes ef
 
 ## Scheduled tasks
 
+### Natural-language scheduling
+
+In Discord:
+
+```
+/schedule 每天早上 8:28 用 morning-note skill 產生台股大盤
+/schedule 每週日晚上 10 點 problem me three gratitude questions
+```
+
+Pclaw runs the configured CLI once to parse the description into a cron expression + optional skill + prompt, appends it to `~/.pclaw/cron.toml`, and hot-reloads the scheduler. You'll get a reply confirming the parsed schedule.
+
+### Manual editing
+
 `~/.pclaw/cron.toml` with standard 5-field cron entries:
 
 ```toml

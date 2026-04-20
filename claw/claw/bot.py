@@ -4,15 +4,51 @@ from typing import Callable
 
 import discord
 
+import json
+import re
+
 from . import memory, reactions, replies
 from .attachments import build_attachment_prompt, download_attachments
 from .backfill import backfill_channel
 from .cli import BaseCliAdapter, CliError, get_adapter
 from .config import Config
-from .cron import CronJob, CronScheduler, load_jobs
+from .cron import CronJob, CronScheduler, load_jobs, upsert_job
 from .dispatcher import Dispatcher, Job
 from .skills import Skill, SkillRegistry, parse_slash
 from .storage import Storage
+
+
+_SCHEDULE_PARSE_PROMPT = """You are a scheduling parser for pclaw, a Discord bot.
+
+Parse the user's natural-language description into a JSON object with EXACTLY
+these fields. Output ONLY the JSON — no prose, no markdown code fences.
+
+{{
+  "name": "<kebab-case ASCII identifier, <= 40 chars>",
+  "schedule": "<standard 5-field cron: MIN HOUR DOM MONTH DOW>",
+  "human_readable": "<one short 繁體中文 sentence describing when it runs>",
+  "skill": "<existing pclaw skill name, or null if no fit>",
+  "prompt": "<what to ask the AI at runtime, distinct from a skill reference>"
+}}
+
+Day-of-week uses 0=Sunday through 6=Saturday. Minutes/hours are local machine time.
+
+Existing pclaw skills you may reference by name: {skills}
+
+User description:
+{user_text}
+"""
+
+
+def _extract_json_object(text: str) -> dict:
+    m = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", text)
+    if m:
+        return json.loads(m.group(1))
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        return json.loads(text[start : end + 1])
+    raise ValueError("no JSON object found in CLI output")
 
 
 StatusCallback = Callable[[str], None]
@@ -125,7 +161,76 @@ class ClawBot(discord.Client):
         if name == "remember":
             await self._cmd_remember(msg, args)
             return True
+        if name == "schedule":
+            await self._cmd_schedule(msg, args)
+            return True
         return False
+
+    async def _cmd_schedule(self, msg: discord.Message, text: str) -> None:
+        if not text.strip():
+            await msg.reply(
+                "`/schedule` 需要描述，例如 `/schedule 每天早上 8:28 用 morning-note skill 產生台股大盤`"
+            )
+            return
+
+        await reactions.mark_queued(msg)
+
+        skills_csv = ", ".join(self.skills.names()) or "(none)"
+        parse_prompt = _SCHEDULE_PARSE_PROMPT.format(skills=skills_csv, user_text=text)
+        try:
+            result = await self.adapter.run(parse_prompt, session_id=None)
+        except CliError as e:
+            log.warning("schedule parse failed: %s", e)
+            await reactions.mark_error(msg)
+            await msg.reply(f"❌ 解析失敗（CLI 錯誤）：\n```\n{str(e)[:500]}\n```")
+            return
+
+        try:
+            parsed = _extract_json_object(result.reply)
+        except (ValueError, json.JSONDecodeError) as e:
+            log.warning("schedule JSON parse failed: %s\nraw: %s", e, result.reply[:500])
+            await reactions.mark_error(msg)
+            await msg.reply(
+                f"❌ 無法從 CLI 輸出抽出 JSON：\n```\n{result.reply[:500]}\n```"
+            )
+            return
+
+        try:
+            job = self._build_cron_job(parsed)
+        except ValueError as e:
+            await reactions.mark_error(msg)
+            await msg.reply(f"❌ 排程無效：{e}")
+            return
+
+        upsert_job(self.config.cron_path, job)
+        self.cron.reload(load_jobs(self.config.cron_path))
+
+        readable = parsed.get("human_readable") or job.schedule
+        skill_line = f"\n🧠 skill: `{job.skill}`" if job.skill else ""
+        await reactions.mark_done(msg)
+        await msg.reply(
+            f"✅ 已排程 **{job.name}**\n"
+            f"⏰ `{job.schedule}` — {readable}{skill_line}\n"
+            f"📝 {job.prompt[:200]}"
+        )
+
+    def _build_cron_job(self, parsed: dict) -> CronJob:
+        name = str(parsed.get("name") or "").strip()
+        schedule = str(parsed.get("schedule") or "").strip()
+        prompt = str(parsed.get("prompt") or "").strip()
+        skill = parsed.get("skill")
+        if not name or not re.match(r"^[a-z0-9][a-z0-9-]{0,39}$", name):
+            raise ValueError(f"name 不合法: {name!r}（需 kebab-case、ASCII、≤40 字）")
+        if not schedule or len(schedule.split()) != 5:
+            raise ValueError(f"schedule 不是 5-field cron: {schedule!r}")
+        if not prompt:
+            raise ValueError("prompt 不能為空")
+        if skill and skill not in self.skills.names():
+            raise ValueError(f"skill `{skill}` 不存在。現有: {', '.join(self.skills.names())}")
+        # Final sanity: APScheduler parse
+        from apscheduler.triggers.cron import CronTrigger
+        CronTrigger.from_crontab(schedule)
+        return CronJob(name=name, schedule=schedule, prompt=prompt, skill=skill or None)
 
     async def _cmd_remember(self, msg: discord.Message, text: str) -> None:
         if not text.strip():
