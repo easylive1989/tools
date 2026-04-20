@@ -35,12 +35,13 @@ class ClaudeAdapter(BaseCliAdapter):
     async def run(self, prompt: str, session_id: str | None) -> CliResult:
         if session_id is None:
             session_id = str(uuid.uuid4())
-            reply = await self._invoke(self._build_args(prompt, session_id, is_new=True))
+            args = self._build_args(session_id, is_new=True)
         else:
-            reply = await self._invoke(self._build_args(prompt, session_id, is_new=False))
+            args = self._build_args(session_id, is_new=False)
+        reply = await self._invoke(args, prompt)
         return CliResult(reply=reply, session_id=session_id)
 
-    def _build_args(self, prompt: str, session_id: str, *, is_new: bool) -> list[str]:
+    def _build_args(self, session_id: str, *, is_new: bool) -> list[str]:
         args = ["claude", "-p", "--output-format", "text"]
         if self.model:
             args += ["--model", self.model]
@@ -48,22 +49,22 @@ class ClaudeAdapter(BaseCliAdapter):
             args += ["--session-id", session_id]
         else:
             args += ["--resume", session_id]
-        # Disable tools: claw is a text-only assistant, no Bash/Edit/Read needed
-        # (attachments come in as @refs which are inlined, not tool-fetched).
-        args += ["--tools", ""]
-        args += [prompt]
+        # Prompt goes via stdin, not as a positional arg, to avoid collisions
+        # with Claude Code's variadic option parsing (e.g. --tools/--allowedTools
+        # greedily absorbing following positionals).
         return args
 
-    async def _invoke(self, args: list[str]) -> str:
+    async def _invoke(self, args: list[str], prompt: str) -> str:
         env = _augment_path(os.environ.copy())
         proc = await asyncio.create_subprocess_exec(
             *args,
             cwd=str(self.workdir),
+            stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=env,
         )
-        stdout, stderr = await proc.communicate()
+        stdout, stderr = await proc.communicate(input=prompt.encode("utf-8"))
         if proc.returncode != 0:
             err = _strip_ansi(stderr.decode(errors="replace")).strip()
             raise CliError(err or f"claude exited {proc.returncode}")
