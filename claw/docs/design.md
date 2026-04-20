@@ -198,7 +198,23 @@ await dispatcher.submit(Job(msg))
 
 收尾：⏳ → ✅（或 ❌ 並貼錯誤摘要）、`mark_processed`、`update_last_processed_id`。
 
-### 5. GeminiAdapter
+### 5a. ClaudeAdapter
+
+```python
+async def run(prompt, session_id):
+    if session_id is None:
+        session_id = str(uuid.uuid4())          # 我們自己挑
+        reply = subprocess("claude -p --output-format text [--model M] --session-id UUID --tools '' PROMPT")
+    else:
+        reply = subprocess("claude -p --output-format text [--model M] --resume UUID --tools '' PROMPT")
+    return CliResult(reply, session_id)
+```
+
+- `--session-id <uuid>` 讓我們**預先指定** UUID，所以第一次呼叫就能把 id 存進 DB，不需要 diff。
+- `--tools ""` 關閉 Claude Code 的 Bash/Edit/Read 等內建工具 — claw 當通用助理用，不需要它動手。附件是用 `@path` 嵌進 prompt 的，不走 Read 工具。
+- 切換 adapter（gemini → claude）後，既有 thread 的 `threads.cli_kind` 會和當前 adapter 不符；`_handle_thread_message` 偵測到就在該 thread 起一個新 session，`set_cli_session` 會把 kind 和 session_id 一起更新。
+
+### 5b. GeminiAdapter
 
 ```python
 async def run(prompt, session_id):

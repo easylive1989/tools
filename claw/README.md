@@ -47,10 +47,12 @@ token = "MTIz..."
 channel_id = "123456789012345678"
 
 [cli]
-kind = "gemini"
-model = "gemini-2.5-pro"
+kind = "gemini"           # 'gemini' or 'claude'
+model = "gemini-2.5-pro"  # for claude: 'opus' | 'sonnet' | 'haiku' | full model name
 max_concurrency = 3
 ```
+
+Switching `kind` and reloading will start fresh CLI sessions for any threads that were previously bound to the other CLI. Existing thread history in Discord is untouched; only the underlying CLI session ID is regenerated.
 
 Env overrides (useful under launchd): `CLAW_DISCORD_TOKEN`, `CLAW_CHANNEL_ID`, `CLAW_CLI_KIND`, `CLAW_CLI_MODEL`, `CLAW_MAX_CONCURRENCY`, `CLAW_HOME`.
 

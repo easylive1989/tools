@@ -50,8 +50,15 @@ def test_thread_lifecycle(store: Storage) -> None:
     t = store.get_thread("t1")
     assert t.parent_msg_id == "m1"
 
-    store.set_cli_session("t1", "sess-123")
+    store.set_cli_session("t1", "sess-123", "gemini")
     assert store.get_thread("t1").cli_session_id == "sess-123"
+    assert store.get_thread("t1").cli_kind == "gemini"
+
+    # switching CLI: kind + session update together
+    store.set_cli_session("t1", "claude-sess", "claude")
+    t = store.get_thread("t1")
+    assert t.cli_session_id == "claude-sess"
+    assert t.cli_kind == "claude"
 
 
 def test_last_message_id_in_thread(store: Storage) -> None:
