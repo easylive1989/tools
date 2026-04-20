@@ -108,8 +108,8 @@ async def test_allowed_tools_passed(adapter: ClaudeAdapter) -> None:
 
 
 async def test_plugin_dir_passed_when_manifest_exists(tmp_path: Path) -> None:
-    workdir = tmp_path / "workdir"
-    plugin_root = tmp_path / ".claude"
+    workdir = tmp_path / "home"
+    plugin_root = workdir / ".claude"
     (plugin_root / ".claude-plugin").mkdir(parents=True)
     (plugin_root / ".claude-plugin" / "plugin.json").write_text("{}")
     adapter = ClaudeAdapter(workdir=workdir)

@@ -22,7 +22,10 @@ class Config:
 
     @property
     def workdir(self) -> Path:
-        return self.state_home / "workdir"
+        # The CLI subprocess cwd. Using state_home directly (instead of a
+        # workdir/ subdir) puts gemini's workspace-scope skills at
+        # ~/.pclaw/.gemini/ so it sits alongside ~/.pclaw/.claude/.
+        return self.state_home
 
     @property
     def skills_dir(self) -> Path:

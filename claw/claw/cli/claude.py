@@ -59,7 +59,7 @@ class ClaudeAdapter(BaseCliAdapter):
         # Load pclaw's local skill plugin (~/.pclaw/.claude/) instead of the
         # global user-scope ~/.claude/. Only happens if the plugin manifest is
         # present (i.e. install-skills.sh has been run).
-        plugin_root = self.workdir.parent / ".claude"
+        plugin_root = self.workdir / ".claude"
         if (plugin_root / ".claude-plugin" / "plugin.json").exists():
             args += ["--plugin-dir", str(plugin_root)]
         args += ["--allowedTools", *_ALLOWED_TOOLS]

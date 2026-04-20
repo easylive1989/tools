@@ -16,7 +16,7 @@ PCLAW="$HOME/.pclaw"
 SRC="$PCLAW/skills"
 CLAUDE_ROOT="$PCLAW/.claude"
 CLAUDE_SKILLS_DST="$CLAUDE_ROOT/skills"
-GEMINI_WORKSPACE="$PCLAW/workdir"
+GEMINI_WORKSPACE="$PCLAW"
 
 if [[ ! -d "$SRC" ]]; then
     echo "no skills dir at $SRC — create SKILL.md files there first" >&2

@@ -36,7 +36,7 @@ max_concurrency = 5
     assert cfg.cli_model == "gemini-2.5-pro"
     assert cfg.max_concurrency == 5
     assert cfg.db_path == tmp_path / "claw.db"
-    assert cfg.workdir == tmp_path / "workdir"
+    assert cfg.workdir == tmp_path
 
 
 def test_env_overrides_toml(tmp_path: Path, monkeypatch) -> None:
