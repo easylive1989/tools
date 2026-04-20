@@ -107,6 +107,45 @@ async def test_allowed_tools_passed(adapter: ClaudeAdapter) -> None:
     assert "Write" not in args
 
 
+async def test_plugin_dir_passed_when_manifest_exists(tmp_path: Path) -> None:
+    workdir = tmp_path / "workdir"
+    plugin_root = tmp_path / ".claude"
+    (plugin_root / ".claude-plugin").mkdir(parents=True)
+    (plugin_root / ".claude-plugin" / "plugin.json").write_text("{}")
+    adapter = ClaudeAdapter(workdir=workdir)
+
+    captured: list[FakeProc] = []
+
+    async def fake_exec(*args, **kwargs):
+        proc = FakeProc(0, b"ok\n")
+        proc.args = args
+        captured.append(proc)
+        return proc
+
+    with patch("asyncio.create_subprocess_exec", side_effect=fake_exec):
+        await adapter.run("x", session_id=None)
+
+    args = captured[0].args
+    assert "--plugin-dir" in args
+    idx = args.index("--plugin-dir")
+    assert args[idx + 1] == str(plugin_root)
+
+
+async def test_plugin_dir_omitted_when_manifest_absent(adapter: ClaudeAdapter) -> None:
+    captured: list[FakeProc] = []
+
+    async def fake_exec(*args, **kwargs):
+        proc = FakeProc(0, b"ok\n")
+        proc.args = args
+        captured.append(proc)
+        return proc
+
+    with patch("asyncio.create_subprocess_exec", side_effect=fake_exec):
+        await adapter.run("x", session_id=None)
+
+    assert "--plugin-dir" not in captured[0].args
+
+
 async def test_non_zero_raises(adapter: ClaudeAdapter) -> None:
     async def fake_exec(*args, **kwargs):
         return FakeProc(1, b"", b"bad auth\n")

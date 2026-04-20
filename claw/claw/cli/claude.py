@@ -56,6 +56,12 @@ class ClaudeAdapter(BaseCliAdapter):
             args += ["--session-id", session_id]
         else:
             args += ["--resume", session_id]
+        # Load pclaw's local skill plugin (~/.pclaw/.claude/) instead of the
+        # global user-scope ~/.claude/. Only happens if the plugin manifest is
+        # present (i.e. install-skills.sh has been run).
+        plugin_root = self.workdir.parent / ".claude"
+        if (plugin_root / ".claude-plugin" / "plugin.json").exists():
+            args += ["--plugin-dir", str(plugin_root)]
         args += ["--allowedTools", *_ALLOWED_TOOLS]
         # Prompt goes via stdin (no trailing positional) so --allowedTools's
         # variadic parser doesn't greedily swallow it.

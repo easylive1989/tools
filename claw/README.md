@@ -126,11 +126,12 @@ Pclaw's own `/skill` routing always works. But if you also want Claude / Gemini 
 ./install-skills.sh
 ```
 
-This symlinks each `~/.pclaw/skills/<name>` into:
-- `~/.claude/skills/<name>` (Claude Code picks it up on next run)
-- `gemini skills link <path> --consent` (Gemini keeps a symlink under `~/.gemini/skills/`)
+Skills are installed **scoped to pclaw**, so the global `~/.claude/` and `~/.gemini/` stay clean:
 
-Because they're symlinks, editing the pclaw source reflects in both CLIs immediately; no reinstall needed.
+- **Claude**: creates a local plugin at `~/.pclaw/.claude/` (with `.claude-plugin/plugin.json`) and symlinks each skill under `~/.pclaw/.claude/skills/`. The bot's Claude adapter passes `--plugin-dir ~/.pclaw/.claude` on every call so Claude loads this plugin only when invoked through pclaw.
+- **Gemini**: calls `gemini skills link --scope workspace` with cwd=`~/.pclaw/workdir/`, so the symlink lands under that workspace's `.gemini/` and only activates when gemini runs from that cwd (which is exactly what the bot does).
+
+Because these are symlinks, editing a SKILL.md under `~/.pclaw/skills/` takes effect in both CLIs immediately.
 
 ## Scheduled tasks
 
