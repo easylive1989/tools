@@ -12,7 +12,7 @@ from .attachments import build_attachment_prompt, download_attachments
 from .backfill import backfill_channel
 from .cli import BaseCliAdapter, CliError, get_adapter
 from .config import Config
-from .cron import CronJob, CronScheduler, load_jobs, upsert_job
+from .cron import CronJob, CronScheduler, load_jobs, remove_job, upsert_job
 from .dispatcher import Dispatcher, Job
 from .skills import Skill, SkillRegistry, parse_slash
 from .storage import Storage
@@ -164,6 +164,12 @@ class ClawBot(discord.Client):
         if name == "schedule":
             await self._cmd_schedule(msg, args)
             return True
+        if name == "schedules":
+            await self._cmd_schedules(msg)
+            return True
+        if name == "unschedule":
+            await self._cmd_unschedule(msg, args)
+            return True
         return False
 
     async def _cmd_schedule(self, msg: discord.Message, text: str) -> None:
@@ -213,6 +219,36 @@ class ClawBot(discord.Client):
             f"⏰ `{job.schedule}` — {readable}{skill_line}\n"
             f"📝 {job.prompt[:200]}"
         )
+
+    async def _cmd_schedules(self, msg: discord.Message) -> None:
+        jobs = load_jobs(self.config.cron_path)
+        if not jobs:
+            await msg.reply("📅 目前沒有任何排程。用 `/schedule ...` 加一個。")
+            return
+        lines = [f"📅 目前有 **{len(jobs)}** 個排程：\n"]
+        for j in jobs:
+            lines.append(f"**{j.name}**")
+            lines.append(f"⏰ `{j.schedule}`")
+            if j.skill:
+                lines.append(f"🧠 skill: `{j.skill}`")
+            lines.append(f"📝 {j.prompt[:160]}")
+            lines.append("")
+        await msg.reply("\n".join(lines).rstrip())
+
+    async def _cmd_unschedule(self, msg: discord.Message, args: str) -> None:
+        name = args.strip()
+        if not name:
+            await msg.reply("`/unschedule` 需要 job 名稱，例如 `/unschedule morning-note-twse`")
+            return
+        removed = remove_job(self.config.cron_path, name)
+        if not removed:
+            existing = [j.name for j in load_jobs(self.config.cron_path)]
+            existing_csv = ", ".join(f"`{n}`" for n in existing) or "(無)"
+            await msg.reply(f"❌ 找不到排程 `{name}`。現有：{existing_csv}")
+            return
+        self.cron.reload(load_jobs(self.config.cron_path))
+        await msg.add_reaction("🗑️")
+        await msg.reply(f"✅ 已移除排程 **{name}**")
 
     def _build_cron_job(self, parsed: dict) -> CronJob:
         name = str(parsed.get("name") or "").strip()

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from claw.cron import CronJob, load_jobs, save_jobs, upsert_job
+from claw.cron import CronJob, load_jobs, remove_job, save_jobs, upsert_job
 
 
 def test_load_jobs_parses_toml(tmp_path: Path) -> None:
@@ -65,6 +65,26 @@ def test_upsert_appends_new(tmp_path: Path) -> None:
     upsert_job(path, CronJob(name="b", schedule="0 9 * * *", prompt="two"))
     names = [j.name for j in load_jobs(path)]
     assert names == ["a", "b"]
+
+
+def test_remove_job_returns_true_when_removed(tmp_path: Path) -> None:
+    path = tmp_path / "cron.toml"
+    save_jobs(
+        path,
+        [
+            CronJob(name="a", schedule="0 8 * * *", prompt="x"),
+            CronJob(name="b", schedule="0 9 * * *", prompt="y"),
+        ],
+    )
+    assert remove_job(path, "a") is True
+    assert [j.name for j in load_jobs(path)] == ["b"]
+
+
+def test_remove_job_returns_false_when_missing(tmp_path: Path) -> None:
+    path = tmp_path / "cron.toml"
+    save_jobs(path, [CronJob(name="a", schedule="0 8 * * *", prompt="x")])
+    assert remove_job(path, "does-not-exist") is False
+    assert [j.name for j in load_jobs(path)] == ["a"]
 
 
 def test_save_jobs_empty_list(tmp_path: Path) -> None:

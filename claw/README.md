@@ -181,6 +181,13 @@ In Discord:
 
 Pclaw runs the configured CLI once to parse the description into a cron expression + optional skill + prompt, appends it to `~/.pclaw/cron.toml`, and hot-reloads the scheduler. You'll get a reply confirming the parsed schedule.
 
+List / remove:
+
+```
+/schedules                       # list everything currently scheduled
+/unschedule morning-note-twse    # remove by name
+```
+
 ### Manual editing
 
 `~/.pclaw/cron.toml` with standard 5-field cron entries:

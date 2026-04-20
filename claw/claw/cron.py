@@ -74,6 +74,16 @@ def upsert_job(path: Path, job: CronJob) -> list[CronJob]:
     return jobs
 
 
+def remove_job(path: Path, name: str) -> bool:
+    """Remove a job by name. Returns True if a match was found and removed."""
+    jobs = load_jobs(path)
+    remaining = [j for j in jobs if j.name != name]
+    if len(remaining) == len(jobs):
+        return False
+    save_jobs(path, remaining)
+    return True
+
+
 class CronScheduler:
     """Thin wrapper over APScheduler that fires `runner(job)` per cron hit."""
 
