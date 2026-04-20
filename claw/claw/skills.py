@@ -72,15 +72,32 @@ def parse_slash(content: str) -> tuple[str, str] | None:
     return m.group(1), (m.group(2) or "").strip()
 
 
+_PLAIN_DESCRIPTION_RE = re.compile(r"^description:\s*(.+)$", re.IGNORECASE)
+
+
 def _parse_skill_file(path: Path) -> Skill:
     text = path.read_text(encoding="utf-8")
     m = _FRONTMATTER_RE.match(text)
-    if not m:
-        raise ValueError(f"{path} is missing YAML frontmatter")
-    meta = yaml.safe_load(m.group(1)) or {}
-    name = meta.get("name") or path.parent.name
-    description = meta.get("description", "")
-    body = m.group(2).strip()
+    if m:
+        meta = yaml.safe_load(m.group(1)) or {}
+        name = meta.get("name") or path.parent.name
+        description = meta.get("description", "")
+        body = m.group(2).strip()
+    else:
+        # No YAML frontmatter — still accept the file so upstream skill packs
+        # with plaintext `description:` lines (e.g. anthropics/financial-
+        # services-plugins) load without needing manual fix-ups.
+        name = path.parent.name
+        description = _extract_plain_description(text) or ""
+        body = text.strip()
     if not body:
         raise ValueError(f"{path} has empty body")
     return Skill(name=str(name), description=str(description), template=body)
+
+
+def _extract_plain_description(text: str) -> str | None:
+    for line in text.splitlines()[:30]:
+        m = _PLAIN_DESCRIPTION_RE.match(line.strip())
+        if m:
+            return m.group(1).strip()
+    return None
