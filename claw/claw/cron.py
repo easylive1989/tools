@@ -93,6 +93,10 @@ class CronScheduler:
         self._scheduler = AsyncIOScheduler()
 
     def start(self) -> None:
+        # on_ready can fire more than once (e.g. after gateway IDENTIFY on
+        # invalidated sessions), so starting must be idempotent.
+        if self._scheduler.running:
+            return
         for job in self._jobs:
             self._add(job)
         if self._jobs:

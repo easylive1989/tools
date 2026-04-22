@@ -118,6 +118,7 @@ class ClawBot(discord.Client):
             return
 
         if await self._handle_builtin(msg):
+            self._mark_builtin_processed(msg)
             return
 
         effective_content = self._expand_slash(msg)
@@ -147,6 +148,21 @@ class ClawBot(discord.Client):
         if isinstance(msg.channel, discord.Thread) and msg.channel.parent_id == self.config.channel_id:
             return True
         return False
+
+    def _mark_builtin_processed(self, msg: discord.Message) -> None:
+        # Builtins reply synchronously and skip the dispatcher, so we still need
+        # to persist + mark the message or the next backfill (e.g. after a
+        # gateway RESUME) will re-enqueue it as a plain prompt to the CLI.
+        self.storage.record_message(
+            message_id=str(msg.id),
+            channel_id=str(msg.channel.id),
+            thread_id=str(msg.channel.id) if isinstance(msg.channel, discord.Thread) else None,
+            author_id=str(msg.author.id),
+            content=msg.content,
+            created_at=int(msg.created_at.timestamp()),
+        )
+        self.storage.mark_processed(str(msg.id))
+        self.storage.update_last_processed_id(str(self.config.channel_id), str(msg.id))
 
     async def _handle_builtin(self, msg: discord.Message) -> bool:
         """Intercept pclaw-internal slash commands that don't go through the CLI.
