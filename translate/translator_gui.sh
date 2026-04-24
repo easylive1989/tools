@@ -41,7 +41,8 @@ fi
 SELECTED_TEXT=$("$BINARY" --get-selection 2>/dev/null || true)
 if [ -z "$SELECTED_TEXT" ]; then
     OLD_CLIPBOARD=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
-    osascript -e 'tell application "System Events" to keystroke "c" using command down'
+    # 用 key code 8（實體 C 鍵）而非 keystroke "c"，避免非英文輸入法攔截
+    osascript -e 'tell application "System Events" to key code 8 using command down'
     sleep 0.1
     NEW_CLIPBOARD=$(osascript -e 'the clipboard as text' 2>/dev/null || true)
     if [ -n "$NEW_CLIPBOARD" ] && [ "$NEW_CLIPBOARD" != "$OLD_CLIPBOARD" ]; then
