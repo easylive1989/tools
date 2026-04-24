@@ -94,8 +94,16 @@ class CronScheduler:
 
     def start(self) -> None:
         # on_ready can fire more than once (e.g. after gateway IDENTIFY on
-        # invalidated sessions), so starting must be idempotent.
+        # invalidated sessions). If the scheduler is already running, re-add
+        # jobs so their next-fire timers are recomputed against wall clock:
+        # on macOS, asyncio's monotonic clock halts during system sleep, so
+        # the existing call_later timer only counts process-active seconds
+        # and drifts behind wall time. Without this re-add, a laptop that
+        # sleeps most of the day never fires its daily cron.
         if self._scheduler.running:
+            for job in self._jobs:
+                self._add(job)
+            log.debug("cron timers re-synced against wall clock")
             return
         for job in self._jobs:
             self._add(job)
