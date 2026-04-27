@@ -89,3 +89,72 @@ def fetch_page_text(url: str) -> str | None:
     except Exception as exc:
         log.debug("fetch_page_text failed for %s: %s", url, exc)
         return None
+
+
+_EXTRACT_PROMPT = """你是餐廳資訊萃取助手。根據以下訊息，輸出一個 JSON 物件，欄位如下：
+- name: 餐廳名稱（字串，必填，找不到就用訊息第一行）
+- url: 餐廳網址（字串或 null）
+- region: 地區，例如「台北市」「新北市」（字串或 null）
+- town: 鄉鎮區，例如「大安區」「板橋區」（字串或 null）
+- types: 料理類型陣列，例如 ["日式", "拉麵"]（陣列，找不到給 []）
+- note: 摘要或備註（字串，找不到給 ""）
+- rating: 評分數字 1-5（數字或 null）
+
+只輸出 JSON，不要任何說明或 markdown。
+
+訊息內容：
+{content}
+"""
+
+_JSON_RE = re.compile(r"\{[\s\S]*\}")
+
+
+@dataclass
+class ExtractResult:
+    name: str
+    url: str | None = None
+    region: str | None = None
+    town: str | None = None
+    types: list[str] = field(default_factory=list)
+    note: str = ""
+    rating: float | None = None
+    confidence: str = "full"  # "full" or "partial"
+
+
+def extract(content: str, gemini: GeminiClient) -> ExtractResult:
+    urls = extract_urls(content)
+    page_parts = []
+    for url in urls[:3]:
+        text = fetch_page_text(url)
+        if text:
+            page_parts.append(f"[來自 {url}]\n{text}")
+
+    full_content = content
+    if page_parts:
+        full_content += "\n\n" + "\n\n".join(page_parts)
+
+    prompt = _EXTRACT_PROMPT.format(content=full_content)
+    try:
+        reply = gemini.generate(prompt, timeout=30)
+        m = _JSON_RE.search(reply)
+        if not m:
+            raise ValueError("no JSON found")
+        data = json.loads(m.group())
+        return ExtractResult(
+            name=str(data.get("name") or content.strip().splitlines()[0][:80]),
+            url=data.get("url") or (urls[0] if urls else None),
+            region=data.get("region") or None,
+            town=data.get("town") or None,
+            types=[str(t) for t in (data.get("types") or [])],
+            note=str(data.get("note") or ""),
+            rating=float(data["rating"]) if data.get("rating") is not None else None,
+            confidence="full",
+        )
+    except Exception:
+        first_line = content.strip().splitlines()[0][:80] if content.strip() else "未知餐廳"
+        return ExtractResult(
+            name=first_line,
+            url=urls[0] if urls else None,
+            note=content[:2000],
+            confidence="partial",
+        )
