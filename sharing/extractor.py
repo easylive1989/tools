@@ -150,7 +150,8 @@ def extract(content: str, gemini: GeminiClient) -> ExtractResult:
             rating=float(data["rating"]) if data.get("rating") is not None else None,
             confidence="full",
         )
-    except Exception:
+    except Exception as exc:
+        log.warning("extract failed, falling back to partial: %s", exc)
         first_line = content.strip().splitlines()[0][:80] if content.strip() else "未知餐廳"
         return ExtractResult(
             name=first_line,

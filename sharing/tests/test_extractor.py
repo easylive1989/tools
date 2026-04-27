@@ -1,7 +1,8 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from extractor import extract_urls
+from unittest.mock import MagicMock, patch
+from extractor import extract_urls, extract, ExtractResult
 
 
 def test_extract_urls_finds_https():
@@ -16,10 +17,6 @@ def test_extract_urls_finds_multiple():
 
 def test_extract_urls_empty():
     assert extract_urls("沒有網址的訊息") == []
-
-
-from unittest.mock import MagicMock, patch
-from extractor import extract, ExtractResult
 
 
 def _make_gemini(reply: str) -> MagicMock:
