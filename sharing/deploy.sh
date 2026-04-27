@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+# 強制從 repo root 執行，確保相對路徑正確
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$(dirname "$SCRIPT_DIR")"
+
 VPS=root@178.104.240.236
 
 echo "==> 同步程式碼到 VPS..."

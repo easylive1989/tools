@@ -47,9 +47,10 @@ class SharingBot(discord.Client):
             return
 
         log.info("processing message %s from %s", msg.id, msg.author)
+        loop = asyncio.get_event_loop()
         try:
-            result = extract(msg.content, self.gemini)
-            write(result, self.notion)
+            result = await loop.run_in_executor(None, extract, msg.content, self.gemini)
+            await loop.run_in_executor(None, write, result, self.notion)
             reaction = REACTION_OK if result.confidence == "full" else REACTION_PARTIAL
             await msg.add_reaction(reaction)
             log.info("saved %r (confidence=%s)", result.name, result.confidence)

@@ -17,7 +17,7 @@ sys.path.insert(0, _here)
 
 from common.gemini import GeminiClient
 
-_URL_RE = re.compile(r"https?://[^\s\"'>]+")
+_URL_RE = re.compile(r"https?://[^\s\"'>]+(?<![.,;:!?)'\"）。，、])")
 
 
 def extract_urls(content: str) -> list[str]:
