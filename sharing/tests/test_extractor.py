@@ -1,7 +1,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from extractor import extract_urls, fetch_page_text
+from extractor import extract_urls
 
 
 def test_extract_urls_finds_https():

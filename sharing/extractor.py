@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 import sys
@@ -6,6 +7,8 @@ from dataclasses import dataclass, field
 from html.parser import HTMLParser
 
 import requests
+
+log = logging.getLogger(__name__)
 
 # 同時支援本機（common/ 在上一層）和 VPS（common/ 在同層）
 _here = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +32,7 @@ class _PageParser(HTMLParser):
         self.body_texts: list[str] = []
         self._in_title = False
         self._in_body = False
-        self._skip_tags = {"script", "style", "head"}
+        self._skip_tags = {"script", "style"}
         self._skip_depth = 0
 
     def handle_starttag(self, tag, attrs):
@@ -83,5 +86,6 @@ def fetch_page_text(url: str) -> str | None:
         if body_preview:
             parts.append(f"Content: {body_preview}")
         return "\n".join(parts) if parts else None
-    except Exception:
+    except Exception as exc:
+        log.debug("fetch_page_text failed for %s: %s", url, exc)
         return None
