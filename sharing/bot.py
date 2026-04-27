@@ -66,12 +66,8 @@ async def main() -> None:
     token = os.environ["CLAW_DISCORD_TOKEN"]
     channel_id = int(os.environ["SHARING_CHANNEL_ID"])
     notion_secret = os.environ["NOTION_SECRET"]
-    google_api_key = os.environ.get("GOOGLE_API_KEY", "")
 
-    if not google_api_key:
-        raise RuntimeError("GOOGLE_API_KEY is required")
-
-    gemini = GeminiClient(model_name="flash")
+    gemini = GeminiClient(model_name="flash")  # raises ValueError if GOOGLE_API_KEY missing
     notion = NotionApi(notion_secret)
     bot = SharingBot(channel_id, gemini, notion)
 
