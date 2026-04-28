@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$(dirname "$SCRIPT_DIR")"   # repo root
+cd "$(dirname "$(dirname "$SCRIPT_DIR")")"   # repo root
 
 VPS=root@178.104.240.236
 REMOTE=/opt/stock-dashboard
