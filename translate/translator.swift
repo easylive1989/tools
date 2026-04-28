@@ -69,6 +69,11 @@ private func stripANSI(_ s: String) -> String {
     )
 }
 
+private let vocabularyFilePath: String = {
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    return "\(home)/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/vocabulary.md"
+}()
+
 // MARK: - Data Model
 
 struct TranslationTab: Identifiable {
@@ -77,6 +82,132 @@ struct TranslationTab: Identifiable {
     let source: String
     var result: String = ""
     var isTranslating: Bool = true
+}
+
+// MARK: - VocabularyStore
+
+@MainActor
+class VocabularyStore: ObservableObject {
+    @Published var words: [String] = []
+
+    func load() {
+        let content = (try? String(contentsOfFile: vocabularyFilePath, encoding: .utf8)) ?? ""
+        words = content.components(separatedBy: "\n")
+            .filter { $0.hasPrefix("- ") }
+            .map { String($0.dropFirst(2)).trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    func add(_ input: String) {
+        let word = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !word.isEmpty else { return }
+        let lower = word.lowercased()
+        guard !words.contains(where: { $0.lowercased() == lower }) else { return }
+        words.append(word)
+        save()
+    }
+
+    func remove(at index: Int) {
+        guard words.indices.contains(index) else { return }
+        words.remove(at: index)
+        save()
+    }
+
+    private func save() {
+        let existing = (try? String(contentsOfFile: vocabularyFilePath, encoding: .utf8)) ?? ""
+        let lines = existing.components(separatedBy: "\n")
+        var firstBullet: Int? = nil
+        var lastBullet: Int? = nil
+        for (i, line) in lines.enumerated() {
+            if line.hasPrefix("- ") {
+                if firstBullet == nil { firstBullet = i }
+                lastBullet = i
+            }
+        }
+        let newBullets = words.map { "- \($0)" }
+        var result: [String]
+        if let first = firstBullet, let last = lastBullet {
+            let suffix = last + 1 < lines.count ? Array(lines[(last + 1)...]) : []
+            result = Array(lines[..<first]) + newBullets + suffix
+        } else if lines == [""] || lines.isEmpty {
+            result = newBullets
+        } else {
+            result = lines + [""] + newBullets
+        }
+        let content = result.joined(separator: "\n")
+        let dir = (vocabularyFilePath as NSString).deletingLastPathComponent
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        try? content.write(toFile: vocabularyFilePath, atomically: true, encoding: .utf8)
+    }
+}
+
+// MARK: - VocabularyPopover
+
+struct VocabularyPopover: View {
+    @ObservedObject var store: VocabularyStore
+    @State private var newWord: String = ""
+    @FocusState private var inputFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 6) {
+                TextField("新增單字…", text: $newWord)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($inputFocused)
+                    .onSubmit {
+                        store.add(newWord)
+                        newWord = ""
+                    }
+                Text("↵")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+            .padding(12)
+
+            Divider()
+
+            if store.words.isEmpty {
+                Text("還沒有任何單字 — 在上方輸入框新增")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(store.words.enumerated()), id: \.offset) { index, word in
+                            HStack {
+                                Text("• \(word)")
+                                    .font(.system(size: 13))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Button("×") {
+                                    store.remove(at: index)
+                                }
+                                .buttonStyle(.plain)
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                        }
+                    }
+                }
+                .frame(maxHeight: 300)
+
+                Divider()
+
+                Text("共 \(store.words.count) 個")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
+        }
+        .frame(width: 280)
+        .onAppear { inputFocused = true }
+    }
 }
 
 // MARK: - GeminiRunner Actor
@@ -224,6 +355,84 @@ struct TabButton: View {
     }
 }
 
+// MARK: - SelectableTextView
+
+struct SelectableTextView: NSViewRepresentable {
+    let text: String
+    let fontSize: CGFloat
+    let store: VocabularyStore
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(store: store)
+    }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let textView = VocabularyTextView()
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.drawsBackground = true
+        textView.backgroundColor = .textBackgroundColor
+        textView.textContainerInset = NSSize(width: 8, height: 8)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
+        textView.coordinator = context.coordinator
+
+        let scrollView = NSScrollView()
+        scrollView.hasVerticalScroller = true
+        scrollView.autohidesScrollers = true
+        scrollView.drawsBackground = false
+        scrollView.backgroundColor = .clear
+        scrollView.documentView = textView
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = scrollView.documentView as? VocabularyTextView else { return }
+        if textView.string != text {
+            textView.string = text
+        }
+        textView.font = .systemFont(ofSize: fontSize)
+        context.coordinator.store = store
+    }
+
+    class Coordinator {
+        var store: VocabularyStore
+        init(store: VocabularyStore) { self.store = store }
+    }
+}
+
+class VocabularyTextView: NSTextView {
+    weak var coordinator: SelectableTextView.Coordinator?
+
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = super.menu(for: event) ?? NSMenu()
+        let item = NSMenuItem(
+            title: "加入單字庫",
+            action: #selector(addToVocabulary),
+            keyEquivalent: ""
+        )
+        item.target = self
+        item.isEnabled = selectedRange().length > 0
+        menu.insertItem(item, at: 0)
+        if menu.items.count > 1 {
+            menu.insertItem(.separator(), at: 1)
+        }
+        return menu
+    }
+
+    @objc private func addToVocabulary() {
+        let selected = (string as NSString)
+            .substring(with: selectedRange())
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !selected.isEmpty else { return }
+        Task { @MainActor [weak self] in
+            self?.coordinator?.store.add(selected)
+        }
+    }
+}
+
 // MARK: - ContentView
 
 struct ContentView: View {
@@ -235,6 +444,9 @@ struct ContentView: View {
     @State private var activeTabID: UUID? = nil
     @State private var fontSize: CGFloat = 14
     @State private var copiedRecently: Bool = false
+    @StateObject private var store = VocabularyStore()
+    @State private var practiceWord: String? = nil
+    @State private var vocabPopoverShown: Bool = false
 
     private var activeTab: TranslationTab? {
         guard let id = activeTabID else { return nil }
@@ -278,35 +490,35 @@ struct ContentView: View {
                 .buttonStyle(.plain)
                 .keyboardShortcut(.return, modifiers: .command)
 
-                Button("📝") {
-                    NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Notes.app"))
+                Button(action: { vocabPopoverShown.toggle() }) {
+                    Text(practiceWord ?? "📝")
+                        .font(.system(size: 14))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: 140, alignment: .center)
                 }
                 .buttonStyle(.plain)
-                .font(.system(size: 14))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
                 .background(Color(nsColor: .controlBackgroundColor))
                 .cornerRadius(6)
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                .help(practiceWord ?? "")
+                .popover(isPresented: $vocabPopoverShown) {
+                    VocabularyPopover(store: store)
+                }
             }
 
             // Tab 列 + 輸出區（ZStack 讓 active tab 與內容框融合）
             ZStack(alignment: .topLeading) {
                 // 輸出區（內容框）— 永遠預留 tabHeight 空間給上方列
-                ScrollView {
-                    Text(outputText)
-                        .font(.system(size: fontSize))
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(nsColor: .textBackgroundColor))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
-                .padding(.top, tabHeight - 1)
+                SelectableTextView(text: outputText, fontSize: fontSize, store: store)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                    .padding(.top, tabHeight - 1)
 
                 // Tab 列（疊在內容框頂端）+ −/+ 靠右
                 HStack(spacing: 4) {
@@ -363,6 +575,8 @@ struct ContentView: View {
         .padding(14)
         .background(Color(nsColor: .windowBackgroundColor))
         .task {
+            store.load()
+            practiceWord = store.words.randomElement()
             if !initialText.isEmpty {
                 inputText = initialText
                 translate()
