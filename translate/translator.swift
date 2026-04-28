@@ -99,7 +99,7 @@ class VocabularyStore: ObservableObject {
     }
 
     func add(_ input: String) {
-        let word = input.trimmingCharacters(in: .whitespaces)
+        let word = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !word.isEmpty else { return }
         let lower = word.lowercased()
         guard !words.contains(where: { $0.lowercased() == lower }) else { return }
@@ -352,6 +352,83 @@ struct TabButton: View {
             }
         )
         .zIndex(isActive ? 1 : 0)
+    }
+}
+
+// MARK: - SelectableTextView
+
+struct SelectableTextView: NSViewRepresentable {
+    let text: String
+    let fontSize: CGFloat
+    let store: VocabularyStore
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(store: store)
+    }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let textView = VocabularyTextView()
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.drawsBackground = false
+        textView.textContainerInset = NSSize(width: 8, height: 8)
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
+        textView.coordinator = context.coordinator
+
+        let scrollView = NSScrollView()
+        scrollView.hasVerticalScroller = true
+        scrollView.autohidesScrollers = true
+        scrollView.drawsBackground = false
+        scrollView.backgroundColor = .clear
+        scrollView.documentView = textView
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = scrollView.documentView as? VocabularyTextView else { return }
+        if textView.string != text {
+            textView.string = text
+        }
+        textView.font = .systemFont(ofSize: fontSize)
+        context.coordinator.store = store
+    }
+
+    class Coordinator {
+        var store: VocabularyStore
+        init(store: VocabularyStore) { self.store = store }
+    }
+}
+
+class VocabularyTextView: NSTextView {
+    weak var coordinator: SelectableTextView.Coordinator?
+
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = super.menu(for: event) ?? NSMenu()
+        let item = NSMenuItem(
+            title: "加入單字庫",
+            action: #selector(addToVocabulary),
+            keyEquivalent: ""
+        )
+        item.target = self
+        item.isEnabled = selectedRange().length > 0
+        menu.insertItem(item, at: 0)
+        if menu.items.count > 1 {
+            menu.insertItem(.separator(), at: 1)
+        }
+        return menu
+    }
+
+    @objc private func addToVocabulary() {
+        let selected = (string as NSString)
+            .substring(with: selectedRange())
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !selected.isEmpty else { return }
+        Task { @MainActor [weak self] in
+            self?.coordinator?.store.add(selected)
+        }
     }
 }
 
