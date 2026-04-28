@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,7 +36,7 @@ RANGE_DELTAS: dict[str, timedelta] = {
     "3Y": timedelta(days=1095),
 }
 
-FETCHERS: dict[str, callable] = {
+FETCHERS: dict[str, Callable] = {
     "taiex":      fetch_taiex,
     "fx":         fetch_fx,
     "fear_greed": fetch_fear_greed,
@@ -54,7 +55,7 @@ def startup():
         from scheduler import start_scheduler
         start_scheduler()
     except ImportError:
-        pass  # scheduler not yet implemented
+        print("[app] scheduler not available yet")
 
 
 @app.get("/api/dashboard")
@@ -72,10 +73,10 @@ def dashboard():
 
 
 @app.get("/api/history/{indicator}")
-def history(indicator: str, range: str = "3M"):
+def history(indicator: str, time_range: str = "3M"):
     if indicator not in INDICATOR_NAMES:
         raise HTTPException(status_code=404, detail="Unknown indicator")
-    delta = RANGE_DELTAS.get(range, RANGE_DELTAS["3M"])
+    delta = RANGE_DELTAS.get(time_range, RANGE_DELTAS["3M"])
     since = datetime.now(timezone.utc).replace(tzinfo=None) - delta
     rows = get_indicator_history(indicator, since)
     return [{"timestamp": r["timestamp"], "value": r["value"]} for r in rows]

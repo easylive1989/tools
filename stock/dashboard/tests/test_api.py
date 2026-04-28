@@ -38,7 +38,7 @@ def test_dashboard_returns_all_indicators():
 
 
 def test_history_returns_list():
-    r = client.get("/api/history/taiex?range=3M")
+    r = client.get("/api/history/taiex?time_range=3M")
     assert r.status_code == 200
     rows = r.json()
     assert isinstance(rows, list)
