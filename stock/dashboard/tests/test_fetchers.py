@@ -110,3 +110,18 @@ def test_fetch_ndc_saves_indicator():
     assert row["value"] == 24.0
     extra = json.loads(row["extra_json"])
     assert extra["light"] == "黃紅燈"
+
+
+def test_fetch_fear_greed_saves_indicator():
+    # fake_json structure based on typical macromicro.me chart API response
+    fake_json = {"data": [[1745000000, 58], [1744000000, 52]]}
+    with patch("fetchers.fear_greed.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = fake_json
+        mock_get.return_value.raise_for_status = MagicMock()
+        from fetchers.fear_greed import fetch_fear_greed
+        fetch_fear_greed()
+    row = db.get_latest_indicator("fear_greed")
+    assert row is not None
+    assert row["value"] == 58.0
+    extra = json.loads(row["extra_json"])
+    assert "label" in extra
