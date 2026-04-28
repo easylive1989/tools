@@ -1,0 +1,41 @@
+name: Deploy Sharing Bot
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'sharing/**'
+      - 'common/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 178.104.240.236 >> ~/.ssh/known_hosts
+
+      - name: Sync code to VPS
+        run: |
+          rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
+            sharing/ root@178.104.240.236:/opt/sharing/
+          rsync -av --exclude='__pycache__' --exclude='*.pyc' \
+            common/ root@178.104.240.236:/opt/sharing/common/
+
+      - name: Install deps and restart service
+        run: |
+          ssh root@178.104.240.236 "
+            cd /opt/sharing
+            python3 -m venv .venv
+            .venv/bin/pip install -q -r requirements.txt
+            systemctl restart sharing-bot
+            systemctl status sharing-bot --no-pager
+          "
