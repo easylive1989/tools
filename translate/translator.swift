@@ -69,6 +69,11 @@ private func stripANSI(_ s: String) -> String {
     )
 }
 
+private let vocabularyFilePath: String = {
+    let home = FileManager.default.homeDirectoryForCurrentUser.path
+    return "\(home)/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/vocabulary.md"
+}()
+
 // MARK: - Data Model
 
 struct TranslationTab: Identifiable {
@@ -77,6 +82,63 @@ struct TranslationTab: Identifiable {
     let source: String
     var result: String = ""
     var isTranslating: Bool = true
+}
+
+// MARK: - VocabularyStore
+
+@MainActor
+class VocabularyStore: ObservableObject {
+    @Published var words: [String] = []
+
+    func load() {
+        let content = (try? String(contentsOfFile: vocabularyFilePath, encoding: .utf8)) ?? ""
+        words = content.components(separatedBy: "\n")
+            .filter { $0.hasPrefix("- ") }
+            .map { String($0.dropFirst(2)).trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
+
+    func add(_ input: String) {
+        let word = input.trimmingCharacters(in: .whitespaces)
+        guard !word.isEmpty else { return }
+        let lower = word.lowercased()
+        guard !words.contains(where: { $0.lowercased() == lower }) else { return }
+        words.append(word)
+        save()
+    }
+
+    func remove(at index: Int) {
+        guard words.indices.contains(index) else { return }
+        words.remove(at: index)
+        save()
+    }
+
+    private func save() {
+        let existing = (try? String(contentsOfFile: vocabularyFilePath, encoding: .utf8)) ?? ""
+        let lines = existing.components(separatedBy: "\n")
+        var firstBullet: Int? = nil
+        var lastBullet: Int? = nil
+        for (i, line) in lines.enumerated() {
+            if line.hasPrefix("- ") {
+                if firstBullet == nil { firstBullet = i }
+                lastBullet = i
+            }
+        }
+        let newBullets = words.map { "- \($0)" }
+        var result: [String]
+        if let first = firstBullet, let last = lastBullet {
+            let suffix = last + 1 < lines.count ? Array(lines[(last + 1)...]) : []
+            result = Array(lines[..<first]) + newBullets + suffix
+        } else if lines == [""] || lines.isEmpty {
+            result = newBullets
+        } else {
+            result = lines + [""] + newBullets
+        }
+        let content = result.joined(separator: "\n")
+        let dir = (vocabularyFilePath as NSString).deletingLastPathComponent
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        try? content.write(toFile: vocabularyFilePath, atomically: true, encoding: .utf8)
+    }
 }
 
 // MARK: - GeminiRunner Actor
