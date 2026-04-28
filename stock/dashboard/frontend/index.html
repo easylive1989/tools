@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>市場總覽</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; font-size: 14px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.top-bar h1 { font-size: 18px; font-weight: 700; color: #fff; }
+.update-time { font-size: 12px; color: #94a3b8; }
+.range-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.range-label { font-size: 12px; color: #94a3b8; margin-right: 4px; }
+.range-btn { background: transparent; border: 1px solid #2d3348; border-radius: 5px; color: #94a3b8; font-size: 13px; padding: 4px 14px; cursor: pointer; }
+.range-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; font-weight: 600; }
+.grid-indicators { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
+.card { background: #1e2130; border: 1px solid #2d3348; border-radius: 10px; padding: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.card-label { font-size: 13px; color: #cbd5e1; text-transform: uppercase; letter-spacing: .05em; }
+.card-value { font-size: 34px; font-weight: 700; color: #fff; }
+.card-sub { font-size: 13px; color: #94a3b8; margin-top: 8px; }
+.refresh-btn { background: transparent; border: 1px solid #2d3348; border-radius: 5px; color: #94a3b8; font-size: 13px; padding: 3px 8px; cursor: pointer; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; }
+.badge-up   { background: rgba(74,222,128,.15); color: #4ade80; }
+.badge-down { background: rgba(248,113,113,.15); color: #f87171; }
+.badge-neutral { background: rgba(251,191,36,.15); color: #fbbf24; }
+.stat-row { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 12px; }
+.up { color: #4ade80; } .down { color: #f87171; } .neutral { color: #fbbf24; }
+.chart-wrap { position: relative; height: 100px; }
+.gauge-track { height: 6px; border-radius: 4px; background: linear-gradient(to right, #f87171, #fbbf24 50%, #4ade80); position: relative; margin: 0 0 4px; }
+.gauge-marker { position: absolute; top: -5px; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid #0f1117; transform: translateX(-50%); transition: left .3s; }
+.gauge-labels { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+.ndc-inner { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+.ndc-lights { display: flex; gap: 6px; margin: 6px 0 4px; }
+.light { width: 12px; height: 12px; border-radius: 50%; background: #2d3348; }
+.light.on-blue   { background: #60a5fa; box-shadow: 0 0 6px #60a5fa; }
+.light.on-yelblue{ background: #34d399; box-shadow: 0 0 6px #34d399; }
+.light.on-green  { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+.light.on-yellred{ background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+.light.on-red    { background: #f87171; box-shadow: 0 0 6px #f87171; }
+.stock-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.stock-table th { font-size: 11px; color: #94a3b8; text-transform: uppercase; padding: 5px 8px; border-bottom: 1px solid #2d3348; text-align: left; }
+.stock-table td { padding: 7px 8px; border-bottom: 1px solid #1a1f2e; font-size: 13px; }
+.stock-table tr:last-child td { border-bottom: none; }
+.ticker { font-weight: 600; color: #60a5fa; }
+.r { text-align: right; }
+.add-row { display: flex; gap: 8px; margin-top: 12px; }
+.add-input { flex: 1; background: #0f1117; border: 1px solid #2d3348; border-radius: 6px; padding: 7px 10px; color: #e2e8f0; font-size: 13px; }
+.add-input::placeholder { color: #94a3b8; }
+.add-btn { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+.del-btn { background: transparent; border: 1px solid #2d3348; border-radius: 4px; padding: 3px 7px; font-size: 11px; color: #94a3b8; cursor: pointer; }
+.section-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
+@media (max-width: 900px) { .grid-indicators { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .grid-indicators { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>📊 市場總覽</h1>
+  <span class="update-time" id="update-time">載入中…</span>
+</div>
+
+<div class="range-bar">
+  <span class="range-label">時間區間：</span>
+  <button class="range-btn" data-range="1M">1 個月</button>
+  <button class="range-btn active" data-range="3M">3 個月</button>
+  <button class="range-btn" data-range="6M">6 個月</button>
+  <button class="range-btn" data-range="1Y">1 年</button>
+  <button class="range-btn" data-range="3Y">3 年</button>
+</div>
+
+<div class="grid-indicators">
+
+  <!-- 加權指數 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">加權指數</span>
+      <button class="refresh-btn" onclick="refreshIndicator('taiex')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="taiex-value">—</div>
+      <span class="badge" id="taiex-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-taiex"></canvas></div>
+    <div class="card-sub" id="taiex-sub"></div>
+  </div>
+
+  <!-- MM 恐懼與貪婪 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">MM 恐懼與貪婪指數</span>
+      <button class="refresh-btn" onclick="refreshIndicator('fear_greed')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="fg-value">—</div>
+      <span class="badge" id="fg-badge"></span>
+    </div>
+    <div class="gauge-track"><div class="gauge-marker" id="fg-marker" style="left:50%"></div></div>
+    <div class="gauge-labels"><span>恐懼</span><span>貪婪</span></div>
+    <div class="chart-wrap"><canvas id="chart-fear_greed"></canvas></div>
+    <div class="card-sub" id="fg-sub"></div>
+  </div>
+
+  <!-- 台股融資餘額 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">台股融資餘額</span>
+      <button class="refresh-btn" onclick="refreshIndicator('margin')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="margin-value">—</div>
+      <span class="badge" id="margin-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-margin"></canvas></div>
+    <div class="card-sub" id="margin-sub"></div>
+  </div>
+
+  <!-- 國發會景氣指標 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">國發會景氣指標</span>
+      <button class="refresh-btn" onclick="refreshIndicator('ndc')">↻ 更新</button>
+    </div>
+    <div class="ndc-inner">
+      <div>
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:4px">景氣燈號</div>
+        <div class="stat-row" style="margin-bottom:6px">
+          <div class="card-value" id="ndc-value">—</div>
+          <span class="badge" id="ndc-badge"></span>
+        </div>
+        <div class="ndc-lights">
+          <div class="light" id="ndc-l1"></div>
+          <div class="light" id="ndc-l2"></div>
+          <div class="light" id="ndc-l3"></div>
+          <div class="light" id="ndc-l4"></div>
+          <div class="light" id="ndc-l5"></div>
+        </div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:2px">藍│黃藍│綠│黃紅│紅</div>
+        <div class="card-sub" id="ndc-sub" style="margin-top:8px"></div>
+      </div>
+      <div>
+        <div style="font-size:13px;color:#94a3b8;margin-bottom:4px">分數走勢</div>
+        <div class="chart-wrap"><canvas id="chart-ndc"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 台幣兌美金 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">台幣兌美金</span>
+      <button class="refresh-btn" onclick="refreshIndicator('fx')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="fx-value">—</div>
+      <span class="badge" id="fx-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-fx"></canvas></div>
+    <div class="card-sub" id="fx-sub"></div>
+  </div>
+
+</div>
+
+<!-- 自選股 -->
+<div class="card">
+  <div class="section-title">自選股票 / ETF / 虛擬幣</div>
+  <table class="stock-table">
+    <thead><tr>
+      <th>代號</th><th>名稱</th>
+      <th class="r">價格</th><th class="r">漲跌</th><th class="r">漲跌幅</th><th></th>
+    </tr></thead>
+    <tbody id="stock-tbody"></tbody>
+  </table>
+  <div class="add-row">
+    <input class="add-input" id="add-ticker-input" placeholder="輸入代號，例如 2317.TW、AAPL、ETH-USD…">
+    <button class="add-btn" onclick="addStock()">+ 新增</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://api.paul-learning.dev';
+let currentRange = '3M';
+const charts = {};
+
+const CHART_DEFAULTS = {
+  type: 'line',
+  options: {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1f2e', borderColor: '#3b82f6', borderWidth: 1,
+        titleColor: '#94a3b8', bodyColor: '#e2e8f0',
+        callbacks: { title: items => items[0].label }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#2d3348' }, ticks: { color: '#94a3b8', maxTicksLimit: 4 } },
+      y: { grid: { color: '#2d3348' }, ticks: { color: '#94a3b8' } }
+    }
+  }
+};
+
+function makeChart(id, color, yLabel) {
+  const ctx = document.getElementById('chart-' + id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    ...JSON.parse(JSON.stringify(CHART_DEFAULTS)),
+    data: {
+      labels: [],
+      datasets: [{
+        data: [], borderColor: color,
+        backgroundColor: color + '20', fill: true,
+        tension: 0.3, pointRadius: 0, pointHoverRadius: 5,
+        borderWidth: 2,
+      }]
+    }
+  });
+  charts[id].options.scales.y.title = { display: true, text: yLabel, color: '#94a3b8' };
+  charts[id].options.scales.x.title = { display: true, text: '日期', color: '#94a3b8' };
+  return charts[id];
+}
+
+function updateChart(id, rows) {
+  const c = charts[id];
+  if (!c) return;
+  c.data.labels = rows.map(r => r.timestamp.slice(0, 10));
+  c.data.datasets[0].data = rows.map(r => r.value);
+  c.update('none');
+}
+
+function setBadge(el, changePct) {
+  if (changePct == null) { el.textContent = ''; return; }
+  const up = changePct >= 0;
+  el.textContent = (up ? '▲ +' : '▼ ') + changePct.toFixed(2) + '%';
+  el.className = 'badge ' + (up ? 'badge-up' : 'badge-down');
+}
+
+function fmtDate(iso) {
+  return iso ? iso.slice(0, 10) : '';
+}
+
+async function loadDashboard() {
+  const data = await fetch(API_BASE + '/api/dashboard').then(r => r.json());
+
+  if (data.taiex) {
+    document.getElementById('taiex-value').textContent = data.taiex.value.toLocaleString();
+    setBadge(document.getElementById('taiex-badge'), data.taiex.extra?.change_pct);
+    document.getElementById('taiex-sub').textContent =
+      '前收 ' + (data.taiex.extra?.prev_close?.toLocaleString() ?? '—') +
+      ' · 更新 ' + fmtDate(data.taiex.timestamp);
+  }
+
+  if (data.fear_greed) {
+    const v = data.fear_greed.value;
+    document.getElementById('fg-value').textContent = v;
+    document.getElementById('fg-value').className = 'card-value ' + fgClass(v);
+    const badge = document.getElementById('fg-badge');
+    badge.textContent = data.fear_greed.extra?.label ?? '';
+    badge.className = 'badge badge-neutral';
+    document.getElementById('fg-marker').style.left = v + '%';
+    document.getElementById('fg-sub').textContent = '更新 ' + fmtDate(data.fear_greed.timestamp);
+  }
+
+  if (data.margin) {
+    document.getElementById('margin-value').textContent = data.margin.value.toFixed(0) + ' 億';
+    document.getElementById('margin-sub').textContent = '更新 ' + fmtDate(data.margin.timestamp);
+  }
+
+  if (data.ndc) {
+    const score = data.ndc.value;
+    const light = data.ndc.extra?.light ?? '';
+    const code  = data.ndc.extra?.light_code ?? 0;
+    document.getElementById('ndc-value').textContent = score + ' 分';
+    const b = document.getElementById('ndc-badge');
+    b.textContent = light;
+    b.className = 'badge badge-neutral';
+    ['on-blue','on-yelblue','on-green','on-yellred','on-red'].forEach((cls, i) => {
+      const el = document.getElementById('ndc-l' + (i+1));
+      el.className = 'light' + (code === i+1 ? ' ' + cls : '');
+    });
+    document.getElementById('ndc-sub').textContent =
+      (data.ndc.extra?.period ?? '') + ' · 每月更新';
+  }
+
+  if (data.fx) {
+    document.getElementById('fx-value').textContent = data.fx.value.toFixed(2);
+    setBadge(document.getElementById('fx-badge'), data.fx.extra?.change_pct);
+    document.getElementById('fx-sub').textContent =
+      '前收 ' + (data.fx.extra?.prev_close ?? '—') +
+      ' · 更新 ' + fmtDate(data.fx.timestamp);
+  }
+
+  document.getElementById('update-time').textContent =
+    '上次更新：' + new Date().toLocaleTimeString('zh-TW');
+}
+
+function fgClass(v) {
+  if (v < 45) return 'down';
+  if (v > 55) return 'up';
+  return 'neutral';
+}
+
+async function loadHistories() {
+  const indicators = ['taiex', 'fear_greed', 'margin', 'ndc', 'fx'];
+  const units = { taiex: '點', fear_greed: '指數', margin: '億元', ndc: '分', fx: 'TWD' };
+  const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', margin: '#60a5fa', ndc: '#fbbf24', fx: '#a78bfa' };
+
+  for (const ind of indicators) {
+    if (!charts[ind]) makeChart(ind, colors[ind], units[ind]);
+    const rows = await fetch(API_BASE + '/api/history/' + ind + '?time_range=' + currentRange).then(r => r.json());
+    updateChart(ind, rows);
+  }
+}
+
+async function loadStocks() {
+  const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json());
+  const tbody = document.getElementById('stock-tbody');
+  tbody.innerHTML = '';
+  for (const s of stocks) {
+    const up = (s.change_pct ?? 0) >= 0;
+    const cls = up ? 'up' : 'down';
+    const arrow = up ? '▲' : '▼';
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td><span class="ticker">${s.ticker}</span></td>
+        <td>${s.name ?? ''}</td>
+        <td class="r">${s.price != null ? s.price.toLocaleString() + ' ' + (s.currency ?? '') : '—'}</td>
+        <td class="r ${cls}">${s.change != null ? arrow + ' ' + Math.abs(s.change).toFixed(2) : '—'}</td>
+        <td class="r ${cls}">${s.change_pct != null ? (up?'+':'') + s.change_pct.toFixed(2) + '%' : '—'}</td>
+        <td><button class="del-btn" onclick="deleteStock('${s.ticker}')">✕</button></td>
+      </tr>`);
+  }
+}
+
+async function addStock() {
+  const input = document.getElementById('add-ticker-input');
+  const ticker = input.value.trim();
+  if (!ticker) return;
+  await fetch(API_BASE + '/api/stocks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ticker }),
+  });
+  input.value = '';
+  loadStocks();
+}
+
+async function deleteStock(ticker) {
+  await fetch(API_BASE + '/api/stocks/' + encodeURIComponent(ticker), { method: 'DELETE' });
+  loadStocks();
+}
+
+async function refreshIndicator(indicator) {
+  await fetch(API_BASE + '/api/refresh/' + indicator, { method: 'POST' });
+  loadDashboard();
+  loadHistories();
+}
+
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = btn.dataset.range;
+    loadHistories();
+  });
+});
+
+document.getElementById('add-ticker-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addStock();
+});
+
+(async () => {
+  await loadDashboard();
+  await loadHistories();
+  await loadStocks();
+  setInterval(async () => {
+    await loadDashboard();
+    await loadStocks();
+  }, 60_000);
+})();
+</script>
+</body>
+</html>
