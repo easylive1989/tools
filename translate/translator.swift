@@ -370,7 +370,8 @@ struct SelectableTextView: NSViewRepresentable {
         let textView = VocabularyTextView()
         textView.isEditable = false
         textView.isSelectable = true
-        textView.drawsBackground = false
+        textView.drawsBackground = true
+        textView.backgroundColor = .textBackgroundColor
         textView.textContainerInset = NSSize(width: 8, height: 8)
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false
@@ -511,20 +512,13 @@ struct ContentView: View {
             // Tab 列 + 輸出區（ZStack 讓 active tab 與內容框融合）
             ZStack(alignment: .topLeading) {
                 // 輸出區（內容框）— 永遠預留 tabHeight 空間給上方列
-                ScrollView {
-                    Text(outputText)
-                        .font(.system(size: fontSize))
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(nsColor: .textBackgroundColor))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
-                .padding(.top, tabHeight - 1)
+                SelectableTextView(text: outputText, fontSize: fontSize, store: store)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                    .padding(.top, tabHeight - 1)
 
                 // Tab 列（疊在內容框頂端）+ −/+ 靠右
                 HStack(spacing: 4) {
