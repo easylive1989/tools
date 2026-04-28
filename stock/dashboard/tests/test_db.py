@@ -1,7 +1,4 @@
-import os, sys, pytest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../backend"))
-os.environ["DB_PATH"] = ":memory:"
-
+import pytest
 import db
 
 def test_init_creates_tables():
@@ -24,10 +21,10 @@ def test_get_indicator_returns_none_when_empty():
 
 def test_indicator_history_filtered_by_date():
     db.init_db()
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
     db.save_indicator("margin", 2500.0)
     db.save_indicator("margin", 2341.0)
-    since = datetime.utcnow() - timedelta(minutes=1)
+    since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(minutes=1)
     rows = db.get_indicator_history("margin", since)
     assert len(rows) == 2
     assert rows[-1]["value"] == 2341.0

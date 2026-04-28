@@ -1,16 +1,19 @@
 import sqlite3
 import os
-from datetime import datetime, timedelta
+import threading
+from datetime import datetime, timedelta, timezone
 
 DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "stock_dashboard.db"))
 _memory_conn = None
+_memory_lock = threading.Lock()
 
 def get_connection() -> sqlite3.Connection:
     global _memory_conn
     if DB_PATH == ":memory:":
-        if _memory_conn is None:
-            _memory_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-            _memory_conn.row_factory = sqlite3.Row
+        with _memory_lock:
+            if _memory_conn is None:
+                _memory_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+                _memory_conn.row_factory = sqlite3.Row
         return _memory_conn
     else:
         conn = sqlite3.connect(DB_PATH)
@@ -54,7 +57,7 @@ def save_indicator(indicator: str, value: float, extra_json: str = None):
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
-            (indicator, datetime.utcnow().isoformat(), value, extra_json),
+            (indicator, datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), value, extra_json),
         )
 
 def get_latest_indicator(indicator: str) -> dict | None:
@@ -79,7 +82,7 @@ def save_stock_snapshot(ticker: str, price: float, change: float, change_pct: fl
         conn.execute(
             "INSERT INTO stock_snapshots (ticker, timestamp, price, change, change_pct, currency, name) "
             "VALUES (?,?,?,?,?,?,?)",
-            (ticker, datetime.utcnow().isoformat(), price, change, change_pct, currency, name),
+            (ticker, datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), price, change, change_pct, currency, name),
         )
 
 def get_latest_stock(ticker: str) -> dict | None:
@@ -99,7 +102,7 @@ def add_watched_ticker(ticker: str):
     with get_connection() as conn:
         conn.execute(
             "INSERT OR IGNORE INTO watched_stocks (ticker, added_at) VALUES (?,?)",
-            (ticker, datetime.utcnow().isoformat()),
+            (ticker, datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
         )
 
 def remove_watched_ticker(ticker: str):
@@ -107,7 +110,7 @@ def remove_watched_ticker(ticker: str):
         conn.execute("DELETE FROM watched_stocks WHERE ticker=?", (ticker,))
 
 def purge_old_data(days: int = 1095):
-    cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+    cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()
     with get_connection() as conn:
         conn.execute("DELETE FROM indicator_snapshots WHERE timestamp<?", (cutoff,))
         conn.execute("DELETE FROM stock_snapshots WHERE timestamp<?", (cutoff,))
