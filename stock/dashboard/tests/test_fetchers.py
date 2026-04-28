@@ -96,3 +96,17 @@ def test_fetch_margin_handles_empty_response():
         mock_get.return_value.raise_for_status = MagicMock()
         from fetchers.margin import fetch_margin
         fetch_margin()  # should not raise
+
+
+def test_fetch_ndc_saves_indicator():
+    fake_csv = "年月,景氣綜合判斷分數\n115年02月,24\n115年01月,23\n"
+    with patch("fetchers.ndc.requests.get") as mock_get:
+        mock_get.return_value.text = fake_csv
+        mock_get.return_value.raise_for_status = MagicMock()
+        from fetchers.ndc import fetch_ndc
+        fetch_ndc()
+    row = db.get_latest_indicator("ndc")
+    assert row is not None
+    assert row["value"] == 24.0
+    extra = json.loads(row["extra_json"])
+    assert extra["light"] == "黃紅燈"
