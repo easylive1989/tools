@@ -52,8 +52,45 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .add-btn { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
 .del-btn { background: transparent; border: 1px solid #2d3348; border-radius: 4px; padding: 3px 7px; font-size: 11px; color: #94a3b8; cursor: pointer; }
 .section-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
-@media (max-width: 900px) { .grid-indicators { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 600px) { .grid-indicators { grid-template-columns: 1fr; } }
+/* ── Tablet (≤ 900px) ── */
+@media (max-width: 900px) {
+  .grid-indicators { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Mobile (≤ 600px) ── */
+@media (max-width: 600px) {
+  body { padding: 12px; font-size: 13px; }
+
+  /* top bar 上下堆疊 */
+  .top-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .top-bar h1 { font-size: 16px; }
+
+  /* 時間區間按鈕換行 */
+  .range-bar { flex-wrap: wrap; }
+  .range-label { width: 100%; margin-bottom: 2px; }
+
+  /* 指標卡單欄 */
+  .grid-indicators { grid-template-columns: 1fr; }
+
+  /* 卡片縮小 */
+  .card { padding: 12px; }
+  .card-value { font-size: 26px; }
+  .card-label { font-size: 12px; }
+  .card-sub { font-size: 12px; }
+
+  /* NDC 內部改為上下堆疊 */
+  .ndc-inner { grid-template-columns: 1fr; gap: 12px; }
+
+  /* 圖表高度縮小 */
+  .chart-wrap { height: 80px; }
+
+  /* 股票表格橫向捲動 */
+  .stock-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .stock-table { min-width: 480px; }
+
+  /* 新增欄位隱藏「名稱」以節省空間（可選）*/
+  .stock-table .col-name { display: none; }
+}
 </style>
 </head>
 <body>
@@ -167,13 +204,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <!-- 自選股 -->
 <div class="card">
   <div class="section-title">自選股票 / ETF / 虛擬幣</div>
-  <table class="stock-table">
-    <thead><tr>
-      <th>代號</th><th>名稱</th>
-      <th class="r">價格</th><th class="r">漲跌</th><th class="r">漲跌幅</th><th></th>
-    </tr></thead>
-    <tbody id="stock-tbody"></tbody>
-  </table>
+  <div class="stock-table-wrap">
+    <table class="stock-table">
+      <thead><tr>
+        <th>代號</th><th class="col-name">名稱</th>
+        <th class="r">價格</th><th class="r">漲跌</th><th class="r">漲跌幅</th><th></th>
+      </tr></thead>
+      <tbody id="stock-tbody"></tbody>
+    </table>
+  </div>
   <div class="add-row">
     <input class="add-input" id="add-ticker-input" placeholder="輸入代號，例如 2317.TW、AAPL、ETH-USD…">
     <button class="add-btn" onclick="addStock()">+ 新增</button>
@@ -327,7 +366,7 @@ async function loadStocks() {
     tbody.insertAdjacentHTML('beforeend', `
       <tr>
         <td><span class="ticker">${s.ticker}</span></td>
-        <td>${s.name ?? ''}</td>
+        <td class="col-name">${s.name ?? ''}</td>
         <td class="r">${s.price != null ? s.price.toLocaleString() + ' ' + (s.currency ?? '') : '—'}</td>
         <td class="r ${cls}">${s.change != null ? arrow + ' ' + Math.abs(s.change).toFixed(2) : '—'}</td>
         <td class="r ${cls}">${s.change_pct != null ? (up?'+':'') + s.change_pct.toFixed(2) + '%' : '—'}</td>
