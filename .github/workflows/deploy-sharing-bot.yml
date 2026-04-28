@@ -21,18 +21,18 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 178.104.240.236 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Sync code to VPS
         run: |
           rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
-            sharing/ root@178.104.240.236:/opt/sharing/
+            sharing/ root@${{ secrets.VPS_HOST }}:/opt/sharing/
           rsync -av --exclude='__pycache__' --exclude='*.pyc' \
-            common/ root@178.104.240.236:/opt/sharing/common/
+            common/ root@${{ secrets.VPS_HOST }}:/opt/sharing/common/
 
       - name: Install deps and restart service
         run: |
-          ssh root@178.104.240.236 "
+          ssh root@${{ secrets.VPS_HOST }} "
             cd /opt/sharing
             python3 -m venv .venv
             .venv/bin/pip install -q -r requirements.txt
