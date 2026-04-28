@@ -7,10 +7,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator, save_stock_snapshot, get_watched_tickers
 
 
-def _fetch_price(ticker_symbol: str) -> dict | None:
-    """Fetch price data for a ticker symbol."""
-    stock = yf.Ticker(ticker_symbol)
-    hist = stock.history(period="5d")
+def _fetch_price(ticker_obj) -> dict | None:
+    """Fetch price data for a Ticker instance."""
+    hist = ticker_obj.history(period="5d")
     if hist.empty:
         return None
     latest = hist.iloc[-1]
@@ -21,7 +20,7 @@ def _fetch_price(ticker_symbol: str) -> dict | None:
     change_pct = (change / prev_close * 100) if prev_close else 0.0
     currency = ""
     try:
-        currency = stock.history_metadata.get("currency", "")
+        currency = ticker_obj.history_metadata.get("currency", "")
     except Exception:
         pass
     return {
@@ -35,7 +34,7 @@ def _fetch_price(ticker_symbol: str) -> dict | None:
 
 def fetch_taiex():
     """Fetch Taiwan stock exchange index (^TWII)."""
-    data = _fetch_price("^TWII")
+    data = _fetch_price(yf.Ticker("^TWII"))
     if not data:
         return
     save_indicator(
@@ -50,7 +49,7 @@ def fetch_taiex():
 
 def fetch_fx():
     """Fetch TWD/USD exchange rate."""
-    data = _fetch_price("TWD=X")
+    data = _fetch_price(yf.Ticker("TWD=X"))
     if not data:
         return
     save_indicator(
@@ -68,12 +67,13 @@ def fetch_all_stocks():
     tickers = get_watched_tickers()
     for ticker in tickers:
         try:
-            data = _fetch_price(ticker)
+            stock = yf.Ticker(ticker)
+            data = _fetch_price(stock)
             if not data:
                 continue
             name = ticker
             try:
-                info = yf.Ticker(ticker).info
+                info = stock.info
                 name = info.get("shortName") or info.get("longName") or ticker
             except Exception:
                 pass
