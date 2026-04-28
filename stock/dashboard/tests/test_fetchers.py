@@ -72,3 +72,27 @@ def test_fetch_taiex_skips_on_empty_history():
     with patch("fetchers.yfinance_fetcher.yf.Ticker", return_value=mock_ticker):
         from fetchers.yfinance_fetcher import fetch_taiex
         fetch_taiex()  # should not raise
+
+
+def test_fetch_margin_saves_indicator():
+    fake_response = [
+        {"融資今日餘額": "5000000"},
+        {"融資今日餘額": "3000000"},
+    ]
+    with patch("fetchers.margin.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = fake_response
+        mock_get.return_value.raise_for_status = MagicMock()
+        from fetchers.margin import fetch_margin
+        fetch_margin()
+    row = db.get_latest_indicator("margin")
+    assert row is not None
+    # (5000000 + 3000000) * 1000 / 1e8 = 80 億
+    assert abs(row["value"] - 80.0) < 1.0
+
+
+def test_fetch_margin_handles_empty_response():
+    with patch("fetchers.margin.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = []
+        mock_get.return_value.raise_for_status = MagicMock()
+        from fetchers.margin import fetch_margin
+        fetch_margin()  # should not raise
