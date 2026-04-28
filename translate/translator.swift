@@ -141,6 +141,75 @@ class VocabularyStore: ObservableObject {
     }
 }
 
+// MARK: - VocabularyPopover
+
+struct VocabularyPopover: View {
+    @ObservedObject var store: VocabularyStore
+    @State private var newWord: String = ""
+    @FocusState private var inputFocused: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 6) {
+                TextField("新增單字…", text: $newWord)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($inputFocused)
+                    .onSubmit {
+                        store.add(newWord)
+                        newWord = ""
+                    }
+                Text("↵")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+            .padding(12)
+
+            Divider()
+
+            if store.words.isEmpty {
+                Text("還沒有任何單字 — 在上方輸入框新增")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+            } else {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(store.words.enumerated()), id: \.offset) { index, word in
+                            HStack {
+                                Text("• \(word)")
+                                    .font(.system(size: 13))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Button("×") {
+                                    store.remove(at: index)
+                                }
+                                .buttonStyle(.plain)
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                        }
+                    }
+                }
+                .frame(maxHeight: 300)
+
+                Divider()
+
+                Text("共 \(store.words.count) 個")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
+        }
+        .frame(width: 280)
+        .onAppear { inputFocused = true }
+    }
+}
+
 // MARK: - GeminiRunner Actor
 
 actor GeminiRunner {
