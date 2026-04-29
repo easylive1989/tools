@@ -18,7 +18,7 @@ from db import (
     delete_alert,
     set_alert_enabled,
 )
-from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks
+from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks, fetch_stock_history
 from fetchers.fear_greed import fetch_fear_greed
 from fetchers.margin import fetch_margin
 from fetchers.ndc import fetch_ndc
@@ -127,6 +127,19 @@ def add_stock(req: AddStockRequest):
 def delete_stock(ticker: str):
     remove_watched_ticker(ticker.upper())
     return {"ok": True}
+
+
+@app.get("/api/stocks/{ticker}/history")
+def stock_history(ticker: str, time_range: str = "3M"):
+    if time_range not in RANGE_DELTAS:
+        raise HTTPException(status_code=400, detail="Unknown time_range")
+    try:
+        data = fetch_stock_history(ticker.upper(), time_range)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Upstream error: {e}")
+    if data is None:
+        raise HTTPException(status_code=404, detail="No history available")
+    return data
 
 
 class AlertRequest(BaseModel):

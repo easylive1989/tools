@@ -35,6 +35,7 @@ jobs:
           mkdir -p _site/stock
           mkdir -p _site/travel/2026_austria_czechia
           cp stock/dashboard/frontend/index.html _site/stock/index.html
+          cp stock/dashboard/frontend/stock.html _site/stock/stock.html
           cp -r travel/2026_austria_czechia/dist/. _site/travel/2026_austria_czechia/
 
       - uses: actions/configure-pages@v4

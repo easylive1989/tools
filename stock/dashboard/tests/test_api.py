@@ -69,6 +69,47 @@ def test_add_and_delete_stock():
     assert "2330.TW" not in db.get_watched_tickers()
 
 
+def test_stock_history_returns_data(monkeypatch):
+    fake = {
+        "ticker": "2330.TW",
+        "name": "台積電",
+        "currency": "TWD",
+        "time_range": "3M",
+        "dates": ["2026-01-02", "2026-01-03"],
+        "candles": [
+            {"open": 700, "high": 710, "low": 695, "close": 705, "volume": 12345},
+            {"open": 705, "high": 715, "low": 700, "close": 710, "volume": 23456},
+        ],
+        "indicators": {
+            "ma5": [None, None],
+            "ma20": [None, None],
+            "ma60": [None, None],
+            "rsi14": [50.0, 60.0],
+            "macd": [0.1, 0.2],
+            "macd_signal": [0.05, 0.1],
+            "macd_histogram": [0.05, 0.1],
+        },
+    }
+    monkeypatch.setattr("app.fetch_stock_history", lambda ticker, time_range: fake)
+    r = client.get("/api/stocks/2330.tw/history?time_range=3M")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["ticker"] == "2330.TW"
+    assert len(data["candles"]) == 2
+    assert "rsi14" in data["indicators"]
+
+
+def test_stock_history_404_when_no_data(monkeypatch):
+    monkeypatch.setattr("app.fetch_stock_history", lambda ticker, time_range: None)
+    r = client.get("/api/stocks/UNKNOWN/history?time_range=3M")
+    assert r.status_code == 404
+
+
+def test_stock_history_rejects_invalid_range():
+    r = client.get("/api/stocks/2330.TW/history?time_range=10Y")
+    assert r.status_code == 400
+
+
 def test_refresh_unknown_indicator_returns_404():
     r = client.post("/api/refresh/bogus")
     assert r.status_code == 404

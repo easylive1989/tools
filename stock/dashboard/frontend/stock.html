@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>個股技術分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; font-size: 14px; }
+a { color: #60a5fa; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+.back-link { font-size: 13px; color: #94a3b8; }
+.back-link:hover { color: #60a5fa; }
+.title-block h1 { font-size: 20px; font-weight: 700; color: #fff; }
+.title-block .sub { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+.range-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.range-label { font-size: 12px; color: #94a3b8; margin-right: 4px; }
+.range-btn { background: transparent; border: 1px solid #2d3348; border-radius: 5px; color: #94a3b8; font-size: 13px; padding: 4px 14px; cursor: pointer; }
+.range-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; font-weight: 600; }
+.card { background: #1e2130; border: 1px solid #2d3348; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.card-label { font-size: 13px; color: #cbd5e1; text-transform: uppercase; letter-spacing: .05em; }
+.card-hint { font-size: 11px; color: #94a3b8; }
+.chart-wrap { position: relative; height: 320px; }
+.chart-wrap.short { height: 180px; }
+.stat-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.price { font-size: 32px; font-weight: 700; color: #fff; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 13px; font-weight: 600; }
+.badge-up   { background: rgba(74,222,128,.15); color: #4ade80; }
+.badge-down { background: rgba(248,113,113,.15); color: #f87171; }
+.up { color: #4ade80; } .down { color: #f87171; }
+.status { color: #94a3b8; font-size: 13px; padding: 16px 0; }
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  .price { font-size: 24px; }
+  .chart-wrap { height: 240px; }
+  .chart-wrap.short { height: 150px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <a class="back-link" href="index.html">← 返回市場總覽</a>
+    <div class="title-block" style="margin-top:6px">
+      <h1 id="page-title">載入中…</h1>
+      <div class="sub" id="page-sub"></div>
+    </div>
+  </div>
+  <div class="stat-row" id="price-block"></div>
+</div>
+
+<div class="range-bar">
+  <span class="range-label">時間區間：</span>
+  <button class="range-btn" data-range="1M">1 個月</button>
+  <button class="range-btn active" data-range="3M">3 個月</button>
+  <button class="range-btn" data-range="6M">6 個月</button>
+  <button class="range-btn" data-range="1Y">1 年</button>
+  <button class="range-btn" data-range="3Y">3 年</button>
+</div>
+
+<div id="status" class="status">載入中…</div>
+
+<div id="charts" style="display:none">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">收盤價 + 移動平均</span>
+      <span class="card-hint">MA5 / MA20 / MA60</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-price"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">成交量</span>
+      <span class="card-hint">紅綠依當日漲跌</span>
+    </div>
+    <div class="chart-wrap short"><canvas id="chart-volume"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">RSI (14)</span>
+      <span class="card-hint">70 以上偏買超 / 30 以下偏賣超</span>
+    </div>
+    <div class="chart-wrap short"><canvas id="chart-rsi"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">MACD (12, 26, 9)</span>
+      <span class="card-hint">柱狀為 MACD − Signal</span>
+    </div>
+    <div class="chart-wrap short"><canvas id="chart-macd"></canvas></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'https://api.paul-learning.dev';
+const params = new URLSearchParams(location.search);
+const TICKER = (params.get('ticker') || '').toUpperCase();
+let currentRange = '3M';
+const charts = {};
+
+if (!TICKER) {
+  document.getElementById('status').textContent = '缺少 ticker 參數。';
+  document.title = '個股技術分析';
+} else {
+  document.title = TICKER + ' 技術分析';
+}
+
+const COMMON_OPTS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { labels: { color: '#cbd5e1', boxWidth: 12 } },
+    tooltip: {
+      backgroundColor: '#1a1f2e', borderColor: '#3b82f6', borderWidth: 1,
+      titleColor: '#94a3b8', bodyColor: '#e2e8f0',
+    },
+  },
+  scales: {
+    x: { grid: { color: '#2d3348' }, ticks: { color: '#94a3b8', maxTicksLimit: 8 } },
+    y: { grid: { color: '#2d3348' }, ticks: { color: '#94a3b8' } },
+  },
+};
+
+function destroyCharts() {
+  for (const key of Object.keys(charts)) {
+    charts[key].destroy();
+    delete charts[key];
+  }
+}
+
+function makePriceChart(labels, candles, indicators) {
+  const ctx = document.getElementById('chart-price').getContext('2d');
+  const closes = candles.map(c => c.close);
+  charts.price = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: '收盤', data: closes, borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,.15)', fill: true, tension: 0.2, pointRadius: 0, borderWidth: 2 },
+        { label: 'MA5',  data: indicators.ma5,  borderColor: '#fbbf24', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 },
+        { label: 'MA20', data: indicators.ma20, borderColor: '#a78bfa', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 },
+        { label: 'MA60', data: indicators.ma60, borderColor: '#f472b6', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 },
+      ],
+    },
+    options: COMMON_OPTS,
+  });
+}
+
+function makeVolumeChart(labels, candles) {
+  const ctx = document.getElementById('chart-volume').getContext('2d');
+  const colors = candles.map((c, i) => {
+    const prev = i > 0 ? candles[i - 1].close : c.close;
+    return c.close >= prev ? 'rgba(74,222,128,.7)' : 'rgba(248,113,113,.7)';
+  });
+  charts.volume = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: '成交量', data: candles.map(c => c.volume), backgroundColor: colors, borderWidth: 0 }],
+    },
+    options: { ...COMMON_OPTS, plugins: { ...COMMON_OPTS.plugins, legend: { display: false } } },
+  });
+}
+
+function makeRsiChart(labels, indicators) {
+  const ctx = document.getElementById('chart-rsi').getContext('2d');
+  const rsi = indicators.rsi14;
+  charts.rsi = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'RSI 14', data: rsi, borderColor: '#fbbf24', borderWidth: 1.8, pointRadius: 0, fill: false, tension: 0.2 },
+        { label: '70',     data: rsi.map(() => 70), borderColor: 'rgba(248,113,113,.5)', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+        { label: '30',     data: rsi.map(() => 30), borderColor: 'rgba(74,222,128,.5)', borderWidth: 1, borderDash: [4,4], pointRadius: 0, fill: false },
+      ],
+    },
+    options: { ...COMMON_OPTS, scales: { ...COMMON_OPTS.scales, y: { ...COMMON_OPTS.scales.y, min: 0, max: 100 } } },
+  });
+}
+
+function makeMacdChart(labels, indicators) {
+  const ctx = document.getElementById('chart-macd').getContext('2d');
+  const hist = indicators.macd_histogram;
+  const histColors = hist.map(v => v == null ? 'rgba(148,163,184,.4)' : (v >= 0 ? 'rgba(74,222,128,.6)' : 'rgba(248,113,113,.6)'));
+  charts.macd = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        { type: 'bar',  label: 'Histogram', data: hist, backgroundColor: histColors, borderWidth: 0, order: 2 },
+        { type: 'line', label: 'MACD',      data: indicators.macd,        borderColor: '#60a5fa', borderWidth: 1.8, pointRadius: 0, fill: false, tension: 0.2, order: 1 },
+        { type: 'line', label: 'Signal',    data: indicators.macd_signal, borderColor: '#fbbf24', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2, order: 1 },
+      ],
+    },
+    options: COMMON_OPTS,
+  });
+}
+
+function renderHeader(data) {
+  const last = data.candles[data.candles.length - 1];
+  const prev = data.candles.length > 1 ? data.candles[data.candles.length - 2] : null;
+  document.getElementById('page-title').textContent = `${data.ticker} · ${data.name || data.ticker}`;
+  const lastDate = data.dates[data.dates.length - 1] || '';
+  document.getElementById('page-sub').textContent =
+    `最後資料日 ${lastDate}` + (data.currency ? ` · ${data.currency}` : '');
+
+  const priceBlock = document.getElementById('price-block');
+  priceBlock.innerHTML = '';
+  if (last && last.close != null) {
+    const change = prev && prev.close != null ? last.close - prev.close : null;
+    const changePct = (change != null && prev.close) ? (change / prev.close * 100) : null;
+    const up = change != null ? change >= 0 : null;
+    const cls = up == null ? '' : (up ? 'up' : 'down');
+    const arrow = up ? '▲' : '▼';
+    priceBlock.insertAdjacentHTML('beforeend',
+      `<div class="price ${cls}">${last.close.toLocaleString(undefined, { maximumFractionDigits: 4 })}</div>`);
+    if (change != null) {
+      priceBlock.insertAdjacentHTML('beforeend',
+        `<span class="badge ${up ? 'badge-up' : 'badge-down'}">${arrow} ${Math.abs(change).toFixed(2)} (${changePct.toFixed(2)}%)</span>`);
+    }
+  }
+}
+
+async function loadDetail() {
+  if (!TICKER) return;
+  document.getElementById('status').textContent = '載入中…';
+  document.getElementById('status').style.display = '';
+  document.getElementById('charts').style.display = 'none';
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/history?time_range=${currentRange}`);
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      document.getElementById('status').textContent = '無法載入資料：' + (err.detail || r.status);
+      return;
+    }
+    const data = await r.json();
+    if (!data.dates.length) {
+      document.getElementById('status').textContent = '此區間無歷史資料。';
+      return;
+    }
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('charts').style.display = '';
+    renderHeader(data);
+    destroyCharts();
+    makePriceChart(data.dates, data.candles, data.indicators);
+    makeVolumeChart(data.dates, data.candles);
+    makeRsiChart(data.dates, data.indicators);
+    makeMacdChart(data.dates, data.indicators);
+  } catch (e) {
+    document.getElementById('status').textContent = '載入失敗：' + e.message;
+  }
+}
+
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = btn.dataset.range;
+    loadDetail();
+  });
+});
+
+loadDetail();
+</script>
+</body>
+</html>
