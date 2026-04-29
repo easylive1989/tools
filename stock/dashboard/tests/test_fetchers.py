@@ -65,6 +65,41 @@ def test_fetch_all_stocks_saves_snapshots():
     assert row["currency"] == "TWD"
 
 
+def test_fetch_stock_history_returns_indicators_and_candles():
+    prices = [100 + i * 0.5 for i in range(120)]
+    mock_ticker = MagicMock()
+    mock_ticker.history.return_value = make_hist(prices)
+    mock_ticker.history_metadata = {"currency": "TWD"}
+    mock_ticker.info = {"shortName": "TEST"}
+
+    with patch("fetchers.yfinance_fetcher.yf.Ticker", return_value=mock_ticker):
+        from fetchers.yfinance_fetcher import fetch_stock_history
+        data = fetch_stock_history("2330.TW", "1M")
+
+    assert data is not None
+    assert data["ticker"] == "2330.TW"
+    assert data["name"] == "TEST"
+    assert data["currency"] == "TWD"
+    # 1M slices to 22 trading days
+    assert len(data["dates"]) == 22
+    assert len(data["candles"]) == 22
+    for series in ("ma5", "ma20", "ma60", "rsi14", "macd", "macd_signal", "macd_histogram"):
+        assert len(data["indicators"][series]) == 22
+    # MA60 should be populated for the visible window after warm-up
+    assert all(v is not None for v in data["indicators"]["ma60"])
+    # RSI for a strictly rising series should be near 100
+    assert data["indicators"]["rsi14"][-1] > 90
+
+
+def test_fetch_stock_history_returns_none_when_empty():
+    mock_ticker = MagicMock()
+    mock_ticker.history.return_value = pd.DataFrame()
+
+    with patch("fetchers.yfinance_fetcher.yf.Ticker", return_value=mock_ticker):
+        from fetchers.yfinance_fetcher import fetch_stock_history
+        assert fetch_stock_history("BOGUS", "3M") is None
+
+
 def test_fetch_taiex_skips_on_empty_history():
     mock_ticker = MagicMock()
     mock_ticker.history.return_value = pd.DataFrame()
