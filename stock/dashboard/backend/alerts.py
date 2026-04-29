@@ -6,7 +6,12 @@ to prevent spam; the user re-arms from the dashboard.
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+_here = os.path.dirname(os.path.abspath(__file__))
+for _ in range(5):
+    if os.path.isdir(os.path.join(_here, "common")):
+        sys.path.insert(0, _here)
+        break
+    _here = os.path.dirname(_here)
 from common.notify import send_to_discord
 
 from db import get_active_alerts, mark_alert_triggered

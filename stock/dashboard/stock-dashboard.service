@@ -10,6 +10,7 @@ ExecStart=/opt/stock-dashboard/backend/.venv/bin/uvicorn app:app --host 127.0.0.
 Restart=always
 RestartSec=5
 Environment=DB_PATH=/opt/stock-dashboard/backend/stock_dashboard.db
+EnvironmentFile=-/opt/stock-dashboard/backend/.env
 
 [Install]
 WantedBy=multi-user.target
