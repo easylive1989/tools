@@ -22,6 +22,7 @@ from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks
 from fetchers.fear_greed import fetch_fear_greed
 from fetchers.margin import fetch_margin
 from fetchers.ndc import fetch_ndc
+from fetchers.volume import fetch_tw_volume, fetch_us_volume
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -47,9 +48,11 @@ FETCHERS: dict[str, Callable] = {
     "margin":     fetch_margin,
     "ndc":        fetch_ndc,
     "stocks":     fetch_all_stocks,
+    "tw_volume":  fetch_tw_volume,
+    "us_volume":  fetch_us_volume,
 }
 
-INDICATOR_NAMES = ["taiex", "fx", "fear_greed", "margin", "ndc"]
+INDICATOR_NAMES = ["taiex", "fx", "fear_greed", "margin", "ndc", "tw_volume", "us_volume"]
 
 
 @app.on_event("startup")

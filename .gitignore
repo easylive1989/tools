@@ -42,3 +42,6 @@ cron.log
 
 # Git worktrees
 .worktrees/
+
+# Brainstorming visual companion temp files
+.superpowers/

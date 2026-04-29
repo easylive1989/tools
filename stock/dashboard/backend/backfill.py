@@ -56,6 +56,58 @@ def backfill_fx():
     backfill_yfinance("TWD=X", "fx", extra)
 
 
+def backfill_tw_volume():
+    """TWSE FMTQIK 提供近 18 天台股每日成交金額。"""
+    import requests
+    print("[backfill] tw_volume from TWSE …")
+    r = requests.get("https://openapi.twse.com.tw/v1/exchangeReport/FMTQIK", timeout=15)
+    data = r.json()
+    inserted = 0
+    with get_connection() as conn:
+        for i, row in enumerate(data):
+            value_yi = round(int(row["TradeValue"]) / 1e8, 2)
+            prev_yi = round(int(data[i - 1]["TradeValue"]) / 1e8, 2) if i > 0 else value_yi
+            pct = round((value_yi - prev_yi) / prev_yi * 100, 2) if prev_yi else 0
+            # Date 格式：1150428 → 民國 → 西元 2026-04-28
+            d = row["Date"]
+            year = int(d[:3]) + 1911
+            dt = datetime(year, int(d[3:5]), int(d[5:7]))
+            conn.execute(
+                "INSERT OR IGNORE INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
+                ("tw_volume", dt.isoformat(), value_yi,
+                 json.dumps({"change_pct": pct, "prev_value": prev_yi, "unit": "億元", "date": d})),
+            )
+            inserted += 1
+    print(f"  Inserted {inserted} rows for tw_volume")
+
+
+def backfill_us_volume():
+    """yfinance ^GSPC 提供 S&P 500 近 2 年成交量。"""
+    import math
+    import yfinance as yf
+    print("[backfill] us_volume from yfinance ^GSPC …")
+    hist = yf.Ticker("^GSPC").history(period="2y")
+    if hist.empty:
+        print("  No data")
+        return
+    valid = [(idx, float(v)) for idx, v in hist["Volume"].items()
+             if not math.isnan(v) and v > 0]
+    inserted = 0
+    with get_connection() as conn:
+        for i, (idx, vol) in enumerate(valid):
+            value_yi = round(vol / 1e8, 2)
+            prev_yi = round(valid[i - 1][1] / 1e8, 2) if i > 0 else value_yi
+            pct = round((value_yi - prev_yi) / prev_yi * 100, 2) if prev_yi else 0
+            dt = idx.to_pydatetime().replace(tzinfo=None)
+            conn.execute(
+                "INSERT OR IGNORE INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
+                ("us_volume", dt.isoformat(), value_yi,
+                 json.dumps({"change_pct": pct, "prev_value": prev_yi, "unit": "億股"})),
+            )
+            inserted += 1
+    print(f"  Inserted {inserted} rows for us_volume")
+
+
 def backfill_ndc():
     print("[backfill] ndc from NDC API …")
     NDC_PAGE_URL = "https://index.ndc.gov.tw/n/zh_tw/data/eco"
@@ -162,10 +214,15 @@ if __name__ == "__main__":
         backfill_margin(int(_sys.argv[2]) if len(_sys.argv) > 2 else 365)
     elif len(_sys.argv) > 1 and _sys.argv[1] == "fear_greed":
         backfill_fear_greed()
+    elif len(_sys.argv) > 1 and _sys.argv[1] == "volume":
+        backfill_tw_volume()
+        backfill_us_volume()
     else:
         backfill_taiex()
         backfill_fx()
         backfill_ndc()
         backfill_fear_greed()
+        backfill_tw_volume()
+        backfill_us_volume()
         backfill_margin(365)
     print("[backfill] Done.")

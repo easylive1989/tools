@@ -169,6 +169,34 @@ body { overflow-x: hidden; }
     <div class="card-sub" id="taiex-sub"></div>
   </div>
 
+  <!-- 台股成交金額 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">台股成交金額</span>
+      <button class="refresh-btn" onclick="refreshIndicator('tw_volume')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="tw_volume-value">—</div>
+      <span class="badge" id="tw_volume-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-tw_volume"></canvas></div>
+    <div class="card-sub" id="tw_volume-sub"></div>
+  </div>
+
+  <!-- 美股成交量 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">美股 S&P500 成交量</span>
+      <button class="refresh-btn" onclick="refreshIndicator('us_volume')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="us_volume-value">—</div>
+      <span class="badge" id="us_volume-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-us_volume"></canvas></div>
+    <div class="card-sub" id="us_volume-sub"></div>
+  </div>
+
   <!-- 恐懼與貪婪 -->
   <div class="card">
     <div class="card-header">
@@ -412,6 +440,20 @@ async function loadDashboard() {
       ' · 更新 ' + fmtDate(data.fx.timestamp);
   }
 
+  if (data.tw_volume) {
+    document.getElementById('tw_volume-value').textContent = data.tw_volume.value.toLocaleString() + ' 億';
+    setBadge(document.getElementById('tw_volume-badge'), data.tw_volume.extra?.change_pct);
+    document.getElementById('tw_volume-sub').textContent =
+      '前日 ' + (data.tw_volume.extra?.prev_value?.toLocaleString() ?? '—') + ' 億 · 更新 ' + fmtDate(data.tw_volume.timestamp);
+  }
+
+  if (data.us_volume) {
+    document.getElementById('us_volume-value').textContent = data.us_volume.value.toLocaleString() + ' 億股';
+    setBadge(document.getElementById('us_volume-badge'), data.us_volume.extra?.change_pct);
+    document.getElementById('us_volume-sub').textContent =
+      '前日 ' + (data.us_volume.extra?.prev_value?.toLocaleString() ?? '—') + ' 億股 · 更新 ' + fmtDate(data.us_volume.timestamp);
+  }
+
   document.getElementById('update-time').textContent =
     '上次更新：' + new Date().toLocaleTimeString('zh-TW');
 }
@@ -423,9 +465,9 @@ function fgClass(v) {
 }
 
 async function loadHistories() {
-  const indicators = ['taiex', 'fear_greed', 'margin', 'ndc', 'fx'];
-  const units = { taiex: '點', fear_greed: '指數', margin: '億元', ndc: '分', fx: 'TWD' };
-  const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', margin: '#60a5fa', ndc: '#fbbf24', fx: '#a78bfa' };
+  const indicators = ['taiex', 'tw_volume', 'us_volume', 'fear_greed', 'margin', 'ndc', 'fx'];
+  const units = { taiex: '點', fear_greed: '指數', margin: '億元', ndc: '分', fx: 'TWD', tw_volume: '億元', us_volume: '億股' };
+  const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', margin: '#60a5fa', ndc: '#fbbf24', fx: '#a78bfa', tw_volume: '#f97316', us_volume: '#ec4899' };
 
   for (const ind of indicators) {
     if (!charts[ind]) makeChart(ind, colors[ind], units[ind]);

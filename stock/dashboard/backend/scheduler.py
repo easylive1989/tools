@@ -7,6 +7,7 @@ from fetchers.fear_greed import fetch_fear_greed
 from fetchers.margin import fetch_margin
 from fetchers.ndc import fetch_ndc
 from fetchers.news import fetch_news
+from fetchers.volume import fetch_tw_volume, fetch_us_volume
 from db import purge_old_data
 
 TST = pytz.timezone("Asia/Taipei")
@@ -25,6 +26,10 @@ def start_scheduler() -> BackgroundScheduler:
 
     # Daily 18:00 TST (after TWSE settlement)
     scheduler.add_job(fetch_margin,     CronTrigger(hour=18, minute=0, timezone=TST), id="margin",     replace_existing=True)
+    scheduler.add_job(fetch_tw_volume,  CronTrigger(hour=18, minute=5, timezone=TST), id="tw_volume",  replace_existing=True)
+
+    # 美股每日 06:00 TST (美股收盤後)
+    scheduler.add_job(fetch_us_volume,  CronTrigger(hour=6,  minute=0, timezone=TST), id="us_volume",  replace_existing=True)
 
     # Monthly on the 1st at 09:00 TST
     scheduler.add_job(fetch_ndc,        CronTrigger(day=1,  hour=9,  minute=0, timezone=TST), id="ndc", replace_existing=True)
