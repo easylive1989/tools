@@ -108,6 +108,35 @@ def backfill_ndc():
     print(f"  Inserted {inserted} rows for ndc")
 
 
+def backfill_fear_greed():
+    """從 CNN API 補近一年 Fear & Greed 歷史資料。"""
+    print("[backfill] fear_greed from CNN …")
+    from fetchers.fear_greed import CNN_URL, HEADERS, _label
+    resp = __import__("requests").get(CNN_URL, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    data = resp.json()
+    historical = data.get("fear_and_greed_historical", {}).get("data", [])
+    if not historical:
+        print("  No historical data")
+        return
+    inserted = 0
+    with get_connection() as conn:
+        for point in historical:
+            ts_ms = point.get("x")
+            score = point.get("y")
+            rating = point.get("rating", "")
+            if ts_ms is None or score is None:
+                continue
+            dt = datetime.fromtimestamp(ts_ms / 1000)
+            conn.execute(
+                "INSERT OR IGNORE INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
+                ("fear_greed", dt.isoformat(), round(float(score), 1),
+                 json.dumps({"label": _label(rating), "rating_en": rating})),
+            )
+            inserted += 1
+    print(f"  Inserted {inserted} rows for fear_greed")
+
+
 def backfill_margin(days: int = 365):
     """逐日查詢 TWSE CSV 補歷史融資餘額（只查交易日，跳過無資料的日期）。"""
     from fetchers.margin import fetch_margin
@@ -129,9 +158,12 @@ if __name__ == "__main__":
     init_db()
     if len(_sys.argv) > 1 and _sys.argv[1] == "margin":
         backfill_margin(int(_sys.argv[2]) if len(_sys.argv) > 2 else 365)
+    elif len(_sys.argv) > 1 and _sys.argv[1] == "fear_greed":
+        backfill_fear_greed()
     else:
         backfill_taiex()
         backfill_fx()
         backfill_ndc()
+        backfill_fear_greed()
         backfill_margin(365)
     print("[backfill] Done.")

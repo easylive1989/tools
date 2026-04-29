@@ -1,73 +1,52 @@
+"""CNN Fear & Greed Index fetcher.
+
+API: https://production.dataviz.cnn.io/index/fearandgreed/graphdata
+回傳當日分數（0–100）及近一年歷史。
+"""
 import json
 import requests
 import sys
 import os
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator
 
-# macromicro.me Fear & Greed Index chart ID 128747
-FEAR_GREED_URL = "https://api.macromicro.me/charts/128747"
-HEADERS = {"Referer": "https://www.macromicro.me/"}
+CNN_URL = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://edition.cnn.com/markets/fear-and-greed",
+    "Accept": "application/json",
+}
+
+RATING_ZH = {
+    "extreme fear":  "極度恐懼",
+    "fear":          "恐懼",
+    "neutral":       "中立",
+    "greed":         "貪婪",
+    "extreme greed": "極度貪婪",
+}
 
 
-def _value_to_label(v: float) -> str:
-    if v < 25:
-        return "極度恐懼"
-    if v < 45:
-        return "恐懼"
-    if v < 55:
-        return "中立"
-    if v < 75:
-        return "貪婪"
-    return "極度貪婪"
+def _label(rating: str) -> str:
+    return RATING_ZH.get(rating.lower(), rating)
 
 
 def fetch_fear_greed():
     try:
-        resp = requests.get(FEAR_GREED_URL, headers=HEADERS, timeout=15)
+        resp = requests.get(CNN_URL, headers=HEADERS, timeout=15)
         resp.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"[fear_greed] Failed to fetch from macromicro.me: {e}")
-        return
+        data = resp.json()
 
-    try:
-        payload = resp.json()
-    except ValueError as e:
-        print(f"[fear_greed] Invalid JSON response: {e}")
-        return
+        current = data.get("fear_and_greed", {})
+        score = float(current.get("score", 0))
+        rating = current.get("rating", "")
 
-    # Extract data array from response
-    series = payload.get("data", [])
-    if not series:
-        print("[fear_greed] Empty data from macromicro.me")
-        return
-
-    # Expected format: [[timestamp, value], ...]
-    # Find the entry with the highest timestamp (most recent)
-    latest_entry = None
-    try:
-        # Filter to valid entries and sort by timestamp (descending)
-        valid_entries = [
-            entry for entry in series
-            if isinstance(entry, (list, tuple)) and len(entry) >= 2
-        ]
-        if not valid_entries:
-            print("[fear_greed] No valid entries in data")
-            return
-        latest_entry = max(valid_entries, key=lambda x: x[0])
-    except (TypeError, ValueError) as e:
-        print(f"[fear_greed] Error processing data entries: {e}")
-        return
-
-    try:
-        value = float(latest_entry[1])
-    except (IndexError, TypeError, ValueError) as e:
-        print(f"[fear_greed] Could not parse value from entry: {e}")
-        return
-
-    save_indicator(
-        "fear_greed",
-        value,
-        json.dumps({"label": _value_to_label(value)})
-    )
+        save_indicator("fear_greed", round(score, 1), json.dumps({
+            "label": _label(rating),
+            "rating_en": rating,
+        }))
+        print(f"[fear_greed] 分數={score} ({_label(rating)})")
+    except Exception as e:
+        print(f"[fear_greed] Error: {e}")
