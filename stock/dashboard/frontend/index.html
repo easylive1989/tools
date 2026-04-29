@@ -52,6 +52,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .add-btn { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
 .del-btn { background: transparent; border: 1px solid #2d3348; border-radius: 4px; padding: 3px 7px; font-size: 11px; color: #94a3b8; cursor: pointer; }
 .section-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
+/* ── 新聞 ── */
+.news-list { list-style: none; margin-top: 10px; }
+.news-item { padding: 10px 0; border-bottom: 1px solid #1a1f2e; display: flex; flex-direction: column; gap: 4px; }
+.news-item:last-child { border-bottom: none; }
+.news-title { font-size: 14px; color: #e2e8f0; text-decoration: none; line-height: 1.4; }
+.news-title:hover { color: #60a5fa; }
+.news-meta { font-size: 11px; color: #64748b; display: flex; gap: 10px; }
+
 /* ── 防止 grid/flex 子項目溢出 ── */
 body { overflow-x: hidden; }
 .grid-indicators > * { min-width: 0; }
@@ -232,6 +240,17 @@ body { overflow-x: hidden; }
     <input class="add-input" id="add-ticker-input" placeholder="輸入代號，例如 2317.TW、AAPL、ETH-USD…">
     <button class="add-btn" onclick="addStock()">+ 新增</button>
   </div>
+</div>
+
+<!-- 最新新聞 -->
+<div class="card" style="margin-top: 14px;">
+  <div class="card-header">
+    <span class="section-title">最新財經新聞</span>
+    <span class="update-time" id="news-time"></span>
+  </div>
+  <ul class="news-list" id="news-list">
+    <li class="news-item"><span class="news-meta">載入中…</span></li>
+  </ul>
 </div>
 
 <script>
@@ -427,14 +446,31 @@ document.getElementById('add-ticker-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addStock();
 });
 
+async function loadNews() {
+  const items = await fetch(API_BASE + '/api/news?limit=15').then(r => r.json()).catch(() => []);
+  const list = document.getElementById('news-list');
+  if (!items.length) { list.innerHTML = '<li class="news-item"><span class="news-meta">暫無新聞</span></li>'; return; }
+  list.innerHTML = items.map(n => {
+    const ts = n.published ? new Date(n.published) : null;
+    const timeStr = ts ? ts.toLocaleString('zh-TW', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+    return `<li class="news-item">
+      <a class="news-title" href="${n.url}" target="_blank" rel="noopener">${n.title}</a>
+      <span class="news-meta"><span>${n.source}</span><span>${timeStr}</span></span>
+    </li>`;
+  }).join('');
+  document.getElementById('news-time').textContent = '更新：' + new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
+}
+
 (async () => {
   await loadDashboard();
   await loadHistories();
   await loadStocks();
+  await loadNews();
   setInterval(async () => {
     await loadDashboard();
     await loadStocks();
   }, 60_000);
+  setInterval(loadNews, 30 * 60_000);
 })();
 </script>
 </body>

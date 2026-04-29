@@ -132,3 +132,9 @@ def refresh(indicator: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return {"ok": True}
+
+
+@app.get("/api/news")
+def get_news(limit: int = 15):
+    from fetchers.news import get_cached_news
+    return get_cached_news()[:limit]
