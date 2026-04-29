@@ -53,11 +53,12 @@ def init_db():
                 ON stock_snapshots(ticker, timestamp);
         """)
 
-def save_indicator(indicator: str, value: float, extra_json: str = None):
+def save_indicator(indicator: str, value: float, extra_json: str = None, timestamp: datetime = None):
+    ts = (timestamp or datetime.now(timezone.utc).replace(tzinfo=None)).isoformat()
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
-            (indicator, datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), value, extra_json),
+            (indicator, ts, value, extra_json),
         )
 
 def get_latest_indicator(indicator: str) -> dict | None:

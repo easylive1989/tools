@@ -1,30 +1,84 @@
+"""台股融資餘額（融資金額，億元）。
+
+TWSE CSV 優先（www.twse.com.tw，可能被 VPS IP 封鎖）；
+失敗時嘗試 cloudscraper 繞過；
+兩者都失敗則略過。
+"""
+import csv
+import io
 import json
 import requests
 import sys
 import os
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator
 
-TWSE_URL = "https://openapi.twse.com.tw/v1/exchangeReport/MI_MARGN"
-# Field name as returned by TWSE API (verified 2026-04-28)
-BALANCE_FIELD = "融資今日餘額"
+TWSE_CSV_BASE = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=csv&selectType=MS"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "Referer": "https://www.twse.com.tw/zh/",
+}
 
 
-def fetch_margin():
-    resp = requests.get(TWSE_URL, timeout=15)
-    resp.raise_for_status()
-    data = resp.json()
-    if not data:
-        print("[margin] Empty response from TWSE")
+def _parse_margin_csv(text: str) -> float | None:
+    """從 TWSE CSV 取出「融資金額(仟元)」今日餘額，回傳億元。"""
+    for row in csv.reader(io.StringIO(text)):
+        if not row:
+            continue
+        label = row[0].strip().strip('"')
+        if "融資金額" in label and "仟元" in label:
+            try:
+                balance = int(row[5].replace(",", "").replace('"', "").strip())
+                return round(balance / 100_000, 2)  # 千元 → 億元
+            except (IndexError, ValueError):
+                return None
+    return None
+
+
+def _fetch_csv(url: str) -> str | None:
+    # 先試 requests
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15, allow_redirects=True)
+        r.encoding = "ms950"
+        if "融資金額" in r.text:
+            return r.text
+    except Exception:
+        pass
+
+    # 再試 cloudscraper
+    try:
+        import cloudscraper
+        scraper = cloudscraper.create_scraper()
+        r = scraper.get(url, headers=HEADERS, timeout=15)
+        r.encoding = "ms950"
+        if "融資金額" in r.text:
+            return r.text
+    except Exception:
+        pass
+
+    return None
+
+
+def fetch_margin(date_str: str | None = None):
+    url = TWSE_CSV_BASE
+    if date_str:
+        url += f"&date={date_str}"
+
+    text = _fetch_csv(url)
+    if text is None:
+        print(f"[margin] 無法取得資料（date={date_str or '今日'}），TWSE 可能封鎖此 IP")
         return
-    total_thousands = sum(
-        int(row.get(BALANCE_FIELD, "0").replace(",", ""))
-        for row in data
-        if row.get(BALANCE_FIELD)
-    )
-    # TWSE reports in thousands of TWD → convert to 億元 (100 million)
-    total_yi = total_thousands * 1000 / 1e8
-    save_indicator("margin", round(total_yi, 2), json.dumps({
-        "unit": "億元",
-    }))
+
+    value = _parse_margin_csv(text)
+    if value is None:
+        print(f"[margin] 解析失敗（date={date_str or '今日'}）")
+        return
+
+    ts = None
+    if date_str:
+        ts = datetime(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
+
+    save_indicator("margin", value, json.dumps({"unit": "億元"}), timestamp=ts)
+    print(f"[margin] {date_str or '今日'} 融資餘額 = {value} 億元")
