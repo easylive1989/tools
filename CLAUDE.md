@@ -37,9 +37,6 @@ cd transcribe && python record_blackhole.py [--transcribe]
 
 # Ledger analysis (needs NOTION_SECRET)
 python ledger_analysis/ledger_analysis.py
-
-# Stock notifications (runs via GitHub Actions)
-python stock/stock_notify.py
 ```
 
 ## document_translator Architecture
@@ -59,9 +56,14 @@ cd document_translator && python -m pytest tests/ -v
 ## GitHub Actions
 
 Active workflows (triggered on schedule + `workflow_dispatch`):
-- `us-stocks-notify.yml` / `tw-stocks-notify.yml` — weekday stock price alerts to Discord
 - `monthly-ledger-analysis.yml` — monthly ledger summary to Notion
-- `deploy-pages.yml` — deploys `travel/` React app to GitHub Pages
+- `deploy-stock-dashboard.yml` — builds frontend and deploys to GitHub Pages
+- `deploy-stock-dashboard-backend.yml` — rsyncs backend to VPS, restarts systemd service
+- `deploy-sharing-bot.yml` — rsyncs sharing bot to VPS, restarts systemd service
+
+Stock price alerts are now configured per-user from the dashboard UI (no
+scheduled Discord notifications); the backend's APScheduler fetches prices
+and the alert engine notifies Discord when thresholds are crossed.
 
 Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`.
 
@@ -72,7 +74,7 @@ Scripts read secrets directly from environment (no `.env` loading at root level;
 | Variable | Used by |
 |---|---|
 | `NOTION_SECRET` | `ledger_analysis.py`, `personal_retro/`, `medium/` |
-| `DISCORD_*_WEBHOOK_URL` | `stock/`, `personal_retro/` |
+| `DISCORD_*_WEBHOOK_URL` | `stock/dashboard/` (alerts), `personal_retro/` |
 | `GOOGLE_API_KEY` | `document_translator` (API mode) |
 | `OPENAI_API_KEY` | `personal_retro/daily_review.py` |
 

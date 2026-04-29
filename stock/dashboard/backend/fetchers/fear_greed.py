@@ -11,6 +11,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator
+from alerts import check_alerts
 
 CNN_URL = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
 HEADERS = {
@@ -43,10 +44,12 @@ def fetch_fear_greed():
         score = float(current.get("score", 0))
         rating = current.get("rating", "")
 
-        save_indicator("fear_greed", round(score, 1), json.dumps({
+        score_rounded = round(score, 1)
+        save_indicator("fear_greed", score_rounded, json.dumps({
             "label": _label(rating),
             "rating_en": rating,
         }))
+        check_alerts("indicator", "fear_greed", score_rounded)
         print(f"[fear_greed] 分數={score} ({_label(rating)})")
     except Exception as e:
         print(f"[fear_greed] Error: {e}")

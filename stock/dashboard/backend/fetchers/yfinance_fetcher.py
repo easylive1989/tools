@@ -6,6 +6,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator, save_stock_snapshot, get_watched_tickers
+from alerts import check_alerts
 
 
 def _is_valid(v) -> bool:
@@ -56,6 +57,7 @@ def fetch_taiex():
             "prev_close": round(data["prev_close"], 2),
         }),
     )
+    check_alerts("indicator", "taiex", data["price"])
 
 
 def fetch_fx():
@@ -63,14 +65,16 @@ def fetch_fx():
     data = _fetch_price(yf.Ticker("TWD=X"))
     if not data:
         return
+    fx_value = round(data["price"], 4)
     save_indicator(
         "fx",
-        round(data["price"], 4),
+        fx_value,
         json.dumps({
             "change_pct": data["change_pct"],
             "prev_close": round(data["prev_close"], 4),
         }),
     )
+    check_alerts("indicator", "fx", fx_value)
 
 
 def fetch_all_stocks():
@@ -88,13 +92,15 @@ def fetch_all_stocks():
                 name = info.get("shortName") or info.get("longName") or ticker
             except Exception:
                 pass
+            price = round(data["price"], 4)
             save_stock_snapshot(
                 ticker,
-                round(data["price"], 4),
+                price,
                 round(data["change"], 4),
                 data["change_pct"],
                 data["currency"],
                 name,
             )
+            check_alerts("stock", ticker, price, name)
         except Exception as e:
             print(f"[yfinance] Error fetching {ticker}: {e}")

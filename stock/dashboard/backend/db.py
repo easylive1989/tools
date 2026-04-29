@@ -51,6 +51,20 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_stock_ts
                 ON stock_snapshots(ticker, timestamp);
+
+            CREATE TABLE IF NOT EXISTS price_alerts (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                target_type   TEXT NOT NULL,
+                target        TEXT NOT NULL,
+                condition     TEXT NOT NULL,
+                threshold     REAL NOT NULL,
+                enabled       INTEGER NOT NULL DEFAULT 1,
+                triggered_at  TEXT,
+                triggered_value REAL,
+                created_at    TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_alert_target
+                ON price_alerts(target_type, target, enabled);
         """)
 
 def save_indicator(indicator: str, value: float, extra_json: str = None, timestamp: datetime = None):
@@ -109,6 +123,56 @@ def add_watched_ticker(ticker: str):
 def remove_watched_ticker(ticker: str):
     with get_connection() as conn:
         conn.execute("DELETE FROM watched_stocks WHERE ticker=?", (ticker,))
+
+def list_alerts() -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT * FROM price_alerts ORDER BY created_at DESC"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def add_alert(target_type: str, target: str, condition: str, threshold: float) -> int:
+    with get_connection() as conn:
+        cur = conn.execute(
+            "INSERT INTO price_alerts (target_type, target, condition, threshold, enabled, created_at) "
+            "VALUES (?,?,?,?,1,?)",
+            (target_type, target, condition, threshold,
+             datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
+        )
+        return cur.lastrowid
+
+
+def delete_alert(alert_id: int) -> None:
+    with get_connection() as conn:
+        conn.execute("DELETE FROM price_alerts WHERE id=?", (alert_id,))
+
+
+def set_alert_enabled(alert_id: int, enabled: bool) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE price_alerts SET enabled=?, triggered_at=NULL, triggered_value=NULL "
+            "WHERE id=?",
+            (1 if enabled else 0, alert_id),
+        )
+
+
+def get_active_alerts(target_type: str, target: str) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT * FROM price_alerts WHERE target_type=? AND target=? AND enabled=1",
+            (target_type, target),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def mark_alert_triggered(alert_id: int, value: float) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE price_alerts SET enabled=0, triggered_at=?, triggered_value=? WHERE id=?",
+            (datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), value, alert_id),
+        )
+
 
 def purge_old_data(days: int = 1095):
     cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()

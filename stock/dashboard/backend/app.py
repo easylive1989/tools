@@ -13,6 +13,10 @@ from db import (
     get_latest_stock,
     add_watched_ticker,
     remove_watched_ticker,
+    list_alerts,
+    add_alert,
+    delete_alert,
+    set_alert_enabled,
 )
 from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks
 from fetchers.fear_greed import fetch_fear_greed
@@ -24,7 +28,7 @@ app = FastAPI(title="Stock Dashboard API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://paul-learning.dev"],
-    allow_methods=["GET", "POST", "DELETE"],
+    allow_methods=["GET", "POST", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
 
@@ -119,6 +123,51 @@ def add_stock(req: AddStockRequest):
 @app.delete("/api/stocks/{ticker}")
 def delete_stock(ticker: str):
     remove_watched_ticker(ticker.upper())
+    return {"ok": True}
+
+
+class AlertRequest(BaseModel):
+    target_type: str
+    target: str
+    condition: str
+    threshold: float
+
+
+class AlertToggleRequest(BaseModel):
+    enabled: bool
+
+
+VALID_TARGET_TYPES = {"indicator", "stock"}
+VALID_CONDITIONS = {"above", "below"}
+
+
+@app.get("/api/alerts")
+def get_alerts():
+    return list_alerts()
+
+
+@app.post("/api/alerts")
+def create_alert(req: AlertRequest):
+    if req.target_type not in VALID_TARGET_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid target_type")
+    if req.condition not in VALID_CONDITIONS:
+        raise HTTPException(status_code=400, detail="Invalid condition")
+    if req.target_type == "indicator" and req.target not in INDICATOR_NAMES:
+        raise HTTPException(status_code=400, detail="Unknown indicator")
+    target = req.target.upper() if req.target_type == "stock" else req.target
+    alert_id = add_alert(req.target_type, target, req.condition, req.threshold)
+    return {"id": alert_id}
+
+
+@app.delete("/api/alerts/{alert_id}")
+def remove_alert(alert_id: int):
+    delete_alert(alert_id)
+    return {"ok": True}
+
+
+@app.patch("/api/alerts/{alert_id}")
+def toggle_alert(alert_id: int, req: AlertToggleRequest):
+    set_alert_enabled(alert_id, req.enabled)
     return {"ok": True}
 
 

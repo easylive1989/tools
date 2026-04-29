@@ -54,6 +54,23 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .add-input::placeholder { color: #94a3b8; }
 .add-btn { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
 .del-btn { background: transparent; border: 1px solid #2d3348; border-radius: 4px; padding: 3px 7px; font-size: 11px; color: #94a3b8; cursor: pointer; }
+.alerts-card { margin-top: 14px; }
+.alert-form { display: grid; grid-template-columns: 1.4fr 1.6fr 1fr 1fr auto; gap: 8px; margin-top: 12px; }
+.alert-form select, .alert-form input { background: #0f1117; border: 1px solid #2d3348; border-radius: 6px; padding: 7px 10px; color: #e2e8f0; font-size: 13px; }
+.alert-form input::placeholder { color: #94a3b8; }
+.alert-form button { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+.alert-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 4px; border-bottom: 1px solid #1a1f2e; font-size: 13px; }
+.alert-row:last-child { border-bottom: none; }
+.alert-row .meta { color: #94a3b8; font-size: 11px; }
+.alert-status { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.alert-status.on { background: rgba(74,222,128,.15); color: #4ade80; }
+.alert-status.off { background: rgba(148,163,184,.15); color: #94a3b8; }
+.alert-actions { display: flex; gap: 6px; }
+.alert-empty { padding: 12px 0; color: #94a3b8; font-size: 13px; text-align: center; }
+@media (max-width: 600px) {
+  .alert-form { grid-template-columns: 1fr 1fr; }
+  .alert-form button { grid-column: 1 / -1; }
+}
 .section-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
 /* ── 新聞 ── */
 .news-list { list-style: none; margin-top: 10px; }
@@ -261,6 +278,26 @@ body { overflow-x: hidden; }
   </div>
 </div>
 
+<!-- 價格警示 -->
+<div class="card alerts-card">
+  <div class="section-title">價格警示</div>
+  <div style="font-size:12px;color:#94a3b8;margin-top:4px">當指標或股價達到門檻時，將推送到 Discord。觸發後自動停用，可手動重新啟用。</div>
+  <div id="alert-list"></div>
+  <div class="alert-form">
+    <select id="alert-target-type">
+      <option value="indicator">指標</option>
+      <option value="stock">股票 / ETF</option>
+    </select>
+    <select id="alert-target"></select>
+    <select id="alert-condition">
+      <option value="above">大於等於</option>
+      <option value="below">小於等於</option>
+    </select>
+    <input id="alert-threshold" type="number" step="any" placeholder="門檻數值">
+    <button onclick="addAlert()">+ 新增警示</button>
+  </div>
+</div>
+
 <script>
 const API_BASE = 'https://api.paul-learning.dev';
 let currentRange = '3M';
@@ -454,6 +491,124 @@ document.getElementById('add-ticker-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') addStock();
 });
 
+const INDICATOR_LABELS = {
+  taiex: '加權指數',
+  fx: '台幣兌美金',
+  fear_greed: '恐懼與貪婪指數',
+  margin: '台股融資餘額',
+  ndc: '國發會景氣指標',
+};
+
+function alertTargetLabel(a) {
+  if (a.target_type === 'indicator') return INDICATOR_LABELS[a.target] || a.target;
+  return a.target;
+}
+
+function fmtAlertValue(v) {
+  if (v == null) return '';
+  return Number(v).toLocaleString(undefined, { maximumFractionDigits: 4 });
+}
+
+async function refreshTargetOptions() {
+  const type = document.getElementById('alert-target-type').value;
+  const select = document.getElementById('alert-target');
+  select.innerHTML = '';
+  if (type === 'indicator') {
+    Object.entries(INDICATOR_LABELS).forEach(([k, label]) => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = label;
+      select.appendChild(opt);
+    });
+  } else {
+    const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json()).catch(() => []);
+    if (!stocks.length) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '（請先在自選股新增）';
+      select.appendChild(opt);
+      return;
+    }
+    for (const s of stocks) {
+      const opt = document.createElement('option');
+      opt.value = s.ticker;
+      opt.textContent = s.name ? `${s.ticker} · ${s.name}` : s.ticker;
+      select.appendChild(opt);
+    }
+  }
+}
+
+async function loadAlerts() {
+  const alerts = await fetch(API_BASE + '/api/alerts').then(r => r.json()).catch(() => []);
+  const list = document.getElementById('alert-list');
+  if (!alerts.length) {
+    list.innerHTML = '<div class="alert-empty">尚未設定任何警示</div>';
+    return;
+  }
+  list.innerHTML = alerts.map(a => {
+    const condText = a.condition === 'above' ? '≥' : '≤';
+    const enabled = a.enabled === 1 || a.enabled === true;
+    const statusClass = enabled ? 'on' : 'off';
+    const statusText = enabled ? '監控中' : '已停用';
+    let metaText = `建立於 ${a.created_at?.slice(0,10) ?? ''}`;
+    if (a.triggered_at) {
+      metaText += ` · 已於 ${a.triggered_at.slice(0,10)} 觸發 (${fmtAlertValue(a.triggered_value)})`;
+    }
+    return `
+      <div class="alert-row">
+        <div>
+          <div><strong>${alertTargetLabel(a)}</strong> ${condText} <strong>${fmtAlertValue(a.threshold)}</strong>
+            <span class="alert-status ${statusClass}">${statusText}</span>
+          </div>
+          <div class="meta">${metaText}</div>
+        </div>
+        <div class="alert-actions">
+          <button class="del-btn" onclick="toggleAlert(${a.id}, ${!enabled})">${enabled ? '停用' : '啟用'}</button>
+          <button class="del-btn" onclick="deleteAlert(${a.id})">✕</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function addAlert() {
+  const target_type = document.getElementById('alert-target-type').value;
+  const target = document.getElementById('alert-target').value;
+  const condition = document.getElementById('alert-condition').value;
+  const thresholdRaw = document.getElementById('alert-threshold').value;
+  if (!target || thresholdRaw === '') {
+    alert('請選擇目標並輸入門檻數值');
+    return;
+  }
+  const r = await fetch(API_BASE + '/api/alerts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target_type, target, condition, threshold: Number(thresholdRaw) }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    alert('建立失敗：' + (err.detail || r.status));
+    return;
+  }
+  document.getElementById('alert-threshold').value = '';
+  loadAlerts();
+}
+
+async function deleteAlert(id) {
+  await fetch(API_BASE + '/api/alerts/' + id, { method: 'DELETE' });
+  loadAlerts();
+}
+
+async function toggleAlert(id, enabled) {
+  await fetch(API_BASE + '/api/alerts/' + id, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enabled }),
+  });
+  loadAlerts();
+}
+
+document.getElementById('alert-target-type').addEventListener('change', refreshTargetOptions);
+
 async function loadNews() {
   const items = await fetch(API_BASE + '/api/news?limit=15').then(r => r.json()).catch(() => []);
   const list = document.getElementById('news-list');
@@ -473,10 +628,13 @@ async function loadNews() {
   await loadDashboard();
   await loadHistories();
   await loadStocks();
+  await refreshTargetOptions();
+  await loadAlerts();
   await loadNews();
   setInterval(async () => {
     await loadDashboard();
     await loadStocks();
+    await loadAlerts();
   }, 60_000);
   setInterval(loadNews, 30 * 60_000);
 })();
