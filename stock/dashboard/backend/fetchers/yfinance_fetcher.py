@@ -1,4 +1,5 @@
 import json
+import math
 import yfinance as yf
 import sys
 import os
@@ -7,15 +8,25 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator, save_stock_snapshot, get_watched_tickers
 
 
+def _is_valid(v) -> bool:
+    return v is not None and not math.isnan(v)
+
+
 def _fetch_price(ticker_obj) -> dict | None:
-    """Fetch price data for a Ticker instance."""
-    hist = ticker_obj.history(period="5d")
+    """Fetch price data for a Ticker instance.
+
+    yfinance 對某些台股盤前可能回傳 NaN，所以從最新往前找第一筆有效的 Close。
+    """
+    # 拉長一點區間以便處理連假/停牌
+    hist = ticker_obj.history(period="10d")
     if hist.empty:
         return None
-    latest = hist.iloc[-1]
-    prev = hist.iloc[-2] if len(hist) >= 2 else latest
-    price = float(latest["Close"])
-    prev_close = float(prev["Close"])
+    closes = [float(c) for c in hist["Close"].tolist()]
+    valid = [c for c in closes if _is_valid(c)]
+    if len(valid) < 1:
+        return None
+    price = valid[-1]
+    prev_close = valid[-2] if len(valid) >= 2 else price
     change = price - prev_close
     change_pct = (change / prev_close * 100) if prev_close else 0.0
     currency = ""
