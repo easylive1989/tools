@@ -5,7 +5,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(dirname "$(dirname "$SCRIPT_DIR")")"   # repo root
 
-VPS=root@178.104.240.236
+if [ -z "$VPS_HOST" ]; then
+  echo "Error: VPS_HOST 環境變數未設定（請在 ~/.zshrc 中 export VPS_HOST=...）" >&2
+  exit 1
+fi
+VPS=root@$VPS_HOST
 REMOTE=/opt/stock-dashboard
 
 echo "==> Syncing code to VPS..."

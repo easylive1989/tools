@@ -637,7 +637,7 @@ git commit -m "feat(sharing): add Discord bot main entry point"
 #!/usr/bin/env bash
 set -e
 
-VPS=root@178.104.240.236
+VPS=root@$VPS_HOST
 
 echo "==> 同步程式碼到 VPS..."
 rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
@@ -696,7 +696,7 @@ Expected: `syntax OK`
 SSH 進 VPS 手動建立（含真實值）：
 
 ```bash
-ssh root@178.104.240.236
+ssh root@$VPS_HOST
 cat > /etc/sharing-bot.env << 'EOF'
 CLAW_DISCORD_TOKEN=你的token
 SHARING_CHANNEL_ID=你的頻道ID
@@ -746,7 +746,7 @@ Expected：bot 加 🔖 reaction，Notion 新增一筆，name 為第一行文字
 - [ ] **Step 3: 查看 VPS logs 確認無 exception**
 
 ```bash
-ssh root@178.104.240.236 "journalctl -u sharing-bot -n 50 --no-pager"
+ssh root@$VPS_HOST "journalctl -u sharing-bot -n 50 --no-pager"
 ```
 
 Expected: 看到兩筆 `saved "..." (confidence=...)` log，無 ERROR 行。

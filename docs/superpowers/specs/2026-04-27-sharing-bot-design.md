@@ -93,7 +93,7 @@ Discord 訊息（文字 / URL / 圖片說明）
 ```bash
 #!/usr/bin/env bash
 set -e
-VPS=root@178.104.240.236
+VPS=root@$VPS_HOST
 # 同步 sharing/ 原始碼
 rsync -av --exclude='.venv' --exclude='__pycache__' sharing/ $VPS:/opt/sharing/
 # 同步 common/ 工具（notion.py、gemini.py）

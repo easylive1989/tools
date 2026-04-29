@@ -5,7 +5,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$(dirname "$SCRIPT_DIR")"
 
-VPS=root@178.104.240.236
+if [ -z "$VPS_HOST" ]; then
+  echo "Error: VPS_HOST 環境變數未設定（請在 ~/.zshrc 中 export VPS_HOST=...）" >&2
+  exit 1
+fi
+VPS=root@$VPS_HOST
 
 echo "==> 同步程式碼到 VPS..."
 rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
