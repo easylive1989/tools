@@ -14,6 +14,7 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator
+from alerts import check_alerts
 
 TWSE_CSV_BASE = "https://www.twse.com.tw/rwd/zh/marginTrading/MI_MARGN?response=csv&selectType=MS"
 HEADERS = {
@@ -81,4 +82,5 @@ def fetch_margin(date_str: str | None = None):
         ts = datetime(int(date_str[:4]), int(date_str[4:6]), int(date_str[6:8]))
 
     save_indicator("margin", value, json.dumps({"unit": "億元"}), timestamp=ts)
+    check_alerts("indicator", "margin", value)
     print(f"[margin] {date_str or '今日'} 融資餘額 = {value} 億元")

@@ -72,3 +72,59 @@ def test_add_and_delete_stock():
 def test_refresh_unknown_indicator_returns_404():
     r = client.post("/api/refresh/bogus")
     assert r.status_code == 404
+
+
+def test_alert_endpoints_full_flow():
+    r = client.post("/api/alerts", json={
+        "target_type": "indicator",
+        "target": "taiex",
+        "condition": "above",
+        "threshold": 22000,
+    })
+    assert r.status_code == 200
+    aid = r.json()["id"]
+
+    r = client.get("/api/alerts")
+    assert r.status_code == 200
+    items = r.json()
+    assert any(a["id"] == aid and a["target"] == "taiex" for a in items)
+
+    r = client.patch(f"/api/alerts/{aid}", json={"enabled": False})
+    assert r.status_code == 200
+    items = client.get("/api/alerts").json()
+    assert next(a for a in items if a["id"] == aid)["enabled"] == 0
+
+    r = client.delete(f"/api/alerts/{aid}")
+    assert r.status_code == 200
+    items = client.get("/api/alerts").json()
+    assert all(a["id"] != aid for a in items)
+
+
+def test_create_stock_alert_normalises_ticker():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock",
+        "target": "2330.tw",
+        "condition": "below",
+        "threshold": 800,
+    })
+    assert r.status_code == 200
+    items = client.get("/api/alerts").json()
+    aid = r.json()["id"]
+    assert next(a for a in items if a["id"] == aid)["target"] == "2330.TW"
+
+
+def test_create_alert_rejects_invalid_input():
+    r = client.post("/api/alerts", json={
+        "target_type": "weather", "target": "rain", "condition": "above", "threshold": 1,
+    })
+    assert r.status_code == 400
+
+    r = client.post("/api/alerts", json={
+        "target_type": "indicator", "target": "taiex", "condition": "sideways", "threshold": 1,
+    })
+    assert r.status_code == 400
+
+    r = client.post("/api/alerts", json={
+        "target_type": "indicator", "target": "unknown_ind", "condition": "above", "threshold": 1,
+    })
+    assert r.status_code == 400

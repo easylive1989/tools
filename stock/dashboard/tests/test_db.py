@@ -52,3 +52,32 @@ def test_save_and_get_stock_snapshot():
     row = db.get_latest_stock("0050.TW")
     assert row["price"] == 198.35
     assert row["name"] == "元大台灣50"
+
+
+def test_alert_crud_and_lifecycle():
+    db.init_db()
+    aid = db.add_alert("indicator", "taiex", "above", 22000.0)
+    assert aid > 0
+
+    alerts = db.list_alerts()
+    assert len(alerts) == 1
+    assert alerts[0]["target"] == "taiex"
+    assert alerts[0]["enabled"] == 1
+
+    active = db.get_active_alerts("indicator", "taiex")
+    assert len(active) == 1
+
+    db.mark_alert_triggered(aid, 22150.5)
+    after = db.list_alerts()[0]
+    assert after["enabled"] == 0
+    assert after["triggered_value"] == 22150.5
+    assert after["triggered_at"] is not None
+    assert db.get_active_alerts("indicator", "taiex") == []
+
+    db.set_alert_enabled(aid, True)
+    re_armed = db.list_alerts()[0]
+    assert re_armed["enabled"] == 1
+    assert re_armed["triggered_at"] is None
+
+    db.delete_alert(aid)
+    assert db.list_alerts() == []
