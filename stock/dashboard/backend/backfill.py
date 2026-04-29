@@ -137,20 +137,22 @@ def backfill_fear_greed():
     print(f"  Inserted {inserted} rows for fear_greed")
 
 
-def backfill_margin(days: int = 365):
-    """逐日查詢 TWSE CSV 補歷史融資餘額（只查交易日，跳過無資料的日期）。"""
+def backfill_margin(days: int = 365, delay: float = 2.0):
+    """逐日查詢 TWSE CSV 補歷史融資餘額（加入延遲避免速率限制）。"""
+    import time
     from fetchers.margin import fetch_margin
-    print(f"[backfill] margin 近 {days} 天 …")
+    print(f"[backfill] margin 近 {days} 天（delay={delay}s）…")
     today = datetime.now()
-    inserted = 0
+    attempted = 0
     for i in range(days, 0, -1):
         dt = today - timedelta(days=i)
-        if dt.weekday() >= 5:  # 跳過週末
+        if dt.weekday() >= 5:
             continue
         date_str = dt.strftime("%Y%m%d")
         fetch_margin(date_str)
-        inserted += 1
-    print(f"  嘗試查詢 {inserted} 個交易日（有資料才寫入）")
+        attempted += 1
+        time.sleep(delay)
+    print(f"  嘗試查詢 {attempted} 個交易日")
 
 
 if __name__ == "__main__":

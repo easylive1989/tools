@@ -38,20 +38,20 @@ def _parse_margin_csv(text: str) -> float | None:
 
 
 def _fetch_csv(url: str) -> str | None:
-    # 先試 requests
+    # cloudscraper 優先（能繞過 TWSE 的 IP 封鎖）
     try:
-        r = requests.get(url, headers=HEADERS, timeout=15, allow_redirects=True)
+        import cloudscraper
+        scraper = cloudscraper.create_scraper()
+        r = scraper.get(url, headers={"User-Agent": HEADERS["User-Agent"]}, timeout=20)
         r.encoding = "ms950"
         if "融資金額" in r.text:
             return r.text
     except Exception:
         pass
 
-    # 再試 cloudscraper
+    # fallback: requests
     try:
-        import cloudscraper
-        scraper = cloudscraper.create_scraper()
-        r = scraper.get(url, headers=HEADERS, timeout=15)
+        r = requests.get(url, headers=HEADERS, timeout=15, allow_redirects=True)
         r.encoding = "ms950"
         if "融資金額" in r.text:
             return r.text
