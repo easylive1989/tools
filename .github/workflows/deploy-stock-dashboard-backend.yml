@@ -42,6 +42,7 @@ jobs:
         run: |
           ssh root@${{ secrets.VPS_HOST }} "cat > /opt/stock-dashboard/backend/.env <<'EOF'
           DISCORD_STOCK_WEBHOOK_URL=${{ secrets.DISCORD_STOCK_WEBHOOK_URL }}
+          FINMIND_TOKEN=${{ secrets.FINMIND_TOKEN }}
           EOF
           chmod 600 /opt/stock-dashboard/backend/.env"
 
