@@ -217,6 +217,36 @@ actor GeminiRunner {
 
     func translate(id: UUID, text: String) async -> String {
         let prompt = "\(SYSTEM_PROMPT)\n\n翻譯：\(text)"
+        return await run(id: id, prompt: prompt)
+    }
+
+    func explainWord(id: UUID, word: String) async -> String {
+        let prompt = """
+        你是英文單字解析助手。針對以下單字提供深入的繁體中文解析，使用 Markdown 標題格式輸出，依下列章節組織內容（每個章節都要有，內容務求精準實用）：
+
+        ## 中文意思與詞性
+        列出主要詞性與對應的中文意思。
+
+        ## 常見用法／搭配詞
+        列出常見的搭配詞（collocations）與用法說明。
+
+        ## 例句
+        提供 2-3 個英中對照的例句。
+
+        ## 同義／反義字
+        列出主要的同義字與反義字。
+
+        ## 易混淆字辨析
+        列出與此字容易混淆的字並說明差異。
+
+        僅輸出 Markdown 內容，不要加任何前言、結語或程式碼圍欄。
+
+        單字：\(word)
+        """
+        return await run(id: id, prompt: prompt)
+    }
+
+    private func run(id: UUID, prompt: String) async -> String {
         var env = ProcessInfo.processInfo.environment
         env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (env["PATH"] ?? "")
 
@@ -447,6 +477,7 @@ struct ContentView: View {
     @StateObject private var store = VocabularyStore()
     @State private var practiceWord: String? = nil
     @State private var vocabPopoverShown: Bool = false
+    @FocusState private var inputFocused: Bool
 
     private var activeTab: TranslationTab? {
         guard let id = activeTabID else { return nil }
@@ -466,17 +497,29 @@ struct ContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // 第一排：輸入框 + 翻譯按鈕 + 📝
+            // 第一排：輸入框 + 翻譯按鈕 + 🔖
             HStack(spacing: 8) {
-                TextEditor(text: $inputText)
-                    .font(.system(size: 14))
-                    .frame(height: 28)
-                    .scrollContentBackground(.hidden)
-                    .background(Color(nsColor: .textBackgroundColor))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                    )
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $inputText)
+                        .font(.system(size: 14))
+                        .frame(height: 28)
+                        .scrollContentBackground(.hidden)
+                        .background(Color(nsColor: .textBackgroundColor))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                        )
+                        .focused($inputFocused)
+
+                    if inputText.isEmpty, !inputFocused, let hint = practiceWord {
+                        Text(hint)
+                            .font(.system(size: 14))
+                            .foregroundColor(Color(nsColor: .placeholderTextColor))
+                            .padding(.leading, 5)
+                            .padding(.top, 4)
+                            .allowsHitTesting(false)
+                    }
+                }
 
                 Button(action: translate) {
                     Text("翻譯  ⌘↩")
@@ -491,19 +534,16 @@ struct ContentView: View {
                 .keyboardShortcut(.return, modifiers: .command)
 
                 Button(action: { vocabPopoverShown.toggle() }) {
-                    Text(practiceWord ?? "📝")
+                    Text("🔖")
                         .font(.system(size: 14))
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .frame(maxWidth: 140, alignment: .center)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .cornerRadius(6)
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
-                .help(practiceWord ?? "")
+                .help("單字庫")
                 .popover(isPresented: $vocabPopoverShown) {
                     VocabularyPopover(store: store)
                 }
@@ -598,7 +638,24 @@ struct ContentView: View {
 
     private func translate() {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        if text.isEmpty {
+            guard let word = practiceWord else { return }
+            let ordinal = (tabs.map(\.ordinal).max() ?? 0) + 1
+            let tab = TranslationTab(ordinal: ordinal, source: word)
+            tabs.append(tab)
+            activeTabID = tab.id
+            practiceWord = store.words.randomElement()
+
+            Task {
+                let result = await runner.explainWord(id: tab.id, word: word)
+                if let idx = tabs.firstIndex(where: { $0.id == tab.id }) {
+                    tabs[idx].result = result
+                    tabs[idx].isTranslating = false
+                }
+            }
+            return
+        }
+
         let ordinal = (tabs.map(\.ordinal).max() ?? 0) + 1
         let tab = TranslationTab(ordinal: ordinal, source: text)
         tabs.append(tab)
