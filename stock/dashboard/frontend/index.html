@@ -257,6 +257,48 @@ body { overflow-x: hidden; }
     <div class="card-sub" id="short_margin_ratio-sub"></div>
   </div>
 
+  <!-- 外資淨買超 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">外資淨買超</span>
+      <button class="refresh-btn" onclick="refreshIndicator('chip_total')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="total_foreign_net-value">—</div>
+      <span class="badge" id="total_foreign_net-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-total_foreign_net"></canvas></div>
+    <div class="card-sub" id="total_foreign_net-sub"></div>
+  </div>
+
+  <!-- 投信淨買超 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">投信淨買超</span>
+      <button class="refresh-btn" onclick="refreshIndicator('chip_total')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="total_trust_net-value">—</div>
+      <span class="badge" id="total_trust_net-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-total_trust_net"></canvas></div>
+    <div class="card-sub" id="total_trust_net-sub"></div>
+  </div>
+
+  <!-- 自營商淨買超 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">自營商淨買超</span>
+      <button class="refresh-btn" onclick="refreshIndicator('chip_total')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="total_dealer_net-value">—</div>
+      <span class="badge" id="total_dealer_net-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-total_dealer_net"></canvas></div>
+    <div class="card-sub" id="total_dealer_net-sub"></div>
+  </div>
+
   <!-- 國發會景氣指標 -->
   <div class="card">
     <div class="card-header">
@@ -455,6 +497,16 @@ async function loadDashboard() {
     document.getElementById('short_margin_ratio-sub').textContent = '更新 ' + fmtDate(data.short_margin_ratio.timestamp);
   }
 
+  for (const k of ['total_foreign_net', 'total_trust_net', 'total_dealer_net']) {
+    if (data[k]) {
+      const v = data[k].value;
+      const el = document.getElementById(k + '-value');
+      el.textContent = (v >= 0 ? '+' : '') + v.toFixed(2) + ' 億';
+      el.className = 'card-value ' + (v >= 0 ? 'up' : 'down');
+      document.getElementById(k + '-sub').textContent = '更新 ' + fmtDate(data[k].timestamp);
+    }
+  }
+
   if (data.ndc) {
     const score = data.ndc.value;
     const light = data.ndc.extra?.light ?? '';
@@ -506,13 +558,16 @@ function fgClass(v) {
 async function loadHistories() {
   const indicators = ['taiex', 'tw_volume', 'us_volume', 'fear_greed',
                       'margin_balance', 'short_balance', 'short_margin_ratio',
+                      'total_foreign_net', 'total_trust_net', 'total_dealer_net',
                       'ndc', 'fx'];
   const units  = { taiex: '點', fear_greed: '指數', ndc: '分', fx: 'TWD',
                    tw_volume: '億元', us_volume: '億股',
-                   margin_balance: '億元', short_balance: '張', short_margin_ratio: '%' };
+                   margin_balance: '億元', short_balance: '張', short_margin_ratio: '%',
+                   total_foreign_net: '億元', total_trust_net: '億元', total_dealer_net: '億元' };
   const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', ndc: '#fbbf24', fx: '#a78bfa',
                    tw_volume: '#f97316', us_volume: '#ec4899',
-                   margin_balance: '#60a5fa', short_balance: '#fb923c', short_margin_ratio: '#a3a3a3' };
+                   margin_balance: '#60a5fa', short_balance: '#fb923c', short_margin_ratio: '#a3a3a3',
+                   total_foreign_net: '#22d3ee', total_trust_net: '#a78bfa', total_dealer_net: '#facc15' };
 
   for (const ind of indicators) {
     if (!charts[ind]) makeChart(ind, colors[ind], units[ind]);
@@ -586,6 +641,9 @@ const INDICATOR_LABELS = {
   margin_balance:      '台股融資餘額',
   short_balance:       '台股融券餘額',
   short_margin_ratio:  '台股券資比',
+  total_foreign_net:   '外資淨買超',
+  total_trust_net:     '投信淨買超',
+  total_dealer_net:    '自營商淨買超',
   ndc:                 '國發會景氣指標',
 };
 

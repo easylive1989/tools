@@ -54,8 +54,12 @@ FETCHERS: dict[str, Callable] = {
     "us_volume":  fetch_us_volume,
 }
 
-INDICATOR_NAMES = ["taiex", "fx", "fear_greed", "margin_balance", "short_balance",
-                   "short_margin_ratio", "ndc", "tw_volume", "us_volume"]
+INDICATOR_NAMES = [
+    "taiex", "fx", "fear_greed",
+    "margin_balance", "short_balance", "short_margin_ratio",
+    "total_foreign_net", "total_trust_net", "total_dealer_net",
+    "ndc", "tw_volume", "us_volume",
+]
 
 
 @app.on_event("startup")

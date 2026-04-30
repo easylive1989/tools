@@ -73,6 +73,40 @@ def parse_total_margin(rows: list[dict]) -> dict[str, dict[str, float]]:
     return result
 
 
+def parse_total_institutional(rows: list[dict]) -> dict[str, dict[str, float]]:
+    """Long-format → {date: {total_foreign_net, total_trust_net, total_dealer_net}}.
+
+    name 對應:
+    - 外資  = Foreign_Investor + Foreign_Dealer_Self
+    - 投信  = Investment_Trust
+    - 自營商 = Dealer_self + Dealer_Hedging
+    淨買超 = (buy - sell) 換算億元。
+    """
+    by_day: dict[str, dict[str, dict]] = defaultdict(dict)
+    for r in rows:
+        d, n = r.get("date"), r.get("name")
+        if not d or not n:
+            continue
+        by_day[d][n] = r
+
+    def _net(rec: dict | None) -> float:
+        if not rec:
+            return 0
+        return float(rec.get("buy", 0) or 0) - float(rec.get("sell", 0) or 0)
+
+    result: dict[str, dict[str, float]] = {}
+    for d, names in by_day.items():
+        foreign = _net(names.get("Foreign_Investor")) + _net(names.get("Foreign_Dealer_Self"))
+        trust   = _net(names.get("Investment_Trust"))
+        dealer  = _net(names.get("Dealer_self")) + _net(names.get("Dealer_Hedging"))
+        result[d] = {
+            "total_foreign_net": round(foreign / 1e8, 3),
+            "total_trust_net":   round(trust   / 1e8, 3),
+            "total_dealer_net":  round(dealer  / 1e8, 3),
+        }
+    return result
+
+
 def fetch_chip_total(start_date: str | None = None, end_date: str | None = None) -> None:
     """每日 cron 用:預設抓最近 5 天(涵蓋週末跳天),寫入 indicator_snapshots。
 
@@ -87,22 +121,37 @@ def fetch_chip_total(start_date: str | None = None, end_date: str | None = None)
         raw = _request("TaiwanStockTotalMarginPurchaseShortSale", start_date, end_date)
     except Exception as e:
         print(f"[chip_total] margin fetch error: {e}")
-        return
-    margin_by_day = parse_total_margin(raw)
+    else:
+        margin_by_day = parse_total_margin(raw)
+        for d, vals in sorted(margin_by_day.items()):
+            ts = datetime.strptime(d, "%Y-%m-%d")
+            for key in ("margin_balance", "short_balance", "short_margin_ratio"):
+                save_indicator(key, vals[key],
+                               json.dumps({"date": d}), timestamp=ts)
+        if margin_by_day:
+            latest = max(margin_by_day.keys())
+            for key in ("margin_balance", "short_balance", "short_margin_ratio"):
+                check_alerts("indicator", key, margin_by_day[latest][key])
+            print(f"[chip_total] margin {latest}: balance={margin_by_day[latest]['margin_balance']} 億, "
+                  f"short={margin_by_day[latest]['short_balance']:.0f} 張, "
+                  f"ratio={margin_by_day[latest]['short_margin_ratio']:.2f}%")
 
-    for d, vals in sorted(margin_by_day.items()):
+    # --- 整體三大法人 ---
+    try:
+        raw = _request("TaiwanStockTotalInstitutionalInvestors", start_date, end_date)
+    except Exception as e:
+        print(f"[chip_total] institutional fetch error: {e}")
+        return
+    inst_by_day = parse_total_institutional(raw)
+    for d, vals in sorted(inst_by_day.items()):
         ts = datetime.strptime(d, "%Y-%m-%d")
-        save_indicator("margin_balance",     vals["margin_balance"],
-                       json.dumps({"unit": "億元", "date": d}), timestamp=ts)
-        save_indicator("short_balance",      vals["short_balance"],
-                       json.dumps({"unit": "張", "date": d}), timestamp=ts)
-        save_indicator("short_margin_ratio", vals["short_margin_ratio"],
-                       json.dumps({"unit": "%", "date": d}), timestamp=ts)
-    if margin_by_day:
-        latest = max(margin_by_day.keys())
-        check_alerts("indicator", "margin_balance",     margin_by_day[latest]["margin_balance"])
-        check_alerts("indicator", "short_balance",      margin_by_day[latest]["short_balance"])
-        check_alerts("indicator", "short_margin_ratio", margin_by_day[latest]["short_margin_ratio"])
-        print(f"[chip_total] margin {latest}: balance={margin_by_day[latest]['margin_balance']} 億, "
-              f"short={margin_by_day[latest]['short_balance']:.0f} 張, "
-              f"ratio={margin_by_day[latest]['short_margin_ratio']:.2f}%")
+        for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
+            save_indicator(key, vals[key],
+                           json.dumps({"unit": "億元", "date": d}), timestamp=ts)
+    if inst_by_day:
+        latest = max(inst_by_day.keys())
+        for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
+            check_alerts("indicator", key, inst_by_day[latest][key])
+        print(f"[chip_total] inst {latest}: foreign={inst_by_day[latest]['total_foreign_net']} 億, "
+              f"trust={inst_by_day[latest]['total_trust_net']} 億, "
+              f"dealer={inst_by_day[latest]['total_dealer_net']} 億")

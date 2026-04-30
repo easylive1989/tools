@@ -23,6 +23,9 @@ INDICATOR_LABELS = {
     "margin_balance":     "台股融資餘額",
     "short_balance":      "台股融券餘額",
     "short_margin_ratio": "台股券資比",
+    "total_foreign_net":  "外資淨買超",
+    "total_trust_net":    "投信淨買超",
+    "total_dealer_net":   "自營商淨買超",
     "ndc":                "國發會景氣指標",
 }
 
@@ -33,6 +36,9 @@ INDICATOR_UNITS = {
     "margin_balance":     "億元",
     "short_balance":      "張",
     "short_margin_ratio": "%",
+    "total_foreign_net":  "億元",
+    "total_trust_net":    "億元",
+    "total_dealer_net":   "億元",
     "ndc":                "分",
 }
 
