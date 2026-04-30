@@ -414,7 +414,6 @@ async function loadDetail() {
     makeVolumeChart(data.dates, data.candles);
     makeRsiChart(data.dates, data.indicators);
     makeMacdChart(data.dates, data.indicators);
-    loadBrokers();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }

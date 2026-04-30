@@ -10,27 +10,17 @@ echo 'FOO=bar' >> /opt/stock-dashboard/backend/.env
 systemctl restart stock-dashboard
 ```
 
-## FinMind Token（券商分點功能用）
+## 券商分點功能（已停用）
 
-個股詳細頁的「前五大買超券商」資料來自 FinMind 的 `TaiwanStockTradingDailyReport`。
+個股詳細頁的「前五大買超券商」原本接 FinMind 的 `TaiwanStockTradingDailyReport`，
+但該 dataset 已改為 Sponsor 會員專屬（free / register 等級會收到 400 「Your level is register」），
+因此目前功能停用：
 
-- 不設 token：免費，**每小時 300 次** request
-- 設 token：免費註冊，**每小時 600 次** request
+- 前端 `stock.html` 不再呼叫 `loadBrokers()`，券商卡片不會顯示
+- 後端 `/api/stocks/{ticker}/brokers` 短路回空 (`ok: false, top_brokers: []`)
+- `fetchers/broker.py`、`db.py` 的 broker 函式、`broker_daily` table 全部保留
+- VPS `.env` 中的 `FINMIND_TOKEN` 也保留
 
-如果 watchlist 股票數 × 每天訪問次數會超過免費配額，建議設 token：
-
-1. 到 <https://finmindtrade.com/> 註冊帳號並驗證信箱
-2. 登入後在「會員中心」取得 API Token
-3. 寫入 VPS 的 .env：
-   ```bash
-   ssh root@$VPS_HOST
-   echo 'FINMIND_TOKEN=你的token' >> /opt/stock-dashboard/backend/.env
-   systemctl restart stock-dashboard
-   ```
-4. 確認服務正常：
-   ```bash
-   systemctl status stock-dashboard --no-pager
-   curl -s https://api.paul-learning.dev/api/stocks/2330.TW/brokers?days=20 | jq .as_of
-   ```
-
-未設 token 時功能仍可運作，只是 rate limit 較緊。
+未來要恢復功能：升級 FinMind Sponsor → 改 `fetchers/broker.py` 為「逐日呼叫」
+（dataset 規定 single day per request）→ 還原 `app.py` 的 endpoint 實作 →
+還原 `stock.html` 的 `loadBrokers()` 呼叫。

@@ -133,93 +133,14 @@ def delete_stock(ticker: str):
 
 @app.get("/api/stocks/{ticker}/brokers")
 def stock_brokers(ticker: str, days: int = 20, top: int = 5):
-    """前 N 大買超券商，含持續買入天數與買進均價。
-
-    days: 統計期間（交易日數，會以日曆天 1.5 倍換算 fetch 視窗）
-    top:  回傳前幾大買超券商
-    """
-    ticker = ticker.upper()
-    if to_finmind_id(ticker) is None:
-        raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
-    if days < 1 or days > 60:
-        raise HTTPException(status_code=400, detail="days must be 1..60")
-    if top < 1 or top > 20:
-        raise HTTPException(status_code=400, detail="top must be 1..20")
-
-    fetched = fetch_broker_daily(ticker)
-    # 用日曆日換算合理 fetch 視窗 (約 1.5 倍交易日數)
-    since_date = (datetime.now(timezone.utc).date() - timedelta(days=int(days * 1.6) + 5)).isoformat()
-    rows = get_broker_daily_range(ticker, since_date)
-    if not rows:
-        return {
-            "ticker":    ticker,
-            "days":      days,
-            "as_of":     None,
-            "ok":        fetched,
-            "top_brokers": [],
-        }
-
-    # 篩到「最近 N 個出現過的交易日」
-    distinct_dates = sorted({r["date"] for r in rows})
-    window_dates = distinct_dates[-days:]
-    window_set = set(window_dates)
-    rows_in_window = [r for r in rows if r["date"] in window_set]
-
-    # 聚合每個券商
-    by_broker: dict[str, dict] = {}
-    for r in rows_in_window:
-        bid = r["securities_trader_id"]
-        agg = by_broker.setdefault(bid, {
-            "id": bid,
-            "name": r["securities_trader"] or bid,
-            "buy_volume": 0.0,
-            "sell_volume": 0.0,
-            "buy_amount": 0.0,
-            "daily_net": {},
-        })
-        if not agg["name"] and r["securities_trader"]:
-            agg["name"] = r["securities_trader"]
-        agg["buy_volume"] += r["buy_volume"] or 0
-        agg["sell_volume"] += r["sell_volume"] or 0
-        agg["buy_amount"] += r["buy_amount"] or 0
-        agg["daily_net"][r["date"]] = (r["buy_volume"] or 0) - (r["sell_volume"] or 0)
-
-    # 排序：依淨買超量
-    ranked = sorted(
-        by_broker.values(),
-        key=lambda b: b["buy_volume"] - b["sell_volume"],
-        reverse=True,
-    )[:top]
-
-    # 每家計算持續買入天數（從最新交易日往前數）
-    result = []
-    reversed_dates = list(reversed(window_dates))
-    for b in ranked:
-        net_buy = b["buy_volume"] - b["sell_volume"]
-        avg_buy_price = (b["buy_amount"] / b["buy_volume"]) if b["buy_volume"] > 0 else None
-        streak = 0
-        for d in reversed_dates:
-            daily = b["daily_net"].get(d, 0)
-            if daily > 0:
-                streak += 1
-            else:
-                break
-        result.append({
-            "id":                  b["id"],
-            "name":                b["name"],
-            "net_buy_volume":      round(net_buy, 2),
-            "buy_volume":          round(b["buy_volume"], 2),
-            "sell_volume":         round(b["sell_volume"], 2),
-            "avg_buy_price":       round(avg_buy_price, 4) if avg_buy_price is not None else None,
-            "consecutive_buy_days": streak,
-        })
-
+    # 已停用：FinMind TaiwanStockTradingDailyReport 改為 Sponsor 限定 (見 README)。
+    # 程式碼保留以便未來重啟功能。
     return {
-        "ticker":      ticker,
+        "ticker":      ticker.upper(),
         "days":        days,
-        "as_of":       window_dates[-1] if window_dates else None,
-        "ok":          True,
-        "top_brokers": result,
+        "as_of":       None,
+        "ok":          False,
+        "top_brokers": [],
     }
 
 
