@@ -32,6 +32,13 @@ a:hover { text-decoration: underline; }
 .badge-down { background: rgba(248,113,113,.15); color: #f87171; }
 .up { color: #4ade80; } .down { color: #f87171; }
 .status { color: #94a3b8; font-size: 13px; padding: 16px 0; }
+.broker-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.broker-table th, .broker-table td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #2d3348; }
+.broker-table th { color: #94a3b8; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.broker-table td.broker-name, .broker-table th.broker-name { text-align: left; color: #e2e8f0; }
+.broker-table tbody tr:last-child td { border-bottom: none; }
+.broker-table .streak { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(74,222,128,.12); color: #4ade80; font-weight: 600; font-size: 12px; }
+.broker-empty { color: #94a3b8; font-size: 13px; padding: 8px 0; }
 @media (max-width: 600px) {
   body { padding: 12px; }
   .price { font-size: 24px; }
@@ -103,6 +110,14 @@ a:hover { text-decoration: underline; }
       <span class="card-hint">柱狀為 MACD − Signal</span>
     </div>
     <div class="chart-wrap short"><canvas id="chart-macd"></canvas></div>
+  </div>
+
+  <div class="card" id="broker-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">前五大買超券商</span>
+      <span class="card-hint" id="broker-hint">近 20 個交易日</span>
+    </div>
+    <div id="broker-body"></div>
   </div>
 </div>
 
@@ -315,6 +330,64 @@ function renderHeader(data) {
   }
 }
 
+function isTwTicker(t) {
+  return /\.TWO?$/i.test(t);
+}
+
+async function loadBrokers() {
+  const card = document.getElementById('broker-card');
+  if (!isTwTicker(TICKER)) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  const body = document.getElementById('broker-body');
+  body.innerHTML = '<div class="broker-empty">載入中…</div>';
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/brokers?days=20&top=5`);
+    if (!r.ok) {
+      body.innerHTML = `<div class="broker-empty">無法載入券商資料 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    const hint = document.getElementById('broker-hint');
+    hint.textContent = data.as_of ? `近 ${data.days} 個交易日 · 截至 ${data.as_of}` : `近 ${data.days} 個交易日`;
+    if (!data.top_brokers || !data.top_brokers.length) {
+      body.innerHTML = '<div class="broker-empty">尚無券商資料（資料來源：FinMind，當日資料盤後更新）。</div>';
+      return;
+    }
+    const fmtNum = n => (n == null) ? '—' : Math.round(n).toLocaleString();
+    const fmtPrice = n => (n == null) ? '—' : n.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    const rows = data.top_brokers.map((b, i) => `
+      <tr>
+        <td class="broker-name">${i + 1}. ${b.name || b.id}</td>
+        <td class="up">${fmtNum(b.net_buy_volume)}</td>
+        <td>${fmtNum(b.buy_volume)}</td>
+        <td>${fmtNum(b.sell_volume)}</td>
+        <td>${fmtPrice(b.avg_buy_price)}</td>
+        <td><span class="streak">${b.consecutive_buy_days} 天</span></td>
+      </tr>
+    `).join('');
+    body.innerHTML = `
+      <table class="broker-table">
+        <thead>
+          <tr>
+            <th class="broker-name">券商</th>
+            <th>淨買超 (張)</th>
+            <th>買進 (張)</th>
+            <th>賣出 (張)</th>
+            <th>買進均價</th>
+            <th>持續買入</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    body.innerHTML = `<div class="broker-empty">載入失敗：${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -341,6 +414,7 @@ async function loadDetail() {
     makeVolumeChart(data.dates, data.candles);
     makeRsiChart(data.dates, data.indicators);
     makeMacdChart(data.dates, data.indicators);
+    loadBrokers();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
