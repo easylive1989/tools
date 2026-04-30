@@ -67,6 +67,14 @@ a:hover { text-decoration: underline; }
 <div id="charts" style="display:none">
   <div class="card">
     <div class="card-header">
+      <span class="card-label">日 K 棒</span>
+      <span class="card-hint">綠漲紅跌（開高低收）</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-candlestick"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
       <span class="card-label">收盤價 + 移動平均</span>
       <span class="card-hint">MA5 / MA20 / MA60</span>
     </div>
@@ -135,6 +143,83 @@ function destroyCharts() {
     charts[key].destroy();
     delete charts[key];
   }
+}
+
+function makeCandlestickChart(labels, candles) {
+  const ctx = document.getElementById('chart-candlestick').getContext('2d');
+  const valid = candles.filter(c => c.high != null && c.low != null);
+  const minLow = valid.length ? Math.min(...valid.map(c => c.low)) : 0;
+  const maxHigh = valid.length ? Math.max(...valid.map(c => c.high)) : 1;
+  const pad = (maxHigh - minLow) * 0.05 || maxHigh * 0.01;
+
+  const candlestickDraw = {
+    id: 'candlestickDraw',
+    afterDatasetsDraw(chart) {
+      const { ctx, scales: { y } } = chart;
+      const meta = chart.getDatasetMeta(0);
+      ctx.save();
+      candles.forEach((c, i) => {
+        if (c.open == null || c.close == null || c.high == null || c.low == null) return;
+        const bar = meta.data[i];
+        if (!bar) return;
+        const xPos = bar.x;
+        const barWidth = bar.width || 6;
+        const bodyWidth = Math.max(2, barWidth * 0.8);
+        const up = c.close >= c.open;
+        const color = up ? '#4ade80' : '#f87171';
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xPos, y.getPixelForValue(c.high));
+        ctx.lineTo(xPos, y.getPixelForValue(c.low));
+        ctx.stroke();
+        const bodyTop = y.getPixelForValue(Math.max(c.open, c.close));
+        const bodyBottom = y.getPixelForValue(Math.min(c.open, c.close));
+        const bodyHeight = Math.max(1, bodyBottom - bodyTop);
+        ctx.fillRect(xPos - bodyWidth / 2, bodyTop, bodyWidth, bodyHeight);
+      });
+      ctx.restore();
+    },
+  };
+
+  charts.candlestick = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'K 棒',
+        data: candles.map(c => (c.high != null && c.low != null) ? [c.low, c.high] : null),
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        barPercentage: 0.9,
+        categoryPercentage: 0.9,
+      }],
+    },
+    options: {
+      ...COMMON_OPTS,
+      scales: {
+        ...COMMON_OPTS.scales,
+        y: { ...COMMON_OPTS.scales.y, min: minLow - pad, max: maxHigh + pad },
+      },
+      plugins: {
+        ...COMMON_OPTS.plugins,
+        legend: { display: false },
+        tooltip: {
+          ...COMMON_OPTS.plugins.tooltip,
+          callbacks: {
+            label: (item) => {
+              const c = candles[item.dataIndex];
+              if (!c) return '';
+              const fmt = v => v == null ? '—' : v.toLocaleString(undefined, { maximumFractionDigits: 4 });
+              return [`開 ${fmt(c.open)}`, `高 ${fmt(c.high)}`, `低 ${fmt(c.low)}`, `收 ${fmt(c.close)}`];
+            },
+          },
+        },
+      },
+    },
+    plugins: [candlestickDraw],
+  });
 }
 
 function makePriceChart(labels, candles, indicators) {
@@ -251,6 +336,7 @@ async function loadDetail() {
     document.getElementById('charts').style.display = '';
     renderHeader(data);
     destroyCharts();
+    makeCandlestickChart(data.dates, data.candles);
     makePriceChart(data.dates, data.candles, data.indicators);
     makeVolumeChart(data.dates, data.candles);
     makeRsiChart(data.dates, data.indicators);
