@@ -124,6 +124,8 @@ def test_fetch_chip_total_saves_indicators():
     row = db.get_latest_indicator("margin_balance")
     assert row is not None
     assert abs(row["value"] - 4609.638) < 1.0
+    assert db.get_latest_indicator("short_balance") is not None
+    assert db.get_latest_indicator("short_margin_ratio") is not None
 
 
 def test_fetch_chip_total_handles_empty_response():
