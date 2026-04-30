@@ -23,6 +23,7 @@ a:hover { text-decoration: underline; }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .card-label { font-size: 13px; color: #cbd5e1; text-transform: uppercase; letter-spacing: .05em; }
 .card-hint { font-size: 11px; color: #94a3b8; }
+.card-sub { font-size: 13px; color: #94a3b8; }
 .chart-wrap { position: relative; height: 320px; }
 .chart-wrap.short { height: 180px; }
 .stat-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
@@ -419,7 +420,7 @@ async function loadChip() {
   const card = document.getElementById('chip-card');
   if (!card) return;
   // 限 .TW / .TWO ticker
-  if (!/\.TW(O)?$/i.test(TICKER)) {
+  if (!isTwTicker(TICKER)) {
     card.style.display = 'none';
     return;
   }
@@ -442,6 +443,8 @@ async function loadChip() {
       marginBody.innerHTML = '';
       return;
     }
+    const hint = document.getElementById('chip-hint');
+    if (hint && data.as_of) hint.textContent = `近 20 個交易日 (至 ${data.as_of})`;
     const fmtNet = v => {
       if (v === null || v === undefined) return '—';
       const cls = v > 0 ? 'chip-pos' : (v < 0 ? 'chip-neg' : '');
