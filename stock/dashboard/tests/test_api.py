@@ -21,7 +21,7 @@ def seed_data():
     db.save_indicator("taiex", 21458.0, json.dumps({"change_pct": 0.58, "prev_close": 21334.0}))
     db.save_indicator("fx", 32.15, json.dumps({"change_pct": 0.12, "prev_close": 32.11}))
     db.save_indicator("fear_greed", 58.0, json.dumps({"label": "貪婪"}))
-    db.save_indicator("margin", 2341.0, json.dumps({"unit": "億元"}))
+    db.save_indicator("margin_balance", 2341.0, json.dumps({"unit": "億元"}))
     db.save_indicator("ndc", 24.0, json.dumps({"light": "黃紅燈", "light_code": 4}))
     db.add_watched_ticker("0050.TW")
     db.save_stock_snapshot("0050.TW", 198.35, 1.15, 0.58, "TWD", "元大台灣50")
@@ -31,7 +31,7 @@ def test_dashboard_returns_all_indicators():
     r = client.get("/api/dashboard")
     assert r.status_code == 200
     data = r.json()
-    for key in ["taiex", "fx", "fear_greed", "margin", "ndc"]:
+    for key in ["taiex", "fx", "fear_greed", "margin_balance", "ndc"]:
         assert key in data
         assert "value" in data[key]
         assert "timestamp" in data[key]

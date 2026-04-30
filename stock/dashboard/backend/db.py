@@ -81,6 +81,11 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_alert_target
                 ON price_alerts(target_type, target, enabled);
         """)
+        # --- 既有歷史資料遷移:margin → margin_balance ---
+        # 第一次部署 chip_total 後執行;之後每次 init_db 也安全(找不到就 no-op)。
+        conn.execute(
+            "UPDATE indicator_snapshots SET indicator='margin_balance' WHERE indicator='margin'"
+        )
 
 def save_indicator(indicator: str, value: float, extra_json: str = None, timestamp: datetime = None):
     ts = (timestamp or datetime.now(timezone.utc).replace(tzinfo=None)).isoformat()

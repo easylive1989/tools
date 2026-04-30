@@ -21,7 +21,7 @@ from db import (
 )
 from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks, fetch_stock_history
 from fetchers.fear_greed import fetch_fear_greed
-from fetchers.margin import fetch_margin
+from fetchers.chip_total import fetch_chip_total
 from fetchers.ndc import fetch_ndc
 from fetchers.volume import fetch_tw_volume, fetch_us_volume
 from fetchers.broker import fetch_broker_daily, to_finmind_id
@@ -47,14 +47,15 @@ FETCHERS: dict[str, Callable] = {
     "taiex":      fetch_taiex,
     "fx":         fetch_fx,
     "fear_greed": fetch_fear_greed,
-    "margin":     fetch_margin,
+    "chip_total": fetch_chip_total,
     "ndc":        fetch_ndc,
     "stocks":     fetch_all_stocks,
     "tw_volume":  fetch_tw_volume,
     "us_volume":  fetch_us_volume,
 }
 
-INDICATOR_NAMES = ["taiex", "fx", "fear_greed", "margin", "ndc", "tw_volume", "us_volume"]
+INDICATOR_NAMES = ["taiex", "fx", "fear_greed", "margin_balance", "short_balance",
+                   "short_margin_ratio", "ndc", "tw_volume", "us_volume"]
 
 
 @app.on_event("startup")

@@ -219,14 +219,42 @@ body { overflow-x: hidden; }
   <div class="card">
     <div class="card-header">
       <span class="card-label">台股融資餘額</span>
-      <button class="refresh-btn" onclick="refreshIndicator('margin')">↻ 更新</button>
+      <button class="refresh-btn" onclick="refreshIndicator('margin_balance')">↻ 更新</button>
     </div>
     <div class="stat-row">
-      <div class="card-value" id="margin-value">—</div>
-      <span class="badge" id="margin-badge"></span>
+      <div class="card-value" id="margin_balance-value">—</div>
+      <span class="badge" id="margin_balance-badge"></span>
     </div>
-    <div class="chart-wrap"><canvas id="chart-margin"></canvas></div>
-    <div class="card-sub" id="margin-sub"></div>
+    <div class="chart-wrap"><canvas id="chart-margin_balance"></canvas></div>
+    <div class="card-sub" id="margin_balance-sub"></div>
+  </div>
+
+  <!-- 台股融券餘額 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">台股融券餘額</span>
+      <button class="refresh-btn" onclick="refreshIndicator('short_balance')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="short_balance-value">—</div>
+      <span class="badge" id="short_balance-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-short_balance"></canvas></div>
+    <div class="card-sub" id="short_balance-sub"></div>
+  </div>
+
+  <!-- 台股券資比 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-label">台股券資比</span>
+      <button class="refresh-btn" onclick="refreshIndicator('short_margin_ratio')">↻ 更新</button>
+    </div>
+    <div class="stat-row">
+      <div class="card-value" id="short_margin_ratio-value">—</div>
+      <span class="badge" id="short_margin_ratio-badge"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-short_margin_ratio"></canvas></div>
+    <div class="card-sub" id="short_margin_ratio-sub"></div>
   </div>
 
   <!-- 國發會景氣指標 -->
@@ -413,9 +441,18 @@ async function loadDashboard() {
     document.getElementById('fg-sub').textContent = '更新 ' + fmtDate(data.fear_greed.timestamp);
   }
 
-  if (data.margin) {
-    document.getElementById('margin-value').textContent = data.margin.value.toFixed(0) + ' 億';
-    document.getElementById('margin-sub').textContent = '更新 ' + fmtDate(data.margin.timestamp);
+  if (data.margin_balance) {
+    document.getElementById('margin_balance-value').textContent = data.margin_balance.value.toFixed(0) + ' 億';
+    document.getElementById('margin_balance-sub').textContent = '更新 ' + fmtDate(data.margin_balance.timestamp);
+  }
+  if (data.short_balance) {
+    // 千張更易讀
+    document.getElementById('short_balance-value').textContent = (data.short_balance.value / 1000).toFixed(0) + ' 千張';
+    document.getElementById('short_balance-sub').textContent = '更新 ' + fmtDate(data.short_balance.timestamp);
+  }
+  if (data.short_margin_ratio) {
+    document.getElementById('short_margin_ratio-value').textContent = data.short_margin_ratio.value.toFixed(2) + ' %';
+    document.getElementById('short_margin_ratio-sub').textContent = '更新 ' + fmtDate(data.short_margin_ratio.timestamp);
   }
 
   if (data.ndc) {
@@ -467,9 +504,15 @@ function fgClass(v) {
 }
 
 async function loadHistories() {
-  const indicators = ['taiex', 'tw_volume', 'us_volume', 'fear_greed', 'margin', 'ndc', 'fx'];
-  const units = { taiex: '點', fear_greed: '指數', margin: '億元', ndc: '分', fx: 'TWD', tw_volume: '億元', us_volume: '億股' };
-  const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', margin: '#60a5fa', ndc: '#fbbf24', fx: '#a78bfa', tw_volume: '#f97316', us_volume: '#ec4899' };
+  const indicators = ['taiex', 'tw_volume', 'us_volume', 'fear_greed',
+                      'margin_balance', 'short_balance', 'short_margin_ratio',
+                      'ndc', 'fx'];
+  const units  = { taiex: '點', fear_greed: '指數', ndc: '分', fx: 'TWD',
+                   tw_volume: '億元', us_volume: '億股',
+                   margin_balance: '億元', short_balance: '張', short_margin_ratio: '%' };
+  const colors = { taiex: '#4ade80', fear_greed: '#fbbf24', ndc: '#fbbf24', fx: '#a78bfa',
+                   tw_volume: '#f97316', us_volume: '#ec4899',
+                   margin_balance: '#60a5fa', short_balance: '#fb923c', short_margin_ratio: '#a3a3a3' };
 
   for (const ind of indicators) {
     if (!charts[ind]) makeChart(ind, colors[ind], units[ind]);
@@ -537,11 +580,13 @@ document.getElementById('add-ticker-input').addEventListener('keydown', e => {
 });
 
 const INDICATOR_LABELS = {
-  taiex: '加權指數',
-  fx: '台幣兌美金',
-  fear_greed: '恐懼與貪婪指數',
-  margin: '台股融資餘額',
-  ndc: '國發會景氣指標',
+  taiex:               '加權指數',
+  fx:                  '台幣兌美金',
+  fear_greed:          '恐懼與貪婪指數',
+  margin_balance:      '台股融資餘額',
+  short_balance:       '台股融券餘額',
+  short_margin_ratio:  '台股券資比',
+  ndc:                 '國發會景氣指標',
 };
 
 function alertTargetLabel(a) {

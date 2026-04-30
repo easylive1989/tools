@@ -109,28 +109,30 @@ def test_fetch_taiex_skips_on_empty_history():
         fetch_taiex()  # should not raise
 
 
-def test_fetch_margin_saves_indicator():
-    fake_response = [
-        {"融資今日餘額": "5000000"},
-        {"融資今日餘額": "3000000"},
+def test_fetch_chip_total_saves_indicators():
+    sample = [
+        {"name": "MarginPurchase",      "date": "2026-04-29", "TodayBalance": 8672780},
+        {"name": "ShortSale",            "date": "2026-04-29", "TodayBalance": 197420},
+        {"name": "MarginPurchaseMoney", "date": "2026-04-29", "TodayBalance": 460963803000},
     ]
-    with patch("fetchers.margin.requests.get") as mock_get:
-        mock_get.return_value.json.return_value = fake_response
+    fake_payload = {"status": 200, "data": sample}
+    with patch("fetchers.chip_total.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = fake_payload
         mock_get.return_value.raise_for_status = MagicMock()
-        from fetchers.margin import fetch_margin
-        fetch_margin()
-    row = db.get_latest_indicator("margin")
+        from fetchers.chip_total import fetch_chip_total
+        fetch_chip_total(start_date="2026-04-25")
+    row = db.get_latest_indicator("margin_balance")
     assert row is not None
-    # (5000000 + 3000000) * 1000 / 1e8 = 80 億
-    assert abs(row["value"] - 80.0) < 1.0
+    assert abs(row["value"] - 4609.638) < 1.0
 
 
-def test_fetch_margin_handles_empty_response():
-    with patch("fetchers.margin.requests.get") as mock_get:
-        mock_get.return_value.json.return_value = []
+def test_fetch_chip_total_handles_empty_response():
+    fake_payload = {"status": 200, "data": []}
+    with patch("fetchers.chip_total.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = fake_payload
         mock_get.return_value.raise_for_status = MagicMock()
-        from fetchers.margin import fetch_margin
-        fetch_margin()  # should not raise
+        from fetchers.chip_total import fetch_chip_total
+        fetch_chip_total(start_date="2026-04-25")  # should not raise
 
 
 def test_fetch_ndc_saves_indicator():

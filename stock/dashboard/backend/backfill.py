@@ -189,29 +189,23 @@ def backfill_fear_greed():
     print(f"  Inserted {inserted} rows for fear_greed")
 
 
-def backfill_margin(days: int = 365, delay: float = 2.0):
-    """逐日查詢 TWSE CSV 補歷史融資餘額（加入延遲避免速率限制）。"""
-    import time
-    from fetchers.margin import fetch_margin
-    print(f"[backfill] margin 近 {days} 天（delay={delay}s）…")
+def backfill_chip_total(days: int = 365):
+    """一次性從 FinMind 拉近 N 天的整體融資融券,寫入 indicator_snapshots。"""
+    from datetime import timedelta
+    from fetchers.chip_total import fetch_chip_total
     today = datetime.now()
-    attempted = 0
-    for i in range(days, 0, -1):
-        dt = today - timedelta(days=i)
-        if dt.weekday() >= 5:
-            continue
-        date_str = dt.strftime("%Y%m%d")
-        fetch_margin(date_str)
-        attempted += 1
-        time.sleep(delay)
-    print(f"  嘗試查詢 {attempted} 個交易日")
+    start = (today - timedelta(days=days)).strftime("%Y-%m-%d")
+    end = today.strftime("%Y-%m-%d")
+    print(f"[backfill] chip_total {start} → {end} …")
+    fetch_chip_total(start_date=start, end_date=end)
+    print("  Done")
 
 
 if __name__ == "__main__":
     import sys as _sys
     init_db()
-    if len(_sys.argv) > 1 and _sys.argv[1] == "margin":
-        backfill_margin(int(_sys.argv[2]) if len(_sys.argv) > 2 else 365)
+    if len(_sys.argv) > 1 and _sys.argv[1] == "chip_total":
+        backfill_chip_total(int(_sys.argv[2]) if len(_sys.argv) > 2 else 365)
     elif len(_sys.argv) > 1 and _sys.argv[1] == "fear_greed":
         backfill_fear_greed()
     elif len(_sys.argv) > 1 and _sys.argv[1] == "volume":
@@ -224,5 +218,5 @@ if __name__ == "__main__":
         backfill_fear_greed()
         backfill_tw_volume()
         backfill_us_volume()
-        backfill_margin(365)
+        backfill_chip_total(365)
     print("[backfill] Done.")

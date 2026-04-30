@@ -17,19 +17,23 @@ from common.notify import send_to_discord
 from db import get_active_alerts, mark_alert_triggered
 
 INDICATOR_LABELS = {
-    "taiex":      "加權指數",
-    "fx":         "台幣兌美金",
-    "fear_greed": "恐懼與貪婪指數",
-    "margin":     "台股融資餘額",
-    "ndc":        "國發會景氣指標",
+    "taiex":              "加權指數",
+    "fx":                 "台幣兌美金",
+    "fear_greed":         "恐懼與貪婪指數",
+    "margin_balance":     "台股融資餘額",
+    "short_balance":      "台股融券餘額",
+    "short_margin_ratio": "台股券資比",
+    "ndc":                "國發會景氣指標",
 }
 
 INDICATOR_UNITS = {
-    "taiex":      "點",
-    "fx":         "TWD",
-    "fear_greed": "",
-    "margin":     "億元",
-    "ndc":        "分",
+    "taiex":              "點",
+    "fx":                 "TWD",
+    "fear_greed":         "",
+    "margin_balance":     "億元",
+    "short_balance":      "張",
+    "short_margin_ratio": "%",
+    "ndc":                "分",
 }
 
 
