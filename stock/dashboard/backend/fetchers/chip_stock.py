@@ -108,8 +108,8 @@ def parse_stock_margin(rows: list[dict], ticker: str) -> list[dict]:
             "trust_sell":   None,
             "dealer_buy":   None,
             "dealer_sell":  None,
-            "margin_balance": float(r.get("MarginPurchaseTodayBalance") or 0),
-            "short_balance":  float(r.get("ShortSaleTodayBalance") or 0),
+            "margin_balance": float(r["MarginPurchaseTodayBalance"]) if r.get("MarginPurchaseTodayBalance") is not None else None,
+            "short_balance":  float(r["ShortSaleTodayBalance"])      if r.get("ShortSaleTodayBalance")      is not None else None,
         })
     return out
 
@@ -120,7 +120,7 @@ def _merge(rows_a: list[dict], rows_b: list[dict]) -> list[dict]:
     for r in rows_a + rows_b:
         k = (r["ticker"], r["date"])
         existing = by_key.get(k, {})
-        merged = {**existing, **{k_: v for k_, v in r.items() if v is not None}}
+        merged = {**existing, **{field: v for field, v in r.items() if v is not None}}
         # 確保 schema 完整
         for f in ("foreign_buy", "foreign_sell", "trust_buy", "trust_sell",
                   "dealer_buy", "dealer_sell", "margin_balance", "short_balance"):
