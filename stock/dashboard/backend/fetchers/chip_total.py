@@ -125,9 +125,10 @@ def fetch_chip_total(start_date: str | None = None, end_date: str | None = None)
         margin_by_day = parse_total_margin(raw)
         for d, vals in sorted(margin_by_day.items()):
             ts = datetime.strptime(d, "%Y-%m-%d")
+            margin_units = {"margin_balance": "億元", "short_balance": "張", "short_margin_ratio": "%"}
             for key in ("margin_balance", "short_balance", "short_margin_ratio"):
                 save_indicator(key, vals[key],
-                               json.dumps({"date": d}), timestamp=ts)
+                               json.dumps({"unit": margin_units[key], "date": d}), timestamp=ts)
         if margin_by_day:
             latest = max(margin_by_day.keys())
             for key in ("margin_balance", "short_balance", "short_margin_ratio"):
