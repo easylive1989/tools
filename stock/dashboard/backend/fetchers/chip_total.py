@@ -147,17 +147,17 @@ def fetch_chip_total(start_date: str | None = None, end_date: str | None = None)
         raw = _request("TaiwanStockTotalInstitutionalInvestors", start_date, end_date)
     except Exception as e:
         print(f"[chip_total] institutional fetch error: {e}")
-        return
-    inst_by_day = parse_total_institutional(raw)
-    for d, vals in sorted(inst_by_day.items()):
-        ts = datetime.strptime(d, "%Y-%m-%d")
-        for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
-            save_indicator(key, vals[key],
-                           json.dumps({"unit": "億元", "date": d}), timestamp=ts)
-    if inst_by_day:
-        latest = max(inst_by_day.keys())
-        for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
-            check_alerts("indicator", key, inst_by_day[latest][key])
-        print(f"[chip_total] inst {latest}: foreign={inst_by_day[latest]['total_foreign_net']} 億, "
-              f"trust={inst_by_day[latest]['total_trust_net']} 億, "
-              f"dealer={inst_by_day[latest]['total_dealer_net']} 億")
+    else:
+        inst_by_day = parse_total_institutional(raw)
+        for d, vals in sorted(inst_by_day.items()):
+            ts = datetime.strptime(d, "%Y-%m-%d")
+            for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
+                save_indicator(key, vals[key],
+                               json.dumps({"unit": "億元", "date": d}), timestamp=ts)
+        if inst_by_day:
+            latest = max(inst_by_day.keys())
+            for key in ("total_foreign_net", "total_trust_net", "total_dealer_net"):
+                check_alerts("indicator", key, inst_by_day[latest][key])
+            print(f"[chip_total] inst {latest}: foreign={inst_by_day[latest]['total_foreign_net']} 億, "
+                  f"trust={inst_by_day[latest]['total_trust_net']} 億, "
+                  f"dealer={inst_by_day[latest]['total_dealer_net']} 億")

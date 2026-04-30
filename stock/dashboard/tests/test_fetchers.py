@@ -110,22 +110,48 @@ def test_fetch_taiex_skips_on_empty_history():
 
 
 def test_fetch_chip_total_saves_indicators():
-    sample = [
-        {"name": "MarginPurchase",      "date": "2026-04-29", "TodayBalance": 8672780},
-        {"name": "ShortSale",            "date": "2026-04-29", "TodayBalance": 197420},
-        {"name": "MarginPurchaseMoney", "date": "2026-04-29", "TodayBalance": 460963803000},
-    ]
-    fake_payload = {"status": 200, "data": sample}
-    with patch("fetchers.chip_total.requests.get") as mock_get:
-        mock_get.return_value.json.return_value = fake_payload
-        mock_get.return_value.raise_for_status = MagicMock()
+    MARGIN_RESPONSE = {
+        "status": 200,
+        "data": [
+            {"name": "MarginPurchase",      "date": "2026-04-29", "TodayBalance": 8672780},
+            {"name": "ShortSale",            "date": "2026-04-29", "TodayBalance": 197420},
+            {"name": "MarginPurchaseMoney", "date": "2026-04-29", "TodayBalance": 460963803000},
+        ],
+    }
+    INST_RESPONSE = {
+        "status": 200,
+        "data": [
+            {"name": "Foreign_Investor",   "date": "2026-04-29", "buy": 100_000_000_000, "sell": 50_000_000_000},
+            {"name": "Foreign_Dealer_Self","date": "2026-04-29", "buy": 0,                "sell": 0},
+            {"name": "Investment_Trust",   "date": "2026-04-29", "buy": 10_000_000_000,  "sell": 5_000_000_000},
+            {"name": "Dealer_self",        "date": "2026-04-29", "buy": 1_000_000_000,   "sell": 2_000_000_000},
+            {"name": "Dealer_Hedging",     "date": "2026-04-29", "buy": 5_000_000_000,   "sell": 4_000_000_000},
+        ],
+    }
+
+    def fake_get(url, params=None, headers=None, timeout=None):
+        mock = MagicMock()
+        mock.raise_for_status = MagicMock()
+        if params and params.get("dataset") == "TaiwanStockTotalMarginPurchaseShortSale":
+            mock.json.return_value = MARGIN_RESPONSE
+        elif params and params.get("dataset") == "TaiwanStockTotalInstitutionalInvestors":
+            mock.json.return_value = INST_RESPONSE
+        return mock
+
+    with patch("fetchers.chip_total.requests.get", side_effect=fake_get):
         from fetchers.chip_total import fetch_chip_total
         fetch_chip_total(start_date="2026-04-25")
+
+    # margin indicators
     row = db.get_latest_indicator("margin_balance")
     assert row is not None
     assert abs(row["value"] - 4609.638) < 1.0
     assert db.get_latest_indicator("short_balance") is not None
     assert db.get_latest_indicator("short_margin_ratio") is not None
+    # institutional indicators
+    assert db.get_latest_indicator("total_foreign_net") is not None
+    assert db.get_latest_indicator("total_trust_net")   is not None
+    assert db.get_latest_indicator("total_dealer_net")  is not None
 
 
 def test_fetch_chip_total_handles_empty_response():

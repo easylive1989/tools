@@ -22,10 +22,10 @@ def test_get_indicator_returns_none_when_empty():
 def test_indicator_history_filtered_by_date():
     db.init_db()
     from datetime import datetime, timedelta, timezone
-    db.save_indicator("margin", 2500.0)
-    db.save_indicator("margin", 2341.0)
+    db.save_indicator("margin_balance", 2500.0)
+    db.save_indicator("margin_balance", 2341.0)
     since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(minutes=1)
-    rows = db.get_indicator_history("margin", since)
+    rows = db.get_indicator_history("margin_balance", since)
     assert len(rows) == 2
     assert rows[-1]["value"] == 2341.0
 
