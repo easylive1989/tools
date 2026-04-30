@@ -39,6 +39,16 @@ a:hover { text-decoration: underline; }
 .broker-table tbody tr:last-child td { border-bottom: none; }
 .broker-table .streak { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(74,222,128,.12); color: #4ade80; font-weight: 600; font-size: 12px; }
 .broker-empty { color: #94a3b8; font-size: 13px; padding: 8px 0; }
+.chip-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.chip-table th, .chip-table td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #2d3348; }
+.chip-table th { color: #94a3b8; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.chip-table td.chip-date, .chip-table th.chip-date { text-align: left; color: #e2e8f0; }
+.chip-table tbody tr:last-child td { border-bottom: none; }
+.chip-empty { color: #94a3b8; font-size: 13px; padding: 8px 0; }
+.chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .chip-grid { grid-template-columns: 1fr; } }
+.chip-pos { color: #4ade80; }
+.chip-neg { color: #f87171; }
 @media (max-width: 600px) {
   body { padding: 12px; }
   .price { font-size: 24px; }
@@ -118,6 +128,23 @@ a:hover { text-decoration: underline; }
       <span class="card-hint" id="broker-hint">近 20 個交易日</span>
     </div>
     <div id="broker-body"></div>
+  </div>
+
+  <div class="card" id="chip-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">籌碼面</span>
+      <span class="card-hint" id="chip-hint">近 20 個交易日</span>
+    </div>
+    <div class="chip-grid">
+      <div>
+        <div class="card-sub" style="margin-bottom:6px;">三大法人(張)</div>
+        <div id="chip-inst-body"></div>
+      </div>
+      <div>
+        <div class="card-sub" style="margin-bottom:6px;">融資融券(張)</div>
+        <div id="chip-margin-body"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -388,6 +415,76 @@ async function loadBrokers() {
   }
 }
 
+async function loadChip() {
+  const card = document.getElementById('chip-card');
+  if (!card) return;
+  // 限 .TW / .TWO ticker
+  if (!/\.TW(O)?$/i.test(TICKER)) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  const instBody = document.getElementById('chip-inst-body');
+  const marginBody = document.getElementById('chip-margin-body');
+  instBody.innerHTML = '<div class="chip-empty">載入中…</div>';
+  marginBody.innerHTML = '<div class="chip-empty">載入中…</div>';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/chip?days=20`);
+    if (!r.ok) {
+      instBody.innerHTML = `<div class="chip-empty">無法載入(${r.status})</div>`;
+      marginBody.innerHTML = '';
+      return;
+    }
+    const data = await r.json();
+    if (!data.rows || !data.rows.length) {
+      instBody.innerHTML = '<div class="chip-empty">尚無資料(資料來源:FinMind,盤後更新)。</div>';
+      marginBody.innerHTML = '';
+      return;
+    }
+    const fmtNet = v => {
+      if (v === null || v === undefined) return '—';
+      const cls = v > 0 ? 'chip-pos' : (v < 0 ? 'chip-neg' : '');
+      const s = (v >= 0 ? '+' : '') + Math.round(v).toLocaleString();
+      return `<span class="${cls}">${s}</span>`;
+    };
+    const fmtBal = v => v === null || v === undefined ? '—' : Math.round(v).toLocaleString();
+
+    // 倒序顯示(最近的在最上面)
+    const rev = [...data.rows].reverse();
+    instBody.innerHTML = `
+      <table class="chip-table">
+        <thead><tr><th class="chip-date">日期</th><th>外資</th><th>投信</th><th>自營</th></tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="chip-date">${r.date.slice(5)}</td>
+              <td>${fmtNet(r.foreign_net)}</td>
+              <td>${fmtNet(r.trust_net)}</td>
+              <td>${fmtNet(r.dealer_net)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    marginBody.innerHTML = `
+      <table class="chip-table">
+        <thead><tr><th class="chip-date">日期</th><th>融資餘額</th><th>融券餘額</th></tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="chip-date">${r.date.slice(5)}</td>
+              <td>${fmtBal(r.margin_balance)}</td>
+              <td>${fmtBal(r.short_balance)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch (e) {
+    instBody.innerHTML = `<div class="chip-empty">載入失敗:${e.message}</div>`;
+    marginBody.innerHTML = '';
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -414,6 +511,7 @@ async function loadDetail() {
     makeVolumeChart(data.dates, data.candles);
     makeRsiChart(data.dates, data.indicators);
     makeMacdChart(data.dates, data.indicators);
+    loadChip();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
