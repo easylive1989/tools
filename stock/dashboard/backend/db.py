@@ -67,6 +67,22 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_broker_ticker_date
                 ON stock_broker_daily(ticker, date);
 
+            CREATE TABLE IF NOT EXISTS stock_chip_daily (
+                ticker         TEXT NOT NULL,
+                date           TEXT NOT NULL,
+                foreign_buy    REAL,
+                foreign_sell   REAL,
+                trust_buy      REAL,
+                trust_sell     REAL,
+                dealer_buy     REAL,
+                dealer_sell    REAL,
+                margin_balance REAL,
+                short_balance  REAL,
+                PRIMARY KEY (ticker, date)
+            );
+            CREATE INDEX IF NOT EXISTS idx_chip_ticker_date
+                ON stock_chip_daily(ticker, date);
+
             CREATE TABLE IF NOT EXISTS price_alerts (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 target_type   TEXT NOT NULL,
@@ -251,6 +267,57 @@ def get_latest_broker_date(ticker: str) -> str | None:
         return row["d"] if row and row["d"] else None
 
 
+def save_chip_daily_rows(rows: list[dict]) -> None:
+    """Bulk upsert per-day stock chip rows."""
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_chip_daily "
+            "(ticker, date, foreign_buy, foreign_sell, trust_buy, trust_sell, "
+            " dealer_buy, dealer_sell, margin_balance, short_balance) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(ticker, date) DO UPDATE SET "
+            " foreign_buy=COALESCE(excluded.foreign_buy, foreign_buy), "
+            " foreign_sell=COALESCE(excluded.foreign_sell, foreign_sell), "
+            " trust_buy=COALESCE(excluded.trust_buy, trust_buy), "
+            " trust_sell=COALESCE(excluded.trust_sell, trust_sell), "
+            " dealer_buy=COALESCE(excluded.dealer_buy, dealer_buy), "
+            " dealer_sell=COALESCE(excluded.dealer_sell, dealer_sell), "
+            " margin_balance=COALESCE(excluded.margin_balance, margin_balance), "
+            " short_balance=COALESCE(excluded.short_balance, short_balance)",
+            [
+                (r["ticker"], r["date"],
+                 r.get("foreign_buy"), r.get("foreign_sell"),
+                 r.get("trust_buy"), r.get("trust_sell"),
+                 r.get("dealer_buy"), r.get("dealer_sell"),
+                 r.get("margin_balance"), r.get("short_balance"))
+                for r in rows
+            ],
+        )
+
+
+def get_chip_daily_range(ticker: str, since_date: str) -> list[dict]:
+    """Per-day chip rows for ticker on or after since_date (YYYY-MM-DD)."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT date, foreign_buy, foreign_sell, trust_buy, trust_sell, "
+            "       dealer_buy, dealer_sell, margin_balance, short_balance "
+            "FROM stock_chip_daily WHERE ticker=? AND date>=? ORDER BY date",
+            (ticker, since_date),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_chip_date(ticker: str) -> str | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT MAX(date) AS d FROM stock_chip_daily WHERE ticker=?",
+            (ticker,),
+        ).fetchone()
+        return row["d"] if row and row["d"] else None
+
+
 def purge_old_data(days: int = 1095):
     cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()
     cutoff_date = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).strftime("%Y-%m-%d")
@@ -258,3 +325,4 @@ def purge_old_data(days: int = 1095):
         conn.execute("DELETE FROM indicator_snapshots WHERE timestamp<?", (cutoff,))
         conn.execute("DELETE FROM stock_snapshots WHERE timestamp<?", (cutoff,))
         conn.execute("DELETE FROM stock_broker_daily WHERE date<?", (cutoff_date,))
+        conn.execute("DELETE FROM stock_chip_daily WHERE date<?", (cutoff_date,))

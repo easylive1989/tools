@@ -18,6 +18,7 @@ from db import (
     delete_alert,
     set_alert_enabled,
     get_broker_daily_range,
+    get_chip_daily_range,
 )
 from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks, fetch_stock_history
 from fetchers.fear_greed import fetch_fear_greed
@@ -25,6 +26,7 @@ from fetchers.chip_total import fetch_chip_total
 from fetchers.ndc import fetch_ndc
 from fetchers.volume import fetch_tw_volume, fetch_us_volume
 from fetchers.broker import fetch_broker_daily, to_finmind_id
+from fetchers.chip_stock import fetch_stock_chip, to_finmind_id as chip_to_finmind_id
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -146,6 +148,58 @@ def stock_brokers(ticker: str, days: int = 20, top: int = 5):
         "as_of":       None,
         "ok":          False,
         "top_brokers": [],
+    }
+
+
+@app.get("/api/stocks/{ticker}/chip")
+def stock_chip(ticker: str, days: int = 20):
+    """個股籌碼:近 N 個交易日的三大法人淨買賣 + 融資融券餘額。
+
+    Lazy fetch + DB cache。輸出每筆 row 含:
+    foreign_net / trust_net / dealer_net(buy-sell)、margin_balance、short_balance。
+    """
+    ticker = ticker.upper()
+    if chip_to_finmind_id(ticker) is None:
+        raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
+    if days < 1 or days > 90:
+        raise HTTPException(status_code=400, detail="days must be 1..90")
+
+    fetched = fetch_stock_chip(ticker)
+    since_date = (datetime.now(timezone.utc).date() - timedelta(days=int(days * 1.6) + 5)).isoformat()
+    rows = get_chip_daily_range(ticker, since_date)
+
+    if not rows:
+        return {
+            "ticker": ticker, "days": days, "as_of": None,
+            "ok": fetched, "rows": [],
+        }
+
+    distinct_dates = sorted({r["date"] for r in rows})
+    window_dates = distinct_dates[-days:]
+    window_set = set(window_dates)
+
+    def _net(b, s) -> float | None:
+        if b is None and s is None:
+            return None
+        return (b or 0) - (s or 0)
+
+    out_rows = []
+    for r in rows:
+        if r["date"] not in window_set:
+            continue
+        out_rows.append({
+            "date":           r["date"],
+            "foreign_net":    _net(r["foreign_buy"], r["foreign_sell"]),
+            "trust_net":      _net(r["trust_buy"], r["trust_sell"]),
+            "dealer_net":     _net(r["dealer_buy"], r["dealer_sell"]),
+            "margin_balance": r["margin_balance"],
+            "short_balance":  r["short_balance"],
+        })
+
+    return {
+        "ticker": ticker, "days": days,
+        "as_of": window_dates[-1] if window_dates else None,
+        "ok": True, "rows": out_rows,
     }
 
 
