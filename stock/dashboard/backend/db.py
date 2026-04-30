@@ -52,6 +52,21 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_stock_ts
                 ON stock_snapshots(ticker, timestamp);
 
+            CREATE TABLE IF NOT EXISTS stock_broker_daily (
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticker               TEXT NOT NULL,
+                date                 TEXT NOT NULL,
+                securities_trader_id TEXT NOT NULL,
+                securities_trader    TEXT,
+                buy_volume           REAL NOT NULL DEFAULT 0,
+                sell_volume          REAL NOT NULL DEFAULT 0,
+                buy_amount           REAL NOT NULL DEFAULT 0,
+                sell_amount          REAL NOT NULL DEFAULT 0,
+                UNIQUE(ticker, date, securities_trader_id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_broker_ticker_date
+                ON stock_broker_daily(ticker, date);
+
             CREATE TABLE IF NOT EXISTS price_alerts (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 target_type   TEXT NOT NULL,
@@ -174,8 +189,67 @@ def mark_alert_triggered(alert_id: int, value: float) -> None:
         )
 
 
+def save_broker_daily_rows(rows: list[dict]) -> None:
+    """Bulk upsert per-broker per-day aggregates.
+
+    Each row needs: ticker, date, securities_trader_id, securities_trader,
+    buy_volume, sell_volume, buy_amount, sell_amount.
+    """
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_broker_daily "
+            "(ticker, date, securities_trader_id, securities_trader, "
+            " buy_volume, sell_volume, buy_amount, sell_amount) "
+            "VALUES (?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(ticker, date, securities_trader_id) DO UPDATE SET "
+            " securities_trader=excluded.securities_trader, "
+            " buy_volume=excluded.buy_volume, "
+            " sell_volume=excluded.sell_volume, "
+            " buy_amount=excluded.buy_amount, "
+            " sell_amount=excluded.sell_amount",
+            [
+                (
+                    r["ticker"], r["date"], r["securities_trader_id"],
+                    r.get("securities_trader") or "",
+                    r.get("buy_volume", 0) or 0,
+                    r.get("sell_volume", 0) or 0,
+                    r.get("buy_amount", 0) or 0,
+                    r.get("sell_amount", 0) or 0,
+                )
+                for r in rows
+            ],
+        )
+
+
+def get_broker_daily_range(ticker: str, since_date: str) -> list[dict]:
+    """Return per-broker daily aggregates for ticker on or after since_date (YYYY-MM-DD)."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT date, securities_trader_id, securities_trader, "
+            "       buy_volume, sell_volume, buy_amount, sell_amount "
+            "FROM stock_broker_daily "
+            "WHERE ticker=? AND date>=? "
+            "ORDER BY date",
+            (ticker, since_date),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_broker_date(ticker: str) -> str | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT MAX(date) AS d FROM stock_broker_daily WHERE ticker=?",
+            (ticker,),
+        ).fetchone()
+        return row["d"] if row and row["d"] else None
+
+
 def purge_old_data(days: int = 1095):
     cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()
+    cutoff_date = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).strftime("%Y-%m-%d")
     with get_connection() as conn:
         conn.execute("DELETE FROM indicator_snapshots WHERE timestamp<?", (cutoff,))
         conn.execute("DELETE FROM stock_snapshots WHERE timestamp<?", (cutoff,))
+        conn.execute("DELETE FROM stock_broker_daily WHERE date<?", (cutoff_date,))
