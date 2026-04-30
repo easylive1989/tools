@@ -96,6 +96,11 @@ def parse_total_institutional(rows: list[dict]) -> dict[str, dict[str, float]]:
 
     result: dict[str, dict[str, float]] = {}
     for d, names in by_day.items():
+        foreign_recs = names.get("Foreign_Investor") or names.get("Foreign_Dealer_Self")
+        trust_rec    = names.get("Investment_Trust")
+        dealer_recs  = names.get("Dealer_self") or names.get("Dealer_Hedging")
+        if not (foreign_recs or trust_rec or dealer_recs):
+            continue
         foreign = _net(names.get("Foreign_Investor")) + _net(names.get("Foreign_Dealer_Self"))
         trust   = _net(names.get("Investment_Trust"))
         dealer  = _net(names.get("Dealer_self")) + _net(names.get("Dealer_Hedging"))

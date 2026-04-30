@@ -59,7 +59,7 @@ SAMPLE_TOTAL_INST = [
 def test_parse_total_institutional_returns_three_net_buys_per_day():
     out = parse_total_institutional(SAMPLE_TOTAL_INST)
     day = out["2026-04-29"]
-    # 外資 = Foreign_Investor + Foreign_Dealer_Self;(338.37 - 386.52 + 0 - 0) 億 = -48.15
+    # 外資 = Foreign_Investor + Foreign_Dealer_Self;((338.37 - 386.52) + (0 - 0)) × 10 億 ≈ -481.47 億
     assert day["total_foreign_net"] == pytest.approx(-481.474, rel=1e-2)
     # 投信:(22.63 - 20.50)億 ≈ 21.28 億
     assert day["total_trust_net"] == pytest.approx(21.283, rel=1e-2)
