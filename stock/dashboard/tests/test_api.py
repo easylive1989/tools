@@ -262,3 +262,58 @@ def test_post_alert_streak_window_n_out_of_range_400():
         "window_n": 31,   # > 30
     })
     assert r2.status_code == 400
+
+
+def test_post_alert_percentile_above_with_per():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "percentile_above",
+        "threshold": 90,
+        "indicator_key": "per",
+    })
+    assert r.status_code == 200
+
+
+def test_post_alert_percentile_with_revenue_400():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "percentile_above",
+        "threshold": 90,
+        "indicator_key": "revenue",   # monthly,跟 percentile 不相容
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_yoy_above_with_revenue():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 30,
+        "indicator_key": "revenue",
+    })
+    assert r.status_code == 200
+
+
+def test_post_alert_yoy_with_per_400():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 30,
+        "indicator_key": "per",   # daily,跟 yoy 不相容
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_percentile_threshold_out_of_range_400():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "percentile_above",
+        "threshold": 150,   # > 100
+        "indicator_key": "per",
+    })
+    assert r.status_code == 400
