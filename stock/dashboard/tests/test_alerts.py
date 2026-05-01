@@ -196,3 +196,64 @@ def test_check_alerts_indicator_streak_above_triggers():
         with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
             check_alerts("indicator", "margin_balance", value=5300)
     assert mock_send.called
+
+
+import pytest
+from alerts import _pct_rank, _get_stock_revenue_yoy
+
+
+def test_pct_rank_inclusive_at_max():
+    # history 50 點,最大值 → 100
+    history = list(range(1, 51))
+    assert _pct_rank(50, history) == 100.0
+
+
+def test_pct_rank_at_min():
+    # 最小值 → 1/N * 100
+    history = list(range(1, 51))
+    assert _pct_rank(1, history) == 2.0
+
+
+def test_pct_rank_middle():
+    history = list(range(1, 51))   # 50 點
+    # value=25 → count(<=25) = 25,25/50*100 = 50
+    assert _pct_rank(25, history) == 50.0
+
+
+def test_pct_rank_insufficient_history_returns_none():
+    # < 30 點 → None
+    assert _pct_rank(20, [10, 20, 30]) is None
+
+
+def test_pct_rank_none_value_returns_none():
+    history = list(range(1, 51))
+    assert _pct_rank(None, history) is None
+
+
+def test_get_stock_revenue_yoy_positive():
+    db.save_revenue_monthly_rows([
+        {"ticker": "2330.TW", "year": 2025, "month": 4, "revenue": 1_000_000_000_000, "announced_date": ""},
+        {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
+    ])
+    yoy = _get_stock_revenue_yoy("2330.TW")
+    assert yoy == pytest.approx(50.0, abs=0.01)
+
+
+def test_get_stock_revenue_yoy_negative():
+    db.save_revenue_monthly_rows([
+        {"ticker": "2330.TW", "year": 2025, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
+        {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_000_000_000_000, "announced_date": ""},
+    ])
+    yoy = _get_stock_revenue_yoy("2330.TW")
+    assert yoy == pytest.approx(-33.33, abs=0.05)
+
+
+def test_get_stock_revenue_yoy_missing_prev_year_returns_none():
+    db.save_revenue_monthly_rows([
+        {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
+    ])
+    assert _get_stock_revenue_yoy("2330.TW") is None
+
+
+def test_get_stock_revenue_yoy_no_data_returns_none():
+    assert _get_stock_revenue_yoy("2330.TW") is None

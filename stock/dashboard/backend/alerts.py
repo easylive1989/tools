@@ -100,6 +100,40 @@ def _get_stock_indicator_history(ticker: str, indicator_key: str, n: int) -> lis
     return clean[-n:]
 
 
+def _pct_rank(value: float | None, history: list[float]) -> float | None:
+    """Inclusive percentile rank: count(v <= value) / total * 100。
+
+    history < 30 點(避免新上市股誤觸發)→ None。value=None → None。
+    history 中的 None 過濾掉。
+    """
+    if value is None or len(history) < 30:
+        return None
+    clean = [v for v in history if v is not None]
+    if len(clean) < 30:
+        return None
+    below = sum(1 for v in clean if v <= value)
+    return round(below / len(clean) * 100, 2)
+
+
+def _get_stock_revenue_yoy(ticker: str) -> float | None:
+    """從 stock_revenue_monthly 取最新月 vs 去年同月,算 YoY %。
+
+    缺資料(新上市股、去年同期沒值、去年同期 = 0)→ None。
+    """
+    from db import get_revenue_monthly_range, get_latest_revenue_ym
+    latest = get_latest_revenue_ym(ticker)
+    if not latest:
+        return None
+    y, m = latest
+    rows = get_revenue_monthly_range(ticker, y - 1, m)
+    by_ym = {(r["year"], r["month"]): r["revenue"] for r in rows}
+    cur = by_ym.get((y, m))
+    prev = by_ym.get((y - 1, m))
+    if cur is None or not prev:
+        return None
+    return round((cur - prev) / prev * 100, 2)
+
+
 def _format_value(target_type: str, target: str, value: float) -> str:
     if target_type == "indicator":
         unit = INDICATOR_UNITS.get(target, "")
