@@ -169,6 +169,15 @@ a:hover { text-decoration: underline; }
     <div id="valuation-stats" class="fund-stat-row"></div>
     <div class="chart-wrap short"><canvas id="chart-valuation"></canvas></div>
   </div>
+
+  <div class="card" id="revenue-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">月營收</span>
+      <span class="card-hint" id="revenue-hint">近 36 個月</span>
+    </div>
+    <div id="revenue-stats" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-revenue"></canvas></div>
+  </div>
 </div>
 
 <script>
@@ -584,6 +593,83 @@ async function loadValuation() {
   }
 }
 
+let revenueChart = null;
+
+async function loadRevenue() {
+  const card = document.getElementById('revenue-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const stats = document.getElementById('revenue-stats');
+  stats.innerHTML = '<div class="fund-empty">載入中…</div>';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/revenue?months=36`);
+    if (!r.ok) {
+      stats.innerHTML = `<div class="fund-empty">無法載入月營收 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.latest || !data.rows || !data.rows.length) {
+      stats.innerHTML = '<div class="fund-empty">尚無月營收資料</div>';
+      return;
+    }
+
+    const fmtYi = v => v === null || v === undefined ? '—' : (v / 1e8).toLocaleString(undefined, {maximumFractionDigits: 0}) + ' 億';
+    const fmtPctSigned = v => {
+      if (v === null || v === undefined) return '—';
+      const cls = v > 0 ? 'fund-pos' : (v < 0 ? 'fund-neg' : '');
+      return `<span class="${cls}">${(v >= 0 ? '+' : '')}${Number(v).toFixed(2)}%</span>`;
+    };
+
+    const latest = data.latest;
+    const ytd = data.ytd || {};
+    stats.innerHTML = `
+      <div class="fund-stat">
+        <span class="label">最新月</span>
+        <span class="value">${latest.year}/${String(latest.month).padStart(2,'0')}</span>
+        <span class="sub">營收 ${fmtYi(latest.revenue)}</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">YoY</span>
+        <span class="value">${fmtPctSigned(latest.yoy_pct)}</span>
+        <span class="sub">12MA ${fmtYi(latest.ma12)}</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">YTD 累計</span>
+        <span class="value">${fmtYi(ytd.accumulated)}</span>
+        <span class="sub">去年同期 ${fmtYi(ytd.last_year_accumulated)}<br>YoY ${fmtPctSigned(ytd.yoy_pct)}</span>
+      </div>
+    `;
+
+    const labels = data.rows.map(r => `${String(r.year).slice(2)}/${String(r.month).padStart(2,'0')}`);
+    const revYi  = data.rows.map(r => r.revenue !== null ? r.revenue / 1e8 : null);
+    const ma12Yi = data.rows.map(r => r.ma12    !== null ? r.ma12    / 1e8 : null);
+    const colors = data.rows.map(r => r.yoy_pct === null ? '#475569' : (r.yoy_pct >= 0 ? '#4ade80' : '#f87171'));
+
+    const ctx = document.getElementById('chart-revenue').getContext('2d');
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(ctx, {
+      data: {
+        labels,
+        datasets: [
+          { type: 'bar',  label: '月營收(億)', data: revYi,  backgroundColor: colors, borderWidth: 0, yAxisID: 'y' },
+          { type: 'line', label: '12MA(億)',   data: ma12Yi, borderColor: '#fbbf24', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y' },
+        ],
+      },
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, ticks: { ...COMMON_OPTS.scales.x.ticks, maxTicksLimit: 12 } },
+          y: { ...COMMON_OPTS.scales.y, title: { display: true, text: '億元', color: '#94a3b8' } },
+        },
+      },
+    });
+  } catch (e) {
+    stats.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -612,6 +698,7 @@ async function loadDetail() {
     makeMacdChart(data.dates, data.indicators);
     loadChip();
     loadValuation();
+    loadRevenue();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
