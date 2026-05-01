@@ -412,3 +412,34 @@ def test_get_stock_yearly_yoy_single_year_returns_none():
 
 def test_get_stock_yearly_yoy_no_data_returns_none():
     assert _get_stock_yearly_yoy("2330.TW", "y_cash_dividend") is None
+
+
+def test_check_alerts_yoy_quarterly_eps_triggers():
+    db.save_financial_quarterly_rows([
+        {"ticker": "2330.TW", "date": "2025-03-31", "report_type": "income", "type": "EPS", "value": 10.0},
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "EPS", "value": 15.0},
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+                 indicator_key="q_eps", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="q_eps")
+    assert mock_send.called
+
+
+def test_check_alerts_yoy_yearly_dividend_triggers():
+    rows = [
+        {"ticker": "2330.TW", "year": "113年第1季",
+         "cash_dividend": 2.5, "stock_dividend": 0.0,
+         "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
+        {"ticker": "2330.TW", "year": "114年第1季",
+         "cash_dividend": 4.0, "stock_dividend": 0.0,
+         "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
+    ]
+    db.save_dividend_history_rows(rows)
+    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+                 indicator_key="y_cash_dividend", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="y_cash_dividend")
+    assert mock_send.called

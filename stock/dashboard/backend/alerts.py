@@ -380,10 +380,16 @@ def check_alerts(target_type: str, target: str, value: float | None = None,
                          (cond == "percentile_below" and rank <= threshold))
             triggered_value = rank if triggered else None
         elif cond in ("yoy_above", "yoy_below"):
-            # 只支援 monthly indicator(目前僅 revenue)
-            if target_type != "stock_indicator" or indicator_key != "revenue":
+            if target_type != "stock_indicator":
                 continue
-            yoy = _get_stock_revenue_yoy(target)
+            if indicator_key == "revenue":
+                yoy = _get_stock_revenue_yoy(target)
+            elif indicator_key in QUARTERLY_INDICATOR_TYPES:
+                yoy = _get_stock_quarterly_yoy(target, indicator_key)
+            elif indicator_key in YEARLY_INDICATOR_KEYS:
+                yoy = _get_stock_yearly_yoy(target, indicator_key)
+            else:
+                continue
             if yoy is None:
                 continue
             triggered = ((cond == "yoy_above" and yoy >= threshold) or
