@@ -325,3 +325,90 @@ def test_check_alerts_percentile_with_revenue_indicator_skipped():
         with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
             check_alerts("stock_indicator", "2330.TW", indicator_key="revenue")
     assert not mock_send.called
+
+
+from alerts import _get_stock_quarterly_yoy, _get_stock_yearly_yoy
+
+
+def test_get_stock_quarterly_yoy_eps_positive():
+    db.save_financial_quarterly_rows([
+        {"ticker": "2330.TW", "date": "2025-03-31", "report_type": "income", "type": "EPS",      "value": 10.0},
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "EPS",      "value": 15.0},
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "Revenue",  "value": 999_999},
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "balance", "type": "TotalAssets", "value": 999_999},
+    ])
+    yoy = _get_stock_quarterly_yoy("2330.TW", "q_eps")
+    assert yoy == pytest.approx(50.0, abs=0.01)
+
+
+def test_get_stock_quarterly_yoy_operating_cf():
+    db.save_financial_quarterly_rows([
+        {"ticker": "2330.TW", "date": "2025-06-30", "report_type": "cash_flow",
+         "type": "CashFlowsFromOperatingActivities", "value": 1_000_000_000},
+        {"ticker": "2330.TW", "date": "2026-06-30", "report_type": "cash_flow",
+         "type": "CashFlowsFromOperatingActivities", "value": 1_500_000_000},
+    ])
+    assert _get_stock_quarterly_yoy("2330.TW", "q_operating_cf") == pytest.approx(50.0, abs=0.01)
+
+
+def test_get_stock_quarterly_yoy_missing_prev_returns_none():
+    db.save_financial_quarterly_rows([
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "EPS", "value": 15.0},
+    ])
+    assert _get_stock_quarterly_yoy("2330.TW", "q_eps") is None
+
+
+def test_get_stock_quarterly_yoy_no_data_returns_none():
+    assert _get_stock_quarterly_yoy("2330.TW", "q_eps") is None
+
+
+def test_get_stock_quarterly_yoy_unknown_indicator_returns_none():
+    db.save_financial_quarterly_rows([
+        {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "EPS", "value": 15.0},
+    ])
+    assert _get_stock_quarterly_yoy("2330.TW", "q_unknown") is None
+
+
+def test_get_stock_yearly_yoy_cash_dividend_positive():
+    rows = []
+    for q in (1, 2, 3, 4):
+        rows.append({
+            "ticker": "2330.TW", "year": f"113年第{q}季",
+            "cash_dividend": 2.5, "stock_dividend": 0.0,
+            "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None,
+        })
+        rows.append({
+            "ticker": "2330.TW", "year": f"114年第{q}季",
+            "cash_dividend": 4.0, "stock_dividend": 0.0,
+            "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None,
+        })
+    db.save_dividend_history_rows(rows)
+    # 113=2024 cash合計=10, 114=2025 cash合計=16, YoY=60
+    assert _get_stock_yearly_yoy("2330.TW", "y_cash_dividend") == pytest.approx(60.0, abs=0.01)
+
+
+def test_get_stock_yearly_yoy_stock_dividend():
+    rows = [
+        {"ticker": "2330.TW", "year": "113年第1季",
+         "cash_dividend": 0.0, "stock_dividend": 1.0,
+         "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
+        {"ticker": "2330.TW", "year": "114年第1季",
+         "cash_dividend": 0.0, "stock_dividend": 2.0,
+         "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
+    ]
+    db.save_dividend_history_rows(rows)
+    assert _get_stock_yearly_yoy("2330.TW", "y_stock_dividend") == pytest.approx(100.0, abs=0.01)
+
+
+def test_get_stock_yearly_yoy_single_year_returns_none():
+    rows = [
+        {"ticker": "2330.TW", "year": "114年第1季",
+         "cash_dividend": 4.0, "stock_dividend": 0.0,
+         "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
+    ]
+    db.save_dividend_history_rows(rows)
+    assert _get_stock_yearly_yoy("2330.TW", "y_cash_dividend") is None
+
+
+def test_get_stock_yearly_yoy_no_data_returns_none():
+    assert _get_stock_yearly_yoy("2330.TW", "y_cash_dividend") is None

@@ -134,6 +134,80 @@ def _get_stock_revenue_yoy(ticker: str) -> float | None:
     return round((cur - prev) / prev * 100, 2)
 
 
+QUARTERLY_INDICATOR_TYPES = {
+    "q_eps":              ("income",    "EPS"),
+    "q_revenue":          ("income",    "Revenue"),
+    "q_operating_income": ("income",    "OperatingIncome"),
+    "q_net_income":       ("income",    "IncomeAfterTaxes"),
+    "q_operating_cf":     ("cash_flow", "CashFlowsFromOperatingActivities"),
+}
+YEARLY_INDICATOR_KEYS = {"y_cash_dividend", "y_stock_dividend"}
+
+
+def _get_stock_quarterly_yoy(ticker: str, indicator_key: str) -> float | None:
+    """從 stock_financial_quarterly 拉同一 (report_type, type) 序列,取最新季 vs 去年同季。
+
+    缺資料 / 缺去年同季 / prev=0 → None。
+    """
+    if indicator_key not in QUARTERLY_INDICATOR_TYPES:
+        return None
+    report_type, type_name = QUARTERLY_INDICATOR_TYPES[indicator_key]
+
+    from datetime import datetime, timezone
+    from db import get_financial_quarterly_range
+    today = datetime.now(timezone.utc).date()
+    # 拉近 3 年(足夠覆蓋去年同季 + buffer)
+    since = today.replace(year=today.year - 3, month=1, day=1).isoformat()
+    rows = get_financial_quarterly_range(ticker, report_type, since)
+    same_type = [(r["date"], r["value"]) for r in rows
+                 if r["type"] == type_name and r["value"] is not None]
+    if not same_type:
+        return None
+    same_type.sort(key=lambda x: x[0])
+    latest_date, latest_value = same_type[-1]
+
+    dt = datetime.strptime(latest_date, "%Y-%m-%d")
+    target_prev_date = f"{dt.year - 1}-{dt.month:02d}-{dt.day:02d}"
+    prev_value = next((v for d, v in same_type if d == target_prev_date), None)
+    if prev_value is None or prev_value == 0:
+        return None
+    return round((latest_value - prev_value) / prev_value * 100, 2)
+
+
+def _get_stock_yearly_yoy(ticker: str, indicator_key: str) -> float | None:
+    """從 stock_dividend_history aggregate by 西元年(parse "114年第N季" → 2025),
+    比較最新年 vs 去年。"""
+    if indicator_key not in YEARLY_INDICATOR_KEYS:
+        return None
+    from db import get_dividend_history
+    raw_rows = get_dividend_history(ticker)
+    if not raw_rows:
+        return None
+
+    field = "cash_dividend" if indicator_key == "y_cash_dividend" else "stock_dividend"
+
+    import re
+    by_year: dict[int, float] = {}
+    for r in raw_rows:
+        m = re.match(r"^(\d{2,3})年", r.get("year") or "")
+        if not m:
+            continue
+        ce_year = int(m.group(1)) + 1911
+        v = r.get(field) or 0
+        by_year[ce_year] = by_year.get(ce_year, 0) + v
+
+    if len(by_year) < 2:
+        return None
+    sorted_years = sorted(by_year.keys())
+    latest_year = sorted_years[-1]
+    prev_year = latest_year - 1
+    cur = by_year.get(latest_year)
+    prev = by_year.get(prev_year)
+    if cur is None or not prev:
+        return None
+    return round((cur - prev) / prev * 100, 2)
+
+
 def _format_value(target_type: str, target: str, value: float) -> str:
     if target_type == "indicator":
         unit = INDICATOR_UNITS.get(target, "")
