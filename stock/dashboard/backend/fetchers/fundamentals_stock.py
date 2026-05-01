@@ -284,3 +284,30 @@ def fetch_stock_dividend(ticker: str, years: int = DEFAULT_DIVIDEND_LOOKBACK_YEA
     save_dividend_history_rows(rows)
     print(f"[fundamentals] {ticker} dividend {start_date}~{end_date}: {len(rows)} rows")
     return True
+
+
+def fetch_watchlist_stock_daily() -> None:
+    """Daily cron entry:對 watchlist 中所有台股 ticker 拉 chip_stock + PER。
+
+    Lazy 路徑保留(個股頁打開時也拉);此函式確保 watchlist 上有警示的
+    ticker 每天有最新資料,警示能可靠觸發。Watchlist 為空時 early return。
+    """
+    from db import get_watched_tickers
+    from fetchers.chip_stock import fetch_stock_chip
+
+    tickers = get_watched_tickers()
+    tw_tickers = [t for t in tickers if to_finmind_id(t) is not None]
+    if not tw_tickers:
+        print("[watchlist_chip_per] watchlist 中無台股 ticker,skip")
+        return
+
+    print(f"[watchlist_chip_per] 拉 {len(tw_tickers)} 檔台股 chip + PER")
+    for ticker in tw_tickers:
+        try:
+            fetch_stock_chip(ticker)
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} chip error: {e}")
+        try:
+            fetch_stock_per(ticker)
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} per error: {e}")

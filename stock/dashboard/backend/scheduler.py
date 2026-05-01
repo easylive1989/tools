@@ -5,6 +5,7 @@ from apscheduler.triggers.cron import CronTrigger
 from fetchers.yfinance_fetcher import fetch_taiex, fetch_fx, fetch_all_stocks
 from fetchers.fear_greed import fetch_fear_greed
 from fetchers.chip_total import fetch_chip_total
+from fetchers.fundamentals_stock import fetch_watchlist_stock_daily
 from fetchers.ndc import fetch_ndc
 from fetchers.news import fetch_news
 from fetchers.volume import fetch_tw_volume, fetch_us_volume
@@ -27,6 +28,14 @@ def start_scheduler() -> BackgroundScheduler:
     # Daily 18:00 TST (after TWSE settlement)
     scheduler.add_job(fetch_chip_total, CronTrigger(hour=18, minute=0, timezone=TST), id="chip_total", replace_existing=True)
     scheduler.add_job(fetch_tw_volume,  CronTrigger(hour=18, minute=5, timezone=TST), id="tw_volume",  replace_existing=True)
+
+    # Phase 4: watchlist 個股 daily 主動拉(chip + PER),確保警示能觸發
+    scheduler.add_job(
+        fetch_watchlist_stock_daily,
+        CronTrigger(hour=18, minute=30, timezone=TST),
+        id="watchlist_chip_per",
+        replace_existing=True,
+    )
 
     # 美股每日 06:00 TST (美股收盤後)
     scheduler.add_job(fetch_us_volume,  CronTrigger(hour=6,  minute=0, timezone=TST), id="us_volume",  replace_existing=True)
