@@ -399,12 +399,17 @@ body { overflow-x: hidden; }
       <option value="dealer_net">自營淨買</option>
       <option value="margin_balance">融資餘額</option>
       <option value="short_balance">融券餘額</option>
+      <option value="revenue">月營收</option>
     </select>
     <select id="alert-condition">
       <option value="above">大於等於</option>
       <option value="below">小於等於</option>
       <option value="streak_above">連 N 日突破</option>
       <option value="streak_below">連 N 日跌破</option>
+      <option value="percentile_above">5y 百分位突破</option>
+      <option value="percentile_below">5y 百分位跌破</option>
+      <option value="yoy_above">YoY 突破</option>
+      <option value="yoy_below">YoY 跌破</option>
     </select>
     <input id="alert-window-n" type="number" min="2" max="30" placeholder="N 日" value="5" style="display:none">
     <input id="alert-threshold" type="number" step="any" placeholder="門檻數值">
@@ -670,6 +675,7 @@ const STOCK_INDICATOR_LABELS = {
   dealer_net:       '自營淨買',
   margin_balance:   '融資餘額',
   short_balance:    '融券餘額',
+  revenue:          '月營收',
 };
 
 function alertTargetLabel(a) {
@@ -686,6 +692,10 @@ function alertConditionLabel(a) {
   if (a.condition === 'below') return '≤';
   if (a.condition === 'streak_above') return `連 ${a.window_n} 日 ≥`;
   if (a.condition === 'streak_below') return `連 ${a.window_n} 日 ≤`;
+  if (a.condition === 'percentile_above') return '5y 百分位 ≥';
+  if (a.condition === 'percentile_below') return '5y 百分位 ≤';
+  if (a.condition === 'yoy_above') return 'YoY ≥';
+  if (a.condition === 'yoy_below') return 'YoY ≤';
   return a.condition;
 }
 
@@ -734,6 +744,16 @@ function refreshConditionFields() {
   const cond = document.getElementById('alert-condition').value;
   const windowEl = document.getElementById('alert-window-n');
   windowEl.style.display = cond.startsWith('streak_') ? '' : 'none';
+
+  // threshold placeholder 動態切換
+  const thresholdEl = document.getElementById('alert-threshold');
+  if (cond.startsWith('percentile_')) {
+    thresholdEl.placeholder = '百分位 0-100';
+  } else if (cond.startsWith('yoy_')) {
+    thresholdEl.placeholder = 'YoY %(可正可負)';
+  } else {
+    thresholdEl.placeholder = '門檻數值';
+  }
 }
 
 async function loadAlerts() {
