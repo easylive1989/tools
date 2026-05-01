@@ -144,4 +144,135 @@ def parse_dividend_rows(rows: list[dict], ticker: str) -> list[dict]:
     return out
 
 
-# === Fetchers (Task 2 will add the 4 fetch_* functions below) ===
+# === Fetchers (lazy fetch + DB cache) ===
+
+def fetch_stock_per(ticker: str, lookback_days: int = DEFAULT_PER_LOOKBACK_DAYS) -> bool:
+    stock_id = to_finmind_id(ticker)
+    if stock_id is None:
+        return False
+
+    today = datetime.now(timezone.utc).astimezone().date()
+    end_date = today.strftime("%Y-%m-%d")
+
+    latest = get_latest_per_date(ticker)
+    if latest:
+        latest_date = datetime.strptime(latest, "%Y-%m-%d").date()
+        if (today - latest_date).days <= 0:
+            return True
+        start = latest_date + timedelta(days=1)
+    else:
+        start = today - timedelta(days=lookback_days)
+    start_date = start.strftime("%Y-%m-%d")
+    if start_date > end_date:
+        return True
+
+    try:
+        raw = _request("TaiwanStockPER", stock_id, start_date, end_date)
+    except Exception as e:
+        print(f"[fundamentals] {ticker} PER fetch error: {e}")
+        return False
+
+    rows = parse_per_rows(raw, ticker)
+    save_per_daily_rows(rows)
+    print(f"[fundamentals] {ticker} PER {start_date}~{end_date}: {len(rows)} rows")
+    return True
+
+
+def fetch_stock_revenue(ticker: str, months: int = DEFAULT_REVENUE_LOOKBACK_MONTHS) -> bool:
+    stock_id = to_finmind_id(ticker)
+    if stock_id is None:
+        return False
+
+    today = datetime.now(timezone.utc).astimezone().date()
+    latest_ym = get_latest_revenue_ym(ticker)
+    if latest_ym:
+        y, m = latest_ym
+        start = datetime(y, m, 1) + timedelta(days=32)
+        start = start.replace(day=1)
+        if start.date() > today:
+            return True
+    else:
+        start = today.replace(day=1) - timedelta(days=months * 31)
+        start = start.replace(day=1)
+    start_date = start.strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
+
+    try:
+        raw = _request("TaiwanStockMonthRevenue", stock_id, start_date, end_date)
+    except Exception as e:
+        print(f"[fundamentals] {ticker} revenue fetch error: {e}")
+        return False
+
+    rows = parse_revenue_rows(raw, ticker)
+    save_revenue_monthly_rows(rows)
+    print(f"[fundamentals] {ticker} revenue {start_date}~{end_date}: {len(rows)} rows")
+    return True
+
+
+def fetch_stock_financial(ticker: str, report_type: str,
+                          quarters: int = DEFAULT_FINANCIAL_LOOKBACK_QUARTERS) -> bool:
+    """fetch 一個 statement (income/balance/cash_flow) 的資料。"""
+    stock_id = to_finmind_id(ticker)
+    if stock_id is None:
+        return False
+    dataset = FINANCIAL_DATASET.get(report_type)
+    if dataset is None:
+        return False
+
+    today = datetime.now(timezone.utc).astimezone().date()
+    end_date = today.strftime("%Y-%m-%d")
+
+    latest = get_latest_financial_date(ticker, report_type)
+    if latest:
+        latest_date = datetime.strptime(latest, "%Y-%m-%d").date()
+        if (today - latest_date).days < 90:
+            return True
+        start = latest_date + timedelta(days=1)
+    else:
+        start = today - timedelta(days=quarters * 100)
+    start_date = start.strftime("%Y-%m-%d")
+    if start_date > end_date:
+        return True
+
+    try:
+        raw = _request(dataset, stock_id, start_date, end_date)
+    except Exception as e:
+        print(f"[fundamentals] {ticker} financial({report_type}) fetch error: {e}")
+        return False
+
+    rows = parse_financial_rows(raw, ticker, report_type)
+    save_financial_quarterly_rows(rows)
+    print(f"[fundamentals] {ticker} {report_type} {start_date}~{end_date}: {len(rows)} rows")
+    return True
+
+
+def fetch_stock_dividend(ticker: str, years: int = DEFAULT_DIVIDEND_LOOKBACK_YEARS) -> bool:
+    stock_id = to_finmind_id(ticker)
+    if stock_id is None:
+        return False
+
+    today = datetime.now(timezone.utc).astimezone().date()
+    end_date = today.strftime("%Y-%m-%d")
+
+    latest_announce = get_latest_dividend_announce_date(ticker)
+    if latest_announce:
+        latest_date = datetime.strptime(latest_announce, "%Y-%m-%d").date()
+        start = latest_date + timedelta(days=1)
+        if (today - latest_date).days < 30:
+            return True
+    else:
+        start = today - timedelta(days=years * 366)
+    start_date = start.strftime("%Y-%m-%d")
+    if start_date > end_date:
+        return True
+
+    try:
+        raw = _request("TaiwanStockDividend", stock_id, start_date, end_date)
+    except Exception as e:
+        print(f"[fundamentals] {ticker} dividend fetch error: {e}")
+        return False
+
+    rows = parse_dividend_rows(raw, ticker)
+    save_dividend_history_rows(rows)
+    print(f"[fundamentals] {ticker} dividend {start_date}~{end_date}: {len(rows)} rows")
+    return True
