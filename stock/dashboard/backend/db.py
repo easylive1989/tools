@@ -148,6 +148,12 @@ def init_db():
         conn.execute(
             "UPDATE indicator_snapshots SET indicator='margin_balance' WHERE indicator='margin'"
         )
+        # --- Phase 4 alert schema migration (idempotent) ---
+        existing_cols = {r[1] for r in conn.execute("PRAGMA table_info(price_alerts)").fetchall()}
+        if "indicator_key" not in existing_cols:
+            conn.execute("ALTER TABLE price_alerts ADD COLUMN indicator_key TEXT")
+        if "window_n" not in existing_cols:
+            conn.execute("ALTER TABLE price_alerts ADD COLUMN window_n INTEGER")
 
 def save_indicator(indicator: str, value: float, extra_json: str = None, timestamp: datetime = None):
     ts = (timestamp or datetime.now(timezone.utc).replace(tzinfo=None)).isoformat()
@@ -214,12 +220,15 @@ def list_alerts() -> list[dict]:
         return [dict(r) for r in rows]
 
 
-def add_alert(target_type: str, target: str, condition: str, threshold: float) -> int:
+def add_alert(target_type: str, target: str, condition: str, threshold: float,
+              *, indicator_key: str | None = None, window_n: int | None = None) -> int:
     with get_connection() as conn:
         cur = conn.execute(
-            "INSERT INTO price_alerts (target_type, target, condition, threshold, enabled, created_at) "
-            "VALUES (?,?,?,?,1,?)",
-            (target_type, target, condition, threshold,
+            "INSERT INTO price_alerts "
+            "(target_type, target, condition, threshold, indicator_key, window_n, "
+            " enabled, created_at) "
+            "VALUES (?,?,?,?,?,?,1,?)",
+            (target_type, target, condition, threshold, indicator_key, window_n,
              datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
         )
         return cur.lastrowid

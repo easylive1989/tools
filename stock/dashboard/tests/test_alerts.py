@@ -64,3 +64,72 @@ def test_disabled_alert_is_skipped(monkeypatch):
 
     alerts_module.check_alerts("indicator", "taiex", 200.0)
     assert sent == []
+
+
+from alerts import _check_streak
+
+
+def test_check_streak_above_all_pass():
+    assert _check_streak([220, 230, 210, 250, 200], 'streak_above', 200) is True
+
+
+def test_check_streak_above_one_fails():
+    assert _check_streak([220, 230, 199, 250, 200], 'streak_above', 200) is False
+
+
+def test_check_streak_below_all_pass():
+    assert _check_streak([90, 80, 70, 95, 100], 'streak_below', 100) is True
+
+
+def test_check_streak_below_one_fails():
+    assert _check_streak([90, 80, 70, 95, 101], 'streak_below', 100) is False
+
+
+def test_check_streak_insufficient_values_returns_false():
+    assert _check_streak([], 'streak_above', 100) is False
+    assert _check_streak([220, None, 230], 'streak_above', 200) is False
+
+
+def test_check_streak_unknown_condition_returns_false():
+    assert _check_streak([220, 230], 'above', 200) is False
+
+
+import db
+from alerts import _get_stock_indicator_history
+
+
+def test_get_stock_indicator_history_per():
+    db.init_db()
+    db.save_per_daily_rows([
+        {"ticker": "2330.TW", "date": "2026-04-28", "per": 30.0, "pbr": 9.0,  "dividend_yield": 1.5},
+        {"ticker": "2330.TW", "date": "2026-04-29", "per": 31.0, "pbr": 9.5,  "dividend_yield": 1.4},
+        {"ticker": "2330.TW", "date": "2026-04-30", "per": 32.0, "pbr": 10.0, "dividend_yield": 1.3},
+    ])
+    out = _get_stock_indicator_history("2330.TW", "per", n=3)
+    assert out == [30.0, 31.0, 32.0]   # 舊→新
+
+    out2 = _get_stock_indicator_history("2330.TW", "pbr", n=2)
+    assert out2 == [9.5, 10.0]         # 取最近 2 個
+
+
+def test_get_stock_indicator_history_chip_foreign_net():
+    db.init_db()
+    db.save_chip_daily_rows([
+        {"ticker": "2330.TW", "date": "2026-04-29",
+         "foreign_buy": 5_000_000, "foreign_sell": 3_000_000,
+         "trust_buy": None, "trust_sell": None,
+         "dealer_buy": None, "dealer_sell": None,
+         "margin_balance": None, "short_balance": None},
+        {"ticker": "2330.TW", "date": "2026-04-30",
+         "foreign_buy": 6_000_000, "foreign_sell": 1_000_000,
+         "trust_buy": None, "trust_sell": None,
+         "dealer_buy": None, "dealer_sell": None,
+         "margin_balance": None, "short_balance": None},
+    ])
+    # foreign_net = buy - sell;最近 2 日:2_000_000, 5_000_000
+    assert _get_stock_indicator_history("2330.TW", "foreign_net", n=2) == [2_000_000, 5_000_000]
+
+
+def test_get_stock_indicator_history_unknown_key_returns_empty():
+    db.init_db()
+    assert _get_stock_indicator_history("2330.TW", "unknown_key", n=5) == []

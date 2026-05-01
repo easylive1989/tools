@@ -43,6 +43,62 @@ INDICATOR_UNITS = {
 }
 
 
+def _check_streak(values: list, condition: str, threshold: float) -> bool:
+    """檢查 values 是否全部達門檻(streak_above 全 >= threshold,streak_below 全 <= threshold)。
+
+    values 中含 None 視為「資料不足」,直接 False(不允許部分)。
+    給空 list 也 False。
+    condition 不是 streak_above / streak_below 也 False。
+    """
+    if condition not in ('streak_above', 'streak_below'):
+        return False
+    if not values or any(v is None for v in values):
+        return False
+    if condition == 'streak_above':
+        return all(v >= threshold for v in values)
+    return all(v <= threshold for v in values)
+
+
+# --- 個股 daily 指標查詢路由 ---
+
+# Phase 4 個股 daily 指標 → 對應 stock_*_daily 表 + 衍生計算規則
+_PER_KEYS = {"per", "pbr", "dividend_yield"}
+_CHIP_NET_KEYS = {"foreign_net", "trust_net", "dealer_net"}
+_CHIP_BAL_KEYS = {"margin_balance", "short_balance"}
+
+STOCK_INDICATOR_KEYS = _PER_KEYS | _CHIP_NET_KEYS | _CHIP_BAL_KEYS
+
+
+def _get_stock_indicator_history(ticker: str, indicator_key: str, n: int) -> list[float]:
+    """從 stock_per_daily / stock_chip_daily 取最近 n 個非 None 值,舊→新排序。"""
+    if indicator_key not in STOCK_INDICATOR_KEYS:
+        return []
+
+    from datetime import datetime, timedelta, timezone
+    from db import get_per_daily_range, get_chip_daily_range
+    since_date = (datetime.now(timezone.utc).date() - timedelta(days=n * 3 + 30)).isoformat()
+
+    if indicator_key in _PER_KEYS:
+        rows = get_per_daily_range(ticker, since_date)
+        values = [r[indicator_key] for r in rows]
+    elif indicator_key in _CHIP_NET_KEYS:
+        rows = get_chip_daily_range(ticker, since_date)
+        bs_prefix = indicator_key[:-4]   # 'foreign_net' → 'foreign'
+        values = []
+        for r in rows:
+            buy, sell = r[f"{bs_prefix}_buy"], r[f"{bs_prefix}_sell"]
+            if buy is None or sell is None:
+                values.append(None)
+            else:
+                values.append(buy - sell)
+    else:  # margin_balance / short_balance
+        rows = get_chip_daily_range(ticker, since_date)
+        values = [r[indicator_key] for r in rows]
+
+    clean = [v for v in values if v is not None]
+    return clean[-n:]
+
+
 def _format_value(target_type: str, target: str, value: float) -> str:
     if target_type == "indicator":
         unit = INDICATOR_UNITS.get(target, "")
