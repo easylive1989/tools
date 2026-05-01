@@ -258,6 +258,20 @@ def fetch_stock_financial(ticker: str, report_type: str,
 
     rows = parse_financial_rows(raw, ticker, report_type)
     save_financial_quarterly_rows(rows)
+
+    # Phase 4 alert 觸發:只在拉到新季時針對對應 quarterly indicator 檢查
+    new_max_date = max((r["date"] for r in rows), default=None)
+    if new_max_date and (latest is None or new_max_date > latest):
+        from alerts import check_alerts
+        triggered_keys: list[str] = []
+        if report_type == "income":
+            triggered_keys = ["q_eps", "q_revenue", "q_operating_income", "q_net_income"]
+        elif report_type == "cash_flow":
+            triggered_keys = ["q_operating_cf"]
+        # balance 不觸發(範圍外)
+        for key in triggered_keys:
+            check_alerts("stock_indicator", ticker, indicator_key=key)
+
     print(f"[fundamentals] {ticker} {report_type} {start_date}~{end_date}: {len(rows)} rows")
     return True
 
@@ -278,6 +292,9 @@ def fetch_stock_dividend(ticker: str, years: int = DEFAULT_DIVIDEND_LOOKBACK_YEA
             return True
     else:
         start = today - timedelta(days=years * 366)
+
+    from db import get_dividend_history
+    pre_dividend_history = get_dividend_history(ticker)
     start_date = start.strftime("%Y-%m-%d")
     if start_date > end_date:
         return True
@@ -290,6 +307,24 @@ def fetch_stock_dividend(ticker: str, years: int = DEFAULT_DIVIDEND_LOOKBACK_YEA
 
     rows = parse_dividend_rows(raw, ticker)
     save_dividend_history_rows(rows)
+
+    # Phase 4 alert 觸發:只在拉到新西元年才觸發 yearly indicator
+    import re
+    def _max_ce_year(items):
+        years = []
+        for r in items:
+            m = re.match(r"^(\d{2,3})年", r.get("year") or "")
+            if m:
+                years.append(int(m.group(1)) + 1911)
+        return max(years, default=None)
+
+    pre_year = _max_ce_year(pre_dividend_history)
+    new_year = _max_ce_year(rows)
+    if new_year and (pre_year is None or new_year > pre_year):
+        from alerts import check_alerts
+        for key in ("y_cash_dividend", "y_stock_dividend"):
+            check_alerts("stock_indicator", ticker, indicator_key=key)
+
     print(f"[fundamentals] {ticker} dividend {start_date}~{end_date}: {len(rows)} rows")
     return True
 
