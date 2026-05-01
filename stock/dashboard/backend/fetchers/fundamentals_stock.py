@@ -212,6 +212,14 @@ def fetch_stock_revenue(ticker: str, months: int = DEFAULT_REVENUE_LOOKBACK_MONT
 
     rows = parse_revenue_rows(raw, ticker)
     save_revenue_monthly_rows(rows)
+
+    # Phase 4 follow-up alert 觸發:只在「實際拉到新月」時針對 revenue 指標檢查。
+    # latest_ym 是 fetch 開始前的最新月(已在函式上方算出);post-fetch 比對。
+    new_max_ym = max(((r["year"], r["month"]) for r in rows), default=None)
+    if new_max_ym and (latest_ym is None or new_max_ym > latest_ym):
+        from alerts import check_alerts
+        check_alerts("stock_indicator", ticker, indicator_key="revenue")
+
     print(f"[fundamentals] {ticker} revenue {start_date}~{end_date}: {len(rows)} rows")
     return True
 
@@ -311,3 +319,7 @@ def fetch_watchlist_stock_daily() -> None:
             fetch_stock_per(ticker)
         except Exception as e:
             print(f"[watchlist_chip_per] {ticker} per error: {e}")
+        try:
+            fetch_stock_revenue(ticker)
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} revenue error: {e}")
