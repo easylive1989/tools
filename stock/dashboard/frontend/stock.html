@@ -50,6 +50,19 @@ a:hover { text-decoration: underline; }
 @media (max-width: 720px) { .chip-grid { grid-template-columns: 1fr; } }
 .chip-pos { color: #4ade80; }
 .chip-neg { color: #f87171; }
+.fund-stat-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 12px; }
+.fund-stat { display: flex; flex-direction: column; gap: 2px; min-width: 110px; }
+.fund-stat .label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; }
+.fund-stat .value { font-size: 18px; font-weight: 600; color: #e2e8f0; }
+.fund-stat .sub   { font-size: 11px; color: #94a3b8; }
+.fund-empty { color: #94a3b8; font-size: 13px; padding: 8px 0; }
+.fund-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fund-table th, .fund-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #2d3348; }
+.fund-table th { color: #94a3b8; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.fund-table td.fund-label, .fund-table th.fund-label { text-align: left; color: #e2e8f0; }
+.fund-table tbody tr:last-child td { border-bottom: none; }
+.fund-pos { color: #4ade80; }
+.fund-neg { color: #f87171; }
 @media (max-width: 600px) {
   body { padding: 12px; }
   .price { font-size: 24px; }
@@ -146,6 +159,15 @@ a:hover { text-decoration: underline; }
         <div id="chip-margin-body"></div>
       </div>
     </div>
+  </div>
+
+  <div class="card" id="valuation-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">估值快照</span>
+      <span class="card-hint" id="valuation-hint">PER / PBR / 殖利率 · 近 5 年</span>
+    </div>
+    <div id="valuation-stats" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-valuation"></canvas></div>
   </div>
 </div>
 
@@ -488,6 +510,80 @@ async function loadChip() {
   }
 }
 
+let valuationChart = null;
+
+async function loadValuation() {
+  const card = document.getElementById('valuation-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const stats = document.getElementById('valuation-stats');
+  stats.innerHTML = '<div class="fund-empty">載入中…</div>';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/valuation?years=5`);
+    if (!r.ok) {
+      stats.innerHTML = `<div class="fund-empty">無法載入估值 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.latest || !data.rows || !data.rows.length) {
+      stats.innerHTML = '<div class="fund-empty">尚無估值資料</div>';
+      return;
+    }
+
+    const fmtN = (v, d=2) => v === null || v === undefined ? '—' : Number(v).toFixed(d);
+
+    const hint = document.getElementById('valuation-hint');
+    if (hint && data.as_of) hint.textContent = `PER / PBR / 殖利率 · 近 5 年 (至 ${data.as_of})`;
+
+    const range = data.range_5y || {};
+    stats.innerHTML = `
+      <div class="fund-stat">
+        <span class="label">PER</span>
+        <span class="value">${fmtN(data.latest.per)}</span>
+        <span class="sub">5 年區間 ${fmtN(range.per?.min)} – ${fmtN(range.per?.max)}<br>百分位 ${fmtN(data.latest.per_percentile_5y, 1)}%</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">PBR</span>
+        <span class="value">${fmtN(data.latest.pbr)}</span>
+        <span class="sub">5 年區間 ${fmtN(range.pbr?.min)} – ${fmtN(range.pbr?.max)}<br>平均 ${fmtN(range.pbr?.avg)}</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">現金殖利率</span>
+        <span class="value">${fmtN(data.latest.dividend_yield)}%</span>
+        <span class="sub">5 年平均 ${fmtN(range.dividend_yield?.avg)}%</span>
+      </div>
+    `;
+
+    const labels = data.rows.map(r => r.date);
+    const perData = data.rows.map(r => r.per);
+    const pbrData = data.rows.map(r => r.pbr);
+    const ydData  = data.rows.map(r => r.dividend_yield);
+    const ctx = document.getElementById('chart-valuation').getContext('2d');
+    if (valuationChart) valuationChart.destroy();
+    valuationChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: 'PER',     data: perData, borderColor: '#60a5fa', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y' },
+        { label: 'PBR',     data: pbrData, borderColor: '#a78bfa', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y' },
+        { label: '殖利率%', data: ydData,  borderColor: '#4ade80', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y1' },
+      ]},
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, ticks: { ...COMMON_OPTS.scales.x.ticks, maxTicksLimit: 6 } },
+          y:  { ...COMMON_OPTS.scales.y, position: 'left',  title: { display: true, text: 'PER / PBR', color: '#94a3b8' } },
+          y1: { ...COMMON_OPTS.scales.y, position: 'right', title: { display: true, text: '殖利率 %',  color: '#94a3b8' },
+                grid: { drawOnChartArea: false } },
+        },
+      },
+    });
+  } catch (e) {
+    stats.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -515,6 +611,7 @@ async function loadDetail() {
     makeRsiChart(data.dates, data.indicators);
     makeMacdChart(data.dates, data.indicators);
     loadChip();
+    loadValuation();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
