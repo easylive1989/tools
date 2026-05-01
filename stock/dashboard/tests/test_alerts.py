@@ -257,3 +257,71 @@ def test_get_stock_revenue_yoy_missing_prev_year_returns_none():
 
 def test_get_stock_revenue_yoy_no_data_returns_none():
     assert _get_stock_revenue_yoy("2330.TW") is None
+
+
+def test_check_alerts_percentile_above_triggers():
+    # 寫 50 個 PER 值,latest 是最大 → 百分位 100
+    rows = []
+    for i in range(50):
+        # 月份循環 1-12,日期循環 01-28,確保唯一
+        month = (i % 12) + 1
+        day = ((i // 12) % 4) * 7 + 1   # 1, 8, 15, 22
+        rows.append({
+            "ticker": "2330.TW",
+            "date": f"2024-{month:02d}-{day:02d}",
+            "per": 20.0 + i,   # 20.0 - 69.0,latest=69 是最大
+            "pbr": None, "dividend_yield": None,
+        })
+    db.save_per_daily_rows(rows)
+    db.add_alert("stock_indicator", "2330.TW", "percentile_above", 90,
+                 indicator_key="per", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="per")
+    assert mock_send.called
+
+
+def test_check_alerts_percentile_below_does_not_trigger_when_high():
+    rows = []
+    for i in range(50):
+        month = (i % 12) + 1
+        day = ((i // 12) % 4) * 7 + 1
+        rows.append({
+            "ticker": "2330.TW",
+            "date": f"2024-{month:02d}-{day:02d}",
+            "per": 20.0 + i,
+            "pbr": None, "dividend_yield": None,
+        })
+    db.save_per_daily_rows(rows)
+    db.add_alert("stock_indicator", "2330.TW", "percentile_below", 10,
+                 indicator_key="per", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="per")
+    assert not mock_send.called
+
+
+def test_check_alerts_yoy_above_triggers():
+    db.save_revenue_monthly_rows([
+        {"ticker": "2330.TW", "year": 2025, "month": 4, "revenue": 1_000_000_000_000, "announced_date": ""},
+        {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+                 indicator_key="revenue", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="revenue")
+    assert mock_send.called
+
+
+def test_check_alerts_percentile_with_revenue_indicator_skipped():
+    """percentile 只支援 daily indicator,搭 revenue 不應觸發(engine layer skip)。"""
+    db.save_revenue_monthly_rows([
+        {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "percentile_above", 50,
+                 indicator_key="revenue", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="revenue")
+    assert not mock_send.called

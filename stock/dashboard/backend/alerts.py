@@ -193,6 +193,8 @@ def _build_payload(alert: dict, value: float | None, display_name: str) -> dict:
                 return f"{v:.2f}"
             if ik == "dividend_yield":
                 return f"{v:.2f}%"
+            if ik == "revenue":
+                return f"{v:.2f}%"   # revenue alert 多為 yoy_*,顯示 %
             return f"{v:,.0f}"
         # stock
         return f"{v:,.4f}" if v < 100 else f"{v:,.2f}"
@@ -211,6 +213,18 @@ def _build_payload(alert: dict, value: float | None, display_name: str) -> dict:
         color = 0xE74C3C
     elif cond == "streak_below":
         crossed = f"連 {window_n} 日跌破"
+        color = 0x3498DB
+    elif cond == "percentile_above":
+        crossed = "5y 百分位突破"
+        color = 0xE74C3C
+    elif cond == "percentile_below":
+        crossed = "5y 百分位跌破"
+        color = 0x3498DB
+    elif cond == "yoy_above":
+        crossed = "YoY 突破"
+        color = 0xE74C3C
+    elif cond == "yoy_below":
+        crossed = "YoY 跌破"
         color = 0x3498DB
     else:
         crossed = cond
@@ -279,6 +293,28 @@ def check_alerts(target_type: str, target: str, value: float | None = None,
                 continue   # streak 不適用於 stock 價格(沒有 history 表)
             triggered = _check_streak(hist, cond, threshold, expected_n=window_n)
             triggered_value = hist[-1] if (triggered and hist) else None
+        elif cond in ("percentile_above", "percentile_below"):
+            # 只支援 daily indicator(per/pbr/dividend_yield)
+            if target_type != "stock_indicator" or indicator_key not in {"per", "pbr", "dividend_yield"}:
+                continue
+            hist = _get_stock_indicator_history(target, indicator_key, 1825)
+            cur_value = hist[-1] if hist else None
+            rank = _pct_rank(cur_value, hist)
+            if rank is None:
+                continue
+            triggered = ((cond == "percentile_above" and rank >= threshold) or
+                         (cond == "percentile_below" and rank <= threshold))
+            triggered_value = rank if triggered else None
+        elif cond in ("yoy_above", "yoy_below"):
+            # 只支援 monthly indicator(目前僅 revenue)
+            if target_type != "stock_indicator" or indicator_key != "revenue":
+                continue
+            yoy = _get_stock_revenue_yoy(target)
+            if yoy is None:
+                continue
+            triggered = ((cond == "yoy_above" and yoy >= threshold) or
+                         (cond == "yoy_below" and yoy <= threshold))
+            triggered_value = yoy if triggered else None
         else:
             continue
 
