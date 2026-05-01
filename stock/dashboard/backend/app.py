@@ -1,4 +1,5 @@
 import json
+import re
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
@@ -244,6 +245,8 @@ def stock_valuation(ticker: str, years: int = 5):
     yds  = [r["dividend_yield"] for r in rows_sorted if r["dividend_yield"] is not None]
 
     if latest["per"] is not None and pers:
+        # Inclusive percentile rank: P(X <= current_per) × 100。
+        # 若 latest 為歷史最高值 → 100;若為最低 → ~ (1/N)×100。
         below = sum(1 for v in pers if v <= latest["per"])
         per_percentile = round(below / len(pers) * 100, 2)
     else:
@@ -318,13 +321,20 @@ def stock_revenue(ticker: str, months: int = 36):
     last_n = enriched_sorted[-months:]
     latest = enriched_sorted[-1]
 
-    ytd_cur = sum(by_ym[(latest["year"], m)]
-                  for m in range(1, latest["month"] + 1)
-                  if (latest["year"], m) in by_ym)
-    ytd_prev = sum(by_ym[(latest["year"] - 1, m)]
-                   for m in range(1, latest["month"] + 1)
-                   if (latest["year"] - 1, m) in by_ym)
-    ytd_yoy = round((ytd_cur - ytd_prev) / ytd_prev * 100, 2) if ytd_prev else None
+    def _ytd_sum(year: int, last_month: int) -> float | None:
+        """Return sum 1..last_month for year; None if any month missing."""
+        vals = []
+        for m in range(1, last_month + 1):
+            v = by_ym.get((year, m))
+            if v is None:
+                return None
+            vals.append(v)
+        return sum(vals)
+
+    ytd_cur  = _ytd_sum(latest["year"],     latest["month"])
+    ytd_prev = _ytd_sum(latest["year"] - 1, latest["month"])
+    ytd_yoy = (round((ytd_cur - ytd_prev) / ytd_prev * 100, 2)
+               if (ytd_cur is not None and ytd_prev) else None)
 
     return {
         "ticker": ticker, "months": months, "ok": True,
@@ -364,7 +374,9 @@ def _build_balance_row(date: str, types: dict[str, float]) -> dict:
     tl    = types.get("Liabilities")
     cl    = types.get("CurrentLiabilities")
     ncl   = types.get("NoncurrentLiabilities")
-    eq    = types.get("EquityAttributableToOwnersOfParent") or types.get("Equity")
+    eq    = types.get("EquityAttributableToOwnersOfParent")
+    if eq is None:
+        eq = types.get("Equity")
     def _ratio(num, den):
         return round(num / den, 4) if num is not None and den else None
     def _pct(num, den):
@@ -385,8 +397,9 @@ def _build_balance_row(date: str, types: dict[str, float]) -> dict:
 
 
 def _build_cashflow_row(date: str, types: dict[str, float]) -> dict:
-    ocf = (types.get("CashFlowsFromOperatingActivities")
-           or types.get("NetCashInflowFromOperatingActivities"))
+    ocf = types.get("CashFlowsFromOperatingActivities")
+    if ocf is None:
+        ocf = types.get("NetCashInflowFromOperatingActivities")
     icf = types.get("CashProvidedByInvestingActivities")
     fcf = types.get("CashFlowsProvidedFromFinancingActivities")
     free_cf = (ocf + icf) if (ocf is not None and icf is not None) else None
@@ -461,7 +474,6 @@ def stock_financial(ticker: str, statement: str = "income", quarters: int = 12):
 
 def _aggregate_dividend_by_calendar_year(rows: list[dict]) -> dict[int, dict]:
     """股利資料按 ROC 年(year 字串前綴 e.g. "114年第3季")推斷西元年,合計現金/股票股利。"""
-    import re
     by_year: dict[int, dict] = {}
     for r in rows:
         y_str = r.get("year") or ""
@@ -484,7 +496,10 @@ def _aggregate_dividend_by_calendar_year(rows: list[dict]) -> dict[int, dict]:
 
 
 def _annual_eps_sum(ticker: str, year: int) -> float | None:
-    """回傳該西元年 4 季 EPS 合計;有任一季缺則回 None。實際上有任 EPS 資料即合計。"""
+    """回傳該西元年 EPS 合計(可能是 partial-year — 例:當年只發了 Q1+Q2 報表)。
+    若 DB 中該年完全沒 EPS 資料,回 None;否則回現有季度 EPS 加總(可能 < 4 季)。
+    呼叫方需注意此值在年中可能不是完整年度 EPS。
+    """
     rows = get_financial_quarterly_range(ticker, "income", f"{year}-01-01")
     eps_by_date: dict[str, float] = {}
     for r in rows:

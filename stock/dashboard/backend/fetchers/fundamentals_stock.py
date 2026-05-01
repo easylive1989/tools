@@ -225,7 +225,8 @@ def fetch_stock_financial(ticker: str, report_type: str,
     latest = get_latest_financial_date(ticker, report_type)
     if latest:
         latest_date = datetime.strptime(latest, "%Y-%m-%d").date()
-        if (today - latest_date).days < 90:
+        # TWSE 季報申報期限約為季結束後 45 天;留 5 天 buffer。
+        if (today - latest_date).days < 45:
             return True
         start = latest_date + timedelta(days=1)
     else:

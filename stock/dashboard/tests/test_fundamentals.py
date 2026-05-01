@@ -221,6 +221,7 @@ def test_financial_balance_endpoint_returns_ratios():
     assert row["current_ratio"]     == pytest.approx(2.0)
     assert row["debt_ratio_pct"]    == pytest.approx(50.0)
     assert row["equity_ratio_pct"]  == pytest.approx(50.0)
+    assert body["annual_summary"] is None
 
 
 def test_financial_cashflow_endpoint_returns_fcf():
@@ -238,6 +239,7 @@ def test_financial_cashflow_endpoint_returns_fcf():
     assert row["investing_cf"]   == -300.0
     assert row["financing_cf"]   == -200.0
     assert row["free_cash_flow"] == 500.0
+    assert body["annual_summary"] is None
 
 
 def test_dividend_endpoint_aggregates_by_calendar_year():
