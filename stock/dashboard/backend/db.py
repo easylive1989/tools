@@ -83,6 +83,52 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_chip_ticker_date
                 ON stock_chip_daily(ticker, date);
 
+            CREATE TABLE IF NOT EXISTS stock_per_daily (
+                ticker         TEXT NOT NULL,
+                date           TEXT NOT NULL,
+                per            REAL,
+                pbr            REAL,
+                dividend_yield REAL,
+                PRIMARY KEY (ticker, date)
+            );
+            CREATE INDEX IF NOT EXISTS idx_per_ticker_date
+                ON stock_per_daily(ticker, date);
+
+            CREATE TABLE IF NOT EXISTS stock_revenue_monthly (
+                ticker         TEXT    NOT NULL,
+                year           INTEGER NOT NULL,
+                month          INTEGER NOT NULL,
+                revenue        REAL,
+                announced_date TEXT,
+                PRIMARY KEY (ticker, year, month)
+            );
+            CREATE INDEX IF NOT EXISTS idx_revenue_ticker_ym
+                ON stock_revenue_monthly(ticker, year, month);
+
+            CREATE TABLE IF NOT EXISTS stock_financial_quarterly (
+                ticker      TEXT NOT NULL,
+                date        TEXT NOT NULL,
+                report_type TEXT NOT NULL,
+                type        TEXT NOT NULL,
+                value       REAL,
+                PRIMARY KEY (ticker, date, report_type, type)
+            );
+            CREATE INDEX IF NOT EXISTS idx_financial_ticker_date
+                ON stock_financial_quarterly(ticker, date, report_type);
+
+            CREATE TABLE IF NOT EXISTS stock_dividend_history (
+                ticker             TEXT NOT NULL,
+                year               TEXT NOT NULL,
+                cash_dividend      REAL,
+                stock_dividend     REAL,
+                cash_ex_date       TEXT,
+                cash_payment_date  TEXT,
+                announcement_date  TEXT,
+                PRIMARY KEY (ticker, year)
+            );
+            CREATE INDEX IF NOT EXISTS idx_dividend_ticker
+                ON stock_dividend_history(ticker);
+
             CREATE TABLE IF NOT EXISTS price_alerts (
                 id            INTEGER PRIMARY KEY AUTOINCREMENT,
                 target_type   TEXT NOT NULL,
@@ -318,6 +364,153 @@ def get_latest_chip_date(ticker: str) -> str | None:
         return row["d"] if row and row["d"] else None
 
 
+# --- PER ---
+def save_per_daily_rows(rows: list[dict]) -> None:
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_per_daily (ticker, date, per, pbr, dividend_yield) "
+            "VALUES (?,?,?,?,?) "
+            "ON CONFLICT(ticker, date) DO UPDATE SET "
+            " per=excluded.per, pbr=excluded.pbr, dividend_yield=excluded.dividend_yield",
+            [(r["ticker"], r["date"], r.get("per"), r.get("pbr"), r.get("dividend_yield"))
+             for r in rows],
+        )
+
+
+def get_per_daily_range(ticker: str, since_date: str) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT date, per, pbr, dividend_yield FROM stock_per_daily "
+            "WHERE ticker=? AND date>=? ORDER BY date",
+            (ticker, since_date),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_per_date(ticker: str) -> str | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT MAX(date) AS d FROM stock_per_daily WHERE ticker=?",
+            (ticker,),
+        ).fetchone()
+        return row["d"] if row and row["d"] else None
+
+
+# --- Revenue ---
+def save_revenue_monthly_rows(rows: list[dict]) -> None:
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_revenue_monthly "
+            "(ticker, year, month, revenue, announced_date) VALUES (?,?,?,?,?) "
+            "ON CONFLICT(ticker, year, month) DO UPDATE SET "
+            " revenue=excluded.revenue, announced_date=excluded.announced_date",
+            [(r["ticker"], r["year"], r["month"], r.get("revenue"), r.get("announced_date"))
+             for r in rows],
+        )
+
+
+def get_revenue_monthly_range(ticker: str, since_year: int, since_month: int) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT year, month, revenue, announced_date FROM stock_revenue_monthly "
+            "WHERE ticker=? AND (year * 12 + month) >= (? * 12 + ?) "
+            "ORDER BY year, month",
+            (ticker, since_year, since_month),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_revenue_ym(ticker: str) -> tuple[int, int] | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT year, month FROM stock_revenue_monthly "
+            "WHERE ticker=? ORDER BY year DESC, month DESC LIMIT 1",
+            (ticker,),
+        ).fetchone()
+        return (row["year"], row["month"]) if row else None
+
+
+# --- Financial (income/balance/cash_flow) ---
+def save_financial_quarterly_rows(rows: list[dict]) -> None:
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_financial_quarterly "
+            "(ticker, date, report_type, type, value) VALUES (?,?,?,?,?) "
+            "ON CONFLICT(ticker, date, report_type, type) DO UPDATE SET "
+            " value=excluded.value",
+            [(r["ticker"], r["date"], r["report_type"], r["type"], r.get("value"))
+             for r in rows],
+        )
+
+
+def get_financial_quarterly_range(ticker: str, report_type: str, since_date: str) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT date, type, value FROM stock_financial_quarterly "
+            "WHERE ticker=? AND report_type=? AND date>=? "
+            "ORDER BY date, type",
+            (ticker, report_type, since_date),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_financial_date(ticker: str, report_type: str) -> str | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT MAX(date) AS d FROM stock_financial_quarterly "
+            "WHERE ticker=? AND report_type=?",
+            (ticker, report_type),
+        ).fetchone()
+        return row["d"] if row and row["d"] else None
+
+
+# --- Dividend ---
+def save_dividend_history_rows(rows: list[dict]) -> None:
+    if not rows:
+        return
+    with get_connection() as conn:
+        conn.executemany(
+            "INSERT INTO stock_dividend_history "
+            "(ticker, year, cash_dividend, stock_dividend, cash_ex_date, cash_payment_date, announcement_date) "
+            "VALUES (?,?,?,?,?,?,?) "
+            "ON CONFLICT(ticker, year) DO UPDATE SET "
+            " cash_dividend=excluded.cash_dividend, "
+            " stock_dividend=excluded.stock_dividend, "
+            " cash_ex_date=excluded.cash_ex_date, "
+            " cash_payment_date=excluded.cash_payment_date, "
+            " announcement_date=excluded.announcement_date",
+            [(r["ticker"], r["year"], r.get("cash_dividend"), r.get("stock_dividend"),
+              r.get("cash_ex_date"), r.get("cash_payment_date"), r.get("announcement_date"))
+             for r in rows],
+        )
+
+
+def get_dividend_history(ticker: str) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT year, cash_dividend, stock_dividend, cash_ex_date, "
+            "       cash_payment_date, announcement_date "
+            "FROM stock_dividend_history WHERE ticker=? ORDER BY year",
+            (ticker,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def get_latest_dividend_announce_date(ticker: str) -> str | None:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT MAX(announcement_date) AS d FROM stock_dividend_history WHERE ticker=?",
+            (ticker,),
+        ).fetchone()
+        return row["d"] if row and row["d"] else None
+
+
 def purge_old_data(days: int = 1095):
     cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()
     cutoff_date = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).strftime("%Y-%m-%d")
@@ -326,3 +519,11 @@ def purge_old_data(days: int = 1095):
         conn.execute("DELETE FROM stock_snapshots WHERE timestamp<?", (cutoff,))
         conn.execute("DELETE FROM stock_broker_daily WHERE date<?", (cutoff_date,))
         conn.execute("DELETE FROM stock_chip_daily WHERE date<?", (cutoff_date,))
+        conn.execute("DELETE FROM stock_per_daily WHERE date<?", (cutoff_date,))
+        conn.execute(
+            "DELETE FROM stock_revenue_monthly "
+            "WHERE (year * 12 + month) < (? * 12 + ?)",
+            (int(cutoff_date[:4]), int(cutoff_date[5:7]))
+        )
+        conn.execute("DELETE FROM stock_financial_quarterly WHERE date<?", (cutoff_date,))
+        # dividend 不 purge(歷史很長很重要)
