@@ -81,3 +81,34 @@ def test_alert_crud_and_lifecycle():
 
     db.delete_alert(aid)
     assert db.list_alerts() == []
+
+
+def test_remove_watched_ticker_disables_stock_indicator_alerts():
+    """移除 watchlist ticker 應同時停用該 ticker 的 stock_indicator alerts(Phase 4 follow-up)。"""
+    db.init_db()
+    db.add_watched_ticker("2330.TW")
+    a1 = db.add_alert("stock_indicator", "2330.TW", "above", 30,
+                      indicator_key="per", window_n=None)
+    a2 = db.add_alert("indicator", "margin_balance", "above", 5000,
+                      indicator_key=None, window_n=None)
+    a3 = db.add_alert("stock_indicator", "2454.TW", "above", 50,
+                      indicator_key="per", window_n=None)
+
+    db.remove_watched_ticker("2330.TW")
+
+    alerts = {a["id"]: a for a in db.list_alerts()}
+    assert alerts[a1]["enabled"] == 0
+    assert alerts[a2]["enabled"] == 1
+    assert alerts[a3]["enabled"] == 1
+
+
+def test_remove_watched_ticker_does_not_affect_stock_price_alerts():
+    """移除 ticker 不應該動到 'stock' (價格)類型 alerts — 跟 stock_indicator 分開處理。"""
+    db.init_db()
+    db.add_watched_ticker("2330.TW")
+    a1 = db.add_alert("stock", "2330.TW", "above", 1000)
+
+    db.remove_watched_ticker("2330.TW")
+
+    alerts = {a["id"]: a for a in db.list_alerts()}
+    assert alerts[a1]["enabled"] == 1

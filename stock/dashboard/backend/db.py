@@ -211,6 +211,12 @@ def add_watched_ticker(ticker: str):
 def remove_watched_ticker(ticker: str):
     with get_connection() as conn:
         conn.execute("DELETE FROM watched_stocks WHERE ticker=?", (ticker,))
+        # Phase 4 follow-up:同時停用該 ticker 的 stock_indicator alerts(避免 stale)
+        conn.execute(
+            "UPDATE price_alerts SET enabled=0 "
+            "WHERE target_type='stock_indicator' AND target=?",
+            (ticker,)
+        )
 
 def list_alerts() -> list[dict]:
     with get_connection() as conn:
