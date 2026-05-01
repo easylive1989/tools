@@ -317,3 +317,60 @@ def test_post_alert_percentile_threshold_out_of_range_400():
         "indicator_key": "per",
     })
     assert r.status_code == 400
+
+
+def test_post_alert_yoy_with_q_eps():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 30,
+        "indicator_key": "q_eps",
+    })
+    assert r.status_code == 200
+
+
+def test_post_alert_yoy_with_y_cash_dividend():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 20,
+        "indicator_key": "y_cash_dividend",
+    })
+    assert r.status_code == 200
+
+
+def test_post_alert_yoy_with_unknown_q_key_400():
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 30,
+        "indicator_key": "q_unknown_field",
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_percentile_with_q_eps_400():
+    """percentile 仍只支援 daily,搭 q_eps 應 400。"""
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "percentile_above",
+        "threshold": 90,
+        "indicator_key": "q_eps",
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_yoy_with_per_still_400():
+    """yoy + daily indicator 仍應 400。"""
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "yoy_above",
+        "threshold": 30,
+        "indicator_key": "per",
+    })
+    assert r.status_code == 400

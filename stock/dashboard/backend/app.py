@@ -595,7 +595,17 @@ STOCK_DAILY_INDICATOR_KEYS = {
     "margin_balance", "short_balance",
 }
 STOCK_MONTHLY_INDICATOR_KEYS = {"revenue"}
-STOCK_INDICATOR_KEYS = STOCK_DAILY_INDICATOR_KEYS | STOCK_MONTHLY_INDICATOR_KEYS
+STOCK_QUARTERLY_INDICATOR_KEYS = {
+    "q_eps", "q_revenue", "q_operating_income",
+    "q_net_income", "q_operating_cf",
+}
+STOCK_YEARLY_INDICATOR_KEYS = {"y_cash_dividend", "y_stock_dividend"}
+STOCK_YOY_COMPATIBLE_KEYS = (
+    STOCK_MONTHLY_INDICATOR_KEYS
+    | STOCK_QUARTERLY_INDICATOR_KEYS
+    | STOCK_YEARLY_INDICATOR_KEYS
+)
+STOCK_INDICATOR_KEYS = STOCK_DAILY_INDICATOR_KEYS | STOCK_YOY_COMPATIBLE_KEYS
 PERCENTILE_DAILY_KEYS = {"per", "pbr", "dividend_yield"}
 
 
@@ -640,10 +650,10 @@ def create_alert(req: AlertRequest):
                 status_code=400,
                 detail="percentile condition requires daily indicator (per/pbr/dividend_yield)"
             )
-        if is_yoy and req.indicator_key not in STOCK_MONTHLY_INDICATOR_KEYS:
+        if is_yoy and req.indicator_key not in STOCK_YOY_COMPATIBLE_KEYS:
             raise HTTPException(
                 status_code=400,
-                detail="yoy condition requires monthly indicator (revenue)"
+                detail="yoy condition requires monthly/quarterly/yearly indicator"
             )
         target = req.target.upper()
     else:  # stock
