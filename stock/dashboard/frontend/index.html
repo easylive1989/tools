@@ -57,7 +57,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .add-btn { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
 .del-btn { background: transparent; border: 1px solid #2d3348; border-radius: 4px; padding: 3px 7px; font-size: 11px; color: #94a3b8; cursor: pointer; }
 .alerts-card { margin-top: 14px; }
-.alert-form { display: grid; grid-template-columns: 1.4fr 1.6fr 1fr 1fr auto; gap: 8px; margin-top: 12px; }
+.alert-form { display: grid; grid-template-columns: 1.2fr 1.4fr 1.2fr 1fr 0.6fr 1fr auto; gap: 8px; margin-top: 12px; }
 .alert-form select, .alert-form input { background: #0f1117; border: 1px solid #2d3348; border-radius: 6px; padding: 7px 10px; color: #e2e8f0; font-size: 13px; }
 .alert-form input::placeholder { color: #94a3b8; }
 .alert-form button { background: #3b82f6; color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
@@ -387,12 +387,26 @@ body { overflow-x: hidden; }
     <select id="alert-target-type">
       <option value="indicator">指標</option>
       <option value="stock">股票 / ETF</option>
+      <option value="stock_indicator">個股指標</option>
     </select>
     <select id="alert-target"></select>
+    <select id="alert-indicator-key" style="display:none">
+      <option value="per">PER</option>
+      <option value="pbr">PBR</option>
+      <option value="dividend_yield">殖利率</option>
+      <option value="foreign_net">外資淨買</option>
+      <option value="trust_net">投信淨買</option>
+      <option value="dealer_net">自營淨買</option>
+      <option value="margin_balance">融資餘額</option>
+      <option value="short_balance">融券餘額</option>
+    </select>
     <select id="alert-condition">
       <option value="above">大於等於</option>
       <option value="below">小於等於</option>
+      <option value="streak_above">連 N 日突破</option>
+      <option value="streak_below">連 N 日跌破</option>
     </select>
+    <input id="alert-window-n" type="number" min="2" max="30" placeholder="N 日" value="5" style="display:none">
     <input id="alert-threshold" type="number" step="any" placeholder="門檻數值">
     <button onclick="addAlert()">+ 新增警示</button>
   </div>
@@ -647,9 +661,32 @@ const INDICATOR_LABELS = {
   ndc:                 '國發會景氣指標',
 };
 
+const STOCK_INDICATOR_LABELS = {
+  per:              'PER',
+  pbr:              'PBR',
+  dividend_yield:   '殖利率',
+  foreign_net:      '外資淨買',
+  trust_net:        '投信淨買',
+  dealer_net:       '自營淨買',
+  margin_balance:   '融資餘額',
+  short_balance:    '融券餘額',
+};
+
 function alertTargetLabel(a) {
   if (a.target_type === 'indicator') return INDICATOR_LABELS[a.target] || a.target;
-  return a.target;
+  if (a.target_type === 'stock_indicator') {
+    const ikLabel = STOCK_INDICATOR_LABELS[a.indicator_key] || a.indicator_key || '';
+    return `${a.target} ${ikLabel}`;
+  }
+  return a.target;   // stock
+}
+
+function alertConditionLabel(a) {
+  if (a.condition === 'above') return '≥';
+  if (a.condition === 'below') return '≤';
+  if (a.condition === 'streak_above') return `連 ${a.window_n} 日 ≥`;
+  if (a.condition === 'streak_below') return `連 ${a.window_n} 日 ≤`;
+  return a.condition;
 }
 
 function fmtAlertValue(v) {
@@ -659,31 +696,44 @@ function fmtAlertValue(v) {
 
 async function refreshTargetOptions() {
   const type = document.getElementById('alert-target-type').value;
-  const select = document.getElementById('alert-target');
-  select.innerHTML = '';
+  const targetSelect = document.getElementById('alert-target');
+  const indKeyEl = document.getElementById('alert-indicator-key');
+  targetSelect.innerHTML = '';
+
+  // indicator_key 只在 stock_indicator 時顯示
+  indKeyEl.style.display = (type === 'stock_indicator') ? '' : 'none';
+
   if (type === 'indicator') {
     Object.entries(INDICATOR_LABELS).forEach(([k, label]) => {
       const opt = document.createElement('option');
       opt.value = k;
       opt.textContent = label;
-      select.appendChild(opt);
+      targetSelect.appendChild(opt);
     });
-  } else {
-    const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json()).catch(() => []);
-    if (!stocks.length) {
-      const opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = '（請先在自選股新增）';
-      select.appendChild(opt);
-      return;
-    }
-    for (const s of stocks) {
-      const opt = document.createElement('option');
-      opt.value = s.ticker;
-      opt.textContent = s.name ? `${s.ticker} · ${s.name}` : s.ticker;
-      select.appendChild(opt);
-    }
+    return;
   }
+
+  // stock 與 stock_indicator 都列 watchlist 中的 ticker
+  const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json()).catch(() => []);
+  if (!stocks.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = '（請先在自選股新增）';
+    targetSelect.appendChild(opt);
+    return;
+  }
+  for (const s of stocks) {
+    const opt = document.createElement('option');
+    opt.value = s.ticker;
+    opt.textContent = s.name ? `${s.ticker} · ${s.name}` : s.ticker;
+    targetSelect.appendChild(opt);
+  }
+}
+
+function refreshConditionFields() {
+  const cond = document.getElementById('alert-condition').value;
+  const windowEl = document.getElementById('alert-window-n');
+  windowEl.style.display = cond.startsWith('streak_') ? '' : 'none';
 }
 
 async function loadAlerts() {
@@ -694,7 +744,7 @@ async function loadAlerts() {
     return;
   }
   list.innerHTML = alerts.map(a => {
-    const condText = a.condition === 'above' ? '≥' : '≤';
+    const condText = alertConditionLabel(a);
     const enabled = a.enabled === 1 || a.enabled === true;
     const statusClass = enabled ? 'on' : 'off';
     const statusText = enabled ? '監控中' : '已停用';
@@ -727,14 +777,28 @@ async function addAlert() {
     alert('請選擇目標並輸入門檻數值');
     return;
   }
+  const payload = { target_type, target, condition, threshold: Number(thresholdRaw) };
+
+  if (target_type === 'stock_indicator') {
+    payload.indicator_key = document.getElementById('alert-indicator-key').value;
+  }
+  if (condition.startsWith('streak_')) {
+    const wn = document.getElementById('alert-window-n').value;
+    if (wn === '') {
+      alert('streak 警示需輸入 N 日');
+      return;
+    }
+    payload.window_n = Number(wn);
+  }
+
   const r = await fetch(API_BASE + '/api/alerts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ target_type, target, condition, threshold: Number(thresholdRaw) }),
+    body: JSON.stringify(payload),
   });
   if (!r.ok) {
     const err = await r.json().catch(() => ({}));
-    alert('建立失敗：' + (err.detail || r.status));
+    alert('建立失敗:' + (err.detail || r.status));
     return;
   }
   document.getElementById('alert-threshold').value = '';
@@ -756,6 +820,7 @@ async function toggleAlert(id, enabled) {
 }
 
 document.getElementById('alert-target-type').addEventListener('change', refreshTargetOptions);
+document.getElementById('alert-condition').addEventListener('change', refreshConditionFields);
 
 async function loadNews() {
   const items = await fetch(API_BASE + '/api/news?limit=15').then(r => r.json()).catch(() => []);
@@ -777,6 +842,7 @@ async function loadNews() {
   await loadHistories();
   await loadStocks();
   await refreshTargetOptions();
+  refreshConditionFields();
   await loadAlerts();
   await loadNews();
   setInterval(async () => {
