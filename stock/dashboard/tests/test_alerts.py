@@ -133,3 +133,68 @@ def test_get_stock_indicator_history_chip_foreign_net():
 def test_get_stock_indicator_history_unknown_key_returns_empty():
     db.init_db()
     assert _get_stock_indicator_history("2330.TW", "unknown_key", n=5) == []
+
+
+from unittest.mock import patch
+from alerts import check_alerts
+
+
+def test_check_alerts_stock_indicator_above_triggers():
+    db.init_db()
+    db.save_per_daily_rows([
+        {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "above", 30.0,
+                 indicator_key="per", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="per")
+    assert mock_send.called
+    args = mock_send.call_args
+    payload = args[0][1]
+    assert "2330.TW" in payload["embeds"][0]["title"] or "2330.TW" in payload["embeds"][0]["description"]
+
+
+def test_check_alerts_stock_indicator_below_does_not_trigger_when_above():
+    db.init_db()
+    db.save_per_daily_rows([
+        {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "below", 30.0,
+                 indicator_key="per", window_n=None)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="per")
+    assert not mock_send.called
+
+
+def test_check_alerts_stock_indicator_streak_above_triggers():
+    db.init_db()
+    db.save_chip_daily_rows([
+        {"ticker": "2330.TW", "date": f"2026-04-{day:02d}",
+         "foreign_buy": 6_000_000, "foreign_sell": 1_000_000,
+         "trust_buy": None, "trust_sell": None,
+         "dealer_buy": None, "dealer_sell": None,
+         "margin_balance": None, "short_balance": None}
+        for day in (24, 25, 28, 29, 30)
+    ])
+    db.add_alert("stock_indicator", "2330.TW", "streak_above", 0,
+                 indicator_key="foreign_net", window_n=5)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("stock_indicator", "2330.TW", indicator_key="foreign_net")
+    assert mock_send.called
+
+
+def test_check_alerts_indicator_streak_above_triggers():
+    db.init_db()
+    for d, v in [("2026-04-28T00:00:00", 5100),
+                 ("2026-04-29T00:00:00", 5200),
+                 ("2026-04-30T00:00:00", 5300)]:
+        db.save_indicator("margin_balance", v, timestamp=__import__("datetime").datetime.fromisoformat(d))
+    db.add_alert("indicator", "margin_balance", "streak_above", 5000,
+                 indicator_key=None, window_n=3)
+    with patch("alerts.send_to_discord") as mock_send:
+        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+            check_alerts("indicator", "margin_balance", value=5300)
+    assert mock_send.called

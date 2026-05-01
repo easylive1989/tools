@@ -14,8 +14,6 @@ for _ in range(5):
     _here = os.path.dirname(_here)
 from common.notify import send_to_discord
 
-from db import get_active_alerts, mark_alert_triggered
-
 INDICATOR_LABELS = {
     "taiex":              "加權指數",
     "fx":                 "台幣兌美金",
@@ -108,46 +106,154 @@ def _format_value(target_type: str, target: str, value: float) -> str:
     return f"{value:,.4f}" if value < 100 else f"{value:,.2f}"
 
 
-def _build_payload(alert: dict, value: float, display_name: str) -> dict:
-    crossed = "突破" if alert["condition"] == "above" else "跌破"
-    color = 0xE74C3C if alert["condition"] == "above" else 0x3498DB
-    value_str = _format_value(alert["target_type"], alert["target"], value)
-    threshold_str = _format_value(alert["target_type"], alert["target"], alert["threshold"])
+# 個股 indicator 顯示用中文 label
+STOCK_INDICATOR_LABELS = {
+    "per":              "PER",
+    "pbr":              "PBR",
+    "dividend_yield":   "殖利率",
+    "foreign_net":      "外資淨買",
+    "trust_net":        "投信淨買",
+    "dealer_net":       "自營淨買",
+    "margin_balance":   "融資餘額",
+    "short_balance":    "融券餘額",
+}
+
+
+def _latest_indicator_history(indicator: str, n: int) -> list[float]:
+    """取整體 indicator 最近 n 個值(舊→新)。"""
+    from datetime import datetime, timedelta, timezone
+    from db import get_indicator_history
+    since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=max(n * 3, 30))
+    rows = get_indicator_history(indicator, since)
+    values = [r["value"] for r in rows if r["value"] is not None]
+    return values[-n:]
+
+
+def _alert_display_name(target_type: str, target: str, indicator_key: str | None) -> str:
+    if target_type == "indicator":
+        return INDICATOR_LABELS.get(target, target)
+    if target_type == "stock_indicator":
+        ik_label = STOCK_INDICATOR_LABELS.get(indicator_key, indicator_key or "")
+        return f"{target} {ik_label}"
+    # stock
+    return target
+
+
+def _build_payload(alert: dict, value: float | None, display_name: str) -> dict:
+    cond = alert["condition"]
+    threshold = alert["threshold"]
+    window_n = alert.get("window_n")
+    target_type = alert["target_type"]
+
+    def _fmt(v: float) -> str:
+        if v is None:
+            return "—"
+        if target_type == "indicator":
+            return _format_value(target_type, alert["target"], v)
+        if target_type == "stock_indicator":
+            ik = alert.get("indicator_key")
+            if ik in ("per", "pbr"):
+                return f"{v:.2f}"
+            if ik == "dividend_yield":
+                return f"{v:.2f}%"
+            return f"{v:,.0f}"
+        # stock
+        return f"{v:,.4f}" if v < 100 else f"{v:,.2f}"
+
+    value_str = _fmt(value) if value is not None else "—"
+    threshold_str = _fmt(threshold)
+
+    if cond == "above":
+        crossed = "突破"
+        color = 0xE74C3C
+    elif cond == "below":
+        crossed = "跌破"
+        color = 0x3498DB
+    elif cond == "streak_above":
+        crossed = f"連 {window_n} 日突破"
+        color = 0xE74C3C
+    elif cond == "streak_below":
+        crossed = f"連 {window_n} 日跌破"
+        color = 0x3498DB
+    else:
+        crossed = cond
+        color = 0x95A5A6
 
     embed = {
-        "title": f"🚨 價格警示：{display_name}",
+        "title": f"🚨 警示:{display_name}",
         "description": (
-            f"**{display_name}** 目前 **{value_str}**，已{crossed}門檻 **{threshold_str}**。\n"
-            f"_警示已自動停用，請至 Dashboard 重新啟用。_"
+            f"**{display_name}** 目前 **{value_str}**,已{crossed}門檻 **{threshold_str}**。\n"
+            f"_警示已自動停用,請至 Dashboard 重新啟用。_"
         ),
         "color": color,
     }
     return {"embeds": [embed]}
 
 
-def check_alerts(target_type: str, target: str, value: float, display_name: str | None = None) -> None:
-    """Evaluate alerts for (target_type, target) against ``value``; notify on match."""
-    if value is None:
-        return
+def check_alerts(target_type: str, target: str, value: float | None = None,
+                 *, indicator_key: str | None = None, display_name: str | None = None) -> None:
+    """評估 alerts 並 notify。
 
-    name = display_name or INDICATOR_LABELS.get(target, target)
+    Routing by (target_type, condition):
+    - target_type='indicator', condition='above'/'below'  → value 跟 threshold 比(沿用既有)
+    - target_type='indicator', condition='streak_above'/'streak_below'
+        → _latest_indicator_history(target, alert.window_n) 跟 threshold 比
+    - target_type='stock_indicator', condition='above'/'below'
+        → _get_stock_indicator_history(target, indicator_key, 1) 取最新值跟 threshold 比
+    - target_type='stock_indicator', condition='streak_above'/'streak_below'
+        → _get_stock_indicator_history(target, indicator_key, alert.window_n) 跟 threshold 比
+    - target_type='stock', condition='above'/'below'  → value 跟 threshold 比(沿用既有)
+
+    觸發後 mark_alert_triggered 並送 Discord。
+    """
+    from db import get_active_alerts, mark_alert_triggered
+
+    all_active = get_active_alerts(target_type, target)
+    if target_type == "stock_indicator":
+        active_alerts = [a for a in all_active if a.get("indicator_key") == indicator_key]
+    else:
+        active_alerts = all_active
+
+    name = display_name or _alert_display_name(target_type, target, indicator_key)
     webhook = os.environ.get("DISCORD_STOCK_WEBHOOK_URL")
 
-    for alert in get_active_alerts(target_type, target):
+    for alert in active_alerts:
         threshold = alert["threshold"]
         cond = alert["condition"]
-        triggered = (cond == "above" and value >= threshold) or \
-                    (cond == "below" and value <= threshold)
+        triggered_value = None
+
+        if cond in ("above", "below"):
+            cur_value = value
+            if target_type == "stock_indicator":
+                hist = _get_stock_indicator_history(target, indicator_key, 1)
+                cur_value = hist[-1] if hist else None
+            if cur_value is None:
+                continue
+            triggered = ((cond == "above" and cur_value >= threshold) or
+                         (cond == "below" and cur_value <= threshold))
+            triggered_value = cur_value if triggered else None
+        elif cond in ("streak_above", "streak_below"):
+            window_n = alert.get("window_n") or 5
+            if target_type == "indicator":
+                hist = _latest_indicator_history(target, window_n)
+            elif target_type == "stock_indicator":
+                hist = _get_stock_indicator_history(target, indicator_key, window_n)
+            else:
+                continue   # streak 不適用於 stock 價格(沒有 history 表)
+            triggered = _check_streak(hist, cond, threshold)
+            triggered_value = hist[-1] if (triggered and hist) else None
+        else:
+            continue
+
         if not triggered:
             continue
 
-        mark_alert_triggered(alert["id"], value)
-
+        mark_alert_triggered(alert["id"], triggered_value)
         if not webhook:
             print(f"[alerts] webhook not set, skipping notification for alert {alert['id']}")
             continue
         try:
-            send_to_discord(webhook, _build_payload(alert, value, name))
-            print(f"[alerts] notified: {name} {cond} {threshold} (value={value})")
+            send_to_discord(webhook, _build_payload(alert, triggered_value, name))
+            print(f"[alerts] notified: {name} {cond} {threshold} (value={triggered_value})")
         except Exception as e:
             print(f"[alerts] discord error for alert {alert['id']}: {e}")
