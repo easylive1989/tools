@@ -169,3 +169,96 @@ def test_create_alert_rejects_invalid_input():
         "target_type": "indicator", "target": "unknown_ind", "condition": "above", "threshold": 1,
     })
     assert r.status_code == 400
+
+
+def test_post_alert_stock_indicator_per_above():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "above",
+        "threshold": 30,
+        "indicator_key": "per",
+    })
+    assert r.status_code == 200
+    body = r.json()
+    assert "id" in body
+
+
+def test_post_alert_stock_indicator_streak_below_with_window_n():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "streak_below",
+        "threshold": 25,
+        "indicator_key": "per",
+        "window_n": 5,
+    })
+    assert r.status_code == 200
+
+
+def test_post_alert_stock_indicator_missing_indicator_key_400():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "above",
+        "threshold": 30,
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_stock_indicator_unknown_indicator_key_400():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "2330.TW",
+        "condition": "above",
+        "threshold": 30,
+        "indicator_key": "unknown",
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_stock_indicator_non_taiwan_ticker_400():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "stock_indicator",
+        "target": "AAPL",
+        "condition": "above",
+        "threshold": 30,
+        "indicator_key": "per",
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_streak_missing_window_n_400():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "indicator",
+        "target": "margin_balance",
+        "condition": "streak_above",
+        "threshold": 5000,
+    })
+    assert r.status_code == 400
+
+
+def test_post_alert_streak_window_n_out_of_range_400():
+    db.init_db()
+    r = client.post("/api/alerts", json={
+        "target_type": "indicator",
+        "target": "margin_balance",
+        "condition": "streak_above",
+        "threshold": 5000,
+        "window_n": 1,    # < 2
+    })
+    assert r.status_code == 400
+    r2 = client.post("/api/alerts", json={
+        "target_type": "indicator",
+        "target": "margin_balance",
+        "condition": "streak_above",
+        "threshold": 5000,
+        "window_n": 31,   # > 30
+    })
+    assert r2.status_code == 400

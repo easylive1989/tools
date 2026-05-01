@@ -574,14 +574,21 @@ class AlertRequest(BaseModel):
     target: str
     condition: str
     threshold: float
+    indicator_key: str | None = None
+    window_n: int | None = None
 
 
 class AlertToggleRequest(BaseModel):
     enabled: bool
 
 
-VALID_TARGET_TYPES = {"indicator", "stock"}
-VALID_CONDITIONS = {"above", "below"}
+VALID_TARGET_TYPES = {"indicator", "stock", "stock_indicator"}
+VALID_CONDITIONS = {"above", "below", "streak_above", "streak_below"}
+STOCK_DAILY_INDICATOR_KEYS = {
+    "per", "pbr", "dividend_yield",
+    "foreign_net", "trust_net", "dealer_net",
+    "margin_balance", "short_balance",
+}
 
 
 @app.get("/api/alerts")
@@ -595,10 +602,31 @@ def create_alert(req: AlertRequest):
         raise HTTPException(status_code=400, detail="Invalid target_type")
     if req.condition not in VALID_CONDITIONS:
         raise HTTPException(status_code=400, detail="Invalid condition")
-    if req.target_type == "indicator" and req.target not in INDICATOR_NAMES:
-        raise HTTPException(status_code=400, detail="Unknown indicator")
-    target = req.target.upper() if req.target_type == "stock" else req.target
-    alert_id = add_alert(req.target_type, target, req.condition, req.threshold)
+
+    is_streak = req.condition.startswith("streak_")
+    if is_streak:
+        if req.window_n is None:
+            raise HTTPException(status_code=400, detail="streak condition requires window_n")
+        if req.window_n < 2 or req.window_n > 30:
+            raise HTTPException(status_code=400, detail="window_n must be 2..30")
+
+    if req.target_type == "indicator":
+        if req.target not in INDICATOR_NAMES:
+            raise HTTPException(status_code=400, detail="Unknown indicator")
+        target = req.target
+    elif req.target_type == "stock_indicator":
+        if not req.indicator_key:
+            raise HTTPException(status_code=400, detail="stock_indicator requires indicator_key")
+        if req.indicator_key not in STOCK_DAILY_INDICATOR_KEYS:
+            raise HTTPException(status_code=400, detail="Unknown indicator_key")
+        if fundamentals_to_finmind_id(req.target) is None:
+            raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) supported")
+        target = req.target.upper()
+    else:  # stock
+        target = req.target.upper()
+
+    alert_id = add_alert(req.target_type, target, req.condition, req.threshold,
+                         indicator_key=req.indicator_key, window_n=req.window_n)
     return {"id": alert_id}
 
 
