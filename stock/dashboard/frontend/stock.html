@@ -198,6 +198,16 @@ a:hover { text-decoration: underline; }
     <div class="chart-wrap short"><canvas id="chart-balance"></canvas></div>
     <div id="balance-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
   </div>
+
+  <div class="card" id="cashflow-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">現金流量表</span>
+      <span class="card-hint" id="cashflow-hint">近 12 季</span>
+    </div>
+    <div id="cashflow-summary" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-cashflow"></canvas></div>
+    <div id="cashflow-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
+  </div>
 </div>
 
 <script>
@@ -885,6 +895,104 @@ async function loadBalance() {
   }
 }
 
+let cashflowChart = null;
+
+async function loadCashflow() {
+  const card = document.getElementById('cashflow-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const summary = document.getElementById('cashflow-summary');
+  const tableWrap = document.getElementById('cashflow-table-wrap');
+  summary.innerHTML = '<div class="fund-empty">載入中…</div>';
+  tableWrap.innerHTML = '';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=cashflow&quarters=12`);
+    if (!r.ok) {
+      summary.innerHTML = `<div class="fund-empty">無法載入現金流量 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.rows || !data.rows.length) {
+      summary.innerHTML = '<div class="fund-empty">尚無現金流量資料</div>';
+      return;
+    }
+
+    const fmtYi = v => v === null || v === undefined ? '—' : (v / 1e8).toLocaleString(undefined, {maximumFractionDigits: 0});
+
+    const latest = data.rows[data.rows.length - 1];
+    summary.innerHTML = `
+      <div class="fund-stat">
+        <span class="label">營業 CF</span>
+        <span class="value">${fmtYi(latest.operating_cf)} 億</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">投資 CF</span>
+        <span class="value">${fmtYi(latest.investing_cf)} 億</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">融資 CF</span>
+        <span class="value">${fmtYi(latest.financing_cf)} 億</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">自由現金流</span>
+        <span class="value">${fmtYi(latest.free_cash_flow)} 億</span>
+        <span class="sub">營業 + 投資</span>
+      </div>
+    `;
+
+    const rev = [...data.rows].reverse();
+    tableWrap.innerHTML = `
+      <table class="fund-table">
+        <thead><tr>
+          <th class="fund-label">季別</th>
+          <th>營業 CF(億)</th><th>投資 CF(億)</th><th>融資 CF(億)</th>
+          <th>自由 CF(億)</th>
+        </tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="fund-label">${r.date}</td>
+              <td>${fmtYi(r.operating_cf)}</td>
+              <td>${fmtYi(r.investing_cf)}</td>
+              <td>${fmtYi(r.financing_cf)}</td>
+              <td>${fmtYi(r.free_cash_flow)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+    const labels = data.rows.map(r => r.date);
+    const ocf = data.rows.map(r => r.operating_cf  !== null ? r.operating_cf  / 1e8 : null);
+    const icf = data.rows.map(r => r.investing_cf  !== null ? r.investing_cf  / 1e8 : null);
+    const fcf = data.rows.map(r => r.financing_cf  !== null ? r.financing_cf  / 1e8 : null);
+    const free = data.rows.map(r => r.free_cash_flow !== null ? r.free_cash_flow / 1e8 : null);
+    const ctx = document.getElementById('chart-cashflow').getContext('2d');
+    if (cashflowChart) cashflowChart.destroy();
+    cashflowChart = new Chart(ctx, {
+      data: {
+        labels,
+        datasets: [
+          { type: 'bar',  label: '營業 CF', data: ocf,  backgroundColor: '#4ade80', stack: 'cf' },
+          { type: 'bar',  label: '投資 CF', data: icf,  backgroundColor: '#f87171', stack: 'cf' },
+          { type: 'bar',  label: '融資 CF', data: fcf,  backgroundColor: '#a78bfa', stack: 'cf' },
+          { type: 'line', label: '自由 CF', data: free, borderColor: '#fbbf24', borderWidth: 1.5, pointRadius: 2 },
+        ],
+      },
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, ticks: { ...COMMON_OPTS.scales.x.ticks, maxTicksLimit: 6 }, stacked: true },
+          y: { ...COMMON_OPTS.scales.y, title: { display: true, text: '億元', color: '#94a3b8' }, stacked: true },
+        },
+      },
+    });
+  } catch (e) {
+    summary.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -916,6 +1024,7 @@ async function loadDetail() {
     loadRevenue();
     loadIncome();
     loadBalance();
+    loadCashflow();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
