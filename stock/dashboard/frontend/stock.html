@@ -178,6 +178,16 @@ a:hover { text-decoration: underline; }
     <div id="revenue-stats" class="fund-stat-row"></div>
     <div class="chart-wrap short"><canvas id="chart-revenue"></canvas></div>
   </div>
+
+  <div class="card" id="income-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">損益表</span>
+      <span class="card-hint" id="income-hint">近 12 季</span>
+    </div>
+    <div id="income-summary" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-eps"></canvas></div>
+    <div id="income-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
+  </div>
 </div>
 
 <script>
@@ -670,6 +680,103 @@ async function loadRevenue() {
   }
 }
 
+let epsChart = null;
+
+async function loadIncome() {
+  const card = document.getElementById('income-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const summary = document.getElementById('income-summary');
+  const tableWrap = document.getElementById('income-table-wrap');
+  summary.innerHTML = '<div class="fund-empty">載入中…</div>';
+  tableWrap.innerHTML = '';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=income&quarters=12`);
+    if (!r.ok) {
+      summary.innerHTML = `<div class="fund-empty">無法載入損益表 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.rows || !data.rows.length) {
+      summary.innerHTML = '<div class="fund-empty">尚無損益資料</div>';
+      return;
+    }
+
+    const fmtYi = v => v === null || v === undefined ? '—' : (v / 1e8).toLocaleString(undefined, {maximumFractionDigits: 0});
+    const fmtN = (v, d=2) => v === null || v === undefined ? '—' : Number(v).toFixed(d);
+    const fmtPctSigned = v => {
+      if (v === null || v === undefined) return '—';
+      const cls = v > 0 ? 'fund-pos' : (v < 0 ? 'fund-neg' : '');
+      return `<span class="${cls}">${(v >= 0 ? '+' : '')}${Number(v).toFixed(2)}%</span>`;
+    };
+
+    const ann = data.annual_summary;
+    if (ann) {
+      summary.innerHTML = `
+        <div class="fund-stat">
+          <span class="label">最近 4 季 EPS</span>
+          <span class="value">${fmtN(ann.current_4q.eps)}</span>
+          <span class="sub">前 4 季 ${fmtN(ann.previous_4q.eps)} · YoY ${fmtPctSigned(ann.eps_yoy_pct)}</span>
+        </div>
+        <div class="fund-stat">
+          <span class="label">最近 4 季營收</span>
+          <span class="value">${fmtYi(ann.current_4q.revenue)} 億</span>
+          <span class="sub">前 4 季 ${fmtYi(ann.previous_4q.revenue)} 億 · YoY ${fmtPctSigned(ann.revenue_yoy_pct)}</span>
+        </div>
+      `;
+    } else {
+      summary.innerHTML = '<div class="fund-empty">資料不足以計算 4 季匯總</div>';
+    }
+
+    const rev = [...data.rows].reverse();
+    tableWrap.innerHTML = `
+      <table class="fund-table">
+        <thead><tr>
+          <th class="fund-label">季別</th>
+          <th>EPS</th><th>營收(億)</th><th>毛利(億)</th><th>營益(億)</th><th>淨利(億)</th>
+          <th>毛利率</th><th>營益率</th><th>淨利率</th>
+        </tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="fund-label">${r.date}</td>
+              <td>${fmtN(r.eps)}</td>
+              <td>${fmtYi(r.revenue)}</td>
+              <td>${fmtYi(r.gross_profit)}</td>
+              <td>${fmtYi(r.operating_income)}</td>
+              <td>${fmtYi(r.net_income)}</td>
+              <td>${fmtN(r.gross_margin_pct)}%</td>
+              <td>${fmtN(r.operating_margin_pct)}%</td>
+              <td>${fmtN(r.net_margin_pct)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+    const labels = data.rows.map(r => r.date);
+    const epsData = data.rows.map(r => r.eps);
+    const ctx = document.getElementById('chart-eps').getContext('2d');
+    if (epsChart) epsChart.destroy();
+    epsChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: 'EPS', data: epsData, borderColor: '#60a5fa', backgroundColor: '#60a5fa', borderWidth: 1.5, pointRadius: 2 },
+      ]},
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, ticks: { ...COMMON_OPTS.scales.x.ticks, maxTicksLimit: 6 } },
+          y: { ...COMMON_OPTS.scales.y, title: { display: true, text: 'EPS (元)', color: '#94a3b8' } },
+        },
+      },
+    });
+  } catch (e) {
+    summary.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -699,6 +806,7 @@ async function loadDetail() {
     loadChip();
     loadValuation();
     loadRevenue();
+    loadIncome();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
