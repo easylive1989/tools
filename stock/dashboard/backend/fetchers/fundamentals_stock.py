@@ -99,7 +99,7 @@ def parse_revenue_rows(rows: list[dict], ticker: str) -> list[dict]:
             "year":           int(y),
             "month":          int(m),
             "revenue":        float(r["revenue"]) if r.get("revenue") is not None else None,
-            "announced_date": r.get("create_time") or "",
+            "announced_date": r.get("create_time") or None,
         })
     return out
 

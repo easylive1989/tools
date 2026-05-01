@@ -492,14 +492,27 @@ def save_dividend_history_rows(rows: list[dict]) -> None:
 
 
 def get_dividend_history(ticker: str) -> list[dict]:
+    """Return all dividend rows for ticker, sorted by ROC year + 季 numeric prefix."""
+    import re
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT year, cash_dividend, stock_dividend, cash_ex_date, "
             "       cash_payment_date, announcement_date "
-            "FROM stock_dividend_history WHERE ticker=? ORDER BY year",
+            "FROM stock_dividend_history WHERE ticker=?",
             (ticker,),
         ).fetchall()
-        return [dict(r) for r in rows]
+    result = [dict(r) for r in rows]
+
+    def _key(row: dict) -> tuple[int, int]:
+        # 抓出「ROC 年」與「季」做自然排序;格式如 "114年第3季"
+        y = row["year"] or ""
+        ym = re.match(r"(\d+)", y)
+        qm = re.search(r"第(\d+)", y)
+        return (int(ym.group(1)) if ym else 0,
+                int(qm.group(1)) if qm else 0)
+
+    result.sort(key=_key)
+    return result
 
 
 def get_latest_dividend_announce_date(ticker: str) -> str | None:
