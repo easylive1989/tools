@@ -208,6 +208,16 @@ a:hover { text-decoration: underline; }
     <div class="chart-wrap short"><canvas id="chart-cashflow"></canvas></div>
     <div id="cashflow-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
   </div>
+
+  <div class="card" id="dividend-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">股利歷史</span>
+      <span class="card-hint" id="dividend-hint">近 10 年</span>
+    </div>
+    <div id="dividend-summary" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-dividend"></canvas></div>
+    <div id="dividend-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
+  </div>
 </div>
 
 <script>
@@ -897,6 +907,8 @@ async function loadBalance() {
 
 let cashflowChart = null;
 
+let dividendChart = null;
+
 async function loadCashflow() {
   const card = document.getElementById('cashflow-card');
   if (!card) return;
@@ -993,6 +1005,90 @@ async function loadCashflow() {
   }
 }
 
+async function loadDividend() {
+  const card = document.getElementById('dividend-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const summary = document.getElementById('dividend-summary');
+  const tableWrap = document.getElementById('dividend-table-wrap');
+  summary.innerHTML = '<div class="fund-empty">載入中…</div>';
+  tableWrap.innerHTML = '';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/dividend?years=10`);
+    if (!r.ok) {
+      summary.innerHTML = `<div class="fund-empty">無法載入股利 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.rows || !data.rows.length) {
+      summary.innerHTML = '<div class="fund-empty">尚無股利資料</div>';
+      return;
+    }
+
+    const fmtN = (v, d=2) => v === null || v === undefined ? '—' : Number(v).toFixed(d);
+
+    const sm = data.summary || {};
+    summary.innerHTML = `
+      <div class="fund-stat">
+        <span class="label">平均配發率</span>
+        <span class="value">${fmtN(sm.avg_payout_ratio_pct)}%</span>
+        <span class="sub">近 10 年現金股利 / EPS 平均</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">平均殖利率</span>
+        <span class="value">${sm.avg_dividend_yield_pct === null ? '—' : fmtN(sm.avg_dividend_yield_pct) + '%'}</span>
+        <span class="sub">${sm.avg_dividend_yield_pct === null ? '需歷史均價,目前未計' : '近 10 年平均'}</span>
+      </div>
+    `;
+
+    const rev = [...data.rows].reverse();
+    tableWrap.innerHTML = `
+      <table class="fund-table">
+        <thead><tr>
+          <th class="fund-label">年份</th>
+          <th>現金股利</th><th>股票股利</th>
+          <th>配發率</th><th>殖利率</th><th>除權息日</th>
+        </tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="fund-label">${r.year}</td>
+              <td>${fmtN(r.cash_dividend)}</td>
+              <td>${fmtN(r.stock_dividend)}</td>
+              <td>${fmtN(r.payout_ratio_pct)}${r.payout_ratio_pct !== null ? '%' : ''}</td>
+              <td>${r.dividend_yield_pct === null ? '—' : fmtN(r.dividend_yield_pct) + '%'}</td>
+              <td>${r.cash_ex_date ?? '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+    const labels = data.rows.map(r => String(r.year));
+    const cash = data.rows.map(r => r.cash_dividend);
+    const stk  = data.rows.map(r => r.stock_dividend);
+    const ctx = document.getElementById('chart-dividend').getContext('2d');
+    if (dividendChart) dividendChart.destroy();
+    dividendChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [
+        { label: '現金股利', data: cash, backgroundColor: '#4ade80', stack: 'd' },
+        { label: '股票股利', data: stk,  backgroundColor: '#a78bfa', stack: 'd' },
+      ]},
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, stacked: true },
+          y: { ...COMMON_OPTS.scales.y, title: { display: true, text: '元 / 股', color: '#94a3b8' }, stacked: true },
+        },
+      },
+    });
+  } catch (e) {
+    summary.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -1025,6 +1121,7 @@ async function loadDetail() {
     loadIncome();
     loadBalance();
     loadCashflow();
+    loadDividend();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
