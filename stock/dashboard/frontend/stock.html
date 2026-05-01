@@ -188,6 +188,16 @@ a:hover { text-decoration: underline; }
     <div class="chart-wrap short"><canvas id="chart-eps"></canvas></div>
     <div id="income-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
   </div>
+
+  <div class="card" id="balance-card" style="display:none">
+    <div class="card-header">
+      <span class="card-label">資產負債表</span>
+      <span class="card-hint" id="balance-hint">近 12 季</span>
+    </div>
+    <div id="balance-summary" class="fund-stat-row"></div>
+    <div class="chart-wrap short"><canvas id="chart-balance"></canvas></div>
+    <div id="balance-table-wrap" style="margin-top:12px; overflow-x:auto"></div>
+  </div>
 </div>
 
 <script>
@@ -777,6 +787,104 @@ async function loadIncome() {
   }
 }
 
+let balanceChart = null;
+
+async function loadBalance() {
+  const card = document.getElementById('balance-card');
+  if (!card) return;
+  if (!isTwTicker(TICKER)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const summary = document.getElementById('balance-summary');
+  const tableWrap = document.getElementById('balance-table-wrap');
+  summary.innerHTML = '<div class="fund-empty">載入中…</div>';
+  tableWrap.innerHTML = '';
+
+  try {
+    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=balance&quarters=12`);
+    if (!r.ok) {
+      summary.innerHTML = `<div class="fund-empty">無法載入資產負債 (${r.status})</div>`;
+      return;
+    }
+    const data = await r.json();
+    if (!data.rows || !data.rows.length) {
+      summary.innerHTML = '<div class="fund-empty">尚無資產負債資料</div>';
+      return;
+    }
+
+    const fmtYi = v => v === null || v === undefined ? '—' : (v / 1e8).toLocaleString(undefined, {maximumFractionDigits: 0});
+    const fmtN = (v, d=2) => v === null || v === undefined ? '—' : Number(v).toFixed(d);
+
+    const latest = data.rows[data.rows.length - 1];
+    summary.innerHTML = `
+      <div class="fund-stat">
+        <span class="label">總資產(${latest.date})</span>
+        <span class="value">${fmtYi(latest.total_assets)} 億</span>
+        <span class="sub">現金 ${fmtYi(latest.cash)} 億</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">流動 / 速動 比</span>
+        <span class="value">${fmtN(latest.current_ratio)}</span>
+        <span class="sub">流動資產 ${fmtYi(latest.current_assets)} 億 / 流動負債 ${fmtYi(latest.current_liabilities)} 億</span>
+      </div>
+      <div class="fund-stat">
+        <span class="label">負債比 / 權益比</span>
+        <span class="value">${fmtN(latest.debt_ratio_pct)}% / ${fmtN(latest.equity_ratio_pct)}%</span>
+        <span class="sub">總負債 ${fmtYi(latest.total_liabilities)} 億 · 股東權益 ${fmtYi(latest.equity)} 億</span>
+      </div>
+    `;
+
+    const rev = [...data.rows].reverse();
+    tableWrap.innerHTML = `
+      <table class="fund-table">
+        <thead><tr>
+          <th class="fund-label">季別</th>
+          <th>總資產(億)</th><th>流動資產(億)</th><th>現金(億)</th>
+          <th>總負債(億)</th><th>流動負債(億)</th><th>長期負債(億)</th>
+          <th>股東權益(億)</th>
+          <th>流動比</th><th>負債比</th>
+        </tr></thead>
+        <tbody>
+          ${rev.map(r => `
+            <tr>
+              <td class="fund-label">${r.date}</td>
+              <td>${fmtYi(r.total_assets)}</td>
+              <td>${fmtYi(r.current_assets)}</td>
+              <td>${fmtYi(r.cash)}</td>
+              <td>${fmtYi(r.total_liabilities)}</td>
+              <td>${fmtYi(r.current_liabilities)}</td>
+              <td>${fmtYi(r.long_term_liabilities)}</td>
+              <td>${fmtYi(r.equity)}</td>
+              <td>${fmtN(r.current_ratio)}</td>
+              <td>${fmtN(r.debt_ratio_pct)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+    const labels = data.rows.map(r => r.date);
+    const taData = data.rows.map(r => r.total_assets !== null ? r.total_assets / 1e8 : null);
+    const eqData = data.rows.map(r => r.equity       !== null ? r.equity       / 1e8 : null);
+    const ctx = document.getElementById('chart-balance').getContext('2d');
+    if (balanceChart) balanceChart.destroy();
+    balanceChart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: '總資產(億)',   data: taData, borderColor: '#60a5fa', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y' },
+        { label: '股東權益(億)', data: eqData, borderColor: '#4ade80', borderWidth: 1.5, pointRadius: 0, yAxisID: 'y' },
+      ]},
+      options: {
+        ...COMMON_OPTS,
+        scales: {
+          x: { ...COMMON_OPTS.scales.x, ticks: { ...COMMON_OPTS.scales.x.ticks, maxTicksLimit: 6 } },
+          y: { ...COMMON_OPTS.scales.y, title: { display: true, text: '億元', color: '#94a3b8' } },
+        },
+      },
+    });
+  } catch (e) {
+    summary.innerHTML = `<div class="fund-empty">載入失敗:${e.message}</div>`;
+  }
+}
+
 async function loadDetail() {
   if (!TICKER) return;
   document.getElementById('status').textContent = '載入中…';
@@ -807,6 +915,7 @@ async function loadDetail() {
     loadValuation();
     loadRevenue();
     loadIncome();
+    loadBalance();
   } catch (e) {
     document.getElementById('status').textContent = '載入失敗：' + e.message;
   }
