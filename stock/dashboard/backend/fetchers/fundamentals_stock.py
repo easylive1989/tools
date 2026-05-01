@@ -174,6 +174,13 @@ def fetch_stock_per(ticker: str, lookback_days: int = DEFAULT_PER_LOOKBACK_DAYS)
 
     rows = parse_per_rows(raw, ticker)
     save_per_daily_rows(rows)
+    # Phase 4 alert 觸發:只在「最新一天有寫入」時針對 3 個估值指標檢查
+    today_str = today.strftime("%Y-%m-%d")
+    max_date = max((r["date"] for r in rows), default=None)
+    if max_date == today_str:
+        from alerts import check_alerts
+        for key in ("per", "pbr", "dividend_yield"):
+            check_alerts("stock_indicator", ticker, indicator_key=key)
     print(f"[fundamentals] {ticker} PER {start_date}~{end_date}: {len(rows)} rows")
     return True
 
