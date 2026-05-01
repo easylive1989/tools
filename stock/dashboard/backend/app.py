@@ -30,7 +30,7 @@ from fetchers.fear_greed import fetch_fear_greed
 from fetchers.chip_total import fetch_chip_total
 from fetchers.ndc import fetch_ndc
 from fetchers.volume import fetch_tw_volume, fetch_us_volume
-from fetchers.broker import fetch_broker_daily, to_finmind_id
+from fetchers.broker import fetch_broker_daily
 from fetchers.chip_stock import fetch_stock_chip, to_finmind_id as chip_to_finmind_id
 from fetchers.fundamentals_stock import (
     fetch_stock_per, fetch_stock_revenue,

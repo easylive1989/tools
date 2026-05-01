@@ -136,7 +136,6 @@ def _seed_dividend(ticker: str, rows: list[dict]) -> None:
 
 
 def test_valuation_endpoint_returns_latest_and_5y_range():
-    db.init_db()
     _seed_per("2330.TW", [
         {"date": "2024-01-02", "per": 20.0, "pbr": 5.0,  "dividend_yield": 2.5},
         {"date": "2024-06-30", "per": 25.0, "pbr": 6.0,  "dividend_yield": 2.0},
@@ -158,7 +157,6 @@ def test_valuation_endpoint_returns_latest_and_5y_range():
 
 
 def test_revenue_endpoint_yoy_and_ytd():
-    db.init_db()
     _seed_revenue("2330.TW", [
         {"year": 2025, "month": 1, "revenue": 1000_000_000_000},
         {"year": 2025, "month": 2, "revenue": 1100_000_000_000},
@@ -178,7 +176,6 @@ def test_revenue_endpoint_yoy_and_ytd():
 
 
 def test_financial_income_endpoint_returns_quarterly_with_ratios():
-    db.init_db()
     _seed_financial("2330.TW", "income", [
         {"date": "2026-03-31", "type": "Revenue",         "value": 1000.0},
         {"date": "2026-03-31", "type": "GrossProfit",     "value": 600.0},
@@ -202,7 +199,6 @@ def test_financial_income_endpoint_returns_quarterly_with_ratios():
 
 
 def test_financial_balance_endpoint_returns_ratios():
-    db.init_db()
     _seed_financial("2330.TW", "balance", [
         {"date": "2026-03-31", "type": "TotalAssets",       "value": 5000.0},
         {"date": "2026-03-31", "type": "CurrentAssets",     "value": 2000.0},
@@ -225,7 +221,6 @@ def test_financial_balance_endpoint_returns_ratios():
 
 
 def test_financial_cashflow_endpoint_returns_fcf():
-    db.init_db()
     _seed_financial("2330.TW", "cash_flow", [
         {"date": "2026-03-31", "type": "CashFlowsFromOperatingActivities",     "value": 800.0},
         {"date": "2026-03-31", "type": "CashProvidedByInvestingActivities",    "value": -300.0},
@@ -243,7 +238,6 @@ def test_financial_cashflow_endpoint_returns_fcf():
 
 
 def test_dividend_endpoint_aggregates_by_calendar_year():
-    db.init_db()
     _seed_dividend("2330.TW", [
         {"year": "114年第2季", "cash_dividend": 5.0, "stock_dividend": 0.0,
          "cash_ex_date": "2025-12-11", "cash_payment_date": "2026-01-08",
