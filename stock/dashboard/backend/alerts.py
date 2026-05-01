@@ -41,16 +41,19 @@ INDICATOR_UNITS = {
 }
 
 
-def _check_streak(values: list, condition: str, threshold: float) -> bool:
+def _check_streak(values: list, condition: str, threshold: float,
+                  expected_n: int | None = None) -> bool:
     """檢查 values 是否全部達門檻(streak_above 全 >= threshold,streak_below 全 <= threshold)。
 
-    values 中含 None 視為「資料不足」,直接 False(不允許部分)。
-    給空 list 也 False。
+    values 中含 None 視為「資料不足」,直接 False。給空 list 也 False。
+    expected_n 給定時:len(values) < expected_n 也 False(避免歷史不足卻誤觸發)。
     condition 不是 streak_above / streak_below 也 False。
     """
     if condition not in ('streak_above', 'streak_below'):
         return False
     if not values or any(v is None for v in values):
+        return False
+    if expected_n is not None and len(values) < expected_n:
         return False
     if condition == 'streak_above':
         return all(v >= threshold for v in values)
@@ -240,7 +243,7 @@ def check_alerts(target_type: str, target: str, value: float | None = None,
                 hist = _get_stock_indicator_history(target, indicator_key, window_n)
             else:
                 continue   # streak 不適用於 stock 價格(沒有 history 表)
-            triggered = _check_streak(hist, cond, threshold)
+            triggered = _check_streak(hist, cond, threshold, expected_n=window_n)
             triggered_value = hist[-1] if (triggered and hist) else None
         else:
             continue

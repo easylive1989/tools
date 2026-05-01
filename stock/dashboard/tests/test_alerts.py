@@ -9,7 +9,6 @@ import alerts as alerts_module
 
 
 def test_above_alert_triggers_and_disables(monkeypatch):
-    db.init_db()
     aid = db.add_alert("indicator", "taiex", "above", 22000.0)
 
     sent = []
@@ -28,7 +27,6 @@ def test_above_alert_triggers_and_disables(monkeypatch):
 
 
 def test_below_alert_triggers(monkeypatch):
-    db.init_db()
     db.add_alert("stock", "2330.TW", "below", 800.0)
 
     sent = []
@@ -44,7 +42,6 @@ def test_below_alert_triggers(monkeypatch):
 
 
 def test_no_webhook_still_disables_alert(monkeypatch):
-    db.init_db()
     aid = db.add_alert("indicator", "fx", "above", 32.0)
     monkeypatch.delenv("DISCORD_STOCK_WEBHOOK_URL", raising=False)
 
@@ -54,7 +51,6 @@ def test_no_webhook_still_disables_alert(monkeypatch):
 
 
 def test_disabled_alert_is_skipped(monkeypatch):
-    db.init_db()
     aid = db.add_alert("indicator", "taiex", "above", 100.0)
     db.set_alert_enabled(aid, False)
 
@@ -90,6 +86,15 @@ def test_check_streak_insufficient_values_returns_false():
     assert _check_streak([220, None, 230], 'streak_above', 200) is False
 
 
+def test_check_streak_length_below_expected_n_returns_false():
+    # 只有 3 個值但 expected_n=5 → False(避免「連 5 日突破」誤觸發)
+    assert _check_streak([220, 230, 240], 'streak_above', 200, expected_n=5) is False
+    # 同樣值但 expected_n=3 → True
+    assert _check_streak([220, 230, 240], 'streak_above', 200, expected_n=3) is True
+    # expected_n=None 表示 backwards compat,不檢查長度
+    assert _check_streak([220, 230, 240], 'streak_above', 200) is True
+
+
 def test_check_streak_unknown_condition_returns_false():
     assert _check_streak([220, 230], 'above', 200) is False
 
@@ -99,7 +104,6 @@ from alerts import _get_stock_indicator_history
 
 
 def test_get_stock_indicator_history_per():
-    db.init_db()
     db.save_per_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-28", "per": 30.0, "pbr": 9.0,  "dividend_yield": 1.5},
         {"ticker": "2330.TW", "date": "2026-04-29", "per": 31.0, "pbr": 9.5,  "dividend_yield": 1.4},
@@ -113,7 +117,6 @@ def test_get_stock_indicator_history_per():
 
 
 def test_get_stock_indicator_history_chip_foreign_net():
-    db.init_db()
     db.save_chip_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-29",
          "foreign_buy": 5_000_000, "foreign_sell": 3_000_000,
@@ -131,7 +134,6 @@ def test_get_stock_indicator_history_chip_foreign_net():
 
 
 def test_get_stock_indicator_history_unknown_key_returns_empty():
-    db.init_db()
     assert _get_stock_indicator_history("2330.TW", "unknown_key", n=5) == []
 
 
@@ -140,7 +142,6 @@ from alerts import check_alerts
 
 
 def test_check_alerts_stock_indicator_above_triggers():
-    db.init_db()
     db.save_per_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
     ])
@@ -156,7 +157,6 @@ def test_check_alerts_stock_indicator_above_triggers():
 
 
 def test_check_alerts_stock_indicator_below_does_not_trigger_when_above():
-    db.init_db()
     db.save_per_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
     ])
@@ -169,7 +169,6 @@ def test_check_alerts_stock_indicator_below_does_not_trigger_when_above():
 
 
 def test_check_alerts_stock_indicator_streak_above_triggers():
-    db.init_db()
     db.save_chip_daily_rows([
         {"ticker": "2330.TW", "date": f"2026-04-{day:02d}",
          "foreign_buy": 6_000_000, "foreign_sell": 1_000_000,
@@ -187,7 +186,6 @@ def test_check_alerts_stock_indicator_streak_above_triggers():
 
 
 def test_check_alerts_indicator_streak_above_triggers():
-    db.init_db()
     for d, v in [("2026-04-28T00:00:00", 5100),
                  ("2026-04-29T00:00:00", 5200),
                  ("2026-04-30T00:00:00", 5300)]:
