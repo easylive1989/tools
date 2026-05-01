@@ -214,6 +214,6 @@ def fetch_all_stocks():
                 data["currency"],
                 name,
             )
-            check_alerts("stock", ticker, price, name)
+            check_alerts("stock", ticker, price, display_name=name)
         except Exception as e:
             print(f"[yfinance] Error fetching {ticker}: {e}")
