@@ -400,6 +400,13 @@ body { overflow-x: hidden; }
       <option value="margin_balance">融資餘額</option>
       <option value="short_balance">融券餘額</option>
       <option value="revenue">月營收</option>
+      <option value="q_eps">季 EPS</option>
+      <option value="q_revenue">季營收</option>
+      <option value="q_operating_income">季營業利益</option>
+      <option value="q_net_income">季稅後淨利</option>
+      <option value="q_operating_cf">季營業 CF</option>
+      <option value="y_cash_dividend">年現金股利</option>
+      <option value="y_stock_dividend">年股票股利</option>
     </select>
     <select id="alert-condition">
       <option value="above">大於等於</option>
@@ -676,6 +683,13 @@ const STOCK_INDICATOR_LABELS = {
   margin_balance:   '融資餘額',
   short_balance:    '融券餘額',
   revenue:          '月營收',
+  q_eps:              '季 EPS',
+  q_revenue:          '季營收',
+  q_operating_income: '季營業利益',
+  q_net_income:       '季稅後淨利',
+  q_operating_cf:     '季營業 CF',
+  y_cash_dividend:    '年現金股利',
+  y_stock_dividend:   '年股票股利',
 };
 
 function alertTargetLabel(a) {
