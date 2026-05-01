@@ -358,3 +358,15 @@ def fetch_watchlist_stock_daily() -> None:
             fetch_stock_revenue(ticker)
         except Exception as e:
             print(f"[watchlist_chip_per] {ticker} revenue error: {e}")
+        try:
+            fetch_stock_financial(ticker, "income")
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} income error: {e}")
+        try:
+            fetch_stock_financial(ticker, "cash_flow")
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} cash_flow error: {e}")
+        try:
+            fetch_stock_dividend(ticker)
+        except Exception as e:
+            print(f"[watchlist_chip_per] {ticker} dividend error: {e}")
