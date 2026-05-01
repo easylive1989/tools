@@ -1592,7 +1592,7 @@ Expected: 兩個都 success。
 - [ ] 執行:
 
 ```bash
-ssh root@178.104.240.236 "cd /opt/stock-dashboard/backend && .venv/bin/python backfill.py chip_total 365"
+ssh root@${VPS_HOST} "cd /opt/stock-dashboard/backend && .venv/bin/python backfill.py chip_total 365"
 ```
 
 Expected: log 印出 `[chip_total] margin <date>: ...` 跟 `[chip_total] inst <date>: ...`,沒 fetch error。整個過程約 < 30 秒(只 2 個 FinMind requests)。
@@ -1632,7 +1632,7 @@ Expected:
 - [ ] 執行:
 
 ```bash
-ssh root@178.104.240.236 "awk -F= '{print \$1}' /opt/stock-dashboard/backend/.env"
+ssh root@${VPS_HOST} "awk -F= '{print \$1}' /opt/stock-dashboard/backend/.env"
 ```
 
 Expected: 應有 `DISCORD_STOCK_WEBHOOK_URL` 跟 `FINMIND_TOKEN`。在 T5 再次部署後(由 GitHub Action 重寫 .env),`FINMIND_TOKEN` 應該還在(因為已經在 GitHub Secrets 中,workflow 會寫入)。

@@ -78,6 +78,23 @@ Scripts read secrets directly from environment (no `.env` loading at root level;
 | `GOOGLE_API_KEY` | `document_translator` (API mode) |
 | `OPENAI_API_KEY` | `personal_retro/daily_review.py` |
 
+## Secrets and Sensitive Data
+
+**永遠不要把以下資訊 commit 或 push 到 GitHub**(包含 commit message、code、註解、test fixture、文件範例、log 輸出、任何會進 git history 的地方):
+
+- API token / key(FinMind, OpenAI, Google API, Notion 等)
+- Webhook URL(Discord、Slack 等)
+- VPS hostname / IP、SSH 私鑰、SSH cert
+- 任何 `.env` 檔內容
+- 其他憑證、密碼
+
+正確放法:
+- 本機開發 → 環境變數或 `.env`(`.env` 已在 `.gitignore`)
+- CI / GitHub Actions → GitHub Secrets,workflow 中以 `${{ secrets.X }}` 引用
+- VPS → `/opt/<service>/.env`,由 deploy workflow 從 GitHub Secrets 寫入
+
+對話中提到的 secret 也不要再寫進 git history。如果不小心 commit 了,**rotate / 撤銷該 secret**(force-push 不能消除已複製到別處的歷史)。
+
 ## macOS Tooling
 
 - Python scripts intended to run from Raycast use `uv run` (auto-installs deps from inline `# /// script` headers)
