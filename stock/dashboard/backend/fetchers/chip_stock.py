@@ -18,9 +18,10 @@ import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_chip_daily_rows, get_latest_chip_date
+from core.settings import settings
 
 FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
-FINMIND_TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
+FINMIND_TOKEN = settings.finmind_token.get_secret_value().strip()
 
 # 預設首次拉 90 個日曆天 ≒ 60 個交易日(涵蓋週末假日)
 DEFAULT_LOOKBACK_DAYS = 90

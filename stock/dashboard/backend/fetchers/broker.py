@@ -15,9 +15,10 @@ import requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_broker_daily_rows, get_latest_broker_date
+from core.settings import settings
 
 FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
-FINMIND_TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
+FINMIND_TOKEN = settings.finmind_token.get_secret_value().strip()
 DATASET = "TaiwanStockTradingDailyReport"
 
 # 一次 fetch 抓多少天，足夠涵蓋 20 個交易日 + 週末/假日

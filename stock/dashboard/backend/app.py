@@ -37,12 +37,13 @@ from fetchers.fundamentals_stock import (
     fetch_stock_financial, fetch_stock_dividend,
     to_finmind_id as fundamentals_to_finmind_id,
 )
+from core.settings import settings
 
 app = FastAPI(title="Stock Dashboard API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://paul-learning.dev"],
+    allow_origins=settings.cors_origins,
     allow_methods=["GET", "POST", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
@@ -76,6 +77,8 @@ INDICATOR_NAMES = [
 
 @app.on_event("startup")
 def startup():
+    from core.logging import setup_logging
+    setup_logging()
     init_db()
     try:
         from scheduler import start_scheduler
