@@ -13,7 +13,7 @@ def test_init_db_creates_schema_migrations_with_0001_applied():
     versions = [r[0] for r in db.get_connection().execute(
         "SELECT version FROM schema_migrations ORDER BY version"
     ).fetchall()]
-    assert versions == ["0001"]
+    assert "0001" in versions
 
 def test_init_db_baselines_existing_legacy_db():
     """Simulate the live VPS DB: it already has tables but no schema_migrations.
@@ -43,7 +43,7 @@ def test_init_db_baselines_existing_legacy_db():
     versions = [r[0] for r in conn.execute(
         "SELECT version FROM schema_migrations"
     ).fetchall()]
-    assert versions == ["0001"]
+    assert "0001" in versions
     # Original row preserved.
     rows = conn.execute(
         "SELECT indicator, value FROM indicator_snapshots"

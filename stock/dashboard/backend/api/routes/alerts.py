@@ -1,6 +1,7 @@
 """Alert routes: list, create, delete, toggle."""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from api.dependencies import require_token
 from api.schemas.alerts import AlertRequest, AlertToggleRequest
 from repositories.alerts import (
     add_alert, delete_alert, list_alerts, set_alert_enabled,
@@ -9,7 +10,7 @@ from services.alert_registry import get_indicator
 from services import indicators  # noqa: F401  ← trigger auto-register
 from fetchers.fundamentals_stock import to_finmind_id as fundamentals_to_finmind_id
 
-router = APIRouter(prefix="/api", tags=["alerts"])
+router = APIRouter(prefix="/api", tags=["alerts"], dependencies=[Depends(require_token)])
 
 
 VALID_TARGET_TYPES = {"indicator", "stock", "stock_indicator"}

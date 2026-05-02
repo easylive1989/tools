@@ -222,6 +222,29 @@ a:hover { text-decoration: underline; }
 
 <script>
 const API_BASE = 'https://api.paul-learning.dev';
+
+async function apiFetch(path, opts = {}) {
+  let token = localStorage.getItem('sd_token');
+  if (!token) {
+    token = prompt('輸入 API token (sd_...):');
+    if (!token) throw new Error('No token provided');
+    localStorage.setItem('sd_token', token);
+  }
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      ...(opts.headers || {}),
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('sd_token');
+    alert('Token 無效或過期，請重新整理頁面並輸入新 token');
+    throw new Error('Unauthorized');
+  }
+  return res;
+}
+
 const params = new URLSearchParams(location.search);
 const TICKER = (params.get('ticker') || '').toUpperCase();
 let currentRange = '3M';
@@ -443,7 +466,7 @@ async function loadBrokers() {
   const body = document.getElementById('broker-body');
   body.innerHTML = '<div class="broker-empty">載入中…</div>';
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/brokers?days=20&top=5`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/brokers?days=20&top=5`);
     if (!r.ok) {
       body.innerHTML = `<div class="broker-empty">無法載入券商資料 (${r.status})</div>`;
       return;
@@ -502,7 +525,7 @@ async function loadChip() {
   marginBody.innerHTML = '<div class="chip-empty">載入中…</div>';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/chip?days=20`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/chip?days=20`);
     if (!r.ok) {
       instBody.innerHTML = `<div class="chip-empty">無法載入(${r.status})</div>`;
       marginBody.innerHTML = '';
@@ -570,7 +593,7 @@ async function loadValuation() {
   stats.innerHTML = '<div class="fund-empty">載入中…</div>';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/valuation?years=5`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/valuation?years=5`);
     if (!r.ok) {
       stats.innerHTML = `<div class="fund-empty">無法載入估值 (${r.status})</div>`;
       return;
@@ -644,7 +667,7 @@ async function loadRevenue() {
   stats.innerHTML = '<div class="fund-empty">載入中…</div>';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/revenue?months=36`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/revenue?months=36`);
     if (!r.ok) {
       stats.innerHTML = `<div class="fund-empty">無法載入月營收 (${r.status})</div>`;
       return;
@@ -723,7 +746,7 @@ async function loadIncome() {
   tableWrap.innerHTML = '';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=income&quarters=12`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=income&quarters=12`);
     if (!r.ok) {
       summary.innerHTML = `<div class="fund-empty">無法載入損益表 (${r.status})</div>`;
       return;
@@ -820,7 +843,7 @@ async function loadBalance() {
   tableWrap.innerHTML = '';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=balance&quarters=12`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=balance&quarters=12`);
     if (!r.ok) {
       summary.innerHTML = `<div class="fund-empty">無法載入資產負債 (${r.status})</div>`;
       return;
@@ -920,7 +943,7 @@ async function loadCashflow() {
   tableWrap.innerHTML = '';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=cashflow&quarters=12`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/financial?statement=cashflow&quarters=12`);
     if (!r.ok) {
       summary.innerHTML = `<div class="fund-empty">無法載入現金流量 (${r.status})</div>`;
       return;
@@ -1016,7 +1039,7 @@ async function loadDividend() {
   tableWrap.innerHTML = '';
 
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/dividend?years=10`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/dividend?years=10`);
     if (!r.ok) {
       summary.innerHTML = `<div class="fund-empty">無法載入股利 (${r.status})</div>`;
       return;
@@ -1095,7 +1118,7 @@ async function loadDetail() {
   document.getElementById('status').style.display = '';
   document.getElementById('charts').style.display = 'none';
   try {
-    const r = await fetch(`${API_BASE}/api/stocks/${encodeURIComponent(TICKER)}/history?time_range=${currentRange}`);
+    const r = await apiFetch(`/api/stocks/${encodeURIComponent(TICKER)}/history?time_range=${currentRange}`);
     if (!r.ok) {
       const err = await r.json().catch(() => ({}));
       document.getElementById('status').textContent = '無法載入資料：' + (err.detail || r.status);

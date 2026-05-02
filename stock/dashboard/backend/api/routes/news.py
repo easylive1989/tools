@@ -1,7 +1,9 @@
 """News feed routes."""
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-router = APIRouter(prefix="/api", tags=["news"])
+from api.dependencies import require_token
+
+router = APIRouter(prefix="/api", tags=["news"], dependencies=[Depends(require_token)])
 
 
 @router.get("/news")

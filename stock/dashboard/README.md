@@ -36,3 +36,32 @@ Schema 由 `backend/db/runner.py` 管理。新增 schema 變更：
 VPS 上原有的 legacy DB 透過 runner 的 baseline 機制（見 `MIGR-T4`）匯入 ——
 runner 啟動時偵測到「已有 legacy table、無 `schema_migrations`」即把目前所有
 migration 標記為已套用，不重跑 SQL。
+
+## API Authentication (Bootstrap)
+
+After deploy lands, the API enforces `Authorization: Bearer <token>` on every endpoint. Bootstrap the first token:
+
+```bash
+# 1. Add the ops Discord webhook (one-time)
+ssh root@$VPS_HOST 'echo "DISCORD_OPS_WEBHOOK_URL=https://discord.com/api/webhooks/..." >> /opt/stock-dashboard/backend/.env'
+ssh root@$VPS_HOST 'systemctl restart stock-dashboard'
+
+# 2. Issue your first token
+ssh root@$VPS_HOST 'cd /opt/stock-dashboard/backend && .venv/bin/python -m scripts.issue_token issue --label paul-laptop'
+# → Copy the printed sd_... token
+
+# 3. Open https://paul-learning.dev/ and paste the token into the prompt
+```
+
+The token is stored in browser `localStorage`. The 🔓 重新登入 button on the dashboard header clears it.
+
+Add `DISCORD_OPS_WEBHOOK_URL` as a GitHub Secret so future deploys re-populate it.
+
+CLI commands:
+
+```bash
+python -m scripts.issue_token issue --label <name>            # default 365 days
+python -m scripts.issue_token issue --label <name> --no-expiry
+python -m scripts.issue_token list
+python -m scripts.issue_token revoke <id>
+```

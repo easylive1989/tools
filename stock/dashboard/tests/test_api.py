@@ -402,3 +402,18 @@ def test_indicators_spec_endpoint():
     sample = body["indicator"][0]
     assert {"key", "label", "unit", "supported_conditions"} <= set(sample.keys())
     assert isinstance(sample["supported_conditions"], list)
+
+
+def test_endpoint_returns_401_without_auth_override():
+    """Without dependency_override, endpoints require Authorization header."""
+    from api.dependencies import require_token
+
+    saved = app.dependency_overrides.pop(require_token, None)
+    try:
+        unauthed = TestClient(app)
+        r = unauthed.get("/api/dashboard")
+        assert r.status_code == 401
+        assert "Missing" in r.json()["detail"] or "Invalid" in r.json()["detail"]
+    finally:
+        if saved is not None:
+            app.dependency_overrides[require_token] = saved

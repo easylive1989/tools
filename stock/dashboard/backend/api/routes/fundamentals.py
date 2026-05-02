@@ -2,8 +2,9 @@
 import re
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from api.dependencies import require_token
 from repositories.fundamentals import (
     get_dividend_history, get_financial_quarterly_range,
     get_per_daily_range, get_revenue_monthly_range,
@@ -13,7 +14,7 @@ from fetchers.fundamentals_stock import (
     to_finmind_id as fundamentals_to_finmind_id,
 )
 
-router = APIRouter(prefix="/api", tags=["fundamentals"])
+router = APIRouter(prefix="/api", tags=["fundamentals"], dependencies=[Depends(require_token)])
 
 
 @router.get("/stocks/{ticker}/valuation")
