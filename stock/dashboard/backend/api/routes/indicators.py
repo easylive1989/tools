@@ -3,9 +3,10 @@ import json
 from collections.abc import Callable
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from api._constants import INDICATOR_NAMES, RANGE_DELTAS
+from api.dependencies import require_token
 from repositories.indicators import (
     get_indicator_history, get_latest_indicator,
 )
@@ -15,7 +16,7 @@ from fetchers.chip_total import fetch_chip_total
 from fetchers.ndc import fetch_ndc
 from fetchers.volume import fetch_tw_volume, fetch_us_volume
 
-router = APIRouter(prefix="/api", tags=["indicators"])
+router = APIRouter(prefix="/api", tags=["indicators"], dependencies=[Depends(require_token)])
 
 
 FETCHERS: dict[str, Callable] = {

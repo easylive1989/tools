@@ -1,10 +1,20 @@
 """Token issuance + verification + auth-burst tracking."""
 import hashlib
 import logging
+import os
 import secrets
+import sys
 import threading
 from collections import deque
 from datetime import datetime, timedelta, timezone
+
+# sys.path bootstrap to import common.notify (repo-root-relative)
+_here = os.path.dirname(os.path.abspath(__file__))
+for _ in range(5):
+    if os.path.isdir(os.path.join(_here, "common")):
+        sys.path.insert(0, _here)
+        break
+    _here = os.path.dirname(_here)
 
 from common.notify import send_to_discord
 from core.settings import settings

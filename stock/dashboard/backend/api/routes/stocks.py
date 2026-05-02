@@ -2,9 +2,10 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from api._constants import RANGE_DELTAS
+from api.dependencies import require_token
 from api.schemas.stocks import AddStockRequest
 from repositories.chip import get_chip_daily_range
 from repositories.stocks import (
@@ -14,7 +15,7 @@ from fetchers.yfinance_fetcher import fetch_all_stocks, fetch_stock_history
 from fetchers.chip_stock import fetch_stock_chip, to_finmind_id as chip_to_finmind_id
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api", tags=["stocks"])
+router = APIRouter(prefix="/api", tags=["stocks"], dependencies=[Depends(require_token)])
 
 
 @router.get("/stocks")
