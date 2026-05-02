@@ -90,7 +90,7 @@ def test_brokers_endpoint_returns_top5_by_net_buy():
     _seed_broker_rows("2330.TW", days, rows_per_day)
 
     # Patch fetch_broker_daily so the endpoint doesn't hit network
-    with patch("app.fetch_broker_daily", return_value=True):
+    with patch("fetchers.broker.fetch_broker_daily", return_value=True):
         r = client.get("/api/stocks/2330.TW/brokers?days=5&top=5")
 
     assert r.status_code == 200
@@ -114,7 +114,7 @@ def test_brokers_endpoint_returns_top5_by_net_buy():
 
 
 def test_brokers_endpoint_empty_when_no_data():
-    with patch("app.fetch_broker_daily", return_value=False):
+    with patch("fetchers.broker.fetch_broker_daily", return_value=False):
         r = client.get("/api/stocks/2330.TW/brokers")
     assert r.status_code == 200
     body = r.json()
