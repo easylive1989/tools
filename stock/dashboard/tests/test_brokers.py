@@ -4,7 +4,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 import db
-from app import app
+from main import app
 from fetchers.broker import _aggregate, to_finmind_id, fetch_broker_daily
 
 client = TestClient(app)

@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import db
-from app import app
+from main import app
 from fetchers.fundamentals_stock import (
     parse_per_rows, parse_revenue_rows,
     parse_financial_rows, parse_dividend_rows,

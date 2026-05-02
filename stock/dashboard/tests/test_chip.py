@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import db
-from app import app
+from main import app
 from fetchers.chip_total import parse_total_margin, parse_total_institutional
 from fetchers.chip_stock import parse_stock_inst, parse_stock_margin, fetch_stock_chip
 

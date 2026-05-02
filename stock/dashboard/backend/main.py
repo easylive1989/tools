@@ -5,6 +5,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+# Bootstrap: import db first so its re-exports (from repositories.*) finish
+# before route modules trigger partial-loading of the same packages.
+import db  # noqa: F401
+
 from api.routes import indicators, stocks, fundamentals, news
 from api.routes import alerts as alerts_routes
 from core.errors import (
