@@ -12,44 +12,6 @@ def init_db():
     with get_connection() as conn:
         run_migrations(conn, migrations_dir)
 
-def save_stock_snapshot(ticker: str, price: float, change: float, change_pct: float, currency: str, name: str = ""):
-    with get_connection() as conn:
-        conn.execute(
-            "INSERT INTO stock_snapshots (ticker, timestamp, price, change, change_pct, currency, name) "
-            "VALUES (?,?,?,?,?,?,?)",
-            (ticker, datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), price, change, change_pct, currency, name),
-        )
-
-def get_latest_stock(ticker: str) -> dict | None:
-    with get_connection() as conn:
-        row = conn.execute(
-            "SELECT * FROM stock_snapshots WHERE ticker=? ORDER BY timestamp DESC LIMIT 1",
-            (ticker,),
-        ).fetchone()
-        return dict(row) if row else None
-
-def get_watched_tickers() -> list[str]:
-    with get_connection() as conn:
-        rows = conn.execute("SELECT ticker FROM watched_stocks ORDER BY added_at").fetchall()
-        return [r["ticker"] for r in rows]
-
-def add_watched_ticker(ticker: str):
-    with get_connection() as conn:
-        conn.execute(
-            "INSERT OR IGNORE INTO watched_stocks (ticker, added_at) VALUES (?,?)",
-            (ticker, datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
-        )
-
-def remove_watched_ticker(ticker: str):
-    with get_connection() as conn:
-        conn.execute("DELETE FROM watched_stocks WHERE ticker=?", (ticker,))
-        # Phase 4 follow-up:同時停用該 ticker 的 stock_indicator alerts(避免 stale)
-        conn.execute(
-            "UPDATE price_alerts SET enabled=0 "
-            "WHERE target_type='stock_indicator' AND target=?",
-            (ticker,)
-        )
-
 def list_alerts() -> list[dict]:
     with get_connection() as conn:
         rows = conn.execute(
@@ -392,4 +354,8 @@ def purge_old_data(days: int = 1095):
 # Re-exports for backward compatibility (BE-B).
 from repositories.indicators import (  # noqa: E402,F401
     save_indicator, get_latest_indicator, get_indicator_history,
+)
+from repositories.stocks import (  # noqa: E402,F401
+    save_stock_snapshot, get_latest_stock, get_watched_tickers,
+    add_watched_ticker, remove_watched_ticker,
 )
