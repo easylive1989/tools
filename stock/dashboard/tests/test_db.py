@@ -7,6 +7,14 @@ def test_init_creates_tables():
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
     assert {"indicator_snapshots", "watched_stocks", "stock_snapshots"} <= tables
 
+def test_init_db_creates_schema_migrations_with_0001_applied():
+    """init_db() now goes through the migration runner."""
+    db.init_db()
+    versions = [r[0] for r in db.get_connection().execute(
+        "SELECT version FROM schema_migrations ORDER BY version"
+    ).fetchall()]
+    assert versions == ["0001"]
+
 def test_save_and_get_indicator():
     db.init_db()
     db.save_indicator("taiex", 21458.0, '{"change_pct": 0.58}')
