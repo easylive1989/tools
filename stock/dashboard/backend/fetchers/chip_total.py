@@ -18,9 +18,10 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from db import save_indicator
 from alerts import check_alerts
+from core.settings import settings
 
 FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
-FINMIND_TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
+FINMIND_TOKEN = settings.finmind_token.get_secret_value().strip()
 
 
 def _request(dataset: str, start_date: str, end_date: str | None = None) -> list[dict]:
