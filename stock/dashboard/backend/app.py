@@ -38,6 +38,7 @@ from fetchers.fundamentals_stock import (
 )
 from core.settings import settings
 from api._constants import RANGE_DELTAS, INDICATOR_NAMES
+from api.routes import indicators
 from api.schemas.stocks import AddStockRequest
 from api.schemas.alerts import AlertRequest, AlertToggleRequest
 
@@ -50,16 +51,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-FETCHERS: dict[str, Callable] = {
-    "taiex":      fetch_taiex,
-    "fx":         fetch_fx,
-    "fear_greed": fetch_fear_greed,
-    "chip_total": fetch_chip_total,
-    "ndc":        fetch_ndc,
-    "stocks":     fetch_all_stocks,
-    "tw_volume":  fetch_tw_volume,
-    "us_volume":  fetch_us_volume,
-}
+app.include_router(indicators.router)
+
 
 @app.on_event("startup")
 def startup():
@@ -71,30 +64,6 @@ def startup():
         start_scheduler()
     except ImportError:
         print("[app] scheduler not available yet")
-
-
-@app.get("/api/dashboard")
-def dashboard():
-    result = {}
-    for name in INDICATOR_NAMES:
-        row = get_latest_indicator(name)
-        if row:
-            result[name] = {
-                "value":     row["value"],
-                "timestamp": row["timestamp"],
-                "extra":     json.loads(row["extra_json"]) if row["extra_json"] else {},
-            }
-    return result
-
-
-@app.get("/api/history/{indicator}")
-def history(indicator: str, time_range: str = "3M"):
-    if indicator not in INDICATOR_NAMES:
-        raise HTTPException(status_code=404, detail="Unknown indicator")
-    delta = RANGE_DELTAS.get(time_range, RANGE_DELTAS["3M"])
-    since = datetime.now(timezone.utc).replace(tzinfo=None) - delta
-    rows = get_indicator_history(indicator, since)
-    return [{"timestamp": r["timestamp"], "value": r["value"]} for r in rows]
 
 
 @app.get("/api/stocks")
@@ -645,18 +614,6 @@ def remove_alert(alert_id: int):
 @app.patch("/api/alerts/{alert_id}")
 def toggle_alert(alert_id: int, req: AlertToggleRequest):
     set_alert_enabled(alert_id, req.enabled)
-    return {"ok": True}
-
-
-@app.post("/api/refresh/{indicator}")
-def refresh(indicator: str):
-    fn = FETCHERS.get(indicator)
-    if fn is None:
-        raise HTTPException(status_code=404, detail="Unknown indicator")
-    try:
-        fn()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
     return {"ok": True}
 
 
