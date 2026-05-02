@@ -4,7 +4,6 @@ from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 from db import (
     init_db,
@@ -39,6 +38,8 @@ from fetchers.fundamentals_stock import (
 )
 from core.settings import settings
 from api._constants import RANGE_DELTAS, INDICATOR_NAMES
+from api.schemas.stocks import AddStockRequest
+from api.schemas.alerts import AlertRequest, AlertToggleRequest
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -114,10 +115,6 @@ def get_stocks():
         else:
             result.append({"ticker": ticker, "name": ticker, "price": None})
     return result
-
-
-class AddStockRequest(BaseModel):
-    ticker: str
 
 
 @app.post("/api/stocks")
@@ -555,19 +552,6 @@ def stock_history(ticker: str, time_range: str = "3M"):
     if data is None:
         raise HTTPException(status_code=404, detail="No history available")
     return data
-
-
-class AlertRequest(BaseModel):
-    target_type: str
-    target: str
-    condition: str
-    threshold: float
-    indicator_key: str | None = None
-    window_n: int | None = None
-
-
-class AlertToggleRequest(BaseModel):
-    enabled: bool
 
 
 VALID_TARGET_TYPES = {"indicator", "stock", "stock_indicator"}
