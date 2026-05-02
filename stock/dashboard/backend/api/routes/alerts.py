@@ -1,11 +1,12 @@
 """Alert routes: list, create, delete, toggle."""
 from fastapi import APIRouter, HTTPException
 
-from api._constants import INDICATOR_NAMES
 from api.schemas.alerts import AlertRequest, AlertToggleRequest
 from repositories.alerts import (
     add_alert, delete_alert, list_alerts, set_alert_enabled,
 )
+from services.alert_registry import get_indicator
+from services import indicators  # noqa: F401  ← trigger auto-register
 from fetchers.fundamentals_stock import to_finmind_id as fundamentals_to_finmind_id
 
 router = APIRouter(prefix="/api", tags=["alerts"])
@@ -18,24 +19,6 @@ VALID_CONDITIONS = {
     "percentile_above", "percentile_below",
     "yoy_above", "yoy_below",
 }
-STOCK_DAILY_INDICATOR_KEYS = {
-    "per", "pbr", "dividend_yield",
-    "foreign_net", "trust_net", "dealer_net",
-    "margin_balance", "short_balance",
-}
-STOCK_MONTHLY_INDICATOR_KEYS = {"revenue"}
-STOCK_QUARTERLY_INDICATOR_KEYS = {
-    "q_eps", "q_revenue", "q_operating_income",
-    "q_net_income", "q_operating_cf",
-}
-STOCK_YEARLY_INDICATOR_KEYS = {"y_cash_dividend", "y_stock_dividend"}
-STOCK_YOY_COMPATIBLE_KEYS = (
-    STOCK_MONTHLY_INDICATOR_KEYS
-    | STOCK_QUARTERLY_INDICATOR_KEYS
-    | STOCK_YEARLY_INDICATOR_KEYS
-)
-STOCK_INDICATOR_KEYS = STOCK_DAILY_INDICATOR_KEYS | STOCK_YOY_COMPATIBLE_KEYS
-PERCENTILE_DAILY_KEYS = {"per", "pbr", "dividend_yield"}
 
 
 @router.get("/alerts")
@@ -58,31 +41,31 @@ def create_alert(req: AlertRequest):
             raise HTTPException(status_code=400, detail="window_n must be 2..30")
 
     is_percentile = req.condition.startswith("percentile_")
-    is_yoy = req.condition.startswith("yoy_")
     if is_percentile and (req.threshold < 0 or req.threshold > 100):
         raise HTTPException(status_code=400, detail="percentile threshold must be 0..100")
 
     if req.target_type == "indicator":
-        if req.target not in INDICATOR_NAMES:
+        spec = get_indicator("indicator", req.target)
+        if spec is None:
             raise HTTPException(status_code=400, detail="Unknown indicator")
+        if not spec.supports(req.condition):
+            raise HTTPException(
+                status_code=400,
+                detail=f"indicator {req.target} does not support {req.condition}",
+            )
         target = req.target
     elif req.target_type == "stock_indicator":
         if not req.indicator_key:
             raise HTTPException(status_code=400, detail="stock_indicator requires indicator_key")
-        if req.indicator_key not in STOCK_INDICATOR_KEYS:
+        spec = get_indicator("stock_indicator", req.indicator_key)
+        if spec is None:
             raise HTTPException(status_code=400, detail="Unknown indicator_key")
         if fundamentals_to_finmind_id(req.target) is None:
             raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) supported")
-        # 交叉驗證:percentile 只支援 daily;yoy 只支援 monthly
-        if is_percentile and req.indicator_key not in PERCENTILE_DAILY_KEYS:
+        if not spec.supports(req.condition):
             raise HTTPException(
                 status_code=400,
-                detail="percentile condition requires daily indicator (per/pbr/dividend_yield)"
-            )
-        if is_yoy and req.indicator_key not in STOCK_YOY_COMPATIBLE_KEYS:
-            raise HTTPException(
-                status_code=400,
-                detail="yoy condition requires monthly/quarterly/yearly indicator"
+                detail=f"indicator {req.indicator_key} does not support condition {req.condition}",
             )
         target = req.target.upper()
     else:  # stock

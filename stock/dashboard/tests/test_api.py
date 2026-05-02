@@ -374,3 +374,31 @@ def test_post_alert_yoy_with_per_still_400():
         "indicator_key": "per",
     })
     assert r.status_code == 400
+
+
+def test_indicators_spec_endpoint():
+    r = client.get("/api/indicators/spec")
+    assert r.status_code == 200
+    body = r.json()
+    assert "indicator" in body
+    assert "stock_indicator" in body
+    assert len(body["indicator"]) == 10
+    assert len(body["stock_indicator"]) == 16
+
+    # spot-check known entries
+    keys_indicator = {s["key"] for s in body["indicator"]}
+    assert "taiex" in keys_indicator
+    assert "fear_greed" in keys_indicator
+    assert "margin_balance" in keys_indicator  # indicator-level
+
+    keys_stock = {s["key"] for s in body["stock_indicator"]}
+    assert "per" in keys_stock
+    assert "revenue" in keys_stock
+    assert "q_eps" in keys_stock
+    assert "y_cash_dividend" in keys_stock
+    assert "margin_balance" in keys_stock  # stock-level (collides with indicator-level by name)
+
+    # verify schema fields
+    sample = body["indicator"][0]
+    assert {"key", "label", "unit", "supported_conditions"} <= set(sample.keys())
+    assert isinstance(sample["supported_conditions"], list)
