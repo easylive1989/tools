@@ -72,3 +72,53 @@ def test_runner_applies_multiple_migrations_in_order(tmp_path):
         "SELECT version FROM schema_migrations ORDER BY version"
     ).fetchall()]
     assert versions == ["0001", "0002"]
+
+
+def test_runner_baselines_existing_db(tmp_path):
+    """If the DB already has the legacy schema but no schema_migrations,
+    mark all migrations as applied without running them."""
+    conn = _fresh_conn()
+    # Simulate an existing VPS DB by creating a known legacy table directly.
+    conn.execute(
+        "CREATE TABLE indicator_snapshots ("
+        "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  indicator TEXT NOT NULL,"
+        "  timestamp TEXT NOT NULL,"
+        "  value REAL NOT NULL,"
+        "  extra_json TEXT"
+        ")"
+    )
+    conn.commit()
+
+    # A migration that WOULD fail if executed (the table already exists).
+    (tmp_path / "0001_initial.sql").write_text(
+        "CREATE TABLE indicator_snapshots (x INTEGER);"
+    )
+
+    runner.run_migrations(conn, str(tmp_path))
+
+    # Migration is recorded as applied, but was NOT executed
+    # (otherwise the CREATE TABLE would have errored).
+    versions = [r[0] for r in conn.execute(
+        "SELECT version FROM schema_migrations"
+    ).fetchall()]
+    assert versions == ["0001"]
+    # Original schema preserved.
+    cols = [r[1] for r in conn.execute(
+        "PRAGMA table_info(indicator_snapshots)"
+    ).fetchall()]
+    assert "indicator" in cols and "x" not in cols
+
+
+def test_runner_does_not_baseline_fresh_db(tmp_path):
+    """Fresh DB (no known legacy tables) goes through the normal path."""
+    (tmp_path / "0001_initial.sql").write_text(
+        "CREATE TABLE indicator_snapshots (id INTEGER PRIMARY KEY, indicator TEXT);"
+    )
+    conn = _fresh_conn()
+    runner.run_migrations(conn, str(tmp_path))
+
+    cols = [r[1] for r in conn.execute(
+        "PRAGMA table_info(indicator_snapshots)"
+    ).fetchall()]
+    assert cols == ["id", "indicator"]  # came from the migration

@@ -13,6 +13,30 @@ logger = logging.getLogger(__name__)
 
 _VERSION_RE = re.compile(r"^(\d{4})_.+\.sql$")
 
+# Tables known to exist in the pre-runner schema. If any of these are
+# present in a DB that has no schema_migrations rows, we baseline the DB
+# instead of re-running migrations.
+_LEGACY_TABLES = frozenset({
+    "indicator_snapshots",
+    "watched_stocks",
+    "stock_snapshots",
+    "stock_broker_daily",
+    "stock_chip_daily",
+    "stock_per_daily",
+    "stock_revenue_monthly",
+    "stock_financial_quarterly",
+    "stock_dividend_history",
+    "price_alerts",
+})
+
+
+def _is_legacy_db(conn: sqlite3.Connection) -> bool:
+    rows = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()
+    existing = {r[0] for r in rows}
+    return bool(existing & _LEGACY_TABLES)
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
@@ -44,6 +68,17 @@ def run_migrations(conn: sqlite3.Connection, migrations_dir: str) -> None:
     applied = {
         r[0] for r in conn.execute("SELECT version FROM schema_migrations").fetchall()
     }
+
+    if not applied and _is_legacy_db(conn):
+        discovered = _discover(migrations_dir)
+        for version, _ in discovered:
+            conn.execute(
+                "INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)",
+                (version, _now_iso()),
+            )
+        conn.commit()
+        logger.info("migrations_baselined count=%d", len(discovered))
+        return
 
     for version, path in _discover(migrations_dir):
         if version in applied:
