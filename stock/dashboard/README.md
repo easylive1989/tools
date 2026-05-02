@@ -24,3 +24,15 @@ systemctl restart stock-dashboard
 未來要恢復功能：升級 FinMind Sponsor → 改 `fetchers/broker.py` 為「逐日呼叫」
 （dataset 規定 single day per request）→ 還原 `app.py` 的 endpoint 實作 →
 還原 `stock.html` 的 `loadBrokers()` 呼叫。
+
+## DB Migrations
+
+Schema 由 `backend/db/runner.py` 管理。新增 schema 變更：
+
+1. 建檔 `backend/db/migrations/NNNN_<snake_name>.sql`（流水號，4 位數）
+2. 服務啟動（`init_db()`）時 runner 會自動套用未執行的 migration；已套用版本記錄在 `schema_migrations` 表
+3. Forward-only：已 push 到 master 的 migration 不可修改，要修正請寫新 migration
+
+VPS 上原有的 legacy DB 透過 runner 的 baseline 機制（見 `MIGR-T4`）匯入 ——
+runner 啟動時偵測到「已有 legacy table、無 `schema_migrations`」即把目前所有
+migration 標記為已套用，不重跑 SQL。
