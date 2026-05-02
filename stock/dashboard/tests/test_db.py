@@ -15,6 +15,41 @@ def test_init_db_creates_schema_migrations_with_0001_applied():
     ).fetchall()]
     assert versions == ["0001"]
 
+def test_init_db_baselines_existing_legacy_db():
+    """Simulate the live VPS DB: it already has tables but no schema_migrations.
+    init_db() must mark 0001 as applied without re-running it (which would error)
+    and the existing data must remain intact."""
+    # Build a fresh in-memory DB and pre-populate it with a legacy-shaped
+    # indicator_snapshots table + one row, mimicking the VPS state.
+    db._memory_conn = None
+    conn = db.get_connection()
+    conn.execute(
+        "CREATE TABLE indicator_snapshots ("
+        "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "  indicator TEXT NOT NULL,"
+        "  timestamp TEXT NOT NULL,"
+        "  value REAL NOT NULL,"
+        "  extra_json TEXT"
+        ")"
+    )
+    conn.execute(
+        "INSERT INTO indicator_snapshots (indicator, timestamp, value) "
+        "VALUES ('taiex', '2026-01-01T00:00:00', 17000.0)"
+    )
+    conn.commit()
+
+    db.init_db()  # should baseline, not re-run
+
+    versions = [r[0] for r in conn.execute(
+        "SELECT version FROM schema_migrations"
+    ).fetchall()]
+    assert versions == ["0001"]
+    # Original row preserved.
+    rows = conn.execute(
+        "SELECT indicator, value FROM indicator_snapshots"
+    ).fetchall()
+    assert [(r[0], r[1]) for r in rows] == [("taiex", 17000.0)]
+
 def test_save_and_get_indicator():
     db.init_db()
     db.save_indicator("taiex", 21458.0, '{"change_pct": 0.58}')
