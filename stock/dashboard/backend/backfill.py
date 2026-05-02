@@ -11,8 +11,6 @@ import cloudscraper
 sys.path.insert(0, os.path.dirname(__file__))
 from db import init_db, get_connection, save_indicator
 
-DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "stock_dashboard.db"))
-
 
 def _ts(dt: datetime) -> str:
     return dt.replace(tzinfo=None).isoformat()
