@@ -1,26 +1,9 @@
-import sqlite3
 import os
-import threading
 from datetime import datetime, timedelta, timezone
 
-from core.settings import settings
-
-DB_PATH = settings.db_path
-_memory_conn = None
-_memory_lock = threading.Lock()
-
-def get_connection() -> sqlite3.Connection:
-    global _memory_conn
-    if DB_PATH == ":memory:":
-        with _memory_lock:
-            if _memory_conn is None:
-                _memory_conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-                _memory_conn.row_factory = sqlite3.Row
-        return _memory_conn
-    else:
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        return conn
+from db.connection import (
+    get_connection, DB_PATH, _memory_conn, _memory_lock,
+)
 
 def init_db():
     """Bring the database up to the latest schema by running migrations."""
