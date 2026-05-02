@@ -122,3 +122,32 @@ def test_runner_does_not_baseline_fresh_db(tmp_path):
         "PRAGMA table_info(indicator_snapshots)"
     ).fetchall()]
     assert cols == ["id", "indicator"]  # came from the migration
+
+
+def test_runner_rolls_back_on_bad_migration(tmp_path):
+    """A SQL error must rollback the transaction and not record the version."""
+    import pytest as _pytest
+
+    (tmp_path / "0001_good.sql").write_text(
+        "CREATE TABLE good (id INTEGER);"
+    )
+    (tmp_path / "0002_bad.sql").write_text(
+        "CREATE TABLE bad (id INTEGER);\n"
+        "THIS IS NOT VALID SQL;"
+    )
+    conn = _fresh_conn()
+
+    with _pytest.raises(sqlite3.Error):
+        runner.run_migrations(conn, str(tmp_path))
+
+    versions = {r[0] for r in conn.execute(
+        "SELECT version FROM schema_migrations"
+    ).fetchall()}
+    # 0001 succeeded and was recorded; 0002 must NOT be recorded.
+    assert versions == {"0001"}
+    # 'bad' table must not exist (rolled back).
+    tables = {r[0] for r in conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()}
+    assert "good" in tables
+    assert "bad" not in tables
