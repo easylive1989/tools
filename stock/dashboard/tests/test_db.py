@@ -21,7 +21,7 @@ def test_init_db_baselines_existing_legacy_db():
     and the existing data must remain intact."""
     # Build a fresh in-memory DB and pre-populate it with a legacy-shaped
     # indicator_snapshots table + one row, mimicking the VPS state.
-    db._memory_conn = None
+    db.connection._memory_conn = None
     conn = db.get_connection()
     conn.execute(
         "CREATE TABLE indicator_snapshots ("
