@@ -13,6 +13,8 @@ for _ in range(5):
         break
     _here = os.path.dirname(_here)
 from common.notify import send_to_discord
+from services.alert_notifier import notify_triggered
+from core.settings import settings  # re-exported so tests can monkeypatch alerts_module.settings
 
 INDICATOR_LABELS = {
     "taiex":              "加權指數",
@@ -340,7 +342,6 @@ def check_alerts(target_type: str, target: str, value: float | None = None,
         active_alerts = all_active
 
     name = display_name or _alert_display_name(target_type, target, indicator_key)
-    webhook = os.environ.get("DISCORD_STOCK_WEBHOOK_URL")
 
     for alert in active_alerts:
         threshold = alert["threshold"]
@@ -401,12 +402,6 @@ def check_alerts(target_type: str, target: str, value: float | None = None,
         if not triggered:
             continue
 
+        payload = _build_payload(alert, triggered_value, name)
+        notify_triggered(payload, alert_id=alert["id"])
         mark_alert_triggered(alert["id"], triggered_value)
-        if not webhook:
-            print(f"[alerts] webhook not set, skipping notification for alert {alert['id']}")
-            continue
-        try:
-            send_to_discord(webhook, _build_payload(alert, triggered_value, name))
-            print(f"[alerts] notified: {name} {cond} {threshold} (value={triggered_value})")
-        except Exception as e:
-            print(f"[alerts] discord error for alert {alert['id']}: {e}")

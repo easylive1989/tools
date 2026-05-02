@@ -6,14 +6,17 @@ os.environ["DB_PATH"] = ":memory:"
 
 import db
 import alerts as alerts_module
+import services.alert_notifier as alert_notifier
+from pydantic import SecretStr
 
 
 def test_above_alert_triggers_and_disables(monkeypatch):
     aid = db.add_alert("indicator", "taiex", "above", 22000.0)
 
     sent = []
-    monkeypatch.setattr(alerts_module, "send_to_discord", lambda url, payload: sent.append(payload))
-    monkeypatch.setenv("DISCORD_STOCK_WEBHOOK_URL", "http://example.invalid/hook")
+    monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
+    monkeypatch.setattr(alerts_module.settings, "discord_stock_webhook_url",
+                        SecretStr("http://example.invalid/hook"))
 
     alerts_module.check_alerts("indicator", "taiex", 21999.0)
     assert sent == []
@@ -30,8 +33,9 @@ def test_below_alert_triggers(monkeypatch):
     db.add_alert("stock", "2330.TW", "below", 800.0)
 
     sent = []
-    monkeypatch.setattr(alerts_module, "send_to_discord", lambda url, payload: sent.append(payload))
-    monkeypatch.setenv("DISCORD_STOCK_WEBHOOK_URL", "http://example.invalid/hook")
+    monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
+    monkeypatch.setattr(alerts_module.settings, "discord_stock_webhook_url",
+                        SecretStr("http://example.invalid/hook"))
 
     alerts_module.check_alerts("stock", "2330.TW", 850.0)
     assert sent == []
@@ -43,7 +47,7 @@ def test_below_alert_triggers(monkeypatch):
 
 def test_no_webhook_still_disables_alert(monkeypatch):
     aid = db.add_alert("indicator", "fx", "above", 32.0)
-    monkeypatch.delenv("DISCORD_STOCK_WEBHOOK_URL", raising=False)
+    monkeypatch.setattr(alerts_module.settings, "discord_stock_webhook_url", None)
 
     alerts_module.check_alerts("indicator", "fx", 32.5)
     # alert should be marked triggered even without webhook
@@ -55,8 +59,9 @@ def test_disabled_alert_is_skipped(monkeypatch):
     db.set_alert_enabled(aid, False)
 
     sent = []
-    monkeypatch.setattr(alerts_module, "send_to_discord", lambda url, payload: sent.append(payload))
-    monkeypatch.setenv("DISCORD_STOCK_WEBHOOK_URL", "http://example.invalid/hook")
+    monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
+    monkeypatch.setattr(alerts_module.settings, "discord_stock_webhook_url",
+                        SecretStr("http://example.invalid/hook"))
 
     alerts_module.check_alerts("indicator", "taiex", 200.0)
     assert sent == []
@@ -147,8 +152,9 @@ def test_check_alerts_stock_indicator_above_triggers():
     ])
     db.add_alert("stock_indicator", "2330.TW", "above", 30.0,
                  indicator_key="per", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="per")
     assert mock_send.called
     args = mock_send.call_args
@@ -162,8 +168,9 @@ def test_check_alerts_stock_indicator_below_does_not_trigger_when_above():
     ])
     db.add_alert("stock_indicator", "2330.TW", "below", 30.0,
                  indicator_key="per", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="per")
     assert not mock_send.called
 
@@ -179,8 +186,9 @@ def test_check_alerts_stock_indicator_streak_above_triggers():
     ])
     db.add_alert("stock_indicator", "2330.TW", "streak_above", 0,
                  indicator_key="foreign_net", window_n=5)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="foreign_net")
     assert mock_send.called
 
@@ -192,8 +200,9 @@ def test_check_alerts_indicator_streak_above_triggers():
         db.save_indicator("margin_balance", v, timestamp=__import__("datetime").datetime.fromisoformat(d))
     db.add_alert("indicator", "margin_balance", "streak_above", 5000,
                  indicator_key=None, window_n=3)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("indicator", "margin_balance", value=5300)
     assert mock_send.called
 
@@ -275,8 +284,9 @@ def test_check_alerts_percentile_above_triggers():
     db.save_per_daily_rows(rows)
     db.add_alert("stock_indicator", "2330.TW", "percentile_above", 90,
                  indicator_key="per", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="per")
     assert mock_send.called
 
@@ -295,8 +305,9 @@ def test_check_alerts_percentile_below_does_not_trigger_when_high():
     db.save_per_daily_rows(rows)
     db.add_alert("stock_indicator", "2330.TW", "percentile_below", 10,
                  indicator_key="per", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="per")
     assert not mock_send.called
 
@@ -308,8 +319,9 @@ def test_check_alerts_yoy_above_triggers():
     ])
     db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="revenue", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="revenue")
     assert mock_send.called
 
@@ -321,8 +333,9 @@ def test_check_alerts_percentile_with_revenue_indicator_skipped():
     ])
     db.add_alert("stock_indicator", "2330.TW", "percentile_above", 50,
                  indicator_key="revenue", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="revenue")
     assert not mock_send.called
 
@@ -421,8 +434,9 @@ def test_check_alerts_yoy_quarterly_eps_triggers():
     ])
     db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="q_eps", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="q_eps")
     assert mock_send.called
 
@@ -439,7 +453,8 @@ def test_check_alerts_yoy_yearly_dividend_triggers():
     db.save_dividend_history_rows(rows)
     db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="y_cash_dividend", window_n=None)
-    with patch("alerts.send_to_discord") as mock_send:
-        with patch.dict("os.environ", {"DISCORD_STOCK_WEBHOOK_URL": "https://example/x"}):
+    with patch("services.alert_notifier.send_to_discord") as mock_send:
+        with patch.object(alerts_module.settings, "discord_stock_webhook_url",
+                           SecretStr("https://example/x")):
             check_alerts("stock_indicator", "2330.TW", indicator_key="y_cash_dividend")
     assert mock_send.called
