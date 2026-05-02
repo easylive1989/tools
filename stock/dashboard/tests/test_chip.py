@@ -144,7 +144,7 @@ def test_chip_endpoint_returns_net_values():
          "margin_balance": 12345, "short_balance": 678},
     ])
     # patch fetch 不要打網路(app 直接引用,要 patch app 模組的名稱)
-    with patch("app.fetch_stock_chip", return_value=True):
+    with patch("api.routes.stocks.fetch_stock_chip", return_value=True):
         r = client.get("/api/stocks/2330.TW/chip?days=20")
     assert r.status_code == 200
     body = r.json()

@@ -38,8 +38,7 @@ from fetchers.fundamentals_stock import (
 )
 from core.settings import settings
 from api._constants import RANGE_DELTAS, INDICATOR_NAMES
-from api.routes import indicators
-from api.schemas.stocks import AddStockRequest
+from api.routes import indicators, stocks
 from api.schemas.alerts import AlertRequest, AlertToggleRequest
 
 app = FastAPI(title="Stock Dashboard API")
@@ -52,6 +51,7 @@ app.add_middleware(
 )
 
 app.include_router(indicators.router)
+app.include_router(stocks.router)
 
 
 @app.on_event("startup")
@@ -64,107 +64,6 @@ def startup():
         start_scheduler()
     except ImportError:
         print("[app] scheduler not available yet")
-
-
-@app.get("/api/stocks")
-def get_stocks():
-    result = []
-    for ticker in get_watched_tickers():
-        row = get_latest_stock(ticker)
-        if row:
-            result.append({
-                "ticker":     ticker,
-                "name":       row["name"],
-                "price":      row["price"],
-                "change":     row["change"],
-                "change_pct": row["change_pct"],
-                "currency":   row["currency"],
-                "timestamp":  row["timestamp"],
-            })
-        else:
-            result.append({"ticker": ticker, "name": ticker, "price": None})
-    return result
-
-
-@app.post("/api/stocks")
-def add_stock(req: AddStockRequest):
-    add_watched_ticker(req.ticker.upper())
-    try:
-        fetch_all_stocks()
-    except Exception as e:
-        print(f"[add_stock] Fetch error: {e}")
-    return {"ok": True}
-
-
-@app.delete("/api/stocks/{ticker}")
-def delete_stock(ticker: str):
-    remove_watched_ticker(ticker.upper())
-    return {"ok": True}
-
-
-@app.get("/api/stocks/{ticker}/brokers")
-def stock_brokers(ticker: str, days: int = 20, top: int = 5):
-    # 已停用：FinMind TaiwanStockTradingDailyReport 改為 Sponsor 限定 (見 README)。
-    # 程式碼保留以便未來重啟功能。
-    return {
-        "ticker":      ticker.upper(),
-        "days":        days,
-        "as_of":       None,
-        "ok":          False,
-        "top_brokers": [],
-    }
-
-
-@app.get("/api/stocks/{ticker}/chip")
-def stock_chip(ticker: str, days: int = 20):
-    """個股籌碼:近 N 個交易日的三大法人淨買賣 + 融資融券餘額。
-
-    Lazy fetch + DB cache。輸出每筆 row 含:
-    foreign_net / trust_net / dealer_net(buy-sell)、margin_balance、short_balance。
-    """
-    ticker = ticker.upper()
-    if chip_to_finmind_id(ticker) is None:
-        raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
-    if days < 1 or days > 90:
-        raise HTTPException(status_code=400, detail="days must be 1..90")
-
-    fetched = fetch_stock_chip(ticker)
-    since_date = (datetime.now(timezone.utc).date() - timedelta(days=int(days * 1.6) + 5)).isoformat()
-    rows = get_chip_daily_range(ticker, since_date)
-
-    if not rows:
-        return {
-            "ticker": ticker, "days": days, "as_of": None,
-            "ok": fetched, "rows": [],
-        }
-
-    distinct_dates = sorted({r["date"] for r in rows})
-    window_dates = distinct_dates[-days:]
-    window_set = set(window_dates)
-
-    def _net(b, s) -> float | None:
-        if b is None and s is None:
-            return None
-        return (b or 0) - (s or 0)
-
-    out_rows = []
-    for r in rows:
-        if r["date"] not in window_set:
-            continue
-        out_rows.append({
-            "date":           r["date"],
-            "foreign_net":    _net(r["foreign_buy"], r["foreign_sell"]),
-            "trust_net":      _net(r["trust_buy"], r["trust_sell"]),
-            "dealer_net":     _net(r["dealer_buy"], r["dealer_sell"]),
-            "margin_balance": r["margin_balance"],
-            "short_balance":  r["short_balance"],
-        })
-
-    return {
-        "ticker": ticker, "days": days,
-        "as_of": window_dates[-1] if window_dates else None,
-        "ok": True, "rows": out_rows,
-    }
 
 
 @app.get("/api/stocks/{ticker}/valuation")
@@ -508,19 +407,6 @@ def stock_dividend(ticker: str, years: int = 10):
 
     return {"ticker": ticker, "years": years, "ok": True,
             "summary": summary, "rows": rows_with_ratio}
-
-
-@app.get("/api/stocks/{ticker}/history")
-def stock_history(ticker: str, time_range: str = "3M"):
-    if time_range not in RANGE_DELTAS:
-        raise HTTPException(status_code=400, detail="Unknown time_range")
-    try:
-        data = fetch_stock_history(ticker.upper(), time_range)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Upstream error: {e}")
-    if data is None:
-        raise HTTPException(status_code=404, detail="No history available")
-    return data
 
 
 VALID_TARGET_TYPES = {"indicator", "stock", "stock_indicator"}
