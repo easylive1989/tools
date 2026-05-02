@@ -10,7 +10,7 @@ import json
 
 from fastapi.testclient import TestClient
 
-from app import app
+from main import app
 
 client = TestClient(app)
 
@@ -90,7 +90,7 @@ def test_stock_history_returns_data(monkeypatch):
             "macd_histogram": [0.05, 0.1],
         },
     }
-    monkeypatch.setattr("app.fetch_stock_history", lambda ticker, time_range: fake)
+    monkeypatch.setattr("api.routes.stocks.fetch_stock_history", lambda ticker, time_range: fake)
     r = client.get("/api/stocks/2330.tw/history?time_range=3M")
     assert r.status_code == 200
     data = r.json()
@@ -100,7 +100,7 @@ def test_stock_history_returns_data(monkeypatch):
 
 
 def test_stock_history_404_when_no_data(monkeypatch):
-    monkeypatch.setattr("app.fetch_stock_history", lambda ticker, time_range: None)
+    monkeypatch.setattr("api.routes.stocks.fetch_stock_history", lambda ticker, time_range: None)
     r = client.get("/api/stocks/UNKNOWN/history?time_range=3M")
     assert r.status_code == 404
 

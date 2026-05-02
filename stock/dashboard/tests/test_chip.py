@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import db
-from app import app
+from main import app
 from fetchers.chip_total import parse_total_margin, parse_total_institutional
 from fetchers.chip_stock import parse_stock_inst, parse_stock_margin, fetch_stock_chip
 
@@ -144,7 +144,7 @@ def test_chip_endpoint_returns_net_values():
          "margin_balance": 12345, "short_balance": 678},
     ])
     # patch fetch 不要打網路(app 直接引用,要 patch app 模組的名稱)
-    with patch("app.fetch_stock_chip", return_value=True):
+    with patch("api.routes.stocks.fetch_stock_chip", return_value=True):
         r = client.get("/api/stocks/2330.TW/chip?days=20")
     assert r.status_code == 200
     body = r.json()

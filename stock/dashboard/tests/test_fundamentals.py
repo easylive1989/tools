@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import db
-from app import app
+from main import app
 from fetchers.fundamentals_stock import (
     parse_per_rows, parse_revenue_rows,
     parse_financial_rows, parse_dividend_rows,
@@ -142,7 +142,7 @@ def test_valuation_endpoint_returns_latest_and_5y_range():
         {"date": "2025-06-30", "per": 30.0, "pbr": 8.0,  "dividend_yield": 1.5},
         {"date": "2026-04-30", "per": 32.0, "pbr": 10.0, "dividend_yield": 1.0},
     ])
-    with patch("app.fetch_stock_per", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_per", return_value=True):
         r = client.get("/api/stocks/2330.TW/valuation?years=5")
     assert r.status_code == 200
     body = r.json()
@@ -164,7 +164,7 @@ def test_revenue_endpoint_yoy_and_ytd():
         {"year": 2026, "month": 1, "revenue": 1500_000_000_000},
         {"year": 2026, "month": 2, "revenue": 1600_000_000_000},
     ])
-    with patch("app.fetch_stock_revenue", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_revenue", return_value=True):
         r = client.get("/api/stocks/2330.TW/revenue?months=12")
     body = r.json()
     assert body["latest"]["year"] == 2026
@@ -183,7 +183,7 @@ def test_financial_income_endpoint_returns_quarterly_with_ratios():
         {"date": "2026-03-31", "type": "IncomeAfterTaxes","value": 300.0},
         {"date": "2026-03-31", "type": "EPS",             "value": 12.5},
     ])
-    with patch("app.fetch_stock_financial", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_financial", return_value=True):
         r = client.get("/api/stocks/2330.TW/financial?statement=income&quarters=4")
     body = r.json()
     assert body["ok"] is True
@@ -207,7 +207,7 @@ def test_financial_balance_endpoint_returns_ratios():
         {"date": "2026-03-31", "type": "EquityAttributableToOwnersOfParent",
          "value": 2500.0},
     ])
-    with patch("app.fetch_stock_financial", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_financial", return_value=True):
         r = client.get("/api/stocks/2330.TW/financial?statement=balance&quarters=4")
     body = r.json()
     row = body["rows"][0]
@@ -226,7 +226,7 @@ def test_financial_cashflow_endpoint_returns_fcf():
         {"date": "2026-03-31", "type": "CashProvidedByInvestingActivities",    "value": -300.0},
         {"date": "2026-03-31", "type": "CashFlowsProvidedFromFinancingActivities", "value": -200.0},
     ])
-    with patch("app.fetch_stock_financial", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_financial", return_value=True):
         r = client.get("/api/stocks/2330.TW/financial?statement=cashflow&quarters=4")
     body = r.json()
     row = body["rows"][0]
@@ -252,7 +252,7 @@ def test_dividend_endpoint_aggregates_by_calendar_year():
         {"date": "2025-09-30", "type": "EPS", "value": 12.5},
         {"date": "2025-12-31", "type": "EPS", "value": 13.0},
     ])
-    with patch("app.fetch_stock_dividend", return_value=True):
+    with patch("api.routes.fundamentals.fetch_stock_dividend", return_value=True):
         r = client.get("/api/stocks/2330.TW/dividend?years=10")
     body = r.json()
     assert body["ok"] is True
