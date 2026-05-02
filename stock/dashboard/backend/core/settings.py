@@ -15,6 +15,7 @@ class Settings(BaseSettings):
         os.path.dirname(__file__), "..", "stock_dashboard.db"
     )
     discord_stock_webhook_url: SecretStr | None = None
+    discord_ops_webhook_url: SecretStr | None = None
     finmind_token: SecretStr = SecretStr("")
     log_level: str = "INFO"
     cors_origins: list[str] = ["https://paul-learning.dev"]
