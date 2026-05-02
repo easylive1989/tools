@@ -6,6 +6,25 @@ os.environ["DB_PATH"] = ":memory:"
 
 import pytest
 import db
+from main import app
+from api.dependencies import require_token
+
+
+def _fake_token():
+    """Bypass auth in tests — returns a synthetic token row."""
+    return {
+        "id": 0,
+        "prefix": "test_",
+        "label": "test",
+        "created_at": "2026-01-01T00:00:00",
+        "expires_at": None,
+        "last_used_at": None,
+        "revoked_at": None,
+    }
+
+
+# Module-level override: applies to every TestClient(app) request.
+app.dependency_overrides[require_token] = _fake_token
 
 
 @pytest.fixture(autouse=True)
