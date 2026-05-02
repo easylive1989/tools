@@ -3,7 +3,9 @@ import os
 import threading
 from datetime import datetime, timedelta, timezone
 
-DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "stock_dashboard.db"))
+from core.settings import settings
+
+DB_PATH = settings.db_path
 _memory_conn = None
 _memory_lock = threading.Lock()
 
