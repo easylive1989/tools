@@ -1,9 +1,15 @@
+"""Database package.
+
+Public API kept stable via re-exports so call sites like
+`from db import save_indicator` continue to work after the BE-B split.
+"""
 import os
 from datetime import datetime, timedelta, timezone
 
 from db.connection import (
     get_connection, DB_PATH, _memory_conn, _memory_lock,
 )
+
 
 def init_db():
     """Bring the database up to the latest schema by running migrations."""
@@ -12,7 +18,9 @@ def init_db():
     with get_connection() as conn:
         run_migrations(conn, migrations_dir)
 
+
 def purge_old_data(days: int = 1095):
+    """Delete data older than `days`. Cross-table maintenance run weekly by scheduler."""
     cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat()
     cutoff_date = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).strftime("%Y-%m-%d")
     with get_connection() as conn:
@@ -27,10 +35,10 @@ def purge_old_data(days: int = 1095):
             (int(cutoff_date[:4]), int(cutoff_date[5:7]))
         )
         conn.execute("DELETE FROM stock_financial_quarterly WHERE date<?", (cutoff_date,))
-        # dividend 不 purge(歷史很長很重要)
+        # dividend not purged (long history important).
 
 
-# Re-exports for backward compatibility (BE-B).
+# Re-exports for backward compatibility.
 from repositories.indicators import (  # noqa: E402,F401
     save_indicator, get_latest_indicator, get_indicator_history,
 )
