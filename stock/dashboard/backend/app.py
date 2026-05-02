@@ -38,6 +38,7 @@ from fetchers.fundamentals_stock import (
     to_finmind_id as fundamentals_to_finmind_id,
 )
 from core.settings import settings
+from api._constants import RANGE_DELTAS, INDICATOR_NAMES
 
 app = FastAPI(title="Stock Dashboard API")
 
@@ -47,14 +48,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
-
-RANGE_DELTAS: dict[str, timedelta] = {
-    "1M": timedelta(days=30),
-    "3M": timedelta(days=90),
-    "6M": timedelta(days=180),
-    "1Y": timedelta(days=365),
-    "3Y": timedelta(days=1095),
-}
 
 FETCHERS: dict[str, Callable] = {
     "taiex":      fetch_taiex,
@@ -66,14 +59,6 @@ FETCHERS: dict[str, Callable] = {
     "tw_volume":  fetch_tw_volume,
     "us_volume":  fetch_us_volume,
 }
-
-INDICATOR_NAMES = [
-    "taiex", "fx", "fear_greed",
-    "margin_balance", "short_balance", "short_margin_ratio",
-    "total_foreign_net", "total_trust_net", "total_dealer_net",
-    "ndc", "tw_volume", "us_volume",
-]
-
 
 @app.on_event("startup")
 def startup():
