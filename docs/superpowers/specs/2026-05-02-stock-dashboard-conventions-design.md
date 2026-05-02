@@ -158,6 +158,17 @@ Fetchers explicitly do not write to the DB. Scheduler jobs become thin orchestra
 
 ### 2.2 Fetcher Protocol
 
+> **Status amendment (REG-T13, 2026-05-02)**: After implementation of Phase 1–3, the strict Fetcher Protocol described below was found to misfit the codebase reality (9 fetchers have widely different shapes: numeric snapshots, multi-column daily rows, text articles, OHLC time-series, multi-stock orchestrators). The high-value goal of "one-file changes for new alert-able indicators" is fully achieved through the **Alert Indicator Registry** (§2.3); strict Fetcher Protocol/Snapshot is **deferred** and may be revisited only if pain emerges. The original spec text below is retained for context. New fetchers should follow these lighter conventions:
+>
+> - Module named after source + topic (e.g. `chip_stock.py`, `fundamentals_stock.py`).
+> - HTTP calls wrap with `tenacity.retry` (exponential backoff, max 3 attempts).
+> - Failures log via stdlib `logging` and return a falsy/None signal to callers — do not propagate raw exceptions.
+> - Where possible, fetchers return data structures that callers persist via `repositories/`. Existing fetchers that write the DB themselves are not a regression.
+>
+> See `docs/superpowers/specs/2026-05-02-stock-dashboard-reg-design.md` for rationale.
+
+#### Original Fetcher Protocol design (deferred, retained for context)
+
 `backend/fetchers/base.py`:
 
 ```python
