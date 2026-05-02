@@ -23,9 +23,10 @@ from db import (
     save_financial_quarterly_rows, get_latest_financial_date,
     save_dividend_history_rows, get_latest_dividend_announce_date,
 )
+from core.settings import settings
 
 FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
-FINMIND_TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
+FINMIND_TOKEN = settings.finmind_token.get_secret_value().strip()
 
 # 對應 spec 範圍
 DEFAULT_PER_LOOKBACK_DAYS = 1825      # 5 年
