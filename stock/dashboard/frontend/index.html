@@ -426,6 +426,34 @@ body { overflow-x: hidden; }
 
 <script>
 const API_BASE = 'https://api.paul-learning.dev';
+
+async function apiFetch(path, opts = {}) {
+  let token = localStorage.getItem('sd_token');
+  if (!token) {
+    token = prompt('輸入 API token (sd_...):');
+    if (!token) throw new Error('No token provided');
+    localStorage.setItem('sd_token', token);
+  }
+  const res = await fetch(API_BASE + path, {
+    ...opts,
+    headers: {
+      ...(opts.headers || {}),
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('sd_token');
+    alert('Token 無效或過期，請重新整理頁面並輸入新 token');
+    throw new Error('Unauthorized');
+  }
+  return res;
+}
+
+function clearToken() {
+  localStorage.removeItem('sd_token');
+  alert('Token 已清除，重新整理頁面後會要求輸入');
+}
+
 let currentRange = '3M';
 const charts = {};
 
@@ -488,7 +516,7 @@ function fmtDate(iso) {
 }
 
 async function loadDashboard() {
-  const data = await fetch(API_BASE + '/api/dashboard').then(r => r.json());
+  const data = await apiFetch('/api/dashboard').then(r => r.json());
 
   if (data.taiex) {
     document.getElementById('taiex-value').textContent = data.taiex.value.toLocaleString();
@@ -597,13 +625,13 @@ async function loadHistories() {
 
   for (const ind of indicators) {
     if (!charts[ind]) makeChart(ind, colors[ind], units[ind]);
-    const rows = await fetch(API_BASE + '/api/history/' + ind + '?time_range=' + currentRange).then(r => r.json());
+    const rows = await apiFetch('/api/history/' + ind + '?time_range=' + currentRange).then(r => r.json());
     updateChart(ind, rows);
   }
 }
 
 async function loadStocks() {
-  const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json());
+  const stocks = await apiFetch('/api/stocks').then(r => r.json());
   const tbody = document.getElementById('stock-tbody');
   tbody.innerHTML = '';
   for (const s of stocks) {
@@ -627,7 +655,7 @@ async function addStock() {
   const input = document.getElementById('add-ticker-input');
   const ticker = input.value.trim();
   if (!ticker) return;
-  await fetch(API_BASE + '/api/stocks', {
+  await apiFetch('/api/stocks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ticker }),
@@ -637,12 +665,12 @@ async function addStock() {
 }
 
 async function deleteStock(ticker) {
-  await fetch(API_BASE + '/api/stocks/' + encodeURIComponent(ticker), { method: 'DELETE' });
+  await apiFetch('/api/stocks/' + encodeURIComponent(ticker), { method: 'DELETE' });
   loadStocks();
 }
 
 async function refreshIndicator(indicator) {
-  await fetch(API_BASE + '/api/refresh/' + indicator, { method: 'POST' });
+  await apiFetch('/api/refresh/' + indicator, { method: 'POST' });
   loadDashboard();
   loadHistories();
 }
@@ -738,7 +766,7 @@ async function refreshTargetOptions() {
   }
 
   // stock 與 stock_indicator 都列 watchlist 中的 ticker
-  const stocks = await fetch(API_BASE + '/api/stocks').then(r => r.json()).catch(() => []);
+  const stocks = await apiFetch('/api/stocks').then(r => r.json()).catch(() => []);
   if (!stocks.length) {
     const opt = document.createElement('option');
     opt.value = '';
@@ -771,7 +799,7 @@ function refreshConditionFields() {
 }
 
 async function loadAlerts() {
-  const alerts = await fetch(API_BASE + '/api/alerts').then(r => r.json()).catch(() => []);
+  const alerts = await apiFetch('/api/alerts').then(r => r.json()).catch(() => []);
   const list = document.getElementById('alert-list');
   if (!alerts.length) {
     list.innerHTML = '<div class="alert-empty">尚未設定任何警示</div>';
@@ -825,7 +853,7 @@ async function addAlert() {
     payload.window_n = Number(wn);
   }
 
-  const r = await fetch(API_BASE + '/api/alerts', {
+  const r = await apiFetch('/api/alerts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -840,12 +868,12 @@ async function addAlert() {
 }
 
 async function deleteAlert(id) {
-  await fetch(API_BASE + '/api/alerts/' + id, { method: 'DELETE' });
+  await apiFetch('/api/alerts/' + id, { method: 'DELETE' });
   loadAlerts();
 }
 
 async function toggleAlert(id, enabled) {
-  await fetch(API_BASE + '/api/alerts/' + id, {
+  await apiFetch('/api/alerts/' + id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ enabled }),
@@ -857,7 +885,7 @@ document.getElementById('alert-target-type').addEventListener('change', refreshT
 document.getElementById('alert-condition').addEventListener('change', refreshConditionFields);
 
 async function loadNews() {
-  const items = await fetch(API_BASE + '/api/news?limit=15').then(r => r.json()).catch(() => []);
+  const items = await apiFetch('/api/news?limit=15').then(r => r.json()).catch(() => []);
   const list = document.getElementById('news-list');
   if (!items.length) { list.innerHTML = '<li class="news-item"><span class="news-meta">暫無新聞</span></li>'; return; }
   list.innerHTML = items.map(n => {
