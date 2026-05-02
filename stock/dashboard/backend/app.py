@@ -38,7 +38,7 @@ from fetchers.fundamentals_stock import (
 )
 from core.settings import settings
 from api._constants import RANGE_DELTAS, INDICATOR_NAMES
-from api.routes import indicators, stocks, fundamentals
+from api.routes import indicators, stocks, fundamentals, news
 from api.routes import alerts as alerts_routes
 
 app = FastAPI(title="Stock Dashboard API")
@@ -54,6 +54,7 @@ app.include_router(indicators.router)
 app.include_router(stocks.router)
 app.include_router(fundamentals.router)
 app.include_router(alerts_routes.router)
+app.include_router(news.router)
 
 
 @app.on_event("startup")
@@ -68,7 +69,3 @@ def startup():
         print("[app] scheduler not available yet")
 
 
-@app.get("/api/news")
-def get_news(limit: int = 15):
-    from fetchers.news import get_cached_news
-    return get_cached_news()[:limit]
