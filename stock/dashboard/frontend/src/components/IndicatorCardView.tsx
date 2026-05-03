@@ -1,4 +1,4 @@
-import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -59,6 +59,7 @@ export function IndicatorCardView({
           <div className="h-14 pt-1" data-testid="spark">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={series} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                <XAxis dataKey="timestamp" hide />
                 <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip
                   cursor={{ stroke: '#a1a1aa', strokeWidth: 1 }}
@@ -68,7 +69,7 @@ export function IndicatorCardView({
                     typeof v === 'number'
                       ? (formatSparkValue?.(v) ?? v.toLocaleString())
                       : String(v),
-                    '',
+                    title,
                   ]}
                 />
                 <Line
