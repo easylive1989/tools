@@ -6,3 +6,4 @@ import './AlertsCard';
 import './stock-charts';
 import './stock-chip';
 import './stock-valuation';
+import './stock-revenue';
