@@ -7,6 +7,7 @@ import { server } from './setup';
 import DashboardPage from '../src/pages/DashboardPage';
 import '../src/cards';
 import { useCardPrefsStore } from '../src/store/card-prefs-store';
+import { useRangeStore } from '../src/store/range-store';
 
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -19,6 +20,7 @@ function renderPage() {
 
 beforeEach(() => {
   useCardPrefsStore.setState({ hiddenIds: new Set() });
+  useRangeStore.setState({ range: '3M' });
   localStorage.clear();
   server.use(
     http.get('*/api/dashboard', () =>
@@ -27,6 +29,7 @@ beforeEach(() => {
         fx:    { value: 32.5,  timestamp: '2026-05-02T08:00:00Z', extra: {} },
       }),
     ),
+    http.get('*/api/history/:indicator', () => HttpResponse.json([])),
   );
 });
 
@@ -49,5 +52,15 @@ describe('DashboardPage', () => {
     // Page card removed; the label inside the still-open dialog remains.
     expect(screen.getAllByText('加權指數')).toHaveLength(1);
     expect(useCardPrefsStore.getState().isHidden('taiex')).toBe(true);
+  });
+
+  it('range bar updates the global range and persists', async () => {
+    renderPage();
+    const tab = await screen.findByRole('tab', { name: '1 年' });
+    expect(tab).toHaveAttribute('aria-selected', 'false');
+    await userEvent.click(tab);
+    expect(useRangeStore.getState().range).toBe('1Y');
+    expect(localStorage.getItem('sd_dashboard_range')).toBe('1Y');
+    expect(tab).toHaveAttribute('aria-selected', 'true');
   });
 });

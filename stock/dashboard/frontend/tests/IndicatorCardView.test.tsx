@@ -34,4 +34,31 @@ describe('IndicatorCardView', () => {
     );
     expect(screen.getByText('+10.50 億')).toHaveClass('text-green-600');
   });
+
+  it('renders a sparkline when series has 2 or more points', () => {
+    render(
+      <IndicatorCardView
+        title="X"
+        value="100"
+        series={[
+          { timestamp: '2026-04-01T00:00:00Z', value: 90 },
+          { timestamp: '2026-04-02T00:00:00Z', value: 100 },
+        ]}
+      />,
+    );
+    expect(screen.getByTestId('spark')).toBeInTheDocument();
+  });
+
+  it('omits sparkline when series is missing or has fewer than 2 points', () => {
+    const { rerender } = render(<IndicatorCardView title="X" value="100" />);
+    expect(screen.queryByTestId('spark')).toBeNull();
+    rerender(
+      <IndicatorCardView
+        title="X"
+        value="100"
+        series={[{ timestamp: '2026-04-01T00:00:00Z', value: 90 }]}
+      />,
+    );
+    expect(screen.queryByTestId('spark')).toBeNull();
+  });
 });
