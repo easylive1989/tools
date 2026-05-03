@@ -1,7 +1,18 @@
+import { useMemo } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from 'react-router-dom';
+import { TokenGate } from '@/components/TokenGate';
+import { queryClient } from '@/lib/query-client';
+import { createRouter } from '@/router';
+import '@/cards';
+
 export default function App() {
+  const router = useMemo(() => createRouter(), []);
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold">Stock Dashboard (FE-A scaffold)</h1>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TokenGate>
+        <RouterProvider router={router} />
+      </TokenGate>
+    </QueryClientProvider>
   );
 }
