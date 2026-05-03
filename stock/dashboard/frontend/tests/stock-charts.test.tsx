@@ -51,23 +51,23 @@ describe('KLineCard', () => {
     expect(listCards('stock').find((c) => c.id === 'stock-kline')?.cols).toBe(3);
   });
 
-  it('renders the merged K-line + MA card title in daily view', async () => {
+  it('renders the K-line card title', async () => {
     server.use(
       http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(4))),
     );
     renderCardOnPage('stock-kline');
-    await waitFor(() => expect(screen.getByText('日 K 棒 + 移動平均')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('K 線圖')).toBeInTheDocument());
   });
 
-  it('clicking 月 toggles the title to monthly K-line', async () => {
-    const user = (await import('@testing-library/user-event')).default;
+  it('shows day / week / month interval toggle buttons', async () => {
     server.use(
       http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(40))),
     );
     renderCardOnPage('stock-kline');
-    await waitFor(() => expect(screen.getByText('日 K 棒 + 移動平均')).toBeInTheDocument());
-    await user.setup().click(screen.getByRole('button', { name: '月' }));
-    expect(screen.getByText('月 K 棒')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('K 線圖')).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: '日' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '週' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '月' })).toBeInTheDocument();
   });
 });
 

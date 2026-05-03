@@ -32,11 +32,20 @@ function ChartCard({ title, hint, action, children }: {
   );
 }
 
-type Interval = 'day' | 'month' | 'year';
+type Interval = 'day' | 'week' | 'month';
+
+function weekStartKey(date: string): string {
+  // Monday-anchored ISO-week start; format YYYY-MM-DD.
+  const d = new Date(date + 'T00:00:00Z');
+  const day = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const offset = day === 0 ? 6 : day - 1;
+  d.setUTCDate(d.getUTCDate() - offset);
+  return d.toISOString().slice(0, 10);
+}
 
 function bucketKey(date: string, interval: Interval): string {
+  if (interval === 'week') return weekStartKey(date);
   if (interval === 'month') return date.slice(0, 7);
-  if (interval === 'year') return date.slice(0, 4);
   return date;
 }
 
@@ -100,8 +109,8 @@ function CandleShape(props: any) {
 
 const INTERVAL_LABELS: Record<Interval, string> = {
   day: '日',
+  week: '週',
   month: '月',
-  year: '年',
 };
 
 function IntervalToggle({ value, onChange }: { value: Interval; onChange: (v: Interval) => void }) {
@@ -131,7 +140,7 @@ function KLineCard() {
   const showMA = interval === 'day';
   return (
     <ChartCard
-      title={showMA ? '日 K 棒 + 移動平均' : `${INTERVAL_LABELS[interval]} K 棒`}
+      title="K 線圖"
       action={<IntervalToggle value={interval} onChange={setInterval} />}
     >
       <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
@@ -165,7 +174,7 @@ function KLineCard() {
 
 registerCard({
   id: 'stock-kline',
-  label: '日 K 棒 + 移動平均',
+  label: 'K 線圖',
   defaultPage: 'stock',
   component: KLineCard,
   cols: 3,
