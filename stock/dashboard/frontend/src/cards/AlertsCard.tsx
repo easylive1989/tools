@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AlertCreateDialog } from '@/components/AlertCreateDialog';
 import { useAlerts } from '@/hooks/useAlerts';
 import { alertTargetLabel, conditionLabel } from '@/lib/alert-labels';
 import { cn } from '@/lib/utils';
@@ -37,7 +38,7 @@ function AlertsCard() {
             觸發後自動停用，可手動重新啟用
           </p>
         </div>
-        <Button size="sm" disabled>+ 新增警示</Button>
+        <AlertCreateDialog trigger={<Button size="sm">+ 新增警示</Button>} />
       </CardHeader>
       <CardContent>
         {isLoading && <p className="text-sm text-muted-foreground">載入中…</p>}
