@@ -62,13 +62,18 @@ export function IndicatorCardView({
                 <XAxis dataKey="timestamp" hide />
                 <YAxis
                   domain={['auto', 'auto']}
-                  width={80}
+                  width={100}
                   tick={{ fontSize: 10, fill: '#71717a' }}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(v: number) =>
-                    formatSparkValue ? formatSparkValue(v) : v.toLocaleString()
-                  }
+                  tickFormatter={(v: number) => {
+                    // Avoid recharts' SVG word-wrap by replacing the space
+                    // between value and unit with a non-breaking space.
+                    const formatted = formatSparkValue
+                      ? formatSparkValue(v)
+                      : v.toLocaleString();
+                    return formatted.replace(/ /g, ' ');
+                  }}
                 />
                 <Tooltip
                   cursor={{ stroke: '#a1a1aa', strokeWidth: 1 }}
