@@ -1,4 +1,5 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listCards } from '@/cards/registry';
 import { useStockHistory } from '@/hooks/useStockHistory';
@@ -19,6 +20,12 @@ export default function StockDetailPage() {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
+      <Button asChild variant="ghost" size="sm" className="-ml-2 gap-1">
+        <Link to="/" aria-label="返回 dashboard">
+          <ArrowLeft className="h-4 w-4" />
+          返回 Dashboard
+        </Link>
+      </Button>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold">

@@ -63,4 +63,15 @@ describe('StockDetailPage', () => {
     await userEvent.click(screen.getByRole('button', { name: '1Y' }));
     await waitFor(() => expect(calledRange).toBe('1Y'));
   });
+
+  it('renders a back-to-dashboard link in the header', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/history', () =>
+        HttpResponse.json(emptyHistory('2330.TW', '3M')),
+      ),
+    );
+    renderAt('/stock/2330.TW');
+    const backLink = screen.getByRole('link', { name: /返回/ });
+    expect(backLink).toHaveAttribute('href', '/');
+  });
 });
