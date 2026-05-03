@@ -46,8 +46,6 @@ jobs:
           # SPA refresh fallback: GH Pages serves 404.html for unknown paths,
           # which boots the React app and lets react-router resolve the URL.
           cp _site/stock/index.html _site/stock/404.html
-          # Keep legacy vanilla page available during FE-B/C migration.
-          cp stock/dashboard/frontend/stock.html _site/stock/stock.html
           cp -r travel/2026_austria_czechia/dist/. _site/travel/2026_austria_czechia/
 
       - uses: actions/configure-pages@v4
