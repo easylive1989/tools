@@ -2,22 +2,23 @@ import {
   CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useValuation } from '@/hooks/useValuation';
+import { useValuation, type ValuationRange } from '@/hooks/useValuation';
 import { cn } from '@/lib/utils';
 import { registerCard } from './registry';
 
-function fmt(n: number | null, digits = 2): string {
+function fmt(n: number | null | undefined, digits = 2): string {
   return n == null ? '—' : n.toFixed(digits);
 }
 
 interface StatProps {
   label: string;
   value: number | null;
-  percentile: number | null;
+  percentile?: number | null;
+  range?: ValuationRange | null;
   suffix?: string;
 }
 
-function Stat({ label, value, percentile, suffix = '' }: StatProps) {
+function Stat({ label, value, percentile, range, suffix = '' }: StatProps) {
   const pBadge = percentile == null ? null : (
     <span
       className={cn(
@@ -32,11 +33,18 @@ function Stat({ label, value, percentile, suffix = '' }: StatProps) {
       5y 百分位 {percentile.toFixed(0)}%
     </span>
   );
+  const rangeText =
+    range && range.min != null && range.max != null
+      ? `5y ${fmt(range.min)} – ${fmt(range.max)}（均 ${fmt(range.avg)}）`
+      : null;
   return (
     <div className="flex flex-col gap-1">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-2xl font-bold">{fmt(value)}{suffix}</span>
       {pBadge}
+      {rangeText && (
+        <span className="text-xs text-muted-foreground">{rangeText}</span>
+      )}
     </div>
   );
 }
@@ -44,8 +52,8 @@ function Stat({ label, value, percentile, suffix = '' }: StatProps) {
 function ValuationCard() {
   const { data } = useValuation();
   if (!data) return null;
-  const { latest, entries } = data;
-  if (!entries.length) {
+  const { latest, range_5y, rows } = data;
+  if (!rows || !rows.length) {
     return (
       <Card>
         <CardHeader><CardTitle>估值快照</CardTitle></CardHeader>
@@ -61,17 +69,22 @@ function ValuationCard() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4">
-          <Stat label="PER" value={latest.per} percentile={latest.per_percentile} />
-          <Stat label="PBR" value={latest.pbr} percentile={latest.pbr_percentile} />
+          <Stat
+            label="PER"
+            value={latest.per}
+            percentile={latest.per_percentile_5y}
+            range={range_5y?.per}
+          />
+          <Stat label="PBR" value={latest.pbr} range={range_5y?.pbr} />
           <Stat
             label="殖利率"
             value={latest.dividend_yield}
-            percentile={latest.dividend_yield_percentile}
+            range={range_5y?.dividend_yield}
             suffix="%"
           />
         </div>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={entries} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" hide />
             <YAxis />

@@ -20,16 +20,26 @@ function renderCard() {
 }
 
 describe('ValuationCard', () => {
-  it('shows PER / PBR / yield latest values + 百分位 badges', async () => {
+  it('shows PER / PBR / yield latest + 5y range + PER percentile', async () => {
     server.use(
       http.get('*/api/stocks/2330.TW/valuation', () =>
         HttpResponse.json({
-          ticker: '2330.TW', years: 5, ok: true,
+          ticker: '2330.TW',
+          years: 5,
+          as_of: '2026-04-30',
+          ok: true,
           latest: {
-            per: 22.5, pbr: 6.1, dividend_yield: 1.5,
-            per_percentile: 80, pbr_percentile: 40, dividend_yield_percentile: 20,
+            per: 22.5,
+            pbr: 6.1,
+            dividend_yield: 1.5,
+            per_percentile_5y: 80,
           },
-          entries: [
+          range_5y: {
+            per: { min: 12.59, max: 34.19, avg: 22.59 },
+            pbr: { min: 4.17, max: 10.84, avg: 6.33 },
+            dividend_yield: { min: 0.89, max: 2.22, avg: 1.55 },
+          },
+          rows: [
             { date: '2025-01-01', per: 20, pbr: 5, dividend_yield: 1.6 },
             { date: '2026-04-01', per: 22.5, pbr: 6.1, dividend_yield: 1.5 },
           ],
@@ -42,5 +52,6 @@ describe('ValuationCard', () => {
     expect(screen.getByText('6.10')).toBeInTheDocument();
     expect(screen.getByText('1.50%')).toBeInTheDocument();
     expect(screen.getByText('5y 百分位 80%')).toBeInTheDocument();
+    expect(screen.getByText(/5y 12.59 – 34.19/)).toBeInTheDocument();
   });
 });
