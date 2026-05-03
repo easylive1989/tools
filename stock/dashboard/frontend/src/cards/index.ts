@@ -2,3 +2,4 @@
 import './dashboard-cards';
 import './NewsCard';
 import './WatchlistCard';
+import './AlertsCard';
