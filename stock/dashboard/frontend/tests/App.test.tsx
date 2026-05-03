@@ -8,7 +8,7 @@ import { useAuthStore } from '../src/store/auth-store';
 
 describe('App integration', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', '/stock/');
+    window.history.pushState({}, '', '/tools/stock/');
   });
 
   it('shows TokenGate when no token', () => {

@@ -5,7 +5,8 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/stock/',
+  // GitHub Pages serves under the repo path; final URL: paul-learning.dev/tools/stock/
+  base: '/tools/stock/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

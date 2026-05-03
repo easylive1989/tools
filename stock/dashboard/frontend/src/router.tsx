@@ -9,6 +9,6 @@ export function createRouter() {
       { path: '/stock/:code', element: <StockDetailPage /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
-    { basename: '/stock' },
+    { basename: '/tools/stock' },
   );
 }
