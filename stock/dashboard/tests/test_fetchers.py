@@ -49,7 +49,7 @@ def test_fetch_fx_saves_indicator():
 
 
 def test_fetch_all_stocks_saves_snapshots():
-    db.add_watched_ticker("0050.TW")
+    db.add_watched_ticker(1, "0050.TW")
     mock_ticker = MagicMock()
     mock_ticker.history.return_value = make_hist([197.20, 198.35])
     mock_ticker.history_metadata = {"currency": "TWD"}

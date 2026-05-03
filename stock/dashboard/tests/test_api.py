@@ -23,7 +23,7 @@ def seed_data():
     db.save_indicator("fear_greed", 58.0, json.dumps({"label": "貪婪"}))
     db.save_indicator("margin_balance", 2341.0, json.dumps({"unit": "億元"}))
     db.save_indicator("ndc", 24.0, json.dumps({"light": "黃紅燈", "light_code": 4}))
-    db.add_watched_ticker("0050.TW")
+    db.add_watched_ticker(1, "0050.TW")
     db.save_stock_snapshot("0050.TW", 198.35, 1.15, 0.58, "TWD", "元大台灣50")
 
 
