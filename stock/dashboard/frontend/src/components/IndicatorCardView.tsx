@@ -56,13 +56,13 @@ export function IndicatorCardView({
         )}
         {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
         {hasSpark && (
-          <div className="h-20 pt-1" data-testid="spark">
+          <div className="h-40 pt-1" data-testid="spark">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={series} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <XAxis dataKey="timestamp" hide />
                 <YAxis
                   domain={['auto', 'auto']}
-                  width={62}
+                  width={80}
                   tick={{ fontSize: 10, fill: '#71717a' }}
                   tickLine={false}
                   axisLine={false}
