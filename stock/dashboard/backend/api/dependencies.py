@@ -1,8 +1,9 @@
 """FastAPI Depends providers."""
 import logging
 
-from fastapi import Header, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
 
+from repositories.users import get_user_by_id
 from services.token_service import verify_token, track_auth_failure
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,7 @@ async def require_token(
     """Verify Authorization: Bearer <token>. Raises 401 on miss/invalid.
 
     On failure, tracks the client IP for Discord ops-burst notification.
+    The returned record now includes `user_id` (added by migration 0003).
     """
     client_ip = request.client.host if request.client else "unknown"
 
@@ -35,3 +37,15 @@ async def require_token(
         )
 
     return record
+
+
+async def require_user(record: dict = Depends(require_token)) -> dict:
+    """Resolve the user backing the token. Returns {id, name, created_at}.
+
+    Raises 401 if the user record is missing (orphaned token, theoretically
+    impossible after the 0003 migration but defensive).
+    """
+    user = get_user_by_id(record["user_id"])
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token user not found")
+    return user
