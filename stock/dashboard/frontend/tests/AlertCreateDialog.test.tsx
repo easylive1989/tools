@@ -54,3 +54,58 @@ describe('AlertCreateDialog cascade', () => {
     expect(await screen.findByRole('option', { name: '2330.TW · 台積電' })).toBeInTheDocument();
   });
 });
+
+describe('AlertCreateDialog condition filter', () => {
+  it('limits condition options to indicator supported_conditions from spec', async () => {
+    server.use(
+      http.get('*/api/stocks', () => HttpResponse.json([])),
+      http.get('*/api/indicators/spec', () =>
+        HttpResponse.json({
+          indicator: [
+            { key: 'taiex', label: '加權指數', unit: null, supported_conditions: ['above', 'below'] },
+          ],
+          stock_indicator: [],
+        }),
+      ),
+    );
+    renderDialog();
+    await userEvent.click(screen.getByRole('button', { name: 'open' }));
+
+    const targetTrigger = screen.getAllByRole('combobox')[1];
+    await userEvent.click(targetTrigger);
+    await userEvent.click(screen.getByRole('option', { name: '加權指數' }));
+
+    const condTrigger = screen.getAllByRole('combobox')[2];
+    await userEvent.click(condTrigger);
+    expect(screen.getByRole('option', { name: '大於等於' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '小於等於' })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /連 N 日/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /百分位/ })).not.toBeInTheDocument();
+  });
+
+  it('streak condition reveals N 日 input', async () => {
+    server.use(
+      http.get('*/api/stocks', () => HttpResponse.json([])),
+      http.get('*/api/indicators/spec', () =>
+        HttpResponse.json({
+          indicator: [
+            { key: 'taiex', label: '加權指數', unit: null, supported_conditions: ['above', 'streak_above'] },
+          ],
+          stock_indicator: [],
+        }),
+      ),
+    );
+    renderDialog();
+    await userEvent.click(screen.getByRole('button', { name: 'open' }));
+
+    const targetTrigger = screen.getAllByRole('combobox')[1];
+    await userEvent.click(targetTrigger);
+    await userEvent.click(screen.getByRole('option', { name: '加權指數' }));
+
+    const condTrigger = screen.getAllByRole('combobox')[2];
+    await userEvent.click(condTrigger);
+    await userEvent.click(screen.getByRole('option', { name: '連 N 日突破' }));
+
+    expect(screen.getByLabelText('N 日')).toBeInTheDocument();
+  });
+});

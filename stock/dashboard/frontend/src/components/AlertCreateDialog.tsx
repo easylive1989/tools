@@ -6,10 +6,25 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useWatchlist } from '@/hooks/useWatchlist';
-import { INDICATOR_LABELS, STOCK_INDICATOR_LABELS } from '@/lib/alert-labels';
+import { useIndicatorsSpec } from '@/hooks/useIndicatorsSpec';
+import {
+  INDICATOR_LABELS, STOCK_INDICATOR_LABELS, thresholdPlaceholder,
+} from '@/lib/alert-labels';
 
 type TargetType = 'indicator' | 'stock' | 'stock_indicator';
+
+const ALL_CONDITIONS: ReadonlyArray<readonly [string, string]> = [
+  ['above', '大於等於'],
+  ['below', '小於等於'],
+  ['streak_above', '連 N 日突破'],
+  ['streak_below', '連 N 日跌破'],
+  ['percentile_above', '5y 百分位突破'],
+  ['percentile_below', '5y 百分位跌破'],
+  ['yoy_above', 'YoY 突破'],
+  ['yoy_below', 'YoY 跌破'],
+];
 
 interface Props {
   trigger: React.ReactNode;
@@ -20,11 +35,35 @@ export function AlertCreateDialog({ trigger }: Props) {
   const [targetType, setTargetType] = useState<TargetType>('indicator');
   const [target, setTarget] = useState('');
   const [indicatorKey, setIndicatorKey] = useState('per');
+  const [condition, setCondition] = useState('above');
+  const [windowN, setWindowN] = useState('5');
+  const [threshold, setThreshold] = useState('');
+
   const watchlist = useWatchlist();
+  const spec = useIndicatorsSpec();
 
   const indicatorOptions = Object.entries(INDICATOR_LABELS);
   const stockIndicatorOptions = Object.entries(STOCK_INDICATOR_LABELS);
   const tickerOptions = watchlist.data ?? [];
+
+  function supportedConditions(): string[] {
+    if (!spec.data) return ALL_CONDITIONS.map(([k]) => k);
+    if (targetType === 'indicator' && target) {
+      return (
+        spec.data.indicator.find((s) => s.key === target)?.supported_conditions
+        ?? ALL_CONDITIONS.map(([k]) => k)
+      );
+    }
+    if (targetType === 'stock_indicator') {
+      return (
+        spec.data.stock_indicator.find((s) => s.key === indicatorKey)?.supported_conditions
+        ?? ALL_CONDITIONS.map(([k]) => k)
+      );
+    }
+    return ALL_CONDITIONS.map(([k]) => k);
+  }
+  const allowed = supportedConditions();
+  const conditionOptions = ALL_CONDITIONS.filter(([k]) => allowed.includes(k));
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,6 +126,41 @@ export function AlertCreateDialog({ trigger }: Props) {
               </Select>
             </div>
           )}
+
+          <div>
+            <label className="text-sm font-medium block mb-1">條件</label>
+            <Select value={condition} onValueChange={setCondition}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {conditionOptions.map(([k, label]) => (
+                  <SelectItem key={k} value={k}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {condition.startsWith('streak_') && (
+            <div>
+              <label htmlFor="alert-window-n" className="text-sm font-medium block mb-1">N 日</label>
+              <Input
+                id="alert-window-n"
+                type="number" min={2} max={30}
+                value={windowN}
+                onChange={(e) => setWindowN(e.target.value)}
+              />
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="alert-threshold" className="text-sm font-medium block mb-1">門檻</label>
+            <Input
+              id="alert-threshold"
+              type="number" step="any"
+              placeholder={thresholdPlaceholder(condition)}
+              value={threshold}
+              onChange={(e) => setThreshold(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
