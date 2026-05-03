@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from './setup';
@@ -69,5 +70,60 @@ describe('AlertsCard (read-only)', () => {
       expect(screen.getByText('已停用')).toBeInTheDocument();
       expect(screen.getByText(/已於 2026-05-01 觸發 \(18,234.56\)/)).toBeInTheDocument();
     });
+  });
+});
+
+describe('AlertsCard interactions', () => {
+  it('clicking 停用 calls PATCH with enabled:false', async () => {
+    let patched: any = null;
+    let alerts: any[] = [
+      {
+        id: 5, target_type: 'indicator', target: 'taiex', indicator_key: null,
+        condition: 'above', threshold: 18000, window_n: null,
+        enabled: 1, created_at: '2026-04-15T00:00:00Z',
+        triggered_at: null, triggered_value: null,
+      },
+    ];
+    server.use(
+      http.get('*/api/alerts', () => HttpResponse.json(alerts)),
+      http.patch('*/api/alerts/:id', async ({ request, params }) => {
+        patched = { id: Number(params.id), body: await request.json() };
+        alerts = alerts.map((a) => (a.id === Number(params.id) ? { ...a, enabled: 0 } : a));
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    renderCard();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: '停用' })).toBeInTheDocument(),
+    );
+    await userEvent.click(screen.getByRole('button', { name: '停用' }));
+    await waitFor(() => expect(patched).toEqual({ id: 5, body: { enabled: false } }));
+  });
+
+  it('clicking ✕ calls DELETE and removes row', async () => {
+    let alerts: any[] = [
+      {
+        id: 9, target_type: 'indicator', target: 'taiex', indicator_key: null,
+        condition: 'above', threshold: 18000, window_n: null,
+        enabled: 1, created_at: '2026-04-15T00:00:00Z',
+        triggered_at: null, triggered_value: null,
+      },
+    ];
+    let deletedId = 0;
+    server.use(
+      http.get('*/api/alerts', () => HttpResponse.json(alerts)),
+      http.delete('*/api/alerts/:id', ({ params }) => {
+        deletedId = Number(params.id);
+        alerts = alerts.filter((a) => a.id !== deletedId);
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    renderCard();
+    await waitFor(() => expect(screen.getByText('加權指數')).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /刪除警示 9/ }));
+    await waitFor(() => expect(deletedId).toBe(9));
+    await waitFor(() => expect(screen.queryByText('加權指數')).not.toBeInTheDocument());
   });
 });

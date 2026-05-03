@@ -1,7 +1,8 @@
+import { X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCreateDialog } from '@/components/AlertCreateDialog';
-import { useAlerts } from '@/hooks/useAlerts';
+import { useAlerts, useDeleteAlert, useToggleAlert } from '@/hooks/useAlerts';
 import { alertTargetLabel, conditionLabel } from '@/lib/alert-labels';
 import { cn } from '@/lib/utils';
 import { registerCard } from './registry';
@@ -28,6 +29,8 @@ function StatusBadge({ enabled }: { enabled: boolean }) {
 
 function AlertsCard() {
   const { data, isLoading, isError } = useAlerts();
+  const toggle = useToggleAlert();
+  const del = useDeleteAlert();
 
   return (
     <Card>
@@ -70,6 +73,25 @@ function AlertsCard() {
                       <StatusBadge enabled={enabled} />
                     </div>
                     <div className="text-xs text-muted-foreground">{meta}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggle.mutate({ id: a.id, enabled: !enabled })}
+                      disabled={toggle.isPending && toggle.variables?.id === a.id}
+                    >
+                      {enabled ? '停用' : '啟用'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => del.mutate(a.id)}
+                      disabled={del.isPending && del.variables === a.id}
+                      aria-label={`刪除警示 ${a.id}`}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
                 </li>
               );
