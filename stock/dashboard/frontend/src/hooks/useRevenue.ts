@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { apiFetch } from '@/lib/api-client';
 
 export interface RevenueRow {
-  month: string;
+  year: number;
+  month: number;
   revenue: number | null;
   yoy_pct: number | null;
   ma12: number | null;

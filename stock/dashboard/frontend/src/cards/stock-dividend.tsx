@@ -34,7 +34,7 @@ function DividendCard() {
             <Legend />
             <Bar yAxisId="div" dataKey="cash_dividend"  name="現金股利" stackId="d" fill="#16a34a" />
             <Bar yAxisId="div" dataKey="stock_dividend" name="股票股利" stackId="d" fill="#3b82f6" />
-            <Line yAxisId="payout" dataKey="payout_ratio" name="配發率" stroke="#dc2626" dot={false} />
+            <Line yAxisId="payout" dataKey="payout_ratio_pct" name="配發率" stroke="#dc2626" dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </CardContent>

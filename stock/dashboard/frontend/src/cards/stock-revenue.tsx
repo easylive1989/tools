@@ -1,15 +1,28 @@
+import { useMemo } from 'react';
 import {
   Bar, CartesianGrid, ComposedChart, Legend, Line,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRevenue } from '@/hooks/useRevenue';
+import { useRevenue, type RevenueRow } from '@/hooks/useRevenue';
 import { registerCard } from './registry';
+
+interface ChartRow extends RevenueRow {
+  period: string;
+}
 
 function RevenueCard() {
   const { data } = useRevenue();
+  const rows = useMemo<ChartRow[]>(
+    () =>
+      (data?.rows ?? []).map((r) => ({
+        ...r,
+        period: `${r.year}-${String(r.month).padStart(2, '0')}`,
+      })),
+    [data],
+  );
   if (!data) return null;
-  if (!data.rows.length) {
+  if (!rows.length) {
     return (
       <Card>
         <CardHeader><CardTitle>月營收</CardTitle></CardHeader>
@@ -25,9 +38,9 @@ function RevenueCard() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={320}>
-          <ComposedChart data={data.rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" hide />
+            <XAxis dataKey="period" hide />
             <YAxis yAxisId="rev" />
             <YAxis yAxisId="yoy" orientation="right" unit="%" />
             <Tooltip formatter={(v: any) => (typeof v === 'number' ? v.toLocaleString() : v)} />

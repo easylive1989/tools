@@ -6,7 +6,8 @@ export interface DividendYear {
   year: number;
   cash_dividend: number | null;
   stock_dividend: number | null;
-  payout_ratio: number | null;
+  payout_ratio_pct: number | null;
+  dividend_yield_pct: number | null;
 }
 
 export interface DividendResponse {
