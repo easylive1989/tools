@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import {
-  Bar, CartesianGrid, ComposedChart, Customized, Legend, Line, LineChart,
+  Bar, CartesianGrid, Cell, ComposedChart, Customized, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -126,5 +126,44 @@ registerCard({
   label: '收盤價 + 移動平均',
   defaultPage: 'stock',
   component: PriceMACard,
+  cols: 3,
+});
+
+function VolumeCard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="成交量">
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <XAxis dataKey="date" hide />
+          <YAxis />
+          <Tooltip formatter={(v: number) => v?.toLocaleString?.() ?? v} />
+          <Bar dataKey="volume">
+            {rows.map((r) => (
+              <Cell
+                key={r.date}
+                fill={
+                  r.change_pct == null
+                    ? '#a1a1aa'
+                    : r.change_pct >= 0
+                      ? '#16a34a'
+                      : '#dc2626'
+                }
+              />
+            ))}
+          </Bar>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-volume',
+  label: '成交量',
+  defaultPage: 'stock',
+  component: VolumeCard,
   cols: 3,
 });
