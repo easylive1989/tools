@@ -11,7 +11,7 @@ from pydantic import SecretStr
 
 
 def test_above_alert_triggers_and_disables(monkeypatch):
-    aid = db.add_alert("indicator", "taiex", "above", 22000.0)
+    aid = db.add_alert(1, "indicator", "taiex", "above", 22000.0)
 
     sent = []
     monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
@@ -30,7 +30,7 @@ def test_above_alert_triggers_and_disables(monkeypatch):
 
 
 def test_below_alert_triggers(monkeypatch):
-    db.add_alert("stock", "2330.TW", "below", 800.0)
+    db.add_alert(1, "stock", "2330.TW", "below", 800.0)
 
     sent = []
     monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
@@ -46,7 +46,7 @@ def test_below_alert_triggers(monkeypatch):
 
 
 def test_no_webhook_still_disables_alert(monkeypatch):
-    aid = db.add_alert("indicator", "fx", "above", 32.0)
+    aid = db.add_alert(1, "indicator", "fx", "above", 32.0)
     monkeypatch.setattr(alerts_module.settings, "discord_stock_webhook_url", None)
 
     alerts_module.check_alerts("indicator", "fx", 32.5)
@@ -55,8 +55,8 @@ def test_no_webhook_still_disables_alert(monkeypatch):
 
 
 def test_disabled_alert_is_skipped(monkeypatch):
-    aid = db.add_alert("indicator", "taiex", "above", 100.0)
-    db.set_alert_enabled(aid, False)
+    aid = db.add_alert(1, "indicator", "taiex", "above", 100.0)
+    db.set_alert_enabled(1, aid, False)
 
     sent = []
     monkeypatch.setattr(alert_notifier, "send_to_discord", lambda url, payload: sent.append(payload))
@@ -150,7 +150,7 @@ def test_check_alerts_stock_indicator_above_triggers():
     db.save_per_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
     ])
-    db.add_alert("stock_indicator", "2330.TW", "above", 30.0,
+    db.add_alert(1, "stock_indicator", "2330.TW", "above", 30.0,
                  indicator_key="per", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -166,7 +166,7 @@ def test_check_alerts_stock_indicator_below_does_not_trigger_when_above():
     db.save_per_daily_rows([
         {"ticker": "2330.TW", "date": "2026-04-30", "per": 35.0, "pbr": 10.0, "dividend_yield": 1.0},
     ])
-    db.add_alert("stock_indicator", "2330.TW", "below", 30.0,
+    db.add_alert(1, "stock_indicator", "2330.TW", "below", 30.0,
                  indicator_key="per", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -184,7 +184,7 @@ def test_check_alerts_stock_indicator_streak_above_triggers():
          "margin_balance": None, "short_balance": None}
         for day in (24, 25, 28, 29, 30)
     ])
-    db.add_alert("stock_indicator", "2330.TW", "streak_above", 0,
+    db.add_alert(1, "stock_indicator", "2330.TW", "streak_above", 0,
                  indicator_key="foreign_net", window_n=5)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -198,7 +198,7 @@ def test_check_alerts_indicator_streak_above_triggers():
                  ("2026-04-29T00:00:00", 5200),
                  ("2026-04-30T00:00:00", 5300)]:
         db.save_indicator("margin_balance", v, timestamp=__import__("datetime").datetime.fromisoformat(d))
-    db.add_alert("indicator", "margin_balance", "streak_above", 5000,
+    db.add_alert(1, "indicator", "margin_balance", "streak_above", 5000,
                  indicator_key=None, window_n=3)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -282,7 +282,7 @@ def test_check_alerts_percentile_above_triggers():
             "pbr": None, "dividend_yield": None,
         })
     db.save_per_daily_rows(rows)
-    db.add_alert("stock_indicator", "2330.TW", "percentile_above", 90,
+    db.add_alert(1, "stock_indicator", "2330.TW", "percentile_above", 90,
                  indicator_key="per", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -303,7 +303,7 @@ def test_check_alerts_percentile_below_does_not_trigger_when_high():
             "pbr": None, "dividend_yield": None,
         })
     db.save_per_daily_rows(rows)
-    db.add_alert("stock_indicator", "2330.TW", "percentile_below", 10,
+    db.add_alert(1, "stock_indicator", "2330.TW", "percentile_below", 10,
                  indicator_key="per", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -317,7 +317,7 @@ def test_check_alerts_yoy_above_triggers():
         {"ticker": "2330.TW", "year": 2025, "month": 4, "revenue": 1_000_000_000_000, "announced_date": ""},
         {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
     ])
-    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+    db.add_alert(1, "stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="revenue", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -331,7 +331,7 @@ def test_check_alerts_percentile_with_revenue_indicator_skipped():
     db.save_revenue_monthly_rows([
         {"ticker": "2330.TW", "year": 2026, "month": 4, "revenue": 1_500_000_000_000, "announced_date": ""},
     ])
-    db.add_alert("stock_indicator", "2330.TW", "percentile_above", 50,
+    db.add_alert(1, "stock_indicator", "2330.TW", "percentile_above", 50,
                  indicator_key="revenue", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -432,7 +432,7 @@ def test_check_alerts_yoy_quarterly_eps_triggers():
         {"ticker": "2330.TW", "date": "2025-03-31", "report_type": "income", "type": "EPS", "value": 10.0},
         {"ticker": "2330.TW", "date": "2026-03-31", "report_type": "income", "type": "EPS", "value": 15.0},
     ])
-    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+    db.add_alert(1, "stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="q_eps", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",
@@ -451,7 +451,7 @@ def test_check_alerts_yoy_yearly_dividend_triggers():
          "cash_ex_date": None, "cash_payment_date": None, "announcement_date": None},
     ]
     db.save_dividend_history_rows(rows)
-    db.add_alert("stock_indicator", "2330.TW", "yoy_above", 30,
+    db.add_alert(1, "stock_indicator", "2330.TW", "yoy_above", 30,
                  indicator_key="y_cash_dividend", window_n=None)
     with patch("services.alert_notifier.send_to_discord") as mock_send:
         with patch.object(alerts_module.settings, "discord_stock_webhook_url",

@@ -99,7 +99,7 @@ def test_save_and_get_stock_snapshot():
 
 def test_alert_crud_and_lifecycle():
     db.init_db()
-    aid = db.add_alert("indicator", "taiex", "above", 22000.0)
+    aid = db.add_alert(1, "indicator", "taiex", "above", 22000.0)
     assert aid > 0
 
     alerts = db.list_alerts()
@@ -117,12 +117,12 @@ def test_alert_crud_and_lifecycle():
     assert after["triggered_at"] is not None
     assert db.get_active_alerts("indicator", "taiex") == []
 
-    db.set_alert_enabled(aid, True)
+    db.set_alert_enabled(1, aid, True)
     re_armed = db.list_alerts()[0]
     assert re_armed["enabled"] == 1
     assert re_armed["triggered_at"] is None
 
-    db.delete_alert(aid)
+    db.delete_alert(1, aid)
     assert db.list_alerts() == []
 
 
@@ -130,11 +130,11 @@ def test_remove_watched_ticker_disables_stock_indicator_alerts():
     """移除 watchlist ticker 應同時停用該 ticker 的 stock_indicator alerts(Phase 4 follow-up)。"""
     db.init_db()
     db.add_watched_ticker(1, "2330.TW")
-    a1 = db.add_alert("stock_indicator", "2330.TW", "above", 30,
+    a1 = db.add_alert(1, "stock_indicator", "2330.TW", "above", 30,
                       indicator_key="per", window_n=None)
-    a2 = db.add_alert("indicator", "margin_balance", "above", 5000,
+    a2 = db.add_alert(1, "indicator", "margin_balance", "above", 5000,
                       indicator_key=None, window_n=None)
-    a3 = db.add_alert("stock_indicator", "2454.TW", "above", 50,
+    a3 = db.add_alert(1, "stock_indicator", "2454.TW", "above", 50,
                       indicator_key="per", window_n=None)
 
     db.remove_watched_ticker(1, "2330.TW")
@@ -149,7 +149,7 @@ def test_remove_watched_ticker_does_not_affect_stock_price_alerts():
     """移除 ticker 不應該動到 'stock' (價格)類型 alerts — 跟 stock_indicator 分開處理。"""
     db.init_db()
     db.add_watched_ticker(1, "2330.TW")
-    a1 = db.add_alert("stock", "2330.TW", "above", 1000)
+    a1 = db.add_alert(1, "stock", "2330.TW", "above", 1000)
 
     db.remove_watched_ticker(1, "2330.TW")
 
