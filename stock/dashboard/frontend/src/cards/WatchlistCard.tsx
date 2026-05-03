@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import { useWatchlist, type WatchlistRow } from '@/hooks/useWatchlist';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useAddStock, useWatchlist, type WatchlistRow } from '@/hooks/useWatchlist';
 import { cn } from '@/lib/utils';
 import { registerCard } from './registry';
 
@@ -42,6 +45,28 @@ function Row({ row }: { row: WatchlistRow }) {
   );
 }
 
+function AddForm() {
+  const [value, setValue] = useState('');
+  const add = useAddStock();
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const t = value.trim().toUpperCase();
+    if (!t) return;
+    add.mutate(t, { onSuccess: () => setValue('') });
+  };
+  return (
+    <form onSubmit={submit} className="flex gap-2 pt-3">
+      <Input
+        placeholder="輸入代號，例如 2317.TW、AAPL、ETH-USD"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        disabled={add.isPending}
+      />
+      <Button type="submit" disabled={add.isPending}>+ 新增</Button>
+    </form>
+  );
+}
+
 function WatchlistCard() {
   const { data, isLoading, isError } = useWatchlist();
   return (
@@ -71,6 +96,7 @@ function WatchlistCard() {
             </TableBody>
           </Table>
         )}
+        <AddForm />
       </CardContent>
     </Card>
   );

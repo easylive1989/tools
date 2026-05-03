@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 
 export interface WatchlistRow {
@@ -15,5 +15,14 @@ export function useWatchlist() {
   return useQuery<WatchlistRow[]>({
     queryKey: ['stocks'],
     queryFn: () => apiFetch<WatchlistRow[]>('/api/stocks'),
+  });
+}
+
+export function useAddStock() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ticker: string) =>
+      apiFetch('/api/stocks', { method: 'POST', body: JSON.stringify({ ticker }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['stocks'] }),
   });
 }
