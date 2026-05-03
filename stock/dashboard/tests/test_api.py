@@ -61,12 +61,12 @@ def test_get_stocks_returns_watchlist():
 def test_add_and_delete_stock():
     r = client.post("/api/stocks", json={"ticker": "2330.tw"})
     assert r.status_code == 200
-    tickers = db.get_watched_tickers()
+    tickers = db.get_watched_tickers(1)
     assert "2330.TW" in tickers  # normalized to uppercase
 
     r = client.delete("/api/stocks/2330.TW")
     assert r.status_code == 200
-    assert "2330.TW" not in db.get_watched_tickers()
+    assert "2330.TW" not in db.get_watched_tickers(1)
 
 
 def test_stock_history_returns_data(monkeypatch):
