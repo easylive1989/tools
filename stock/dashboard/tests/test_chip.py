@@ -160,5 +160,6 @@ def test_chip_endpoint_returns_net_values():
 
 
 def test_chip_endpoint_rejects_non_taiwan_ticker():
+    db.add_watched_ticker(1, "AAPL")
     r = client.get("/api/stocks/AAPL/chip")
     assert r.status_code == 400
