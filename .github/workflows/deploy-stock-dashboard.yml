@@ -38,10 +38,15 @@ jobs:
         working-directory: travel/2026_austria_czechia
         run: npm ci && npm run build
 
+      - name: Build travel editor
+        working-directory: travel/editor
+        run: npm ci && npm run build
+
       - name: Assemble site
         run: |
           mkdir -p _site/stock
           mkdir -p _site/travel/2026_austria_czechia
+          mkdir -p _site/travel/editor
           cp -r stock/dashboard/frontend/dist/. _site/stock/
           # SPA refresh fallback: GH Pages serves the site-root 404.html for
           # any unknown path, which boots the React app; react-router then
@@ -49,6 +54,7 @@ jobs:
           # the 404.html must be at the deployment root, not in a subdir.
           cp _site/stock/index.html _site/404.html
           cp -r travel/2026_austria_czechia/dist/. _site/travel/2026_austria_czechia/
+          cp -r travel/editor/dist/. _site/travel/editor/
 
       - uses: actions/configure-pages@v4
 
