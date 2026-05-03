@@ -1,5 +1,7 @@
 import type { FC } from 'react';
 import { useDashboardData, type IndicatorSlot } from '@/hooks/useDashboardData';
+import { useIndicatorHistory } from '@/hooks/useIndicatorHistory';
+import { useRangeStore } from '@/store/range-store';
 import { IndicatorCardView, type BadgeInfo } from '@/components/IndicatorCardView';
 import { registerCard } from './registry';
 
@@ -141,9 +143,13 @@ const CONFIGS: IndicatorConfig[] = [
   },
 ];
 
+const EMPTY_EXTRA: Extra = {};
+
 function makeCard(cfg: IndicatorConfig): FC {
   return function IndicatorCard() {
     const { data, isLoading, isError } = useDashboardData();
+    const range = useRangeStore((s) => s.range);
+    const history = useIndicatorHistory(cfg.key, range);
     const slot: IndicatorSlot | undefined = data?.[cfg.key];
     const error = isError
       ? '無法載入'
@@ -159,6 +165,8 @@ function makeCard(cfg: IndicatorConfig): FC {
         valueClass={slot ? cfg.valueClass?.(slot.value, slot.extra) : undefined}
         sub={slot ? cfg.formatSub(slot.extra, slot.timestamp) : undefined}
         badge={slot ? cfg.formatBadge?.(slot.extra, slot.value) ?? null : null}
+        series={history.data}
+        formatSparkValue={(v) => cfg.formatValue(v, EMPTY_EXTRA)}
       />
     );
   };

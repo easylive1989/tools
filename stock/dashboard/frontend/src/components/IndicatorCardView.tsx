@@ -1,9 +1,15 @@
+import { Line, LineChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export interface BadgeInfo {
   text: string;
   tone: 'up' | 'down' | 'neutral';
+}
+
+export interface SparkPoint {
+  timestamp: string;
+  value: number;
 }
 
 interface Props {
@@ -14,6 +20,8 @@ interface Props {
   valueClass?: string;
   loading?: boolean;
   error?: string;
+  series?: SparkPoint[];
+  formatSparkValue?: (v: number) => string;
 }
 
 const TONE_CLASS: Record<BadgeInfo['tone'], string> = {
@@ -22,9 +30,12 @@ const TONE_CLASS: Record<BadgeInfo['tone'], string> = {
   neutral: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200',
 };
 
+const SPARK_STROKE = '#3b82f6';
+
 export function IndicatorCardView({
-  title, value, sub, badge, valueClass, loading, error,
+  title, value, sub, badge, valueClass, loading, error, series, formatSparkValue,
 }: Props) {
+  const hasSpark = !!series && series.length >= 2;
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -44,6 +55,34 @@ export function IndicatorCardView({
           <p className={cn('text-2xl font-bold', valueClass)}>{value}</p>
         )}
         {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+        {hasSpark && (
+          <div className="h-14 pt-1" data-testid="spark">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={series} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                <YAxis hide domain={['auto', 'auto']} />
+                <Tooltip
+                  cursor={{ stroke: '#a1a1aa', strokeWidth: 1 }}
+                  contentStyle={{ fontSize: 11, padding: '2px 6px' }}
+                  labelFormatter={(label) => String(label).slice(0, 10)}
+                  formatter={(v: unknown) => [
+                    typeof v === 'number'
+                      ? (formatSparkValue?.(v) ?? v.toLocaleString())
+                      : String(v),
+                    '',
+                  ]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke={SPARK_STROKE}
+                  strokeWidth={1.5}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
