@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 
 from api._constants import RANGE_DELTAS
-from api.dependencies import require_token
+from api.dependencies import require_token, require_user
 from api.schemas.stocks import AddStockRequest
 from repositories.chip import get_chip_daily_range
 from repositories.stocks import (
@@ -19,9 +19,9 @@ router = APIRouter(prefix="/api", tags=["stocks"], dependencies=[Depends(require
 
 
 @router.get("/stocks")
-def get_stocks():
+def get_stocks(user: dict = Depends(require_user)):
     result = []
-    for ticker in get_watched_tickers():
+    for ticker in get_watched_tickers(user["id"]):
         row = get_latest_stock(ticker)
         if row:
             result.append({
@@ -39,8 +39,8 @@ def get_stocks():
 
 
 @router.post("/stocks")
-def add_stock(req: AddStockRequest):
-    add_watched_ticker(req.ticker.upper())
+def add_stock(req: AddStockRequest, user: dict = Depends(require_user)):
+    add_watched_ticker(user["id"], req.ticker.upper())
     try:
         fetch_all_stocks()
     except Exception as e:
@@ -49,8 +49,8 @@ def add_stock(req: AddStockRequest):
 
 
 @router.delete("/stocks/{ticker}")
-def delete_stock(ticker: str):
-    remove_watched_ticker(ticker.upper())
+def delete_stock(ticker: str, user: dict = Depends(require_user)):
+    remove_watched_ticker(user["id"], ticker.upper())
     return {"ok": True}
 
 

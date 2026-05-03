@@ -1,7 +1,7 @@
 """Alert routes: list, create, delete, toggle."""
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.dependencies import require_token
+from api.dependencies import require_token, require_user
 from api.schemas.alerts import AlertRequest, AlertToggleRequest
 from repositories.alerts import (
     add_alert, delete_alert, list_alerts, set_alert_enabled,
@@ -23,12 +23,12 @@ VALID_CONDITIONS = {
 
 
 @router.get("/alerts")
-def get_alerts():
-    return list_alerts()
+def get_alerts(user: dict = Depends(require_user)):
+    return list_alerts(user["id"])
 
 
 @router.post("/alerts")
-def create_alert(req: AlertRequest):
+def create_alert(req: AlertRequest, user: dict = Depends(require_user)):
     if req.target_type not in VALID_TARGET_TYPES:
         raise HTTPException(status_code=400, detail="Invalid target_type")
     if req.condition not in VALID_CONDITIONS:
@@ -72,18 +72,20 @@ def create_alert(req: AlertRequest):
     else:  # stock
         target = req.target.upper()
 
-    alert_id = add_alert(req.target_type, target, req.condition, req.threshold,
+    alert_id = add_alert(user["id"], req.target_type, target, req.condition,
+                         req.threshold,
                          indicator_key=req.indicator_key, window_n=req.window_n)
     return {"id": alert_id}
 
 
 @router.delete("/alerts/{alert_id}")
-def remove_alert(alert_id: int):
-    delete_alert(alert_id)
+def remove_alert(alert_id: int, user: dict = Depends(require_user)):
+    delete_alert(user["id"], alert_id)
     return {"ok": True}
 
 
 @router.patch("/alerts/{alert_id}")
-def toggle_alert(alert_id: int, req: AlertToggleRequest):
-    set_alert_enabled(alert_id, req.enabled)
+def toggle_alert(alert_id: int, req: AlertToggleRequest,
+                 user: dict = Depends(require_user)):
+    set_alert_enabled(user["id"], alert_id, req.enabled)
     return {"ok": True}
