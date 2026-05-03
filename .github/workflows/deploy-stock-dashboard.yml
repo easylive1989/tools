@@ -43,9 +43,11 @@ jobs:
           mkdir -p _site/stock
           mkdir -p _site/travel/2026_austria_czechia
           cp -r stock/dashboard/frontend/dist/. _site/stock/
-          # SPA refresh fallback: GH Pages serves 404.html for unknown paths,
-          # which boots the React app and lets react-router resolve the URL.
-          cp _site/stock/index.html _site/stock/404.html
+          # SPA refresh fallback: GH Pages serves the site-root 404.html for
+          # any unknown path, which boots the React app; react-router then
+          # resolves the URL (basename '/tools/stock/'). For project pages
+          # the 404.html must be at the deployment root, not in a subdir.
+          cp _site/stock/index.html _site/404.html
           cp -r travel/2026_austria_czechia/dist/. _site/travel/2026_austria_czechia/
 
       - uses: actions/configure-pages@v4
