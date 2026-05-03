@@ -43,11 +43,12 @@ def _hash_token(plain: str) -> str:
     return hashlib.sha256(plain.encode("utf-8")).hexdigest()
 
 
-def issue_token(label: str, expiry_days: int | None = _DEFAULT_EXPIRY_DAYS) -> tuple[str, int]:
-    """Issue a new token. Returns (plaintext_token, db_id).
+def issue_token(user_id: int, label: str,
+                expiry_days: int | None = _DEFAULT_EXPIRY_DAYS) -> tuple[str, int]:
+    """Issue a new token for `user_id`, revoking any prior active token.
 
-    Plaintext shown ONCE; only hash + display prefix stored.
-    expiry_days=None for no-expiry tokens.
+    Returns (plaintext_token, db_id). Plaintext shown ONCE; only hash +
+    display prefix stored. expiry_days=None for no-expiry tokens.
     """
     body = secrets.token_urlsafe(_TOKEN_BODY_BYTES)
     plaintext = f"{_TOKEN_PREFIX}{body}"
@@ -59,8 +60,11 @@ def issue_token(label: str, expiry_days: int | None = _DEFAULT_EXPIRY_DAYS) -> t
         expires_at = (datetime.now(timezone.utc).replace(tzinfo=None)
                       + timedelta(days=expiry_days)).isoformat()
 
-    db_id = insert_token(digest, display_prefix, label, expires_at)
-    logger.info("token_issued id=%s label=%s prefix=%s", db_id, label, display_prefix)
+    db_id = insert_token(digest, display_prefix, label, user_id, expires_at)
+    logger.info(
+        "token_issued id=%s user_id=%s label=%s prefix=%s",
+        db_id, user_id, label, display_prefix,
+    )
     return plaintext, db_id
 
 
