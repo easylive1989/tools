@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -84,6 +84,37 @@ describe('WatchlistCard add form', () => {
     await waitFor(() => expect(postCalled.ticker).toBe('2317.TW'));
     await waitFor(() =>
       expect(screen.getByRole('link', { name: '2317.TW' })).toBeInTheDocument(),
+    );
+  });
+});
+
+describe('WatchlistCard delete', () => {
+  it('clicking × on a row calls DELETE /api/stocks/:ticker and removes the row', async () => {
+    let stocks: WatchlistRow[] = [
+      { ticker: '2330.TW', name: '台積電', price: 1000, change: 5, change_pct: 0.5, currency: 'TWD', timestamp: '2026-05-02' },
+      { ticker: 'AAPL',    name: 'Apple',  price: 200,  change: -1, change_pct: -0.5, currency: 'USD', timestamp: '2026-05-02' },
+    ];
+    let deletedTicker = '';
+    server.use(
+      http.get('*/api/stocks', () => HttpResponse.json(stocks)),
+      http.delete('*/api/stocks/:ticker', ({ params }) => {
+        deletedTicker = decodeURIComponent(params.ticker as string);
+        stocks = stocks.filter((s) => s.ticker !== deletedTicker);
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+
+    renderCard();
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: '2330.TW' })).toBeInTheDocument(),
+    );
+    const rows = screen.getAllByRole('row');
+    const tsmcRow = rows.find((r) => r.textContent?.includes('2330.TW'))!;
+    await userEvent.click(within(tsmcRow).getByRole('button', { name: /移除 2330.TW/ }));
+
+    await waitFor(() => expect(deletedTicker).toBe('2330.TW'));
+    await waitFor(() =>
+      expect(screen.queryByRole('link', { name: '2330.TW' })).not.toBeInTheDocument(),
     );
   });
 });

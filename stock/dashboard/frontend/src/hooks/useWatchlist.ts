@@ -26,3 +26,12 @@ export function useAddStock() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['stocks'] }),
   });
 }
+
+export function useDeleteStock() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ticker: string) =>
+      apiFetch(`/api/stocks/${encodeURIComponent(ticker)}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['stocks'] }),
+  });
+}

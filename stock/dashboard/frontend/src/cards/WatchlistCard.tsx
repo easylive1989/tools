@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useAddStock, useWatchlist, type WatchlistRow } from '@/hooks/useWatchlist';
+import { useAddStock, useDeleteStock, useWatchlist, type WatchlistRow } from '@/hooks/useWatchlist';
 import { cn } from '@/lib/utils';
 import { registerCard } from './registry';
 
@@ -20,7 +21,9 @@ function changeClass(n: number | null): string | undefined {
   return n >= 0 ? 'text-green-600' : 'text-red-600';
 }
 
-function Row({ row }: { row: WatchlistRow }) {
+function Row({
+  row, onDelete, deleting,
+}: { row: WatchlistRow; onDelete: (t: string) => void; deleting: boolean }) {
   return (
     <TableRow>
       <TableCell>
@@ -40,7 +43,17 @@ function Row({ row }: { row: WatchlistRow }) {
       <TableCell className={cn('text-right', changeClass(row.change_pct))}>
         {fmtChange(row.change_pct, '%')}
       </TableCell>
-      <TableCell />
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(row.ticker)}
+          disabled={deleting}
+          aria-label={`移除 ${row.ticker}`}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </TableCell>
     </TableRow>
   );
 }
@@ -69,6 +82,7 @@ function AddForm() {
 
 function WatchlistCard() {
   const { data, isLoading, isError } = useWatchlist();
+  const del = useDeleteStock();
   return (
     <Card>
       <CardHeader>
@@ -91,7 +105,12 @@ function WatchlistCard() {
             </TableHeader>
             <TableBody>
               {data.map((row) => (
-                <Row key={row.ticker} row={row} />
+                <Row
+                  key={row.ticker}
+                  row={row}
+                  onDelete={(t) => del.mutate(t)}
+                  deleting={del.isPending && del.variables === row.ticker}
+                />
               ))}
             </TableBody>
           </Table>
