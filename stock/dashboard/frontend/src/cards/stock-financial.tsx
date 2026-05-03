@@ -146,3 +146,55 @@ registerCard({
   component: IncomeStatementCard,
   cols: 3,
 });
+
+const BALANCE_ROWS: RowSpec[] = [
+  { key: 'total_assets',      label: '總資產' },
+  { key: 'total_liabilities', label: '總負債' },
+  { key: 'total_equity',      label: '股東權益' },
+  { key: 'cash_and_equiv',    label: '現金' },
+];
+
+function BalanceSheetCard() {
+  return (
+    <StatementCard
+      title="資產負債表"
+      hint="近 12 季"
+      statement="balance"
+      rowSpecs={BALANCE_ROWS}
+    />
+  );
+}
+
+registerCard({
+  id: 'stock-balance',
+  label: '資產負債表',
+  defaultPage: 'stock',
+  component: BalanceSheetCard,
+  cols: 3,
+});
+
+const CASHFLOW_ROWS: RowSpec[] = [
+  { key: 'operating_cash_flow', label: '營業 CF' },
+  { key: 'investing_cash_flow', label: '投資 CF' },
+  { key: 'financing_cash_flow', label: '融資 CF' },
+  { key: 'free_cash_flow',      label: '自由現金流' },
+];
+
+function CashFlowCard() {
+  return (
+    <StatementCard
+      title="現金流量表"
+      hint="近 12 季"
+      statement="cashflow"
+      rowSpecs={CASHFLOW_ROWS}
+    />
+  );
+}
+
+registerCard({
+  id: 'stock-cashflow',
+  label: '現金流量表',
+  defaultPage: 'stock',
+  component: CashFlowCard,
+  cols: 3,
+});

@@ -48,3 +48,44 @@ describe('IncomeStatementCard', () => {
     expect(screen.getByText('+20.00%')).toBeInTheDocument();
   });
 });
+
+describe('BalanceSheetCard', () => {
+  it('renders 資產負債表 title + table rows', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/financial', () =>
+        HttpResponse.json({
+          ticker: '2330.TW', statement: 'balance', quarters: 12, ok: true,
+          rows: [{
+            date: '2026-Q1',
+            total_assets: 1, total_liabilities: 1,
+            total_equity: 1, cash_and_equiv: 1,
+          }],
+          annual_summary: null,
+        }),
+      ),
+    );
+    renderCard('stock-balance');
+    await waitFor(() => expect(screen.getByText('資產負債表')).toBeInTheDocument());
+    expect(screen.getByText('總資產')).toBeInTheDocument();
+  });
+});
+
+describe('CashFlowCard', () => {
+  it('renders 現金流量表 title', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/financial', () =>
+        HttpResponse.json({
+          ticker: '2330.TW', statement: 'cashflow', quarters: 12, ok: true,
+          rows: [{
+            date: '2026-Q1',
+            operating_cash_flow: 1, investing_cash_flow: 1,
+            financing_cash_flow: 1, free_cash_flow: 1,
+          }],
+          annual_summary: null,
+        }),
+      ),
+    );
+    renderCard('stock-cashflow');
+    await waitFor(() => expect(screen.getByText('現金流量表')).toBeInTheDocument());
+  });
+});
