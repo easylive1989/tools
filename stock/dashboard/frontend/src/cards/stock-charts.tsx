@@ -1,0 +1,235 @@
+import { useMemo } from 'react';
+import {
+  Bar, CartesianGrid, Cell, ComposedChart, Customized, Legend, Line, LineChart,
+  ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useStockHistory } from '@/hooks/useStockHistory';
+import { flattenHistory, type ChartRow } from '@/lib/flatten-history';
+import { registerCard } from './registry';
+
+const CHART_HEIGHT = 320;
+
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+interface CandleLayerProps {
+  rows: ChartRow[];
+  xAxisMap?: Record<string, { scale: (v: any) => number; bandSize: number }>;
+  yAxisMap?: Record<string, { scale: (v: number) => number }>;
+}
+
+function CandleLayer({ rows, xAxisMap, yAxisMap }: CandleLayerProps) {
+  if (!xAxisMap || !yAxisMap) return null;
+  const xKey = Object.keys(xAxisMap)[0];
+  const yKey = Object.keys(yAxisMap)[0];
+  if (!xKey || !yKey) return null;
+  const x = xAxisMap[xKey];
+  const y = yAxisMap[yKey];
+  const bandSize = x.bandSize || 0;
+  const width = Math.max(2, bandSize * 0.6);
+  return (
+    <g data-testid="candles">
+      {rows.map((r) => {
+        const cx = x.scale(r.date) + bandSize / 2;
+        const yHigh = y.scale(r.high);
+        const yLow = y.scale(r.low);
+        const yOpen = y.scale(r.open);
+        const yClose = y.scale(r.close);
+        const up = r.close >= r.open;
+        const fill = up ? '#16a34a' : '#dc2626';
+        const top = Math.min(yOpen, yClose);
+        const h = Math.max(1, Math.abs(yOpen - yClose));
+        return (
+          <g key={r.date}>
+            <line x1={cx} x2={cx} y1={yHigh} y2={yLow} stroke={fill} strokeWidth={1} />
+            <rect x={cx - width / 2} y={top} width={width} height={h} fill={fill} />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function KLineCard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="日 K 棒">
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <XAxis dataKey="date" hide />
+          <YAxis domain={['auto', 'auto']} />
+          <Tooltip
+            formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)}
+            labelFormatter={(label) => label as string}
+          />
+          {/* Hidden bar so recharts allocates the chart area; the candles are drawn via Customized */}
+          <Bar dataKey="high" fill="transparent" isAnimationActive={false} />
+          <Customized
+            component={(props: any) => (
+              <CandleLayer
+                rows={rows}
+                xAxisMap={props.xAxisMap}
+                yAxisMap={props.yAxisMap}
+              />
+            )}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-kline',
+  label: '日 K 棒',
+  defaultPage: 'stock',
+  component: KLineCard,
+  cols: 3,
+});
+
+function PriceMACard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="收盤價 + 移動平均">
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis domain={['auto', 'auto']} />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)} />
+          <Legend />
+          <Line dataKey="close" stroke="#52525b" dot={false} strokeWidth={2} />
+          <Line dataKey="ma5"   stroke="#f97316" dot={false} />
+          <Line dataKey="ma20"  stroke="#3b82f6" dot={false} />
+          <Line dataKey="ma60"  stroke="#a855f7" dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-price-ma',
+  label: '收盤價 + 移動平均',
+  defaultPage: 'stock',
+  component: PriceMACard,
+  cols: 3,
+});
+
+function VolumeCard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="成交量">
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <XAxis dataKey="date" hide />
+          <YAxis />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)} />
+          <Bar dataKey="volume">
+            {rows.map((r) => (
+              <Cell
+                key={r.date}
+                fill={
+                  r.change_pct == null
+                    ? '#a1a1aa'
+                    : r.change_pct >= 0
+                      ? '#16a34a'
+                      : '#dc2626'
+                }
+              />
+            ))}
+          </Bar>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-volume',
+  label: '成交量',
+  defaultPage: 'stock',
+  component: VolumeCard,
+  cols: 3,
+});
+
+function RSICard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="RSI(14)">
+      <ResponsiveContainer width="100%" height={240}>
+        <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis domain={[0, 100]} ticks={[0, 30, 50, 70, 100]} />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toFixed(2) : v)} />
+          <ReferenceLine y={70} stroke="#fca5a5" strokeDasharray="4 4" />
+          <ReferenceLine y={30} stroke="#86efac" strokeDasharray="4 4" />
+          <Line dataKey="rsi14" stroke="#3b82f6" dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-rsi',
+  label: 'RSI(14)',
+  defaultPage: 'stock',
+  component: RSICard,
+  cols: 3,
+});
+
+function MACDCard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="MACD(12,26,9)">
+      <ResponsiveContainer width="100%" height={240}>
+        <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toFixed(3) : v)} />
+          <ReferenceLine y={0} stroke="#71717a" />
+          <Bar dataKey="macd_histogram">
+            {rows.map((r) => (
+              <Cell
+                key={r.date}
+                fill={(r.macd_histogram ?? 0) >= 0 ? '#16a34a' : '#dc2626'}
+              />
+            ))}
+          </Bar>
+          <Line dataKey="macd"        stroke="#3b82f6" dot={false} />
+          <Line dataKey="macd_signal" stroke="#f97316" dot={false} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-macd',
+  label: 'MACD(12,26,9)',
+  defaultPage: 'stock',
+  component: MACDCard,
+  cols: 3,
+});
