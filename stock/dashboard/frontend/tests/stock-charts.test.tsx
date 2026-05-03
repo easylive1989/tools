@@ -51,26 +51,23 @@ describe('KLineCard', () => {
     expect(listCards('stock').find((c) => c.id === 'stock-kline')?.cols).toBe(3);
   });
 
-  it('renders the K-line card title', async () => {
+  it('renders the merged K-line + MA card title in daily view', async () => {
     server.use(
       http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(4))),
     );
     renderCardOnPage('stock-kline');
-    await waitFor(() => expect(screen.getByText('日 K 棒')).toBeInTheDocument());
-  });
-});
-
-describe('PriceMACard', () => {
-  it('registers cols=3 on stock page', () => {
-    expect(listCards('stock').find((c) => c.id === 'stock-price-ma')?.cols).toBe(3);
+    await waitFor(() => expect(screen.getByText('日 K 棒 + 移動平均')).toBeInTheDocument());
   });
 
-  it('renders the price + MA card title', async () => {
+  it('clicking 月 toggles the title to monthly K-line', async () => {
+    const user = (await import('@testing-library/user-event')).default;
     server.use(
-      http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(8))),
+      http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(40))),
     );
-    renderCardOnPage('stock-price-ma');
-    await waitFor(() => expect(screen.getByText('收盤價 + 移動平均')).toBeInTheDocument());
+    renderCardOnPage('stock-kline');
+    await waitFor(() => expect(screen.getByText('日 K 棒 + 移動平均')).toBeInTheDocument());
+    await user.setup().click(screen.getByRole('button', { name: '月' }));
+    expect(screen.getByText('月 K 棒')).toBeInTheDocument();
   });
 });
 
@@ -116,8 +113,13 @@ describe('MACDCard', () => {
   });
 });
 
-describe('all 5 stock cards register', () => {
-  it('total 5 cards on stock page', () => {
-    expect(listCards('stock').length).toBe(5);
+describe('stock chart card count', () => {
+  it('K-line (with MA) + Volume + RSI + MACD = 4 chart cards from stock-charts module', () => {
+    const ids = listCards('stock').map((c) => c.id);
+    expect(ids).toContain('stock-kline');
+    expect(ids).toContain('stock-volume');
+    expect(ids).toContain('stock-rsi');
+    expect(ids).toContain('stock-macd');
+    expect(ids).not.toContain('stock-price-ma');
   });
 });

@@ -1,89 +1,162 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Bar, CartesianGrid, Cell, ComposedChart, Customized, Legend, Line, LineChart,
+  Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, LineChart,
   ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useStockHistory } from '@/hooks/useStockHistory';
 import { flattenHistory, type ChartRow } from '@/lib/flatten-history';
+import { cn } from '@/lib/utils';
 import { registerCard } from './registry';
 
 const CHART_HEIGHT = 320;
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartCard({ title, hint, action, children }: {
+  title: string;
+  hint?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div>
+          <CardTitle>{title}</CardTitle>
+          {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
+        </div>
+        {action}
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
   );
 }
 
-interface CandleLayerProps {
-  rows: ChartRow[];
-  xAxisMap?: Record<string, { scale: (v: any) => number; bandSize: number }>;
-  yAxisMap?: Record<string, { scale: (v: number) => number }>;
+type Interval = 'day' | 'month' | 'year';
+
+function bucketKey(date: string, interval: Interval): string {
+  if (interval === 'month') return date.slice(0, 7);
+  if (interval === 'year') return date.slice(0, 4);
+  return date;
 }
 
-function CandleLayer({ rows, xAxisMap, yAxisMap }: CandleLayerProps) {
-  if (!xAxisMap || !yAxisMap) return null;
-  const xKey = Object.keys(xAxisMap)[0];
-  const yKey = Object.keys(yAxisMap)[0];
-  if (!xKey || !yKey) return null;
-  const x = xAxisMap[xKey];
-  const y = yAxisMap[yKey];
-  const bandSize = x.bandSize || 0;
-  const width = Math.max(2, bandSize * 0.6);
+function aggregate(rows: ChartRow[], interval: Interval): ChartRow[] {
+  if (interval === 'day') return rows;
+  const groups = new Map<string, ChartRow[]>();
+  for (const r of rows) {
+    const key = bucketKey(r.date, interval);
+    const arr = groups.get(key);
+    if (arr) arr.push(r);
+    else groups.set(key, [r]);
+  }
+  return Array.from(groups.entries()).map(([key, group]) => {
+    const first = group[0];
+    const last = group[group.length - 1];
+    return {
+      date: key,
+      open: first.open,
+      close: last.close,
+      high: Math.max(...group.map((g) => g.high)),
+      low: Math.min(...group.map((g) => g.low)),
+      volume: group.reduce((s, g) => s + g.volume, 0),
+      // MA / RSI / MACD only meaningful on the daily series the backend computed
+      ma5: null, ma20: null, ma60: null,
+      rsi14: null,
+      macd: null, macd_signal: null, macd_histogram: null,
+      change_pct: null,
+    };
+  });
+}
+
+function CandleShape(props: any) {
+  const { x, y, width, height, payload } = props;
+  if (!payload) return <g />;
+  const { open, high, low, close } = payload;
+  if (typeof open !== 'number' || typeof high !== 'number' || typeof low !== 'number' || typeof close !== 'number') return <g />;
+  const range = high - low;
+  if (range <= 0) {
+    // flat bar; draw a thin horizontal line
+    const cx = x + width / 2;
+    const fill = close >= open ? '#16a34a' : '#dc2626';
+    return <line x1={cx - width / 3} x2={cx + width / 3} y1={y} y2={y} stroke={fill} strokeWidth={1} />;
+  }
+  // dataKey={['low','high']} → y = top (high), y+height = bottom (low). Linear interp:
+  const slope = height / range;
+  const yOpen = y + (high - open) * slope;
+  const yClose = y + (high - close) * slope;
+  const up = close >= open;
+  const fill = up ? '#16a34a' : '#dc2626';
+  const cx = x + width / 2;
+  const bodyTop = Math.min(yOpen, yClose);
+  const bodyH = Math.max(1, Math.abs(yOpen - yClose));
+  const bodyW = Math.max(2, width * 0.6);
   return (
-    <g data-testid="candles">
-      {rows.map((r) => {
-        const cx = x.scale(r.date) + bandSize / 2;
-        const yHigh = y.scale(r.high);
-        const yLow = y.scale(r.low);
-        const yOpen = y.scale(r.open);
-        const yClose = y.scale(r.close);
-        const up = r.close >= r.open;
-        const fill = up ? '#16a34a' : '#dc2626';
-        const top = Math.min(yOpen, yClose);
-        const h = Math.max(1, Math.abs(yOpen - yClose));
-        return (
-          <g key={r.date}>
-            <line x1={cx} x2={cx} y1={yHigh} y2={yLow} stroke={fill} strokeWidth={1} />
-            <rect x={cx - width / 2} y={top} width={width} height={h} fill={fill} />
-          </g>
-        );
-      })}
+    <g>
+      <line x1={cx} x2={cx} y1={y} y2={y + height} stroke={fill} strokeWidth={1} />
+      <rect x={cx - bodyW / 2} y={bodyTop} width={bodyW} height={bodyH} fill={fill} />
     </g>
+  );
+}
+
+const INTERVAL_LABELS: Record<Interval, string> = {
+  day: '日',
+  month: '月',
+  year: '年',
+};
+
+function IntervalToggle({ value, onChange }: { value: Interval; onChange: (v: Interval) => void }) {
+  return (
+    <div className="flex gap-1">
+      {(Object.keys(INTERVAL_LABELS) as Interval[]).map((iv) => (
+        <Button
+          key={iv}
+          size="sm"
+          variant={iv === value ? 'default' : 'outline'}
+          onClick={() => onChange(iv)}
+          className={cn('px-3')}
+        >
+          {INTERVAL_LABELS[iv]}
+        </Button>
+      ))}
+    </div>
   );
 }
 
 function KLineCard() {
   const { data } = useStockHistory();
-  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
-  if (!rows.length) return null;
+  const dailyRows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  const [interval, setInterval] = useState<Interval>('day');
+  const rows = useMemo(() => aggregate(dailyRows, interval), [dailyRows, interval]);
+  if (!dailyRows.length) return null;
+  const showMA = interval === 'day';
   return (
-    <ChartCard title="日 K 棒">
+    <ChartCard
+      title={showMA ? '日 K 棒 + 移動平均' : `${INTERVAL_LABELS[interval]} K 棒`}
+      action={<IntervalToggle value={interval} onChange={setInterval} />}
+    >
       <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
         <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" hide />
           <YAxis domain={['auto', 'auto']} />
           <Tooltip
-            formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)}
+            formatter={(v: any) => (typeof v === 'number' ? v.toLocaleString() : v)}
             labelFormatter={(label) => label as string}
           />
-          {/* Hidden bar so recharts allocates the chart area; the candles are drawn via Customized */}
-          <Bar dataKey="high" fill="transparent" isAnimationActive={false} />
-          <Customized
-            component={(props: any) => (
-              <CandleLayer
-                rows={rows}
-                xAxisMap={props.xAxisMap}
-                yAxisMap={props.yAxisMap}
-              />
-            )}
+          {showMA && <Legend />}
+          <Bar
+            dataKey={(row: ChartRow) => [row.low, row.high]}
+            shape={<CandleShape />}
+            isAnimationActive={false}
+            legendType="none"
           />
+          {showMA && (
+            <>
+              <Line dataKey="ma5"  stroke="#f97316" dot={false} name="MA5" />
+              <Line dataKey="ma20" stroke="#3b82f6" dot={false} name="MA20" />
+              <Line dataKey="ma60" stroke="#a855f7" dot={false} name="MA60" />
+            </>
+          )}
         </ComposedChart>
       </ResponsiveContainer>
     </ChartCard>
@@ -92,40 +165,9 @@ function KLineCard() {
 
 registerCard({
   id: 'stock-kline',
-  label: '日 K 棒',
+  label: '日 K 棒 + 移動平均',
   defaultPage: 'stock',
   component: KLineCard,
-  cols: 3,
-});
-
-function PriceMACard() {
-  const { data } = useStockHistory();
-  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
-  if (!rows.length) return null;
-  return (
-    <ChartCard title="收盤價 + 移動平均">
-      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
-        <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" hide />
-          <YAxis domain={['auto', 'auto']} />
-          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)} />
-          <Legend />
-          <Line dataKey="close" stroke="#52525b" dot={false} strokeWidth={2} />
-          <Line dataKey="ma5"   stroke="#f97316" dot={false} />
-          <Line dataKey="ma20"  stroke="#3b82f6" dot={false} />
-          <Line dataKey="ma60"  stroke="#a855f7" dot={false} />
-        </LineChart>
-      </ResponsiveContainer>
-    </ChartCard>
-  );
-}
-
-registerCard({
-  id: 'stock-price-ma',
-  label: '收盤價 + 移動平均',
-  defaultPage: 'stock',
-  component: PriceMACard,
   cols: 3,
 });
 
