@@ -1,6 +1,7 @@
 import { listCards } from '@/cards/registry';
 import { useCardPrefsStore } from '@/store/card-prefs-store';
 import { DashboardSettingsDialog } from '@/components/DashboardSettingsDialog';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const allCards = listCards('dashboard');
@@ -14,8 +15,16 @@ export default function DashboardPage() {
         <DashboardSettingsDialog />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visible.map(({ id, component: Card }) => (
-          <Card key={id} />
+        {visible.map(({ id, component: Card, cols = 1 }) => (
+          <div
+            key={id}
+            className={cn(
+              cols === 3 && 'lg:col-span-3',
+              cols === 2 && 'lg:col-span-2',
+            )}
+          >
+            <Card />
+          </div>
         ))}
       </div>
     </div>
