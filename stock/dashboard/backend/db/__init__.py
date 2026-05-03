@@ -3,6 +3,7 @@
 Public API kept stable via re-exports so call sites like
 `from db import save_indicator` continue to work after the BE-B split.
 """
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -10,13 +11,42 @@ from db.connection import (
     get_connection, DB_PATH, _memory_conn, _memory_lock,
 )
 
+logger = logging.getLogger(__name__)
+
+_SEED_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "seeds", "auto_tracked_taiwan.txt",
+)
+
+
+def _seed_auto_tracked() -> None:
+    """Idempotently load tickers from the seed file into auto_tracked_stocks.
+
+    Strips inline `#` comments. Removed lines do NOT delete existing rows
+    (monotonic policy)."""
+    if not os.path.exists(_SEED_PATH):
+        return
+    from repositories.auto_tracked import insert_if_missing
+
+    total = 0
+    added = 0
+    with open(_SEED_PATH, encoding="utf-8") as f:
+        for line in f:
+            ticker = line.split("#", 1)[0].strip()
+            if not ticker:
+                continue
+            total += 1
+            if insert_if_missing(ticker):
+                added += 1
+    logger.info("auto_tracked_seeded total=%d added=%d", total, added)
+
 
 def init_db():
-    """Bring the database up to the latest schema by running migrations."""
+    """Bring the database up to the latest schema, then seed auto-tracked."""
     from db.runner import run_migrations
     migrations_dir = os.path.join(os.path.dirname(__file__), "migrations")
     with get_connection() as conn:
         run_migrations(conn, migrations_dir)
+    _seed_auto_tracked()
 
 
 def purge_old_data(days: int = 1095):

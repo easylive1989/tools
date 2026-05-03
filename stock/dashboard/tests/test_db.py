@@ -155,3 +155,13 @@ def test_remove_watched_ticker_does_not_affect_stock_price_alerts():
 
     alerts = {a["id"]: a for a in db.list_alerts()}
     assert alerts[a1]["enabled"] == 1
+
+
+def test_seed_loader_is_idempotent():
+    """init_db() seeds auto-tracked once; running it again does not duplicate."""
+    from repositories.auto_tracked import list_auto_tracked_tickers
+    before = set(list_auto_tracked_tickers())
+    assert len(before) >= 80, f"seed should yield ≥80 tickers, got {len(before)}"
+    db.init_db()
+    after = set(list_auto_tracked_tickers())
+    assert before == after
