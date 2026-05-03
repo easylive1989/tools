@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   Bar, CartesianGrid, Cell, ComposedChart, Customized, Legend, Line, LineChart,
-  ResponsiveContainer, Tooltip, XAxis, YAxis,
+  ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useStockHistory } from '@/hooks/useStockHistory';
@@ -165,5 +165,34 @@ registerCard({
   label: '成交量',
   defaultPage: 'stock',
   component: VolumeCard,
+  cols: 3,
+});
+
+function RSICard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="RSI(14)">
+      <ResponsiveContainer width="100%" height={240}>
+        <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis domain={[0, 100]} ticks={[0, 30, 50, 70, 100]} />
+          <Tooltip formatter={(v: number) => v?.toFixed?.(2) ?? v} />
+          <ReferenceLine y={70} stroke="#fca5a5" strokeDasharray="4 4" />
+          <ReferenceLine y={30} stroke="#86efac" strokeDasharray="4 4" />
+          <Line dataKey="rsi14" stroke="#3b82f6" dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-rsi',
+  label: 'RSI(14)',
+  defaultPage: 'stock',
+  component: RSICard,
   cols: 3,
 });

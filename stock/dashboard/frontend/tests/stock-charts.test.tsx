@@ -87,3 +87,17 @@ describe('VolumeCard', () => {
     await waitFor(() => expect(screen.getByText('成交量')).toBeInTheDocument());
   });
 });
+
+describe('RSICard', () => {
+  it('registers cols=3 on stock page', () => {
+    expect(listCards('stock').find((c) => c.id === 'stock-rsi')?.cols).toBe(3);
+  });
+
+  it('renders the RSI card title', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(5))),
+    );
+    renderCardOnPage('stock-rsi');
+    await waitFor(() => expect(screen.getByText('RSI(14)')).toBeInTheDocument());
+  });
+});
