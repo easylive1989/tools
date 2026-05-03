@@ -7,6 +7,7 @@ export interface CardSpec {
   label: string;
   defaultPage: CardPage;
   component: FC;
+  cols?: 1 | 2 | 3;
 }
 
 let _registry: CardSpec[] = [];

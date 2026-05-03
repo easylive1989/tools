@@ -27,4 +27,12 @@ describe('card registry', () => {
       registerCard({ id: 'dup', label: 'D2', defaultPage: 'dashboard', component: Stub })
     ).toThrow(/already registered/);
   });
+
+  it('cols defaults to undefined; explicit cols preserved', () => {
+    registerCard({ id: 'one', label: 'One', defaultPage: 'dashboard', component: Stub });
+    registerCard({ id: 'three', label: 'Three', defaultPage: 'dashboard', component: Stub, cols: 3 });
+    const list = listCards('dashboard');
+    expect(list.find(c => c.id === 'one')?.cols).toBeUndefined();
+    expect(list.find(c => c.id === 'three')?.cols).toBe(3);
+  });
 });
