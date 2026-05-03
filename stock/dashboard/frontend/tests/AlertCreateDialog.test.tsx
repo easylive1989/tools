@@ -109,3 +109,65 @@ describe('AlertCreateDialog condition filter', () => {
     expect(screen.getByLabelText('N 日')).toBeInTheDocument();
   });
 });
+
+describe('AlertCreateDialog submit', () => {
+  it('successful POST closes dialog and clears state', async () => {
+    let posted: any = null;
+    server.use(
+      http.get('*/api/alerts', () => HttpResponse.json([])),
+      http.get('*/api/stocks', () => HttpResponse.json([])),
+      http.get('*/api/indicators/spec', () =>
+        HttpResponse.json({
+          indicator: [{ key: 'taiex', label: '加權指數', unit: null, supported_conditions: ['above'] }],
+          stock_indicator: [],
+        }),
+      ),
+      http.post('*/api/alerts', async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json({ id: 1 });
+      }),
+    );
+
+    renderDialog();
+    await userEvent.click(screen.getByRole('button', { name: 'open' }));
+    const targetTrigger = screen.getAllByRole('combobox')[1];
+    await userEvent.click(targetTrigger);
+    await userEvent.click(screen.getByRole('option', { name: '加權指數' }));
+    await userEvent.type(screen.getByPlaceholderText('門檻數值'), '18000');
+    await userEvent.click(screen.getByRole('button', { name: '建立' }));
+
+    await waitFor(() =>
+      expect(posted).toMatchObject({
+        target_type: 'indicator', target: 'taiex', condition: 'above', threshold: 18000,
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: '建立' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('backend 400 keeps dialog open and shows error', async () => {
+    server.use(
+      http.get('*/api/alerts', () => HttpResponse.json([])),
+      http.get('*/api/stocks', () => HttpResponse.json([])),
+      http.get('*/api/indicators/spec', () =>
+        HttpResponse.json({
+          indicator: [{ key: 'taiex', label: '加權指數', unit: null, supported_conditions: ['above'] }],
+          stock_indicator: [],
+        }),
+      ),
+      http.post('*/api/alerts', () => HttpResponse.text('Invalid threshold', { status: 400 })),
+    );
+
+    renderDialog();
+    await userEvent.click(screen.getByRole('button', { name: 'open' }));
+    const targetTrigger = screen.getAllByRole('combobox')[1];
+    await userEvent.click(targetTrigger);
+    await userEvent.click(screen.getByRole('option', { name: '加權指數' }));
+    await userEvent.type(screen.getByPlaceholderText('門檻數值'), '18000');
+    await userEvent.click(screen.getByRole('button', { name: '建立' }));
+
+    await waitFor(() => expect(screen.getByText('Invalid threshold')).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: '建立' })).toBeInTheDocument();
+  });
+});

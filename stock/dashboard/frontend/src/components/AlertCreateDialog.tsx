@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useIndicatorsSpec } from '@/hooks/useIndicatorsSpec';
+import { useCreateAlert, type CreateAlertPayload } from '@/hooks/useAlerts';
+import { ApiError } from '@/lib/api-client';
 import {
   INDICATOR_LABELS, STOCK_INDICATOR_LABELS, thresholdPlaceholder,
 } from '@/lib/alert-labels';
@@ -39,8 +41,41 @@ export function AlertCreateDialog({ trigger }: Props) {
   const [windowN, setWindowN] = useState('5');
   const [threshold, setThreshold] = useState('');
 
+  const [error, setError] = useState<string | null>(null);
   const watchlist = useWatchlist();
   const spec = useIndicatorsSpec();
+  const create = useCreateAlert();
+
+  const submit = () => {
+    setError(null);
+    if (!target) {
+      setError('請選擇目標');
+      return;
+    }
+    if (threshold === '') {
+      setError('請輸入門檻數值');
+      return;
+    }
+    const payload: CreateAlertPayload = {
+      target_type: targetType,
+      target,
+      condition,
+      threshold: Number(threshold),
+    };
+    if (targetType === 'stock_indicator') payload.indicator_key = indicatorKey;
+    if (condition.startsWith('streak_')) payload.window_n = Number(windowN);
+    create.mutate(payload, {
+      onSuccess: () => {
+        setTarget('');
+        setThreshold('');
+        setOpen(false);
+      },
+      onError: (e: unknown) => {
+        if (e instanceof ApiError) setError(e.message);
+        else setError('建立失敗');
+      },
+    });
+  };
 
   const indicatorOptions = Object.entries(INDICATOR_LABELS);
   const stockIndicatorOptions = Object.entries(STOCK_INDICATOR_LABELS);
@@ -163,9 +198,14 @@ export function AlertCreateDialog({ trigger }: Props) {
           </div>
         </div>
 
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>取消</Button>
-          <Button disabled>建立</Button>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={create.isPending}>
+            取消
+          </Button>
+          <Button onClick={submit} disabled={create.isPending}>
+            {create.isPending ? '建立中…' : '建立'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
