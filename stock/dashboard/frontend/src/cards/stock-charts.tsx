@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
-  Bar, ComposedChart, Customized, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Bar, CartesianGrid, ComposedChart, Customized, Legend, Line, LineChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useStockHistory } from '@/hooks/useStockHistory';
@@ -94,5 +95,36 @@ registerCard({
   label: '日 K 棒',
   defaultPage: 'stock',
   component: KLineCard,
+  cols: 3,
+});
+
+function PriceMACard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="收盤價 + 移動平均">
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <LineChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis domain={['auto', 'auto']} />
+          <Tooltip formatter={(v: number) => v?.toLocaleString?.() ?? v} />
+          <Legend />
+          <Line dataKey="close" stroke="#52525b" dot={false} strokeWidth={2} />
+          <Line dataKey="ma5"   stroke="#f97316" dot={false} />
+          <Line dataKey="ma20"  stroke="#3b82f6" dot={false} />
+          <Line dataKey="ma60"  stroke="#a855f7" dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-price-ma',
+  label: '收盤價 + 移動平均',
+  defaultPage: 'stock',
+  component: PriceMACard,
   cols: 3,
 });

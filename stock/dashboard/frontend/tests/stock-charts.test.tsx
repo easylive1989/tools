@@ -21,13 +21,13 @@ function makeHistory(rows: number) {
     ticker: '2330.TW', name: '台積電', currency: 'TWD', time_range: '3M',
     dates, candles,
     indicators: {
-      ma5: dates.map(() => null),
-      ma20: dates.map(() => null),
-      ma60: dates.map(() => null),
-      rsi14: dates.map(() => 50),
-      macd: dates.map(() => 0),
-      macd_signal: dates.map(() => 0),
-      macd_histogram: dates.map(() => 0),
+      ma5: dates.map((_, i) => 100 + i * 0.5),
+      ma20: dates.map((_, i) => 100 + i * 0.3),
+      ma60: dates.map((_, i) => 100 + i * 0.1),
+      rsi14: dates.map((_, i) => 40 + i * 5),
+      macd: dates.map((_, i) => i - 2),
+      macd_signal: dates.map((_, i) => i * 0.5 - 1),
+      macd_histogram: dates.map((_, i) => (i % 2 === 0 ? 1 : -1)),
     },
   };
 }
@@ -57,5 +57,19 @@ describe('KLineCard', () => {
     );
     renderCardOnPage('stock-kline');
     await waitFor(() => expect(screen.getByText('日 K 棒')).toBeInTheDocument());
+  });
+});
+
+describe('PriceMACard', () => {
+  it('registers cols=3 on stock page', () => {
+    expect(listCards('stock').find((c) => c.id === 'stock-price-ma')?.cols).toBe(3);
+  });
+
+  it('renders the price + MA card title', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(8))),
+    );
+    renderCardOnPage('stock-price-ma');
+    await waitFor(() => expect(screen.getByText('收盤價 + 移動平均')).toBeInTheDocument());
   });
 });
