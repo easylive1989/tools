@@ -25,14 +25,20 @@ def get_latest_stock(ticker: str) -> dict | None:
 def get_watched_tickers(user_id: int | None = None) -> list[str]:
     """Watched tickers.
 
-    Pass `user_id` to scope to one user (used by API routes).
-    Pass `None` for the global DISTINCT union (used by scheduled fetchers
-    that prefetch every ticker any user is watching).
+    Pass `user_id` to scope to one user (used by API routes for the
+    user's personal /api/stocks list).
+    Pass `None` for the global union — `watched_stocks` UNION
+    `auto_tracked_stocks` — used by scheduled fetchers and detail-
+    endpoint gating. Auto-tracked stocks (Taiwan top-100) are always
+    fetched even if no user is watching them.
     """
     with get_connection() as conn:
         if user_id is None:
             rows = conn.execute(
-                "SELECT DISTINCT ticker FROM watched_stocks ORDER BY ticker"
+                "SELECT ticker FROM watched_stocks "
+                "UNION "
+                "SELECT ticker FROM auto_tracked_stocks "
+                "ORDER BY ticker"
             ).fetchall()
         else:
             rows = conn.execute(

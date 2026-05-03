@@ -61,12 +61,12 @@ def test_get_stocks_returns_watchlist():
 def test_add_and_delete_stock():
     r = client.post("/api/stocks", json={"ticker": "2330.tw"})
     assert r.status_code == 200
-    tickers = db.get_watched_tickers()
+    tickers = db.get_watched_tickers(1)
     assert "2330.TW" in tickers  # normalized to uppercase
 
     r = client.delete("/api/stocks/2330.TW")
     assert r.status_code == 200
-    assert "2330.TW" not in db.get_watched_tickers()
+    assert "2330.TW" not in db.get_watched_tickers(1)
 
 
 def test_stock_history_returns_data(monkeypatch):
@@ -417,3 +417,32 @@ def test_endpoint_returns_401_without_auth_override():
     finally:
         if saved is not None:
             app.dependency_overrides[require_token] = saved
+
+
+def test_detail_404_when_neither_watched_nor_auto_tracked():
+    r = client.get("/api/stocks/UNKNOWN.XYZ/history?time_range=1M")
+    assert r.status_code == 404
+    r = client.get("/api/stocks/UNKNOWN.XYZ/valuation")
+    assert r.status_code == 404
+    r = client.get("/api/stocks/UNKNOWN.XYZ/revenue")
+    assert r.status_code == 404
+    r = client.get("/api/stocks/UNKNOWN.XYZ/financial")
+    assert r.status_code == 404
+    r = client.get("/api/stocks/UNKNOWN.XYZ/dividend")
+    assert r.status_code == 404
+
+
+def test_detail_passes_gate_for_auto_tracked():
+    """2330.TW is in the seed list — auto-tracked, accessible to any user."""
+    # Don't add 2330.TW to user 1's personal watchlist; auto-tracked alone should suffice.
+    r = client.get("/api/stocks/2330.TW/dividend")
+    # 200 from cache or 200 with empty rows; either way not 404 from gating
+    assert r.status_code != 404
+
+
+def test_detail_passes_gate_for_user_watchlist():
+    """A ticker outside the seed list works once the user adds it."""
+    db.add_watched_ticker(1, "FAKE.US")
+    r = client.get("/api/stocks/FAKE.US/dividend")
+    # FAKE.US is NOT a Taiwan ticker → fundamentals routes 400 (not 404 from gating)
+    assert r.status_code != 404

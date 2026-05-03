@@ -4,7 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from api.dependencies import require_token
+from api.dependencies import require_token, require_user
+from api.routes.stocks import _gate_or_404
 from repositories.fundamentals import (
     get_dividend_history, get_financial_quarterly_range,
     get_per_daily_range, get_revenue_monthly_range,
@@ -18,9 +19,11 @@ router = APIRouter(prefix="/api", tags=["fundamentals"], dependencies=[Depends(r
 
 
 @router.get("/stocks/{ticker}/valuation")
-def stock_valuation(ticker: str, years: int = 5):
+def stock_valuation(ticker: str, years: int = 5,
+                    user: dict = Depends(require_user)):
     """個股估值快照:PER/PBR/殖利率最新值 + 5 年百分位 + 走勢。"""
     ticker = ticker.upper()
+    _gate_or_404(user["id"], ticker)
     if fundamentals_to_finmind_id(ticker) is None:
         raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
     if years < 1 or years > 10:
@@ -70,9 +73,11 @@ def stock_valuation(ticker: str, years: int = 5):
 
 
 @router.get("/stocks/{ticker}/revenue")
-def stock_revenue(ticker: str, months: int = 36):
+def stock_revenue(ticker: str, months: int = 36,
+                  user: dict = Depends(require_user)):
     """個股月營收 + YoY + 12MA + YTD vs 去年同期。"""
     ticker = ticker.upper()
+    _gate_or_404(user["id"], ticker)
     if fundamentals_to_finmind_id(ticker) is None:
         raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
     if months < 1 or months > 60:
@@ -224,9 +229,11 @@ _FINANCIAL_BUILDER = {
 
 
 @router.get("/stocks/{ticker}/financial")
-def stock_financial(ticker: str, statement: str = "income", quarters: int = 12):
+def stock_financial(ticker: str, statement: str = "income", quarters: int = 12,
+                    user: dict = Depends(require_user)):
     """個股財報(三表三選一)。statement ∈ {income, balance, cashflow}。"""
     ticker = ticker.upper()
+    _gate_or_404(user["id"], ticker)
     if fundamentals_to_finmind_id(ticker) is None:
         raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
     if statement not in _FINANCIAL_BUILDER:
@@ -315,9 +322,11 @@ def _annual_eps_sum(ticker: str, year: int) -> float | None:
 
 
 @router.get("/stocks/{ticker}/dividend")
-def stock_dividend(ticker: str, years: int = 10):
+def stock_dividend(ticker: str, years: int = 10,
+                   user: dict = Depends(require_user)):
     """個股股利歷史:按西元年合計現金/股票股利,加配發率。"""
     ticker = ticker.upper()
+    _gate_or_404(user["id"], ticker)
     if fundamentals_to_finmind_id(ticker) is None:
         raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
     if years < 1 or years > 30:

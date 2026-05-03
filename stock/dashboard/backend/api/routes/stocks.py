@@ -7,10 +7,25 @@ from fastapi import APIRouter, Depends, HTTPException
 from api._constants import RANGE_DELTAS
 from api.dependencies import require_token, require_user
 from api.schemas.stocks import AddStockRequest
+from repositories.auto_tracked import is_auto_tracked
 from repositories.chip import get_chip_daily_range
 from repositories.stocks import (
     add_watched_ticker, get_latest_stock, get_watched_tickers, remove_watched_ticker,
 )
+
+
+def _gate_or_404(user_id: int, ticker: str) -> None:
+    """Raise 404 unless the ticker is in the user's personal watchlist
+    or in the auto-tracked Taiwan top-100."""
+    ticker = ticker.upper()
+    if is_auto_tracked(ticker):
+        return
+    if ticker in get_watched_tickers(user_id):
+        return
+    raise HTTPException(
+        status_code=404,
+        detail="Ticker not in your watchlist and not in the auto-tracked list. Add it via POST /api/stocks first.",
+    )
 from fetchers.yfinance_fetcher import fetch_all_stocks, fetch_stock_history
 from fetchers.chip_stock import fetch_stock_chip, to_finmind_id as chip_to_finmind_id
 
@@ -55,7 +70,9 @@ def delete_stock(ticker: str, user: dict = Depends(require_user)):
 
 
 @router.get("/stocks/{ticker}/brokers")
-def stock_brokers(ticker: str, days: int = 20, top: int = 5):
+def stock_brokers(ticker: str, days: int = 20, top: int = 5,
+                  user: dict = Depends(require_user)):
+    _gate_or_404(user["id"], ticker)
     # 已停用：FinMind TaiwanStockTradingDailyReport 改為 Sponsor 限定 (見 README)。
     # 程式碼保留以便未來重啟功能。
     return {
@@ -68,13 +85,15 @@ def stock_brokers(ticker: str, days: int = 20, top: int = 5):
 
 
 @router.get("/stocks/{ticker}/chip")
-def stock_chip(ticker: str, days: int = 20):
+def stock_chip(ticker: str, days: int = 20,
+               user: dict = Depends(require_user)):
     """個股籌碼:近 N 個交易日的三大法人淨買賣 + 融資融券餘額。
 
     Lazy fetch + DB cache。輸出每筆 row 含:
     foreign_net / trust_net / dealer_net(buy-sell)、margin_balance、short_balance。
     """
     ticker = ticker.upper()
+    _gate_or_404(user["id"], ticker)
     if chip_to_finmind_id(ticker) is None:
         raise HTTPException(status_code=400, detail="Only Taiwan tickers (.TW/.TWO) are supported")
     if days < 1 or days > 90:
@@ -120,7 +139,9 @@ def stock_chip(ticker: str, days: int = 20):
 
 
 @router.get("/stocks/{ticker}/history")
-def stock_history(ticker: str, time_range: str = "3M"):
+def stock_history(ticker: str, time_range: str = "3M",
+                  user: dict = Depends(require_user)):
+    _gate_or_404(user["id"], ticker)
     if time_range not in RANGE_DELTAS:
         raise HTTPException(status_code=400, detail="Unknown time_range")
     try:

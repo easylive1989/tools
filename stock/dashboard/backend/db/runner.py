@@ -69,18 +69,24 @@ def run_migrations(conn: sqlite3.Connection, migrations_dir: str) -> None:
         r[0] for r in conn.execute("SELECT version FROM schema_migrations").fetchall()
     }
 
+    discovered = _discover(migrations_dir)
+
     if not applied and _is_legacy_db(conn):
-        discovered = _discover(migrations_dir)
-        for version, _ in discovered:
+        # Pre-runner DBs have the schema from migration 0001 already in
+        # place; only that version should be marked as baseline. Later
+        # migrations (0002+) must run normally so any tables/columns they
+        # add actually appear.
+        if discovered:
+            baseline_version = discovered[0][0]
             conn.execute(
                 "INSERT INTO schema_migrations (version, applied_at) VALUES (?, ?)",
-                (version, _now_iso()),
+                (baseline_version, _now_iso()),
             )
-        conn.commit()
-        logger.info("migrations_baselined count=%d", len(discovered))
-        return
+            applied.add(baseline_version)
+            conn.commit()
+            logger.info("migration_baselined version=%s", baseline_version)
 
-    for version, path in _discover(migrations_dir):
+    for version, path in discovered:
         if version in applied:
             continue
         with open(path, encoding="utf-8") as f:

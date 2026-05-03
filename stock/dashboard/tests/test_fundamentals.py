@@ -264,5 +264,6 @@ def test_dividend_endpoint_aggregates_by_calendar_year():
 
 
 def test_valuation_rejects_non_taiwan_ticker():
+    db.add_watched_ticker(1, "AAPL")
     r = client.get("/api/stocks/AAPL/valuation")
     assert r.status_code == 400

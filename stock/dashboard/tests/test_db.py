@@ -16,22 +16,16 @@ def test_init_db_creates_schema_migrations_with_0001_applied():
     assert "0001" in versions
 
 def test_init_db_baselines_existing_legacy_db():
-    """Simulate the live VPS DB: it already has tables but no schema_migrations.
-    init_db() must mark 0001 as applied without re-running it (which would error)
-    and the existing data must remain intact."""
-    # Build a fresh in-memory DB and pre-populate it with a legacy-shaped
-    # indicator_snapshots table + one row, mimicking the VPS state.
+    """Simulate the live VPS DB: it already has the post-0001 schema but
+    no schema_migrations. init_db() must baseline 0001 (skip re-run) AND
+    apply 0002+ normally so new tables/columns from later migrations appear."""
+    import os
     db.connection._memory_conn = None
     conn = db.get_connection()
-    conn.execute(
-        "CREATE TABLE indicator_snapshots ("
-        "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
-        "  indicator TEXT NOT NULL,"
-        "  timestamp TEXT NOT NULL,"
-        "  value REAL NOT NULL,"
-        "  extra_json TEXT"
-        ")"
-    )
+    here = os.path.dirname(__file__)
+    sql_path = os.path.join(here, "..", "backend", "db", "migrations", "0001_initial.sql")
+    with open(sql_path, encoding="utf-8") as f:
+        conn.executescript(f.read())
     conn.execute(
         "INSERT INTO indicator_snapshots (indicator, timestamp, value) "
         "VALUES ('taiex', '2026-01-01T00:00:00', 17000.0)"
@@ -76,17 +70,17 @@ def test_watched_stocks_crud():
     db.init_db()
     db.add_watched_ticker(1, "2330.TW")
     db.add_watched_ticker(1, "VOO")
-    tickers = db.get_watched_tickers()
+    tickers = db.get_watched_tickers(1)
     assert "2330.TW" in tickers
     assert "VOO" in tickers
     db.remove_watched_ticker(1, "VOO")
-    assert "VOO" not in db.get_watched_tickers()
+    assert "VOO" not in db.get_watched_tickers(1)
 
 def test_add_duplicate_ticker_is_idempotent():
     db.init_db()
     db.add_watched_ticker(1, "AAPL")
     db.add_watched_ticker(1, "AAPL")
-    assert db.get_watched_tickers().count("AAPL") == 1
+    assert db.get_watched_tickers(1).count("AAPL") == 1
 
 def test_save_and_get_stock_snapshot():
     db.init_db()
@@ -155,3 +149,32 @@ def test_remove_watched_ticker_does_not_affect_stock_price_alerts():
 
     alerts = {a["id"]: a for a in db.list_alerts()}
     assert alerts[a1]["enabled"] == 1
+
+
+def test_seed_loader_is_idempotent():
+    """init_db() seeds auto-tracked once; running it again does not duplicate."""
+    from repositories.auto_tracked import list_auto_tracked_tickers
+    before = set(list_auto_tracked_tickers())
+    assert len(before) >= 80, f"seed should yield ≥80 tickers, got {len(before)}"
+    db.init_db()
+    after = set(list_auto_tracked_tickers())
+    assert before == after
+
+
+def test_global_watched_tickers_includes_auto_tracked():
+    """get_watched_tickers(None) is the union used by background fetchers."""
+    db.add_watched_ticker(1, 'TSTUSER.TW')
+    auto = db.get_watched_tickers()
+    # Seed list includes 2330.TW
+    assert '2330.TW' in auto
+    # User's personal addition also surfaces
+    assert 'TSTUSER.TW' in auto
+
+
+def test_user_watchlist_excludes_auto_tracked():
+    """get_watched_tickers(user_id) returns ONLY that user's personal list."""
+    db.add_watched_ticker(1, 'TSTONLY.TW')
+    user_only = db.get_watched_tickers(1)
+    assert 'TSTONLY.TW' in user_only
+    # Auto-tracked seed shouldn't bleed into the user's personal view.
+    assert '2330.TW' not in user_only
