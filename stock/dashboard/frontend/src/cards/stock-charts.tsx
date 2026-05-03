@@ -70,7 +70,7 @@ function KLineCard() {
           <XAxis dataKey="date" hide />
           <YAxis domain={['auto', 'auto']} />
           <Tooltip
-            formatter={(v: number) => v?.toLocaleString?.() ?? v}
+            formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)}
             labelFormatter={(label) => label as string}
           />
           {/* Hidden bar so recharts allocates the chart area; the candles are drawn via Customized */}
@@ -109,7 +109,7 @@ function PriceMACard() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" hide />
           <YAxis domain={['auto', 'auto']} />
-          <Tooltip formatter={(v: number) => v?.toLocaleString?.() ?? v} />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)} />
           <Legend />
           <Line dataKey="close" stroke="#52525b" dot={false} strokeWidth={2} />
           <Line dataKey="ma5"   stroke="#f97316" dot={false} />
@@ -139,7 +139,7 @@ function VolumeCard() {
         <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <XAxis dataKey="date" hide />
           <YAxis />
-          <Tooltip formatter={(v: number) => v?.toLocaleString?.() ?? v} />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toLocaleString() : v)} />
           <Bar dataKey="volume">
             {rows.map((r) => (
               <Cell
@@ -179,7 +179,7 @@ function RSICard() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" hide />
           <YAxis domain={[0, 100]} ticks={[0, 30, 50, 70, 100]} />
-          <Tooltip formatter={(v: number) => v?.toFixed?.(2) ?? v} />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toFixed(2) : v)} />
           <ReferenceLine y={70} stroke="#fca5a5" strokeDasharray="4 4" />
           <ReferenceLine y={30} stroke="#86efac" strokeDasharray="4 4" />
           <Line dataKey="rsi14" stroke="#3b82f6" dot={false} />
@@ -194,5 +194,42 @@ registerCard({
   label: 'RSI(14)',
   defaultPage: 'stock',
   component: RSICard,
+  cols: 3,
+});
+
+function MACDCard() {
+  const { data } = useStockHistory();
+  const rows = useMemo(() => (data ? flattenHistory(data) : []), [data]);
+  if (!rows.length) return null;
+  return (
+    <ChartCard title="MACD(12,26,9)">
+      <ResponsiveContainer width="100%" height={240}>
+        <ComposedChart data={rows} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" hide />
+          <YAxis />
+          <Tooltip formatter={(v: any) => (typeof v === "number" ? v.toFixed(3) : v)} />
+          <ReferenceLine y={0} stroke="#71717a" />
+          <Bar dataKey="macd_histogram">
+            {rows.map((r) => (
+              <Cell
+                key={r.date}
+                fill={(r.macd_histogram ?? 0) >= 0 ? '#16a34a' : '#dc2626'}
+              />
+            ))}
+          </Bar>
+          <Line dataKey="macd"        stroke="#3b82f6" dot={false} />
+          <Line dataKey="macd_signal" stroke="#f97316" dot={false} />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartCard>
+  );
+}
+
+registerCard({
+  id: 'stock-macd',
+  label: 'MACD(12,26,9)',
+  defaultPage: 'stock',
+  component: MACDCard,
   cols: 3,
 });

@@ -101,3 +101,23 @@ describe('RSICard', () => {
     await waitFor(() => expect(screen.getByText('RSI(14)')).toBeInTheDocument());
   });
 });
+
+describe('MACDCard', () => {
+  it('registers cols=3 on stock page', () => {
+    expect(listCards('stock').find((c) => c.id === 'stock-macd')?.cols).toBe(3);
+  });
+
+  it('renders the MACD card title', async () => {
+    server.use(
+      http.get('*/api/stocks/2330.TW/history', () => HttpResponse.json(makeHistory(6))),
+    );
+    renderCardOnPage('stock-macd');
+    await waitFor(() => expect(screen.getByText('MACD(12,26,9)')).toBeInTheDocument());
+  });
+});
+
+describe('all 5 stock cards register', () => {
+  it('total 5 cards on stock page', () => {
+    expect(listCards('stock').length).toBe(5);
+  });
+});
