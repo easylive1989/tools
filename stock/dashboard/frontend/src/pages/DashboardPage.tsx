@@ -1,12 +1,20 @@
 import { listCards } from '@/cards/registry';
+import { useCardPrefsStore } from '@/store/card-prefs-store';
+import { DashboardSettingsDialog } from '@/components/DashboardSettingsDialog';
 
 export default function DashboardPage() {
-  const cards = listCards('dashboard');
+  const allCards = listCards('dashboard');
+  const hiddenIds = useCardPrefsStore((s) => s.hiddenIds);
+  const visible = allCards.filter((c) => !hiddenIds.has(c.id));
+
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <DashboardSettingsDialog />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {cards.map(({ id, component: Card }) => (
+        {visible.map(({ id, component: Card }) => (
           <Card key={id} />
         ))}
       </div>
