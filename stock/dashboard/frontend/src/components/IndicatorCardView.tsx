@@ -63,14 +63,22 @@ export function IndicatorCardView({
                 <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip
                   cursor={{ stroke: '#a1a1aa', strokeWidth: 1 }}
-                  contentStyle={{ fontSize: 11, padding: '2px 6px' }}
-                  labelFormatter={(label) => String(label).slice(0, 10)}
-                  formatter={(v: unknown) => [
-                    typeof v === 'number'
-                      ? (formatSparkValue?.(v) ?? v.toLocaleString())
-                      : String(v),
-                    title,
-                  ]}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const v = payload[0].value;
+                    const formatted =
+                      typeof v === 'number'
+                        ? (formatSparkValue?.(v) ?? v.toLocaleString())
+                        : String(v);
+                    return (
+                      <div className="rounded border bg-background px-2 py-1 text-xs shadow-sm">
+                        <div className="text-muted-foreground">
+                          {String(label).slice(0, 10)}
+                        </div>
+                        <div className="font-medium">{formatted}</div>
+                      </div>
+                    );
+                  }}
                 />
                 <Line
                   type="monotone"
