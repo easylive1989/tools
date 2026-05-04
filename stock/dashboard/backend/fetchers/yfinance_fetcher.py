@@ -29,17 +29,22 @@ def _fetch_price(ticker_obj) -> dict | None:
     """Fetch price data for a Ticker instance.
 
     yfinance 對某些台股盤前可能回傳 NaN，所以從最新往前找第一筆有效的 Close。
+    `date` 是該 close 對應的交易日 (YYYY-MM-DD),從 yfinance 的 index 取得 —
+    遇到假日/週末時不會等於今天,可避免在非交易日 upsert 出錯誤的 date。
     """
     # 拉長一點區間以便處理連假/停牌
     hist = ticker_obj.history(period="10d")
     if hist.empty:
         return None
     closes = [float(c) for c in hist["Close"].tolist()]
-    valid = [c for c in closes if _is_valid(c)]
-    if len(valid) < 1:
+    # 找最後一筆有效 close,連同其對應的 index date 一起取出
+    valid_idx = [i for i, c in enumerate(closes) if _is_valid(c)]
+    if not valid_idx:
         return None
-    price = valid[-1]
-    prev_close = valid[-2] if len(valid) >= 2 else price
+    last_i = valid_idx[-1]
+    price = closes[last_i]
+    prev_close = closes[valid_idx[-2]] if len(valid_idx) >= 2 else price
+    trade_date = hist.index[last_i].strftime("%Y-%m-%d")
     change = price - prev_close
     change_pct = (change / prev_close * 100) if prev_close else 0.0
     currency = ""
@@ -53,6 +58,7 @@ def _fetch_price(ticker_obj) -> dict | None:
         "change": change,
         "change_pct": round(change_pct, 2),
         "currency": currency,
+        "date": trade_date,
     }
 
 
@@ -68,6 +74,7 @@ def fetch_taiex():
             "change_pct": data["change_pct"],
             "prev_close": round(data["prev_close"], 2),
         }),
+        date=data["date"],
     )
     check_alerts("indicator", "taiex", data["price"])
 
@@ -85,6 +92,7 @@ def fetch_fx():
             "change_pct": data["change_pct"],
             "prev_close": round(data["prev_close"], 4),
         }),
+        date=data["date"],
     )
     check_alerts("indicator", "fx", fx_value)
 
@@ -190,9 +198,14 @@ def fetch_stock_history(ticker: str, time_range: str = "3M") -> dict | None:
     }
 
 
-def fetch_all_stocks():
-    """Fetch all watched stocks."""
-    tickers = get_watched_tickers()
+def _is_tw_ticker(ticker: str) -> bool:
+    """台股 ticker 在 yfinance 的慣例:`NNNN.TW` / `NNNN.TWO`。"""
+    upper = ticker.upper()
+    return upper.endswith(".TW") or upper.endswith(".TWO")
+
+
+def _fetch_stocks(tickers: list[str]):
+    """Fetch the given tickers, save one snapshot per (ticker, trade_date)."""
     for ticker in tickers:
         try:
             stock = yf.Ticker(ticker)
@@ -213,7 +226,25 @@ def fetch_all_stocks():
                 data["change_pct"],
                 data["currency"],
                 name,
+                date=data["date"],
             )
             check_alerts("stock", ticker, price, display_name=name)
         except Exception as e:
             print(f"[yfinance] Error fetching {ticker}: {e}")
+
+
+def fetch_tw_stocks():
+    """Fetch all watched Taiwan-listed stocks (run after TWSE close, ~14:00 TST)."""
+    tickers = [t for t in get_watched_tickers() if _is_tw_ticker(t)]
+    _fetch_stocks(tickers)
+
+
+def fetch_us_stocks():
+    """Fetch all watched US-listed stocks (run after US close, ~06:00 TST)."""
+    tickers = [t for t in get_watched_tickers() if not _is_tw_ticker(t)]
+    _fetch_stocks(tickers)
+
+
+def fetch_all_stocks():
+    """Backwards-compatible wrapper — fetch every watched stock regardless of market."""
+    _fetch_stocks(get_watched_tickers())

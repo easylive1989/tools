@@ -50,6 +50,34 @@ def test_history_unknown_indicator_returns_404():
     assert r.status_code == 404
 
 
+def test_history_is_one_row_per_trading_date():
+    """Daily-snapshot guarantee: regardless of how many times the fetcher writes
+    on the same date, /api/history returns one row per date, ordered chronologically."""
+    from datetime import datetime, timedelta, timezone
+    base = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    # Three writes on 'today' — all upsert into the same (taiex, today) row.
+    db.save_indicator("taiex", 39000.0, timestamp=base - timedelta(hours=4))
+    db.save_indicator("taiex", 39200.0, timestamp=base - timedelta(hours=2))
+    db.save_indicator("taiex", 39303.5, timestamp=base)
+    # One write yesterday — a separate row.
+    db.save_indicator("taiex", 38900.0, timestamp=base - timedelta(days=1))
+    # Day before yesterday — another separate row.
+    db.save_indicator("taiex", 38500.0, timestamp=base - timedelta(days=2))
+
+    r = client.get("/api/history/taiex?time_range=1M")
+    assert r.status_code == 200
+    rows = r.json()
+    # Exactly 3 rows for 3 distinct dates (the seed_data write today is also
+    # on `today`, so it gets upserted into the same row as our 3 writes above).
+    dates = [row["timestamp"][:10] for row in rows]
+    assert len(dates) == len(set(dates)), f"duplicate dates in history: {dates}"
+    # Ordered ascending by timestamp.
+    assert dates == sorted(dates)
+    # The latest row for 'today' won (39303.5), not the earlier ones.
+    assert rows[-1]["value"] == 39303.5
+
+
 def test_get_stocks_returns_watchlist():
     r = client.get("/api/stocks")
     assert r.status_code == 200

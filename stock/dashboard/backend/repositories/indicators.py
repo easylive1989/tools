@@ -4,12 +4,32 @@ from datetime import datetime, timezone
 from db.connection import get_connection
 
 
-def save_indicator(indicator: str, value: float, extra_json: str = None, timestamp: datetime = None):
-    ts = (timestamp or datetime.now(timezone.utc).replace(tzinfo=None)).isoformat()
+def save_indicator(
+    indicator: str,
+    value: float,
+    extra_json: str = None,
+    timestamp: datetime = None,
+    date: str = None,
+):
+    """Upsert one row per (indicator, date).
+
+    `date` defaults to the date portion of `timestamp` (or now). Caller can
+    pass an explicit trading-date string when the snapshot does not correspond
+    to "today" — e.g. fetched on a holiday but representing the previous
+    trading day's close.
+    """
+    ts_dt = timestamp or datetime.now(timezone.utc).replace(tzinfo=None)
+    ts = ts_dt.isoformat()
+    d = date or ts[:10]
     with get_connection() as conn:
         conn.execute(
-            "INSERT INTO indicator_snapshots (indicator, timestamp, value, extra_json) VALUES (?,?,?,?)",
-            (indicator, ts, value, extra_json),
+            "INSERT INTO indicator_snapshots (indicator, timestamp, value, extra_json, date) "
+            "VALUES (?,?,?,?,?) "
+            "ON CONFLICT(indicator, date) DO UPDATE SET "
+            "  timestamp=excluded.timestamp, "
+            "  value=excluded.value, "
+            "  extra_json=excluded.extra_json",
+            (indicator, ts, value, extra_json, d),
         )
 
 

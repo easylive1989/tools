@@ -59,12 +59,19 @@ def test_get_indicator_returns_none_when_empty():
 def test_indicator_history_filtered_by_date():
     db.init_db()
     from datetime import datetime, timedelta, timezone
+    # Two writes on the same date should upsert into one row (latest wins).
     db.save_indicator("margin_balance", 2500.0)
     db.save_indicator("margin_balance", 2341.0)
-    since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(minutes=1)
+    # A write on a different (earlier) date stays as a separate row.
+    db.save_indicator(
+        "margin_balance",
+        2200.0,
+        timestamp=datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=1),
+    )
+    since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=2)
     rows = db.get_indicator_history("margin_balance", since)
     assert len(rows) == 2
-    assert rows[-1]["value"] == 2341.0
+    assert rows[-1]["value"] == 2341.0  # today's latest upsert wins
 
 def test_watched_stocks_crud():
     db.init_db()

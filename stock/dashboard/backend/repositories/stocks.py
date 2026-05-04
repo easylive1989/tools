@@ -4,12 +4,35 @@ from datetime import datetime, timezone
 from db.connection import get_connection
 
 
-def save_stock_snapshot(ticker: str, price: float, change: float, change_pct: float, currency: str, name: str = ""):
+def save_stock_snapshot(
+    ticker: str,
+    price: float,
+    change: float,
+    change_pct: float,
+    currency: str,
+    name: str = "",
+    date: str = None,
+):
+    """Upsert one row per (ticker, date).
+
+    `date` defaults to today; pass an explicit trading-date string when the
+    snapshot represents a previous trading day's close (e.g. fetched on a
+    holiday).
+    """
+    ts = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+    d = date or ts[:10]
     with get_connection() as conn:
         conn.execute(
-            "INSERT INTO stock_snapshots (ticker, timestamp, price, change, change_pct, currency, name) "
-            "VALUES (?,?,?,?,?,?,?)",
-            (ticker, datetime.now(timezone.utc).replace(tzinfo=None).isoformat(), price, change, change_pct, currency, name),
+            "INSERT INTO stock_snapshots (ticker, timestamp, price, change, change_pct, currency, name, date) "
+            "VALUES (?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(ticker, date) DO UPDATE SET "
+            "  timestamp=excluded.timestamp, "
+            "  price=excluded.price, "
+            "  change=excluded.change, "
+            "  change_pct=excluded.change_pct, "
+            "  currency=excluded.currency, "
+            "  name=excluded.name",
+            (ticker, ts, price, change, change_pct, currency, name, d),
         )
 
 
