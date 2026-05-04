@@ -57,13 +57,10 @@ cd document_translator && python -m pytest tests/ -v
 
 Active workflows (triggered on schedule + `workflow_dispatch`):
 - `monthly-ledger-analysis.yml` — monthly ledger summary to Notion
-- `deploy-stock-dashboard.yml` — builds frontend and deploys to GitHub Pages
-- `deploy-stock-dashboard-backend.yml` — rsyncs backend to VPS, restarts systemd service
+- `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
 - `deploy-sharing-bot.yml` — rsyncs sharing bot to VPS, restarts systemd service
 
-Stock price alerts are now configured per-user from the dashboard UI (no
-scheduled Discord notifications); the backend's APScheduler fetches prices
-and the alert engine notifies Discord when thresholds are crossed.
+The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
 Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`.
 
@@ -74,7 +71,7 @@ Scripts read secrets directly from environment (no `.env` loading at root level;
 | Variable | Used by |
 |---|---|
 | `NOTION_SECRET` | `ledger_analysis.py`, `personal_retro/`, `medium/` |
-| `DISCORD_*_WEBHOOK_URL` | `stock/dashboard/` (alerts), `personal_retro/` |
+| `DISCORD_*_WEBHOOK_URL` | `personal_retro/` |
 | `GOOGLE_API_KEY` | `document_translator` (API mode) |
 | `OPENAI_API_KEY` | `personal_retro/daily_review.py` |
 
