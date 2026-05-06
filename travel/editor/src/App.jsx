@@ -255,9 +255,112 @@ function EmptyDetail({ onAddDay }) {
   )
 }
 
+const SKILL_PROMPT = `你是一位旅遊行程整理助理。請把使用者提供的行程資料，整理成下方指定的 Markdown 格式，以便匯入旅遊行程編輯器。
+
+## 輸出格式規範
+
+整體結構：
+\`\`\`
+# 旅程標題
+副標題（日期・天數・城市）
+
+## 通用字卡
+
+| 中文 | 英文 | 分類 |
+|------|------|------|
+| 謝謝 | Thank you | general |
+
+---
+
+## 第 N 天｜日期｜標題｜國旗｜城市
+
+### 今日重點
+- 重點一
+
+### 飯店
+名稱：飯店名稱
+地址：地址
+地圖：https://www.google.com/maps/...
+備註：備註內容
+
+### 行程
+
+#### [時間] 類型 icon 標題
+副標題
+📍 https://www.google.com/maps/...
+- 注意事項
+
+### 英文字卡
+
+| 中文 | 英文 | 分類 |
+|------|------|------|
+\`\`\`
+
+## 重要規則
+
+1. **天標題**：使用全形直線 ｜（U+FF5C），格式為 \`## 第 N 天｜日期｜標題｜國旗｜城市\`
+2. **行程類型**只能用小寫英文：\`transport\`、\`food\`、\`sight\`、\`hotel\`、\`info\`
+3. **字卡分類**只能是：\`general\`、\`transport\`、\`food\`、\`emergency\`
+4. **飯店欄位**使用全形冒號：\`名稱：\`、\`地址：\`、\`地圖：\`、\`備註：\`
+5. **地圖連結**必須是完整 Google Maps URL（不能用短網址）；如果沒有地圖資訊則省略 📍 那行
+6. **行程標頭**格式：\`#### [時間] 類型 icon 標題\`，icon 可省略
+7. **每天前面**必須有 \`---\` 獨立成一行
+8. 副標題（緊接在 \`####\` 下方的第一個非空行）只能有一行
+
+## 常見錯誤對照
+
+| 錯誤 | 正確 |
+|------|------|
+| \`## 第1天|...\` | \`## 第 1 天｜...\`（有空格，全形｜） |
+| \`Transport\` | \`transport\`（必須小寫） |
+| \`地圖: https://...\` | \`地圖：https://...\`（全形冒號） |
+| \`📍https://...\` | \`📍 https://...\`（📍 後有空格） |
+| \`maps.app.goo.gl/xxx\` | 完整 Google Maps URL |
+
+---
+
+請根據以上規範，將使用者提供的行程資料整理成符合格式的 Markdown。如果資料不完整（例如缺少地圖網址），請省略對應欄位，不要自行填入假資料。整理完成後只輸出 Markdown 內容，不需要額外說明。`
+
+function SkillPromptModal({ onClose }) {
+  const [copied, setCopied] = useState(false)
+  const copy = () => {
+    navigator.clipboard.writeText(SKILL_PROMPT).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal skill-prompt-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">🤖 LLM 整理提示詞</span>
+          <button className="btn-icon" onClick={onClose} title="關閉">✕</button>
+        </div>
+        <div className="modal-body">
+          <p className="skill-prompt-desc">
+            將此提示詞貼入 ChatGPT、Claude 等 LLM，再把你的行程資料貼上，
+            LLM 就會幫你整理成可直接匯入本工具的 <code>.md</code> 格式。
+          </p>
+          <textarea
+            className="skill-prompt-text"
+            readOnly
+            value={SKILL_PROMPT}
+          />
+          <div className="skill-prompt-actions">
+            <button className="btn-primary" onClick={copy}>
+              {copied ? '✓ 已複製！' : '📋 複製提示詞'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Welcome({ onOpen, onNew }) {
   const inputRef = useRef(null)
   const [dragOver, setDragOver] = useState(false)
+  const [showSkillPrompt, setShowSkillPrompt] = useState(false)
 
   return (
     <div
@@ -281,6 +384,9 @@ function Welcome({ onOpen, onNew }) {
         >📂 開啟行程檔案…</button>
         <button className="btn-secondary" onClick={onNew}>＋ 新建旅程</button>
       </div>
+      <button className="btn-link welcome-skill-btn" onClick={() => setShowSkillPrompt(true)}>
+        🤖 用 LLM 整理行程？取得提示詞
+      </button>
       <p className="welcome-hint">提示：可直接把 itinerary.md 拖放到此視窗</p>
       <input
         ref={inputRef}
@@ -293,6 +399,7 @@ function Welcome({ onOpen, onNew }) {
           e.target.value = ''
         }}
       />
+      {showSkillPrompt && <SkillPromptModal onClose={() => setShowSkillPrompt(false)} />}
     </div>
   )
 }
