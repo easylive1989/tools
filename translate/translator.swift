@@ -54,6 +54,26 @@ private let SYSTEM_PROMPT =
     "保留原文的排版結構：若原文是 Markdown 格式（如標題、粗體、清單等），翻譯結果也須維持相同的 Markdown 格式；" +
     "若原文以換行分隔段落，翻譯結果也須在對應位置以相同方式換行。"
 
+private let SUMMARY_PROMPT = """
+你是一個專業的內容總結工具。請閱讀以下內容，並以繁體中文產生結構化總結。
+
+輸出格式：
+## 重點摘要
+- （列出 3-5 個關鍵重點）
+
+## 關鍵論點
+- （列出核心論點與支持依據）
+
+## 結論
+（一段簡潔的結論總結）
+
+規則：
+- 一律使用繁體中文輸出
+- 保持客觀，忠於原文
+- 簡潔有力，避免冗長
+- 僅輸出 Markdown 內容，不要加任何前言、結語或程式碼圍欄
+"""
+
 private let userName = ProcessInfo.processInfo.environment["USER"] ?? "user"
 private let pidFilePath = "/tmp/translator_gui_\(userName).pid"
 private let inputFilePath = "/tmp/translator_gui_\(userName).txt"
@@ -83,6 +103,9 @@ struct TranslationTab: Identifiable {
     let source: String
     var result: String = ""
     var isTranslating: Bool = true
+    var summary: String = ""
+    var isSummarizing: Bool = false
+    var hasSummary: Bool = false
 }
 
 // MARK: - VocabularyStore
@@ -218,6 +241,11 @@ actor GeminiRunner {
 
     func translate(id: UUID, text: String) async -> String {
         let prompt = "\(SYSTEM_PROMPT)\n\n翻譯：\(text)"
+        return await run(id: id, prompt: prompt)
+    }
+
+    func summarize(id: UUID, text: String) async -> String {
+        let prompt = "\(SUMMARY_PROMPT)\n\n內容：\n\(text)"
         return await run(id: id, prompt: prompt)
     }
 
@@ -539,10 +567,21 @@ struct ContentView: View {
         return !tab.isTranslating && !tab.result.isEmpty
     }
 
+    private var canSummarize: Bool {
+        guard let tab = activeTab else { return false }
+        return !tab.isTranslating && !tab.isSummarizing && !tab.hasSummary
+    }
+
     private var outputText: String {
         guard let tab = activeTab else { return "" }
         let result = tab.isTranslating ? "翻譯中…" : tab.result
-        return "【原文】\n\(tab.source)\n\n────────────────────\n\n【翻譯】\n\(result)"
+        var text = "【原文】\n\(tab.source)\n\n────────────────────\n\n【翻譯】\n\(result)"
+        if tab.isSummarizing {
+            text += "\n\n────────────────────\n\n【總結】\n總結中…"
+        } else if tab.hasSummary {
+            text += "\n\n────────────────────\n\n【總結】\n\(tab.summary)"
+        }
+        return text
     }
 
     var body: some View {
@@ -638,6 +677,19 @@ struct ContentView: View {
                         .disabled(!canCopy)
                         .opacity(canCopy ? 1 : 0.4)
 
+                    Button("總結") { summarizeActive() }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                        .layoutPriority(1)
+                        .disabled(!canSummarize)
+                        .opacity(canSummarize ? 1 : 0.4)
+                        .help("總結目前 Tab 的原文")
+
                     Button("−") { changeFontSize(-1) }
                         .buttonStyle(.plain)
                         .font(.system(size: 12))
@@ -723,6 +775,24 @@ struct ContentView: View {
 
     private func clearInput() {
         inputText = ""
+    }
+
+    private func summarizeActive() {
+        guard let id = activeTabID,
+              let idx = tabs.firstIndex(where: { $0.id == id }) else { return }
+        let tab = tabs[idx]
+        guard !tab.isTranslating, !tab.isSummarizing, !tab.hasSummary else { return }
+        let source = tab.source
+        tabs[idx].isSummarizing = true
+
+        Task {
+            let summary = await runner.summarize(id: id, text: source)
+            if let i = tabs.firstIndex(where: { $0.id == id }) {
+                tabs[i].summary = summary
+                tabs[i].isSummarizing = false
+                tabs[i].hasSummary = true
+            }
+        }
     }
 
     private func closeTab(id: UUID) {
