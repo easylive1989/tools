@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - 'travel/**'
+      - 'read_later/feed.xml'
       - 'CNAME'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
@@ -43,8 +44,12 @@ jobs:
         run: |
           mkdir -p _site/travel/2026_austria_czechia
           mkdir -p _site/travel/editor
+          mkdir -p _site/read_later
           cp -r travel/2026_austria_czechia/dist/. _site/travel/2026_austria_czechia/
           cp -r travel/editor/dist/. _site/travel/editor/
+          if [ -f read_later/feed.xml ]; then
+            cp read_later/feed.xml _site/read_later/feed.xml
+          fi
           # Carry the custom domain so deploys don't drop it.
           cp CNAME _site/CNAME
 
