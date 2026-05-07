@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import AVFoundation
 import SwiftUI
 
 // MARK: - CLI Mode: --get-selection
@@ -435,19 +436,32 @@ struct SelectableTextView: NSViewRepresentable {
 
 class VocabularyTextView: NSTextView {
     weak var coordinator: SelectableTextView.Coordinator?
+    private static let speechSynthesizer = AVSpeechSynthesizer()
 
     override func menu(for event: NSEvent) -> NSMenu? {
         let menu = super.menu(for: event) ?? NSMenu()
-        let item = NSMenuItem(
+        let hasSelection = selectedRange().length > 0
+
+        let speakItem = NSMenuItem(
+            title: "發音",
+            action: #selector(speakSelection),
+            keyEquivalent: ""
+        )
+        speakItem.target = self
+        speakItem.isEnabled = hasSelection
+        menu.insertItem(speakItem, at: 0)
+
+        let vocabItem = NSMenuItem(
             title: "加入單字庫",
             action: #selector(addToVocabulary),
             keyEquivalent: ""
         )
-        item.target = self
-        item.isEnabled = selectedRange().length > 0
-        menu.insertItem(item, at: 0)
-        if menu.items.count > 1 {
-            menu.insertItem(.separator(), at: 1)
+        vocabItem.target = self
+        vocabItem.isEnabled = hasSelection
+        menu.insertItem(vocabItem, at: 1)
+
+        if menu.items.count > 2 {
+            menu.insertItem(.separator(), at: 2)
         }
         return menu
     }
@@ -460,6 +474,42 @@ class VocabularyTextView: NSTextView {
         Task { @MainActor [weak self] in
             self?.coordinator?.store.add(selected)
         }
+    }
+
+    @objc private func speakSelection() {
+        let selected = (string as NSString)
+            .substring(with: selectedRange())
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !selected.isEmpty else { return }
+
+        let synth = Self.speechSynthesizer
+        if synth.isSpeaking {
+            synth.stopSpeaking(at: .immediate)
+        }
+        let utterance = AVSpeechUtterance(string: selected)
+        if let voice = preferredVoice(for: selected) {
+            utterance.voice = voice
+        }
+        synth.speak(utterance)
+    }
+
+    private func preferredVoice(for text: String) -> AVSpeechSynthesisVoice? {
+        let tagger = NSLinguisticTagger(tagSchemes: [.language], options: 0)
+        tagger.string = text
+        guard let detected = tagger.dominantLanguage, !detected.isEmpty else {
+            return nil
+        }
+        let bcp47: String
+        switch detected {
+        case "zh-Hant": bcp47 = "zh-TW"
+        case "zh-Hans": bcp47 = "zh-CN"
+        case "zh":      bcp47 = "zh-TW"
+        case "en":      bcp47 = "en-US"
+        case "ja":      bcp47 = "ja-JP"
+        case "ko":      bcp47 = "ko-KR"
+        default:        bcp47 = detected
+        }
+        return AVSpeechSynthesisVoice(language: bcp47)
     }
 }
 
