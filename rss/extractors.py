@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import html as html_lib
 import json
+import os
 import re
+from urllib.parse import urlparse
 
+import requests
 from readability import Document
 
 
@@ -142,10 +145,166 @@ def extract_hellogithub(html: str, entry: dict, feed_config: dict, scraper) -> s
     return "\n".join(parts)
 
 
+APIFY_TOKEN_ENV = "APIFY_TOKEN"
+
+# 社群平台 → Apify actor ID(用 ~ 取代 / 以符合 URL 路徑)
+_APIFY_ACTORS = {
+    "facebook": "apify~facebook-posts-scraper",
+    "threads": "apify~threads-scraper",
+    "instagram": "apify~instagram-post-scraper",
+}
+
+
+def detect_social_platform(url: str) -> str | None:
+    """根據 URL host 判斷是否為 FB / Threads / IG 貼文，回傳平台代號或 None。"""
+    if not url:
+        return None
+    host = urlparse(url).netloc.lower()
+    if any(d in host for d in ("facebook.com", "fb.com", "fb.watch", "m.facebook.com")):
+        return "facebook"
+    if "threads.net" in host or "threads.com" in host:
+        return "threads"
+    if "instagram.com" in host:
+        return "instagram"
+    return None
+
+
+def _apify_stub(link: str, reason: str) -> str:
+    safe_link = html_lib.escape(link)
+    safe_reason = html_lib.escape(reason)
+    return (
+        f"<p><strong>⚠️ 自動抽取失敗:</strong> {safe_reason}</p>\n"
+        f'<p>原始連結: <a href="{safe_link}">{safe_link}</a></p>'
+    )
+
+
+def _build_apify_input(platform: str, url: str) -> dict:
+    if platform == "facebook":
+        return {"startUrls": [{"url": url}], "resultsLimit": 1}
+    if platform == "threads":
+        return {"urls": [url], "resultsLimit": 1}
+    if platform == "instagram":
+        return {"directUrls": [url], "resultsLimit": 1}
+    return {"startUrls": [{"url": url}]}
+
+
+def _pick_text(item: dict) -> str:
+    for key in ("text", "caption", "content", "postText", "description"):
+        value = item.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def _pick_author(item: dict) -> str:
+    user = item.get("user")
+    if isinstance(user, dict):
+        for key in ("username", "fullName", "name"):
+            if user.get(key):
+                return str(user[key])
+    owner = item.get("owner")
+    if isinstance(owner, dict):
+        for key in ("username", "fullName", "name"):
+            if owner.get(key):
+                return str(owner[key])
+    for key in ("authorName", "ownerUsername", "pageName", "username"):
+        value = item.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def _pick_media_urls(item: dict) -> list[str]:
+    urls: list[str] = []
+    seen: set[str] = set()
+
+    def push(u):
+        if not u or not isinstance(u, str):
+            return
+        if u in seen:
+            return
+        seen.add(u)
+        urls.append(u)
+
+    for key in ("media", "images", "imageUrls", "videoUrls"):
+        value = item.get(key)
+        if isinstance(value, list):
+            for m in value:
+                if isinstance(m, dict):
+                    push(m.get("url") or m.get("src") or m.get("displayUrl") or m.get("thumbnail"))
+                elif isinstance(m, str):
+                    push(m)
+
+    push(item.get("displayUrl"))
+    push(item.get("videoUrl"))
+    return urls
+
+
+def _format_apify_item(item: dict, link: str) -> str:
+    parts = [
+        f'<p><strong>來源:</strong> <a href="{html_lib.escape(link)}">{html_lib.escape(link)}</a></p>'
+    ]
+
+    author = _pick_author(item)
+    if author:
+        parts.append(f"<p><strong>作者:</strong> {html_lib.escape(author)}</p>")
+
+    text = _pick_text(item)
+    if text:
+        text_html = html_lib.escape(text).replace("\n", "<br/>\n")
+        parts.append(f"<p>{text_html}</p>")
+
+    for media_url in _pick_media_urls(item)[:10]:
+        parts.append(f'<p><img src="{html_lib.escape(media_url)}" /></p>')
+
+    return "\n".join(parts)
+
+
+def extract_apify(html: str, entry: dict, feed_config: dict, scraper) -> str | None:
+    """用 Apify 抓 FB / Threads / IG 貼文內容；失敗回傳 stub HTML(含原始 link)。"""
+    link = entry.get("link", "")
+    platform = detect_social_platform(link)
+    if not platform:
+        return _apify_stub(link or "(空連結)", "無法辨識社群平台")
+
+    token = os.environ.get(APIFY_TOKEN_ENV)
+    if not token:
+        print(f"  Apify: 未設定 {APIFY_TOKEN_ENV} 環境變數")
+        return _apify_stub(link, f"未設定 {APIFY_TOKEN_ENV} 環境變數")
+
+    actor = _APIFY_ACTORS[platform]
+    api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
+    payload = _build_apify_input(platform, link)
+
+    print(f"  Apify {platform}: 呼叫 actor {actor.replace('~', '/')}")
+    try:
+        res = requests.post(
+            api_url,
+            params={"token": token},
+            json=payload,
+            timeout=180,
+        )
+        res.raise_for_status()
+        data = res.json()
+    except requests.exceptions.Timeout:
+        return _apify_stub(link, "Apify 抓取逾時 (180s)")
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code if e.response is not None else "?"
+        return _apify_stub(link, f"Apify HTTP 錯誤 ({status})")
+    except Exception as e:
+        return _apify_stub(link, f"Apify 抓取失敗 ({type(e).__name__})")
+
+    if not isinstance(data, list) or not data:
+        return _apify_stub(link, "Apify 回傳空結果")
+
+    return _format_apify_item(data[0], link)
+
+
 EXTRACTOR_REGISTRY = {
     "readability": extract_readability,
     "hellogithub": extract_hellogithub,
     "feed_content": extract_feed_content,
+    "apify": extract_apify,
 }
 
 
@@ -161,9 +320,6 @@ def dispatch(name: str, html: str, entry: dict, feed_config: dict, scraper) -> s
         return None
 
 
-NEEDS_PAGE_FETCH = {"readability", "hellogithub"}
-
-
 def requires_page_fetch(name: str) -> bool:
-    """feed_content 不需重抓網頁；其他都需要。未知名稱保守起見當作需要。"""
-    return name != "feed_content"
+    """feed_content 與 apify 不需要 rss.py 預先抓網頁;其他都需要。"""
+    return name not in {"feed_content", "apify"}

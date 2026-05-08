@@ -34,7 +34,11 @@ sys.path.insert(0, os.path.dirname(BASE_DIR))
 sys.path.insert(0, BASE_DIR)
 from common.notify import send_notification
 from common.gemini import GeminiClient
-from extractors import dispatch as dispatch_extractor, requires_page_fetch
+from extractors import (
+    detect_social_platform,
+    dispatch as dispatch_extractor,
+    requires_page_fetch,
+)
 
 OBSIDIAN_DIR = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/RSS 訂閱")
 RSS_LIST_FILE = os.path.join(OBSIDIAN_DIR, "rss_list.json")
@@ -190,6 +194,11 @@ def main():
                 print(f"New post [{content_type}]: {title}")
 
                 extractor_name = feed_config.get("extractor", "readability")
+                # FB / Threads / IG 貼文連結改走 Apify(覆蓋 feed 預設 extractor)
+                social_platform = detect_social_platform(link)
+                if social_platform:
+                    print(f"  Detected {social_platform} link, switching to apify extractor")
+                    extractor_name = "apify"
                 page_html = ""
                 if requires_page_fetch(extractor_name):
                     try:
