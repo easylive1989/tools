@@ -178,7 +178,7 @@ def _clean(text: str, limit: int | None = None) -> str:
 APIFY_TOKEN_ENV = "APIFY_TOKEN"
 APIFY_DEFAULT_ACTORS = {
     "facebook": "apify~facebook-posts-scraper",
-    "threads": "apify~threads-scraper",
+    "threads": "claude_code_reviewer~threads-scraper",
     "instagram": "apify~instagram-post-scraper",
 }
 SOCIAL_HOSTS = {
@@ -203,7 +203,8 @@ def _apify_input(platform: str, url: str) -> dict:
     if platform == "facebook":
         return {"startUrls": [{"url": url}], "resultsLimit": 1}
     if platform == "threads":
-        return {"urls": [url], "resultsLimit": 1}
+        # claude_code_reviewer/threads-scraper: explicit single-post mode.
+        return {"mode": "post", "postUrls": [url]}
     if platform == "instagram":
         return {"directUrls": [url], "resultsLimit": 1}
     return {"startUrls": [{"url": url}]}
@@ -218,6 +219,13 @@ def _apify_pick(item: dict, *keys: str) -> str:
 
 
 def _apify_author(item: dict) -> str:
+    a = item.get("author")
+    if isinstance(a, str) and a:
+        return a
+    if isinstance(a, dict):
+        for k in ("username", "fullName", "name", "handle"):
+            if a.get(k):
+                return str(a[k])
     for sub in ("user", "owner"):
         u = item.get(sub)
         if isinstance(u, dict):
@@ -228,11 +236,25 @@ def _apify_author(item: dict) -> str:
 
 
 def _apify_text(item: dict) -> str:
-    return _apify_pick(item, "text", "caption", "content", "postText", "description")
+    txt = _apify_pick(item, "content", "text", "caption", "postText", "description")
+    if txt:
+        return txt
+    parts = item.get("threadParts")
+    if isinstance(parts, list):
+        chunks: list[str] = []
+        for p in parts:
+            if isinstance(p, dict):
+                c = p.get("content") or p.get("text")
+                if c:
+                    chunks.append(str(c))
+            elif isinstance(p, str) and p:
+                chunks.append(p)
+        return "\n\n".join(chunks)
+    return ""
 
 
 def _apify_image(item: dict) -> str:
-    for key in ("media", "images", "imageUrls", "videoUrls"):
+    for key in ("mediaUrls", "media", "images", "imageUrls", "videoUrls"):
         v = item.get(key)
         if isinstance(v, list):
             for m in v:
@@ -281,7 +303,7 @@ def fetch_apify_metadata(url: str, platform: str) -> dict | None:
     text = _apify_text(item).strip()
     author = _apify_author(item).strip()
     image = _apify_image(item)
-    canonical = _apify_pick(item, "url", "postUrl", "permalink") or url
+    canonical = _apify_pick(item, "postUrl", "url", "permalink") or url
     label = PLATFORM_LABEL.get(platform, platform)
 
     if text:
