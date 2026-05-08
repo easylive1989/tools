@@ -304,16 +304,40 @@ def _format_apify_item(item: dict, link: str) -> str:
 
 
 def extract_apify(html: str, entry: dict, feed_config: dict, scraper) -> str | None:
-    """用 Apify 抓 FB / Threads / IG 貼文內容；失敗回傳 stub HTML(含原始 link)。"""
+    """dispatch registry 用的 thin wrapper,只回 HTML 字串。"""
     link = entry.get("link", "")
     platform = detect_social_platform(link)
+    return fetch_apify_post(link, platform)["html"]
+
+
+def fetch_apify_post(link: str, platform: str | None) -> dict:
+    """用 Apify 抓 FB / Threads / IG 貼文,回傳含中繼資料的 dict。
+
+    Returns:
+        {
+            "ok":    bool,           # Apify 是否成功取得貼文
+            "html":  str,            # markdownify 用的 HTML (成功內容或 stub)
+            "author":str,            # 作者名(失敗時為空字串)
+            "text":  str,            # 原文(失敗時為空字串)
+        }
+    """
     if not platform:
-        return _apify_stub(link or "(空連結)", "無法辨識社群平台")
+        return {
+            "ok": False,
+            "html": _apify_stub(link or "(空連結)", "無法辨識社群平台"),
+            "author": "",
+            "text": "",
+        }
 
     token = os.environ.get(APIFY_TOKEN_ENV)
     if not token:
         print(f"  Apify: 未設定 {APIFY_TOKEN_ENV} 環境變數")
-        return _apify_stub(link, f"未設定 {APIFY_TOKEN_ENV} 環境變數")
+        return {
+            "ok": False,
+            "html": _apify_stub(link, f"未設定 {APIFY_TOKEN_ENV} 環境變數"),
+            "author": "",
+            "text": "",
+        }
 
     actor = _APIFY_ACTORS[platform]
     api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
@@ -330,17 +354,40 @@ def extract_apify(html: str, entry: dict, feed_config: dict, scraper) -> str | N
         res.raise_for_status()
         data = res.json()
     except requests.exceptions.Timeout:
-        return _apify_stub(link, "Apify 抓取逾時 (180s)")
+        return {"ok": False, "html": _apify_stub(link, "Apify 抓取逾時 (180s)"), "author": "", "text": ""}
     except requests.exceptions.HTTPError as e:
         status = e.response.status_code if e.response is not None else "?"
-        return _apify_stub(link, f"Apify HTTP 錯誤 ({status})")
+        return {"ok": False, "html": _apify_stub(link, f"Apify HTTP 錯誤 ({status})"), "author": "", "text": ""}
     except Exception as e:
-        return _apify_stub(link, f"Apify 抓取失敗 ({type(e).__name__})")
+        return {"ok": False, "html": _apify_stub(link, f"Apify 抓取失敗 ({type(e).__name__})"), "author": "", "text": ""}
 
     if not isinstance(data, list) or not data:
-        return _apify_stub(link, "Apify 回傳空結果")
+        return {"ok": False, "html": _apify_stub(link, "Apify 回傳空結果"), "author": "", "text": ""}
 
-    return _format_apify_item(data[0], link)
+    item = data[0]
+    return {
+        "ok": True,
+        "html": _format_apify_item(item, link),
+        "author": _pick_author(item),
+        "text": _pick_text(item),
+    }
+
+
+def first_paragraph(text: str, max_chars: int = 60) -> str:
+    """擷取貼文第一段(以雙換行為主、單換行 fallback),並截斷到 max_chars。"""
+    if not text:
+        return ""
+    text = text.strip()
+    first = text
+    for sep in ("\n\n", "\n"):
+        if sep in text:
+            head = text.split(sep, 1)[0].strip()
+            if head:
+                first = head
+                break
+    if len(first) > max_chars:
+        first = first[:max_chars].rstrip() + "…"
+    return first
 
 
 EXTRACTOR_REGISTRY = {

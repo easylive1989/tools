@@ -38,6 +38,8 @@ from extractors import (
     detect_social_platform,
     dispatch as dispatch_extractor,
     extract_social_post_id,
+    fetch_apify_post,
+    first_paragraph,
     requires_page_fetch,
 )
 
@@ -197,34 +199,45 @@ def main():
                 extractor_name = feed_config.get("extractor", "readability")
                 # FB / Threads / IG 貼文連結改走 Apify(覆蓋 feed 預設 extractor)
                 social_platform = detect_social_platform(link)
+                apify_author = ""
                 if social_platform:
-                    print(f"  Detected {social_platform} link, switching to apify extractor")
-                    extractor_name = "apify"
-                    # 社群 RSS 的 title 常常重複(e.g. Threads 全叫「Thread」),
-                    # 接上貼文 ID 才能避免檔名碰撞被覆蓋
-                    post_id = extract_social_post_id(link, social_platform)
-                    if post_id and post_id not in title:
-                        title = f"{title} - {post_id}"
-                page_html = ""
-                if requires_page_fetch(extractor_name):
-                    try:
-                        print(f"Fetching original page for full content: {link}")
-                        article_res = scraper.get(link, timeout=15)
-                        article_res.raise_for_status()
+                    print(f"  Detected {social_platform} link, fetching via Apify")
+                    apify_result = fetch_apify_post(link, social_platform)
+                    html_content = apify_result["html"]
+                    if apify_result["ok"]:
+                        # 成功:用作者 + 第一段重組標題與檔名
+                        apify_author = apify_result["author"]
+                        snippet = first_paragraph(apify_result["text"])
+                        if snippet:
+                            title = snippet
+                    else:
+                        # 失敗 fallback:Threads 之類的 title 常重複(全叫「Thread」),
+                        # 接上貼文 ID 才能避免檔名碰撞被覆蓋
+                        post_id = extract_social_post_id(link, social_platform)
+                        if post_id and post_id not in title:
+                            title = f"{title} - {post_id}"
+                else:
+                    page_html = ""
+                    if requires_page_fetch(extractor_name):
+                        try:
+                            print(f"Fetching original page for full content: {link}")
+                            article_res = scraper.get(link, timeout=15)
+                            article_res.raise_for_status()
 
-                        # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
-                        if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
-                            article_res.encoding = article_res.apparent_encoding or 'utf-8'
-                        page_html = article_res.text
-                    except Exception as e:
-                        print(f"Fetch from web failed ({e}), skipping.")
-                        continue
+                            # 處理 requests 預設將沒有 charset 的網頁解析為 ISO-8859-1 導致的亂碼問題
+                            if article_res.encoding and article_res.encoding.lower() == 'iso-8859-1':
+                                article_res.encoding = article_res.apparent_encoding or 'utf-8'
+                            page_html = article_res.text
+                        except Exception as e:
+                            print(f"Fetch from web failed ({e}), skipping.")
+                            continue
 
-                html_content = dispatch_extractor(
-                    extractor_name, page_html, entry, feed_config, scraper
-                )
+                    html_content = dispatch_extractor(
+                        extractor_name, page_html, entry, feed_config, scraper
+                    )
+
                 if not html_content or len(html_content) < 50:
-                    print(f"  Extractor '{extractor_name}' returned empty/short content, skipping.")
+                    print(f"  Extractor returned empty/short content, skipping.")
                     continue
                 
                 # 轉換為 Markdown
@@ -257,8 +270,12 @@ def main():
                 # 準備存檔至 Obsidian
                 safe_title = sanitize_filename(title)
                 safe_site = sanitize_filename(site_name)
-                # 使用 [主站名] [文章/影片] 標題 當作檔名
-                filename = f"[{content_type}] [{safe_site}] {safe_title}.md"
+                # 社群貼文成功抓取時多塞 [作者] 區段;一般文章維持 [類型] [站名] 標題
+                if apify_author:
+                    safe_author = sanitize_filename(apify_author)
+                    filename = f"[{content_type}] [{safe_site}] [{safe_author}] {safe_title}.md"
+                else:
+                    filename = f"[{content_type}] [{safe_site}] {safe_title}.md"
                 filepath = os.path.join(OBSIDIAN_DIR, filename)
                 labeled_title = f"[{content_type}] {title}"
 
