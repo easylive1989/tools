@@ -401,12 +401,28 @@ def parse_meta_tags(html: str) -> dict[str, str]:
     return result
 
 
-def fetch_threads_via_og(link: str, scraper) -> dict:
-    """直接抓 Threads 頁面,從 og:title / og:description / og:image 組內容。
+_OG_TITLE_SUFFIX_RE = {
+    "threads": re.compile(r"\s+on Threads\s*$", re.IGNORECASE),
+    "facebook": re.compile(r"\s+\|\s+Facebook\s*$", re.IGNORECASE),
+    "instagram": re.compile(r"\s+(?:•|on)\s+Instagram[\w\s]*$", re.IGNORECASE),
+}
 
-    Threads 的 SPA 不靠 Apify 抓不到完整貼文,但 og: meta 在 SSR 階段已存在,
-    可以拿到作者與 ~200 字摘要。
+
+def _strip_og_title_suffix(title: str, platform: str | None) -> str:
+    pattern = _OG_TITLE_SUFFIX_RE.get(platform or "")
+    if pattern:
+        title = pattern.sub("", title)
+    return title.strip()
+
+
+def fetch_via_og(link: str, scraper, platform: str | None = None) -> dict:
+    """從頁面抓 og:title / og:description / og:image 組社群貼文資料。
+
+    用於:
+    - Threads:Apify Store 沒有可直接用的官方 actor,主路徑就走這
+    - FB / IG:Apify 用量超過、actor 異常時的 fallback
     """
+    label = (platform or "頁面").capitalize() if platform else "頁面"
     try:
         res = scraper.get(link, timeout=15)
         res.raise_for_status()
@@ -416,7 +432,7 @@ def fetch_threads_via_og(link: str, scraper) -> dict:
     except Exception as e:
         return {
             "ok": False,
-            "html": _apify_stub(link, f"Threads 頁面抓取失敗 ({type(e).__name__}: {e})"),
+            "html": _apify_stub(link, f"{label} 頁面抓取失敗 ({type(e).__name__}: {e})"),
             "author": "",
             "text": "",
         }
@@ -429,13 +445,12 @@ def fetch_threads_via_og(link: str, scraper) -> dict:
     if not og_title and not og_desc:
         return {
             "ok": False,
-            "html": _apify_stub(link, "Threads 頁面缺少 og:title / og:description"),
+            "html": _apify_stub(link, f"{label} 頁面缺少 og:title / og:description"),
             "author": "",
             "text": "",
         }
 
-    # og:title 常見格式:"Display Name (@handle) on Threads",去掉尾巴比較乾淨
-    author = re.sub(r"\s+on Threads\s*$", "", og_title).strip()
+    author = _strip_og_title_suffix(og_title, platform)
 
     parts = [
         f'<p><strong>來源:</strong> <a href="{html_lib.escape(link)}">{html_lib.escape(link)}</a></p>'
@@ -457,10 +472,26 @@ def fetch_threads_via_og(link: str, scraper) -> dict:
 
 
 def fetch_social_post(link: str, platform: str | None, scraper) -> dict:
-    """社群貼文統一入口:Threads 走 og: meta、其餘走 Apify。"""
+    """社群貼文統一入口。
+
+    - Threads:直接走 og: meta
+    - FB / IG:先試 Apify,任何失敗(用量超過、actor 異常、timeout 等)
+              都 fallback 到 og: meta;兩條路都掛掉時回 Apify 的 stub
+              (裡頭通常含具體錯誤碼,診斷比較方便)
+    """
     if platform == "threads":
-        return fetch_threads_via_og(link, scraper)
-    return fetch_apify_post(link, platform)
+        return fetch_via_og(link, scraper, platform)
+
+    apify_result = fetch_apify_post(link, platform)
+    if apify_result["ok"]:
+        return apify_result
+
+    print(f"  Apify 失敗,改用 og: meta fallback")
+    og_result = fetch_via_og(link, scraper, platform)
+    if og_result["ok"]:
+        return og_result
+
+    return apify_result
 
 
 def first_paragraph(text: str, max_chars: int = 60) -> str:
