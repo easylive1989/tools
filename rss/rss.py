@@ -242,6 +242,17 @@ def main():
                             extractor_name, page_html, entry, feed_config, scraper
                         )
 
+                    # Primary extractor 沒拿到夠長的內容時,fallback 到 RSS feed 自己提供的
+                    # content/summary,至少把 feed 給的摘要寫進去而不是空 stub。
+                    if (not html_content or len(html_content) < 50) and extractor_name != "feed_content":
+                        fallback_html, _ = dispatch_extractor(
+                            "feed_content", page_html, entry, feed_config, scraper
+                        )
+                        if fallback_html and len(fallback_html) >= 50:
+                            print(f"  extractor '{extractor_name}' 內容不足,fallback 使用 feed content")
+                            html_content = fallback_html
+                            extract_error = ""
+
                     if not html_content or len(html_content) < 50:
                         reason = extract_error or f"extractor '{extractor_name}' 回傳過短內容"
                         print(f"  {reason}, 仍寫入含錯誤資訊的檔案")
