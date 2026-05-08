@@ -5,6 +5,11 @@ on:
     # 台灣時間 08:00 (UTC 00:00) 與 20:00 (UTC 12:00)
     - cron: '0 0,12 * * *'
   workflow_dispatch:
+    inputs:
+      rebuild:
+        description: 'Rebuild feed from scratch (delete state.json first)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -26,6 +31,10 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests
+
+      - name: Reset state for full rebuild
+        if: github.event_name == 'workflow_dispatch' && inputs.rebuild
+        run: rm -f read_later/state.json
 
       - name: Run read-later sync
         env:
