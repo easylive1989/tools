@@ -37,6 +37,7 @@ from common.gemini import GeminiClient
 from extractors import (
     detect_social_platform,
     dispatch as dispatch_extractor,
+    extract_social_post_id,
     requires_page_fetch,
 )
 
@@ -199,6 +200,11 @@ def main():
                 if social_platform:
                     print(f"  Detected {social_platform} link, switching to apify extractor")
                     extractor_name = "apify"
+                    # 社群 RSS 的 title 常常重複(e.g. Threads 全叫「Thread」),
+                    # 接上貼文 ID 才能避免檔名碰撞被覆蓋
+                    post_id = extract_social_post_id(link, social_platform)
+                    if post_id and post_id not in title:
+                        title = f"{title} - {post_id}"
                 page_html = ""
                 if requires_page_fetch(extractor_name):
                     try:

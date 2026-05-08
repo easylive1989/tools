@@ -9,11 +9,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import html as html_lib
 import json
 import os
 import re
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 import requests
 from readability import Document
@@ -167,6 +168,48 @@ def detect_social_platform(url: str) -> str | None:
     if "instagram.com" in host:
         return "instagram"
     return None
+
+
+def extract_social_post_id(url: str, platform: str) -> str:
+    """從社群貼文 URL 抽出可作為唯一識別子的 post id / shortcode。
+
+    抽不到時 fallback 到 URL 的 md5 前 8 碼,確保不同貼文一定有不同的 id,
+    避免 RSS title 同名(e.g. Threads 全部叫「Thread」)導致檔名互相覆蓋。
+    """
+    if not url:
+        return ""
+    parsed = urlparse(url)
+    parts = [p for p in parsed.path.split("/") if p]
+
+    def _after(keyword: str) -> str | None:
+        if keyword in parts:
+            i = parts.index(keyword)
+            if i + 1 < len(parts):
+                return parts[i + 1]
+        return None
+
+    if platform == "threads":
+        # /@user/post/{shortcode}
+        if (pid := _after("post")):
+            return pid
+    elif platform == "instagram":
+        # /p/{shortcode}/、/reel/{shortcode}/、/tv/{shortcode}/
+        for kw in ("p", "reel", "tv"):
+            if (pid := _after(kw)):
+                return pid
+    elif platform == "facebook":
+        # /posts/{id}、/share/p/{id}、/videos/{id}、?story_fbid=...
+        for kw in ("posts", "videos", "p"):
+            if (pid := _after(kw)):
+                return pid
+        qs = parse_qs(parsed.query)
+        if "story_fbid" in qs:
+            return qs["story_fbid"][0]
+
+    # fallback:最後一段 path,再 fallback 到 URL hash
+    if parts:
+        return parts[-1]
+    return hashlib.md5(url.encode("utf-8")).hexdigest()[:8]
 
 
 def _apify_stub(link: str, reason: str) -> str:
