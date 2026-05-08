@@ -12,6 +12,11 @@ Optional env vars:
     READ_LATER_FEED_LINK   public URL where feed.xml will be served
                            (default: https://tools.paul-learning.dev/read_later/feed.xml)
     READ_LATER_MAX_ITEMS   max items kept in the RSS feed (default: 200)
+    APIFY_TOKEN            if set, FB / Threads / IG URLs are enriched via Apify
+                           instead of plain HTML scraping (which those sites block).
+    APIFY_FACEBOOK_ACTOR   override actor IDs (default: apify~facebook-posts-scraper,
+    APIFY_THREADS_ACTOR    apify~threads-scraper, apify~instagram-post-scraper).
+    APIFY_INSTAGRAM_ACTOR
 """
 
 from __future__ import annotations
@@ -168,6 +173,148 @@ def _clean(text: str, limit: int | None = None) -> str:
     if limit and len(cleaned) > limit:
         cleaned = cleaned[:limit]
     return cleaned
+
+
+APIFY_TOKEN_ENV = "APIFY_TOKEN"
+APIFY_DEFAULT_ACTORS = {
+    "facebook": "apify~facebook-posts-scraper",
+    "threads": "apify~threads-scraper",
+    "instagram": "apify~instagram-post-scraper",
+}
+SOCIAL_HOSTS = {
+    "facebook": ("facebook.com", "fb.com", "fb.watch", "m.facebook.com"),
+    "threads": ("threads.net", "threads.com"),
+    "instagram": ("instagram.com",),
+}
+PLATFORM_LABEL = {"facebook": "Facebook", "threads": "Threads", "instagram": "Instagram"}
+
+
+def detect_social_platform(url: str) -> str | None:
+    if not url:
+        return None
+    host = urlparse(url).netloc.lower()
+    for platform, hosts in SOCIAL_HOSTS.items():
+        if any(h in host for h in hosts):
+            return platform
+    return None
+
+
+def _apify_input(platform: str, url: str) -> dict:
+    if platform == "facebook":
+        return {"startUrls": [{"url": url}], "resultsLimit": 1}
+    if platform == "threads":
+        return {"urls": [url], "resultsLimit": 1}
+    if platform == "instagram":
+        return {"directUrls": [url], "resultsLimit": 1}
+    return {"startUrls": [{"url": url}]}
+
+
+def _apify_pick(item: dict, *keys: str) -> str:
+    for k in keys:
+        v = item.get(k)
+        if v:
+            return str(v)
+    return ""
+
+
+def _apify_author(item: dict) -> str:
+    for sub in ("user", "owner"):
+        u = item.get(sub)
+        if isinstance(u, dict):
+            for k in ("username", "fullName", "name"):
+                if u.get(k):
+                    return str(u[k])
+    return _apify_pick(item, "authorName", "ownerUsername", "pageName", "username")
+
+
+def _apify_text(item: dict) -> str:
+    return _apify_pick(item, "text", "caption", "content", "postText", "description")
+
+
+def _apify_image(item: dict) -> str:
+    for key in ("media", "images", "imageUrls", "videoUrls"):
+        v = item.get(key)
+        if isinstance(v, list):
+            for m in v:
+                if isinstance(m, dict):
+                    u = m.get("url") or m.get("src") or m.get("displayUrl") or m.get("thumbnail")
+                    if u:
+                        return str(u)
+                elif isinstance(m, str) and m:
+                    return m
+    return _apify_pick(item, "displayUrl", "thumbnailUrl", "videoThumbnailUrl")
+
+
+def fetch_apify_metadata(url: str, platform: str) -> dict | None:
+    """Hit Apify's run-sync endpoint for a single FB/Threads/IG post.
+
+    Returns metadata dict matching fetch_og_metadata's shape, or None on any failure
+    so the caller can fall back to plain OG scraping.
+    """
+    token = os.environ.get(APIFY_TOKEN_ENV)
+    if not token:
+        return None
+    override = os.environ.get(f"APIFY_{platform.upper()}_ACTOR", "").strip()
+    actor = (override or APIFY_DEFAULT_ACTORS[platform]).replace("/", "~")
+    api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
+    log(f"  Apify {platform}: {actor.replace('~', '/')}")
+    try:
+        resp = requests.post(
+            api_url,
+            params={"token": token},
+            json=_apify_input(platform, url),
+            timeout=180,
+        )
+        if resp.status_code >= 400:
+            log(f"  Apify {platform} HTTP {resp.status_code}")
+            return None
+        data = resp.json()
+    except requests.RequestException as e:
+        log(f"  Apify {platform} failed: {type(e).__name__}")
+        return None
+
+    if not isinstance(data, list) or not data:
+        log(f"  Apify {platform} returned no items")
+        return None
+
+    item = data[0]
+    text = _apify_text(item).strip()
+    author = _apify_author(item).strip()
+    image = _apify_image(item)
+    canonical = _apify_pick(item, "url", "postUrl", "permalink") or url
+    label = PLATFORM_LABEL.get(platform, platform)
+
+    if text:
+        first_line = text.split("\n", 1)[0].strip()
+        title = first_line[:200] if first_line else f"{author or label} on {label}"
+    elif author:
+        title = f"{author} on {label}"
+    else:
+        title = url
+
+    metadata: dict = {"title": title[:300]}
+    if text:
+        metadata["og_description"] = text[:1000]
+    if image:
+        metadata["og_image"] = image
+    if author:
+        metadata["og_site_name"] = f"{author} · {label}"
+    else:
+        metadata["og_site_name"] = label
+    metadata["og_url"] = canonical
+    metadata["og_type"] = "article"
+    return metadata
+
+
+def fetch_metadata(url: str) -> dict | None:
+    """Choose the right backend (Apify for socials, generic OG scrape otherwise)."""
+    platform = detect_social_platform(url)
+    if platform:
+        result = fetch_apify_metadata(url, platform)
+        if result:
+            return result
+        log(f"  Apify {platform} unavailable, falling back to og: scrape")
+    return fetch_og_metadata(url)
 
 
 def fetch_og_metadata(url: str) -> dict | None:
@@ -358,7 +505,7 @@ def main() -> int:
     for item in items:
         if not item.get("url"):
             continue
-        metadata = fetch_og_metadata(item["url"])
+        metadata = fetch_metadata(item["url"])
         if metadata is None:
             continue
         for key in og_keys:
