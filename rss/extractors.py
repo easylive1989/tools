@@ -148,12 +148,19 @@ def extract_hellogithub(html: str, entry: dict, feed_config: dict, scraper) -> s
 
 APIFY_TOKEN_ENV = "APIFY_TOKEN"
 
-# 社群平台 → Apify actor ID(用 ~ 取代 / 以符合 URL 路徑)
-_APIFY_ACTORS = {
+# 社群平台 → Apify actor ID 預設值。可用環境變數覆蓋(支援 owner/name 或 owner~name 兩種寫法):
+#   APIFY_FACEBOOK_ACTOR / APIFY_THREADS_ACTOR / APIFY_INSTAGRAM_ACTOR
+_DEFAULT_APIFY_ACTORS = {
     "facebook": "apify~facebook-posts-scraper",
     "threads": "apify~threads-scraper",
     "instagram": "apify~instagram-post-scraper",
 }
+
+
+def _get_actor(platform: str) -> str:
+    override = os.environ.get(f"APIFY_{platform.upper()}_ACTOR", "").strip()
+    actor = override or _DEFAULT_APIFY_ACTORS[platform]
+    return actor.replace("/", "~")
 
 
 def detect_social_platform(url: str) -> str | None:
@@ -339,7 +346,7 @@ def fetch_apify_post(link: str, platform: str | None) -> dict:
             "text": "",
         }
 
-    actor = _APIFY_ACTORS[platform]
+    actor = _get_actor(platform)
     api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
     payload = _build_apify_input(platform, link)
 
@@ -386,7 +393,7 @@ def first_paragraph(text: str, max_chars: int = 60) -> str:
                 first = head
                 break
     if len(first) > max_chars:
-        first = first[:max_chars].rstrip() + "…"
+        first = first[:max_chars].rstrip()
     return first
 
 
@@ -398,16 +405,26 @@ EXTRACTOR_REGISTRY = {
 }
 
 
-def dispatch(name: str, html: str, entry: dict, feed_config: dict, scraper) -> str | None:
+def dispatch(name: str, html: str, entry: dict, feed_config: dict, scraper) -> tuple[str | None, str]:
+    """執行 extractor。回傳 (html, error_msg);成功時 error_msg 為空字串。"""
     fn = EXTRACTOR_REGISTRY.get(name)
     if fn is None:
         print(f"  Unknown extractor '{name}', falling back to readability")
         fn = EXTRACTOR_REGISTRY["readability"]
     try:
-        return fn(html, entry, feed_config, scraper)
+        result = fn(html, entry, feed_config, scraper)
     except Exception as e:
-        print(f"  Extractor '{name}' error: {e}")
-        return None
+        msg = f"extractor '{name}' raised {type(e).__name__}: {e}"
+        print(f"  {msg}")
+        return None, msg
+    if not result:
+        return None, f"extractor '{name}' 回傳空內容"
+    return result, ""
+
+
+def build_error_stub(link: str, reason: str) -> str:
+    """產生抽取失敗時要塞進 markdown 的 stub HTML(讓使用者能在檔案中看到原因)。"""
+    return _apify_stub(link, reason)
 
 
 def requires_page_fetch(name: str) -> bool:

@@ -35,6 +35,7 @@ sys.path.insert(0, BASE_DIR)
 from common.notify import send_notification
 from common.gemini import GeminiClient
 from extractors import (
+    build_error_stub,
     detect_social_platform,
     dispatch as dispatch_extractor,
     extract_social_post_id,
@@ -218,6 +219,7 @@ def main():
                             title = f"{title} - {post_id}"
                 else:
                     page_html = ""
+                    fetch_error = ""
                     if requires_page_fetch(extractor_name):
                         try:
                             print(f"Fetching original page for full content: {link}")
@@ -229,16 +231,21 @@ def main():
                                 article_res.encoding = article_res.apparent_encoding or 'utf-8'
                             page_html = article_res.text
                         except Exception as e:
-                            print(f"Fetch from web failed ({e}), skipping.")
-                            continue
+                            fetch_error = f"抓取原始網頁失敗 ({type(e).__name__}: {e})"
+                            print(f"  {fetch_error}")
 
-                    html_content = dispatch_extractor(
-                        extractor_name, page_html, entry, feed_config, scraper
-                    )
+                    if fetch_error:
+                        html_content = build_error_stub(link, fetch_error)
+                        extract_error = ""
+                    else:
+                        html_content, extract_error = dispatch_extractor(
+                            extractor_name, page_html, entry, feed_config, scraper
+                        )
 
-                if not html_content or len(html_content) < 50:
-                    print(f"  Extractor returned empty/short content, skipping.")
-                    continue
+                    if not html_content or len(html_content) < 50:
+                        reason = extract_error or f"extractor '{extractor_name}' 回傳過短內容"
+                        print(f"  {reason}, 仍寫入含錯誤資訊的檔案")
+                        html_content = build_error_stub(link, reason)
                 
                 # 轉換為 Markdown
                 md_text = md(html_content, heading_style="ATX", escape_asterisks=False)
