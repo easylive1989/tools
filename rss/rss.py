@@ -39,7 +39,7 @@ from extractors import (
     detect_social_platform,
     dispatch as dispatch_extractor,
     extract_social_post_id,
-    fetch_apify_post,
+    fetch_social_post,
     first_paragraph,
     requires_page_fetch,
 )
@@ -202,13 +202,13 @@ def main():
                 social_platform = detect_social_platform(link)
                 apify_author = ""
                 if social_platform:
-                    print(f"  Detected {social_platform} link, fetching via Apify")
-                    apify_result = fetch_apify_post(link, social_platform)
-                    html_content = apify_result["html"]
-                    if apify_result["ok"]:
+                    print(f"  Detected {social_platform} link, fetching social post")
+                    social_result = fetch_social_post(link, social_platform, scraper)
+                    html_content = social_result["html"]
+                    if social_result["ok"]:
                         # 成功:用作者 + 第一段重組標題與檔名
-                        apify_author = apify_result["author"]
-                        snippet = first_paragraph(apify_result["text"])
+                        apify_author = social_result["author"]
+                        snippet = first_paragraph(social_result["text"])
                         if snippet:
                             title = snippet
                     else:

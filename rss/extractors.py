@@ -380,6 +380,89 @@ def fetch_apify_post(link: str, platform: str | None) -> dict:
     }
 
 
+_META_TAG_RE = re.compile(r"<meta\b[^>]*>", re.IGNORECASE)
+_ATTR_RE = re.compile(
+    r'(\w[\w:-]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\')'
+)
+
+
+def parse_meta_tags(html: str) -> dict[str, str]:
+    """從 HTML 中抽出所有 <meta> 的 name/property → content,key 統一小寫。"""
+    result: dict[str, str] = {}
+    for tag_match in _META_TAG_RE.finditer(html):
+        attrs: dict[str, str] = {}
+        for m in _ATTR_RE.finditer(tag_match.group(0)):
+            attrs[m.group(1).lower()] = m.group(2) if m.group(2) is not None else m.group(3)
+        key = attrs.get("property") or attrs.get("name")
+        content = attrs.get("content")
+        if key and content is not None and key.lower() not in result:
+            # 解 HTML entity,讓 &#10; 之類換行符與引號還原成原文
+            result[key.lower()] = html_lib.unescape(content)
+    return result
+
+
+def fetch_threads_via_og(link: str, scraper) -> dict:
+    """直接抓 Threads 頁面,從 og:title / og:description / og:image 組內容。
+
+    Threads 的 SPA 不靠 Apify 抓不到完整貼文,但 og: meta 在 SSR 階段已存在,
+    可以拿到作者與 ~200 字摘要。
+    """
+    try:
+        res = scraper.get(link, timeout=15)
+        res.raise_for_status()
+        if res.encoding and res.encoding.lower() == "iso-8859-1":
+            res.encoding = res.apparent_encoding or "utf-8"
+        page_html = res.text
+    except Exception as e:
+        return {
+            "ok": False,
+            "html": _apify_stub(link, f"Threads 頁面抓取失敗 ({type(e).__name__}: {e})"),
+            "author": "",
+            "text": "",
+        }
+
+    meta = parse_meta_tags(page_html)
+    og_title = meta.get("og:title", "").strip()
+    og_desc = meta.get("og:description", "").strip()
+    og_image = meta.get("og:image", "").strip()
+
+    if not og_title and not og_desc:
+        return {
+            "ok": False,
+            "html": _apify_stub(link, "Threads 頁面缺少 og:title / og:description"),
+            "author": "",
+            "text": "",
+        }
+
+    # og:title 常見格式:"Display Name (@handle) on Threads",去掉尾巴比較乾淨
+    author = re.sub(r"\s+on Threads\s*$", "", og_title).strip()
+
+    parts = [
+        f'<p><strong>來源:</strong> <a href="{html_lib.escape(link)}">{html_lib.escape(link)}</a></p>'
+    ]
+    if author:
+        parts.append(f"<p><strong>作者:</strong> {html_lib.escape(author)}</p>")
+    if og_desc:
+        text_html = html_lib.escape(og_desc).replace("\n", "<br/>\n")
+        parts.append(f"<p>{text_html}</p>")
+    if og_image:
+        parts.append(f'<p><img src="{html_lib.escape(og_image)}" alt="og:image" /></p>')
+
+    return {
+        "ok": True,
+        "html": "\n".join(parts),
+        "author": author,
+        "text": og_desc,
+    }
+
+
+def fetch_social_post(link: str, platform: str | None, scraper) -> dict:
+    """社群貼文統一入口:Threads 走 og: meta、其餘走 Apify。"""
+    if platform == "threads":
+        return fetch_threads_via_og(link, scraper)
+    return fetch_apify_post(link, platform)
+
+
 def first_paragraph(text: str, max_chars: int = 60) -> str:
     """擷取貼文第一段(以雙換行為主、單換行 fallback),並截斷到 max_chars。"""
     if not text:
