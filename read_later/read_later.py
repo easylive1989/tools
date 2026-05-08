@@ -429,7 +429,6 @@ def build_feed(items: list[dict], feed_link: str) -> str:
         guid = html.escape(original_url)
         link = html.escape(link_url)
         author = html.escape(item.get("author") or "unknown")
-        msg_link = item.get("message_link") or ""
         excerpt = item.get("message_excerpt") or ""
         og_image = item.get("og_image") or ""
         og_description = item.get("og_description") or ""
@@ -447,10 +446,6 @@ def build_feed(items: list[dict], feed_link: str) -> str:
         body_parts.append(f"<p>Shared by {author}</p>")
         if excerpt:
             body_parts.append(f"<p>{html.escape(excerpt)}</p>")
-        if msg_link:
-            body_parts.append(
-                f'<p>Discord: <a href="{html.escape(msg_link)}">{html.escape(msg_link)}</a></p>'
-            )
         description_html = "".join(body_parts).replace("]]>", "]]&gt;")
         parts.append("<item>")
         parts.append(f"<title>{title}</title>")
