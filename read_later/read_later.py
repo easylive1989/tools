@@ -143,17 +143,39 @@ def extract_urls(content: str) -> list[str]:
 
 
 TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
-OG_TITLE_RE = re.compile(
-    r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)["\']',
-    re.IGNORECASE,
-)
-OG_TITLE_RE_REV = re.compile(
-    r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:title["\']',
-    re.IGNORECASE,
-)
+
+OG_PROPERTIES = ("og:title", "og:description", "og:image", "og:site_name", "og:type", "og:url")
 
 
-def fetch_title(url: str) -> str:
+def _og_pattern(prop: str) -> tuple[re.Pattern, re.Pattern]:
+    forward = re.compile(
+        rf'<meta[^>]+property=["\']{re.escape(prop)}["\'][^>]+content=["\']([^"\']*)["\']',
+        re.IGNORECASE,
+    )
+    reverse = re.compile(
+        rf'<meta[^>]+content=["\']([^"\']*)["\'][^>]+property=["\']{re.escape(prop)}["\']',
+        re.IGNORECASE,
+    )
+    return forward, reverse
+
+
+_OG_PATTERNS = {prop: _og_pattern(prop) for prop in OG_PROPERTIES}
+
+
+def _clean(text: str, limit: int | None = None) -> str:
+    cleaned = html.unescape(text).strip()
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    if limit and len(cleaned) > limit:
+        cleaned = cleaned[:limit]
+    return cleaned
+
+
+def fetch_og_metadata(url: str) -> dict | None:
+    """Return a dict with title/description/image/site_name/type/og_url for the URL.
+
+    Returns None if the page can't be fetched, so callers can keep prior metadata.
+    Missing fields are omitted.
+    """
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -164,19 +186,37 @@ def fetch_title(url: str) -> str:
     try:
         resp = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
         if resp.status_code >= 400:
-            return url
+            return None
         text = resp.text
     except requests.RequestException:
-        return url
+        return None
 
-    for pattern in (OG_TITLE_RE, OG_TITLE_RE_REV, TITLE_RE):
-        m = pattern.search(text)
+    found: dict[str, str] = {}
+    for prop, (forward, reverse) in _OG_PATTERNS.items():
+        m = forward.search(text) or reverse.search(text)
         if m:
-            title = html.unescape(m.group(1)).strip()
-            title = re.sub(r"\s+", " ", title)
-            if title:
-                return title[:300]
-    return url
+            value = _clean(m.group(1), limit=2000)
+            if value:
+                found[prop] = value
+
+    title = found.get("og:title")
+    if not title:
+        m = TITLE_RE.search(text)
+        if m:
+            title = _clean(m.group(1), limit=300)
+
+    metadata: dict = {"title": (title or url)[:300]}
+    if found.get("og:description"):
+        metadata["og_description"] = found["og:description"][:1000]
+    if found.get("og:image"):
+        metadata["og_image"] = found["og:image"]
+    if found.get("og:site_name"):
+        metadata["og_site_name"] = found["og:site_name"][:200]
+    if found.get("og:type"):
+        metadata["og_type"] = found["og:type"][:100]
+    if found.get("og:url"):
+        metadata["og_url"] = found["og:url"]
+    return metadata
 
 
 def message_link(guild_id: str | None, channel_id: str, message_id: str) -> str:
@@ -215,24 +255,40 @@ def build_feed(items: list[dict], feed_link: str) -> str:
     for item in items:
         pub = format_datetime(datetime.fromisoformat(item["shared_at"]))
         title = html.escape(item.get("title") or item["url"])
-        url = html.escape(item["url"])
+        original_url = item["url"]
+        link_url = item.get("og_url") or original_url
+        guid = html.escape(original_url)
+        link = html.escape(link_url)
         author = html.escape(item.get("author") or "unknown")
-        msg_link = html.escape(item.get("message_link") or "")
-        excerpt = html.escape(item.get("message_excerpt") or "")
-        description_lines = [f"Shared by {author}"]
+        msg_link = item.get("message_link") or ""
+        excerpt = item.get("message_excerpt") or ""
+        og_image = item.get("og_image") or ""
+        og_description = item.get("og_description") or ""
+        og_site_name = item.get("og_site_name") or ""
+
+        body_parts: list[str] = []
+        if og_image:
+            body_parts.append(
+                f'<p><img src="{html.escape(og_image)}" alt="" /></p>'
+            )
+        if og_site_name:
+            body_parts.append(f"<p><em>{html.escape(og_site_name)}</em></p>")
+        if og_description:
+            body_parts.append(f"<p>{html.escape(og_description)}</p>")
+        body_parts.append(f"<p>Shared by {author}</p>")
         if excerpt:
-            description_lines.append("")
-            description_lines.append(excerpt)
+            body_parts.append(f"<p>{html.escape(excerpt)}</p>")
         if msg_link:
-            description_lines.append("")
-            description_lines.append(f"Discord: {msg_link}")
-        description = "\n".join(description_lines)
+            body_parts.append(
+                f'<p>Discord: <a href="{html.escape(msg_link)}">{html.escape(msg_link)}</a></p>'
+            )
+        description_html = "".join(body_parts).replace("]]>", "]]&gt;")
         parts.append("<item>")
         parts.append(f"<title>{title}</title>")
-        parts.append(f"<link>{url}</link>")
-        parts.append(f"<guid isPermaLink=\"true\">{url}</guid>")
+        parts.append(f"<link>{link}</link>")
+        parts.append(f'<guid isPermaLink="true">{guid}</guid>')
         parts.append(f"<pubDate>{pub}</pubDate>")
-        parts.append(f"<description>{description}</description>")
+        parts.append(f"<description><![CDATA[{description_html}]]></description>")
         parts.append("</item>")
 
     parts.append("</channel>")
@@ -279,11 +335,10 @@ def main() -> int:
                 continue
             seen_urls.add(url)
             log(f"  + {url}")
-            title = fetch_title(url)
             new_items.append(
                 {
                     "url": url,
-                    "title": title,
+                    "title": url,
                     "author": author,
                     "shared_at": ts.isoformat(),
                     "message_id": msg["id"],
@@ -297,6 +352,20 @@ def main() -> int:
 
     items.sort(key=lambda i: i["shared_at"], reverse=True)
     items = items[:max_items]
+
+    log(f"Refreshing OG metadata for {len(items)} items")
+    og_keys = ("title", "og_description", "og_image", "og_site_name", "og_type", "og_url")
+    for item in items:
+        if not item.get("url"):
+            continue
+        metadata = fetch_og_metadata(item["url"])
+        if metadata is None:
+            continue
+        for key in og_keys:
+            if key in metadata:
+                item[key] = metadata[key]
+            else:
+                item.pop(key, None)
 
     state["last_message_id"] = highest_id
     state["seen_urls"] = sorted(seen_urls)
