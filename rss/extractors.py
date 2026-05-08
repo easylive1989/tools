@@ -148,12 +148,19 @@ def extract_hellogithub(html: str, entry: dict, feed_config: dict, scraper) -> s
 
 APIFY_TOKEN_ENV = "APIFY_TOKEN"
 
-# 社群平台 → Apify actor ID(用 ~ 取代 / 以符合 URL 路徑)
-_APIFY_ACTORS = {
+# 社群平台 → Apify actor ID 預設值。可用環境變數覆蓋(支援 owner/name 或 owner~name 兩種寫法):
+#   APIFY_FACEBOOK_ACTOR / APIFY_THREADS_ACTOR / APIFY_INSTAGRAM_ACTOR
+_DEFAULT_APIFY_ACTORS = {
     "facebook": "apify~facebook-posts-scraper",
     "threads": "apify~threads-scraper",
     "instagram": "apify~instagram-post-scraper",
 }
+
+
+def _get_actor(platform: str) -> str:
+    override = os.environ.get(f"APIFY_{platform.upper()}_ACTOR", "").strip()
+    actor = override or _DEFAULT_APIFY_ACTORS[platform]
+    return actor.replace("/", "~")
 
 
 def detect_social_platform(url: str) -> str | None:
@@ -304,18 +311,42 @@ def _format_apify_item(item: dict, link: str) -> str:
 
 
 def extract_apify(html: str, entry: dict, feed_config: dict, scraper) -> str | None:
-    """用 Apify 抓 FB / Threads / IG 貼文內容；失敗回傳 stub HTML(含原始 link)。"""
+    """dispatch registry 用的 thin wrapper,只回 HTML 字串。"""
     link = entry.get("link", "")
     platform = detect_social_platform(link)
+    return fetch_apify_post(link, platform)["html"]
+
+
+def fetch_apify_post(link: str, platform: str | None) -> dict:
+    """用 Apify 抓 FB / Threads / IG 貼文,回傳含中繼資料的 dict。
+
+    Returns:
+        {
+            "ok":    bool,           # Apify 是否成功取得貼文
+            "html":  str,            # markdownify 用的 HTML (成功內容或 stub)
+            "author":str,            # 作者名(失敗時為空字串)
+            "text":  str,            # 原文(失敗時為空字串)
+        }
+    """
     if not platform:
-        return _apify_stub(link or "(空連結)", "無法辨識社群平台")
+        return {
+            "ok": False,
+            "html": _apify_stub(link or "(空連結)", "無法辨識社群平台"),
+            "author": "",
+            "text": "",
+        }
 
     token = os.environ.get(APIFY_TOKEN_ENV)
     if not token:
         print(f"  Apify: 未設定 {APIFY_TOKEN_ENV} 環境變數")
-        return _apify_stub(link, f"未設定 {APIFY_TOKEN_ENV} 環境變數")
+        return {
+            "ok": False,
+            "html": _apify_stub(link, f"未設定 {APIFY_TOKEN_ENV} 環境變數"),
+            "author": "",
+            "text": "",
+        }
 
-    actor = _APIFY_ACTORS[platform]
+    actor = _get_actor(platform)
     api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
     payload = _build_apify_input(platform, link)
 
@@ -330,17 +361,154 @@ def extract_apify(html: str, entry: dict, feed_config: dict, scraper) -> str | N
         res.raise_for_status()
         data = res.json()
     except requests.exceptions.Timeout:
-        return _apify_stub(link, "Apify 抓取逾時 (180s)")
+        return {"ok": False, "html": _apify_stub(link, "Apify 抓取逾時 (180s)"), "author": "", "text": ""}
     except requests.exceptions.HTTPError as e:
         status = e.response.status_code if e.response is not None else "?"
-        return _apify_stub(link, f"Apify HTTP 錯誤 ({status})")
+        return {"ok": False, "html": _apify_stub(link, f"Apify HTTP 錯誤 ({status})"), "author": "", "text": ""}
     except Exception as e:
-        return _apify_stub(link, f"Apify 抓取失敗 ({type(e).__name__})")
+        return {"ok": False, "html": _apify_stub(link, f"Apify 抓取失敗 ({type(e).__name__})"), "author": "", "text": ""}
 
     if not isinstance(data, list) or not data:
-        return _apify_stub(link, "Apify 回傳空結果")
+        return {"ok": False, "html": _apify_stub(link, "Apify 回傳空結果"), "author": "", "text": ""}
 
-    return _format_apify_item(data[0], link)
+    item = data[0]
+    return {
+        "ok": True,
+        "html": _format_apify_item(item, link),
+        "author": _pick_author(item),
+        "text": _pick_text(item),
+    }
+
+
+_META_TAG_RE = re.compile(r"<meta\b[^>]*>", re.IGNORECASE)
+_ATTR_RE = re.compile(
+    r'(\w[\w:-]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\')'
+)
+
+
+def parse_meta_tags(html: str) -> dict[str, str]:
+    """從 HTML 中抽出所有 <meta> 的 name/property → content,key 統一小寫。"""
+    result: dict[str, str] = {}
+    for tag_match in _META_TAG_RE.finditer(html):
+        attrs: dict[str, str] = {}
+        for m in _ATTR_RE.finditer(tag_match.group(0)):
+            attrs[m.group(1).lower()] = m.group(2) if m.group(2) is not None else m.group(3)
+        key = attrs.get("property") or attrs.get("name")
+        content = attrs.get("content")
+        if key and content is not None and key.lower() not in result:
+            # 解 HTML entity,讓 &#10; 之類換行符與引號還原成原文
+            result[key.lower()] = html_lib.unescape(content)
+    return result
+
+
+_OG_TITLE_SUFFIX_RE = {
+    "threads": re.compile(r"\s+on Threads\s*$", re.IGNORECASE),
+    "facebook": re.compile(r"\s+\|\s+Facebook\s*$", re.IGNORECASE),
+    "instagram": re.compile(r"\s+(?:•|on)\s+Instagram[\w\s]*$", re.IGNORECASE),
+}
+
+
+def _strip_og_title_suffix(title: str, platform: str | None) -> str:
+    pattern = _OG_TITLE_SUFFIX_RE.get(platform or "")
+    if pattern:
+        title = pattern.sub("", title)
+    return title.strip()
+
+
+def fetch_via_og(link: str, scraper, platform: str | None = None) -> dict:
+    """從頁面抓 og:title / og:description / og:image 組社群貼文資料。
+
+    用於:
+    - Threads:Apify Store 沒有可直接用的官方 actor,主路徑就走這
+    - FB / IG:Apify 用量超過、actor 異常時的 fallback
+    """
+    label = (platform or "頁面").capitalize() if platform else "頁面"
+    try:
+        res = scraper.get(link, timeout=15)
+        res.raise_for_status()
+        if res.encoding and res.encoding.lower() == "iso-8859-1":
+            res.encoding = res.apparent_encoding or "utf-8"
+        page_html = res.text
+    except Exception as e:
+        return {
+            "ok": False,
+            "html": _apify_stub(link, f"{label} 頁面抓取失敗 ({type(e).__name__}: {e})"),
+            "author": "",
+            "text": "",
+        }
+
+    meta = parse_meta_tags(page_html)
+    og_title = meta.get("og:title", "").strip()
+    og_desc = meta.get("og:description", "").strip()
+    og_image = meta.get("og:image", "").strip()
+
+    if not og_title and not og_desc:
+        return {
+            "ok": False,
+            "html": _apify_stub(link, f"{label} 頁面缺少 og:title / og:description"),
+            "author": "",
+            "text": "",
+        }
+
+    author = _strip_og_title_suffix(og_title, platform)
+
+    parts = [
+        f'<p><strong>來源:</strong> <a href="{html_lib.escape(link)}">{html_lib.escape(link)}</a></p>'
+    ]
+    if author:
+        parts.append(f"<p><strong>作者:</strong> {html_lib.escape(author)}</p>")
+    if og_desc:
+        text_html = html_lib.escape(og_desc).replace("\n", "<br/>\n")
+        parts.append(f"<p>{text_html}</p>")
+    if og_image:
+        parts.append(f'<p><img src="{html_lib.escape(og_image)}" alt="og:image" /></p>')
+
+    return {
+        "ok": True,
+        "html": "\n".join(parts),
+        "author": author,
+        "text": og_desc,
+    }
+
+
+def fetch_social_post(link: str, platform: str | None, scraper) -> dict:
+    """社群貼文統一入口。
+
+    - Threads:直接走 og: meta
+    - FB / IG:先試 Apify,任何失敗(用量超過、actor 異常、timeout 等)
+              都 fallback 到 og: meta;兩條路都掛掉時回 Apify 的 stub
+              (裡頭通常含具體錯誤碼,診斷比較方便)
+    """
+    if platform == "threads":
+        return fetch_via_og(link, scraper, platform)
+
+    apify_result = fetch_apify_post(link, platform)
+    if apify_result["ok"]:
+        return apify_result
+
+    print(f"  Apify 失敗,改用 og: meta fallback")
+    og_result = fetch_via_og(link, scraper, platform)
+    if og_result["ok"]:
+        return og_result
+
+    return apify_result
+
+
+def first_paragraph(text: str, max_chars: int = 60) -> str:
+    """擷取貼文第一段(以雙換行為主、單換行 fallback),並截斷到 max_chars。"""
+    if not text:
+        return ""
+    text = text.strip()
+    first = text
+    for sep in ("\n\n", "\n"):
+        if sep in text:
+            head = text.split(sep, 1)[0].strip()
+            if head:
+                first = head
+                break
+    if len(first) > max_chars:
+        first = first[:max_chars].rstrip()
+    return first
 
 
 EXTRACTOR_REGISTRY = {
@@ -351,16 +519,26 @@ EXTRACTOR_REGISTRY = {
 }
 
 
-def dispatch(name: str, html: str, entry: dict, feed_config: dict, scraper) -> str | None:
+def dispatch(name: str, html: str, entry: dict, feed_config: dict, scraper) -> tuple[str | None, str]:
+    """執行 extractor。回傳 (html, error_msg);成功時 error_msg 為空字串。"""
     fn = EXTRACTOR_REGISTRY.get(name)
     if fn is None:
         print(f"  Unknown extractor '{name}', falling back to readability")
         fn = EXTRACTOR_REGISTRY["readability"]
     try:
-        return fn(html, entry, feed_config, scraper)
+        result = fn(html, entry, feed_config, scraper)
     except Exception as e:
-        print(f"  Extractor '{name}' error: {e}")
-        return None
+        msg = f"extractor '{name}' raised {type(e).__name__}: {e}"
+        print(f"  {msg}")
+        return None, msg
+    if not result:
+        return None, f"extractor '{name}' 回傳空內容"
+    return result, ""
+
+
+def build_error_stub(link: str, reason: str) -> str:
+    """產生抽取失敗時要塞進 markdown 的 stub HTML(讓使用者能在檔案中看到原因)。"""
+    return _apify_stub(link, reason)
 
 
 def requires_page_fetch(name: str) -> bool:
