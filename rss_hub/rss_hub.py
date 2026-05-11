@@ -25,8 +25,6 @@ from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
@@ -51,6 +49,9 @@ def log(msg: str) -> None:
 
 @contextmanager
 def browser_context():
+    # Lazy import so unit tests don't require the playwright package.
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         try:
@@ -74,6 +75,36 @@ def make_fetcher(context):
         finally:
             page.close()
     return fetch
+
+
+def items_fingerprint(items) -> list[tuple[str, str, str]]:
+    return [
+        (
+            i.title,
+            i.link,
+            format_datetime(i.pub_date) if i.pub_date else "",
+        )
+        for i in items
+    ]
+
+
+def existing_fingerprint(path: Path) -> list[tuple[str, str, str]] | None:
+    if not path.exists():
+        return None
+    try:
+        root = ET.fromstring(path.read_bytes())
+    except ET.ParseError:
+        return None
+    channel = root.find("channel")
+    if channel is None:
+        return None
+    out: list[tuple[str, str, str]] = []
+    for item in channel.findall("item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        pub = (item.findtext("pubDate") or "").strip()
+        out.append((title, link, pub))
+    return out
 
 
 def build_feed(*, title: str, source_url: str, public_link: str, items) -> bytes:
@@ -134,6 +165,11 @@ def process_source(source: dict, fetcher) -> None:
 
     out_path = OUTPUT_DIR / f"{slug}.xml"
     public_link = f"{PUBLIC_BASE}/{slug}.xml"
+
+    if items_fingerprint(items) == existing_fingerprint(out_path):
+        log(f"[{url}] no change ({len(items)} items); leaving {out_path} untouched")
+        return
+
     payload = build_feed(
         title=title,
         source_url=url,
