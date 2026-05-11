@@ -1,28 +1,24 @@
-"""HackMD adapter: scrape a public user/team profile page for note list.
+"""HackMD adapter: render the profile page with Playwright then parse anchors.
 
-HackMD does not publish an open RSS feed for `https://hackmd.io/@<id>` pages,
-and the v1 API requires a token scoped to the owner. We therefore parse the
-profile HTML directly:
+HackMD profile pages (https://hackmd.io/@<user>) are fully client-side rendered
+— the initial HTML has no note data. The caller MUST supply a `fetcher` that
+returns the post-render DOM (typically via Playwright's `page.content()`).
 
-  1. Look for the SSR'd `<script id="__NEXT_DATA__">` JSON blob and pluck the
-     note list out of it (preferred — gives us titles and timestamps).
-  2. Fall back to anchor scraping for `/@<id>/<noteId>` links so the adapter
-     keeps working if the page structure regresses to plain HTML.
-
-Each item returned is a dict with: title, link, guid, pub_date (UTC datetime
-or None when unknown).
+We accept several anchor shapes since HackMD's permalinks vary:
+  - /@<user>/<noteId>                user-scoped permalinks
+  - /<22-ish-char-shortId>           anonymous/published shortlinks
+  - /s/<shortId>                     publish-link style
 """
 
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Iterable
-from urllib.parse import urlparse, urljoin
+from typing import Any
+from urllib.parse import urljoin, urlparse
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 
 SITE_ROOT = "https://hackmd.io"
@@ -38,121 +34,94 @@ class NoteItem:
 
 def slug_from_url(url: str) -> str:
     path = urlparse(url).path.strip("/")
-    # `@user` or `@user/...` -> user
     first = path.split("/", 1)[0]
     if first.startswith("@"):
         first = first[1:]
     return first or "hackmd"
 
 
-def _parse_datetime(value: Any) -> datetime | None:
-    if value is None:
-        return None
-    if isinstance(value, (int, float)):
-        # HackMD uses millisecond epoch.
-        if value > 1e12:
-            value = value / 1000.0
+_USER_HREF_RE = re.compile(r"^/@[^/]+/[^/?#]+$")
+_SHORT_HREF_RE = re.compile(r"^/(?:s/)?[A-Za-z0-9_-]{12,32}(?:[/?#].*)?$")
+# Junk we never want as a "note": auth, settings, marketing pages, etc.
+_BLOCK_PREFIXES = (
+    "/auth",
+    "/settings",
+    "/join",
+    "/login",
+    "/logout",
+    "/c/",
+    "/s/terms",
+    "/s/privacy",
+    "/api",
+)
+
+
+def _looks_like_note(href: str) -> bool:
+    if not href.startswith("/"):
+        return False
+    if any(href.startswith(p) for p in _BLOCK_PREFIXES):
+        return False
+    if _USER_HREF_RE.match(href):
+        return True
+    if _SHORT_HREF_RE.match(href):
+        # `/@user` itself is short-ish — exclude single-segment user pages.
+        return not href.lstrip("/").startswith("@")
+    return False
+
+
+def _nearby_time(anchor: Tag) -> datetime | None:
+    # Look at the anchor itself, its descendants, and its closest ancestors
+    # for a <time datetime="..."> element. HackMD typically shows relative
+    # times with the absolute datetime stashed in the attribute.
+    candidates: list[Tag] = []
+    candidates.extend(anchor.find_all("time"))
+    parent = anchor.parent
+    depth = 0
+    while parent is not None and depth < 4:
+        candidates.extend(parent.find_all("time", recursive=False))
+        for child in parent.children:
+            if isinstance(child, Tag) and child is not anchor:
+                candidates.extend(child.find_all("time"))
+        parent = parent.parent
+        depth += 1
+    for t in candidates:
+        dt = t.get("datetime") or t.get("data-time") or t.get("title")
+        if not dt:
+            continue
         try:
-            return datetime.fromtimestamp(value, tz=timezone.utc)
-        except (OverflowError, OSError, ValueError):
-            return None
-    if isinstance(value, str):
-        try:
-            return datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return datetime.fromisoformat(str(dt).replace("Z", "+00:00"))
         except ValueError:
-            return None
+            continue
     return None
 
 
-def _walk_for_notes(node: Any) -> Iterable[dict]:
-    """Yield dict-shaped objects that plausibly describe a HackMD note."""
-    if isinstance(node, dict):
-        keys = node.keys()
-        if (
-            ("title" in keys or "name" in keys)
-            and ("shortId" in keys or "id" in keys or "permalink" in keys or "noteId" in keys)
-        ):
-            yield node
-        for v in node.values():
-            yield from _walk_for_notes(v)
-    elif isinstance(node, list):
-        for v in node:
-            yield from _walk_for_notes(v)
+def _clean_title(anchor: Tag) -> str:
+    text = anchor.get_text(" ", strip=True)
+    # Strip duplicated whitespace.
+    return re.sub(r"\s+", " ", text).strip()
 
 
-def _extract_from_next_data(soup: BeautifulSoup, base_url: str) -> list[NoteItem]:
-    tag = soup.find("script", id="__NEXT_DATA__")
-    if tag is None or not tag.string:
-        return []
-    try:
-        data = json.loads(tag.string)
-    except json.JSONDecodeError:
-        return []
+def fetch_items(url: str, *, fetcher) -> list[NoteItem]:
+    html = fetcher(url)
+    soup = BeautifulSoup(html, "html.parser")
 
-    items: list[NoteItem] = []
-    seen: set[str] = set()
-    for note in _walk_for_notes(data):
-        title = (note.get("title") or note.get("name") or "").strip()
-        if not title:
-            continue
-        # Try several plausible URL fields.
-        link = (
-            note.get("publishLink")
-            or note.get("publishUrl")
-            or note.get("permalink")
-            or note.get("url")
-        )
-        if not link:
-            short = note.get("shortId") or note.get("id") or note.get("noteId")
-            if not short:
-                continue
-            link = urljoin(base_url.rstrip("/") + "/", str(short))
-        if not link.startswith("http"):
-            link = urljoin(SITE_ROOT, link)
-        if link in seen:
-            continue
-        seen.add(link)
-
-        pub_date = (
-            _parse_datetime(note.get("publishedAt"))
-            or _parse_datetime(note.get("lastChangedAt"))
-            or _parse_datetime(note.get("updatedAt"))
-            or _parse_datetime(note.get("createdAt"))
-        )
-        items.append(NoteItem(title=title, link=link, guid=link, pub_date=pub_date))
-    return items
-
-
-_NOTE_LINK_RE = re.compile(r"^/@[^/]+/[^/?#]+$")
-
-
-def _extract_from_anchors(soup: BeautifulSoup) -> list[NoteItem]:
     items: list[NoteItem] = []
     seen: set[str] = set()
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
-        if not _NOTE_LINK_RE.match(href):
+        if not _looks_like_note(href):
             continue
-        title = a.get_text(" ", strip=True)
-        if not title:
+        title = _clean_title(a)
+        if not title or len(title) < 2:
             continue
-        link = urljoin(SITE_ROOT, href)
+        link = urljoin(SITE_ROOT, href.split("#", 1)[0])
         if link in seen:
             continue
         seen.add(link)
-        items.append(NoteItem(title=title, link=link, guid=link, pub_date=None))
-    return items
-
-
-def fetch_items(url: str, *, fetcher) -> list[NoteItem]:
-    """Fetch the HackMD profile page and return parsed notes.
-
-    `fetcher(url) -> str` is injected so the caller controls HTTP behaviour
-    (cloudscraper, retries, user-agent, etc.).
-    """
-    html = fetcher(url)
-    soup = BeautifulSoup(html, "html.parser")
-    items = _extract_from_next_data(soup, url)
-    if not items:
-        items = _extract_from_anchors(soup)
+        items.append(NoteItem(
+            title=title,
+            link=link,
+            guid=link,
+            pub_date=_nearby_time(a),
+        ))
     return items

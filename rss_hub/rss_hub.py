@@ -2,8 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "beautifulsoup4",
-#     "cloudscraper",
-#     "requests",
+#     "playwright",
 # ]
 # ///
 """Generate RSS feeds for sites that don't publish one.
@@ -11,24 +10,22 @@
 Reads `rss_hub/sources.json`, dispatches to a per-site adapter, and writes an
 RSS 2.0 feed per source under `rss_hub/output/<slug>.xml`. The feed.xml files
 are deployed by `deploy-pages.yml` to `https://tools.paul-learning.dev/rss_hub/`.
+
+HackMD profile pages are SPAs — the initial HTML has no note data — so we
+render with Playwright Chromium and feed the post-render DOM to the adapter.
 """
 
 from __future__ import annotations
 
 import json
 import sys
-import time
 import xml.etree.ElementTree as ET
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
 
-import requests
-
-try:
-    import cloudscraper  # type: ignore
-except ImportError:  # pragma: no cover - script env always has it
-    cloudscraper = None
+from playwright.sync_api import sync_playwright
 
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
@@ -38,41 +35,45 @@ from adapters.hackmd import slug_from_url  # noqa: E402
 
 SOURCES_PATH = BASE_DIR / "sources.json"
 OUTPUT_DIR = BASE_DIR / "output"
+DEBUG_DIR = BASE_DIR / "output" / "_debug"
 PUBLIC_BASE = "https://tools.paul-learning.dev/rss_hub"
 DEFAULT_MAX_ITEMS = 50
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15"
 )
+PAGE_TIMEOUT_MS = 30_000
 
 
 def log(msg: str) -> None:
     print(msg, flush=True)
 
 
-def fetch_html(url: str) -> str:
-    headers = {
-        "User-Agent": USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9,zh-TW;q=0.8",
-    }
-    last_exc: Exception | None = None
-    for attempt in range(3):
+@contextmanager
+def browser_context():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
         try:
-            resp = requests.get(url, headers=headers, timeout=30)
-            if resp.status_code == 200:
-                return resp.text
-            if resp.status_code in (403, 503) and cloudscraper is not None:
-                scraper = cloudscraper.create_scraper()
-                resp = scraper.get(url, headers=headers, timeout=30)
-                if resp.status_code == 200:
-                    return resp.text
-            resp.raise_for_status()
-            return resp.text
-        except requests.RequestException as exc:
-            last_exc = exc
-            time.sleep(2 ** attempt)
-    raise RuntimeError(f"failed to fetch {url}: {last_exc}")
+            context = browser.new_context(user_agent=USER_AGENT)
+            try:
+                yield context
+            finally:
+                context.close()
+        finally:
+            browser.close()
+
+
+def make_fetcher(context):
+    def fetch(url: str) -> str:
+        page = context.new_page()
+        try:
+            page.goto(url, wait_until="networkidle", timeout=PAGE_TIMEOUT_MS)
+            # SPA hydration: give note cards a beat to render after XHR resolves.
+            page.wait_for_timeout(1500)
+            return page.content()
+        finally:
+            page.close()
+    return fetch
 
 
 def build_feed(*, title: str, source_url: str, public_link: str, items) -> bytes:
@@ -102,21 +103,35 @@ def build_feed(*, title: str, source_url: str, public_link: str, items) -> bytes
     return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(rss, encoding="utf-8")
 
 
-def process_source(source: dict) -> bool:
+def dump_debug_html(slug: str, fetcher, url: str) -> None:
+    try:
+        html = fetcher(url)
+    except Exception as exc:  # noqa: BLE001
+        log(f"[{url}] debug dump failed: {exc}")
+        return
+    DEBUG_DIR.mkdir(parents=True, exist_ok=True)
+    target = DEBUG_DIR / f"{slug}.html"
+    target.write_text(html, encoding="utf-8")
+    log(f"[{url}] wrote debug HTML to {target} ({len(html)} bytes)")
+
+
+def process_source(source: dict, fetcher) -> None:
     url = source["url"]
     title = source.get("title") or url
     max_items = int(source.get("max_items", DEFAULT_MAX_ITEMS))
 
     adapter = get_adapter(url)
     log(f"[{url}] fetching via {adapter.__name__}")
-    items = adapter.fetch_items(url, fetcher=fetch_html)
+    items = adapter.fetch_items(url, fetcher=fetcher)
+    slug = slug_from_url(url)
+
     if not items:
-        log(f"[{url}] WARN: adapter returned 0 items; keeping existing feed if any")
-        return False
+        log(f"[{url}] WARN: adapter returned 0 items; dumping rendered HTML for inspection")
+        dump_debug_html(slug, fetcher, url)
+        return
 
     items = items[:max_items]
 
-    slug = slug_from_url(url)
     out_path = OUTPUT_DIR / f"{slug}.xml"
     public_link = f"{PUBLIC_BASE}/{slug}.xml"
     payload = build_feed(
@@ -128,7 +143,6 @@ def process_source(source: dict) -> bool:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(payload)
     log(f"[{url}] wrote {out_path} with {len(items)} items")
-    return True
 
 
 def main() -> int:
@@ -136,13 +150,17 @@ def main() -> int:
         log(f"no sources file at {SOURCES_PATH}")
         return 0
     sources = json.loads(SOURCES_PATH.read_text(encoding="utf-8"))
+
     failures = 0
-    for source in sources:
-        try:
-            process_source(source)
-        except Exception as exc:  # noqa: BLE001 - keep going on per-source errors
-            failures += 1
-            log(f"[{source.get('url')}] ERROR: {exc}")
+    with browser_context() as context:
+        fetcher = make_fetcher(context)
+        for source in sources:
+            try:
+                process_source(source, fetcher)
+            except Exception as exc:  # noqa: BLE001
+                failures += 1
+                log(f"[{source.get('url')}] ERROR: {exc}")
+
     return 1 if failures and failures == len(sources) else 0
 
 
