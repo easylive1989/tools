@@ -428,7 +428,6 @@ def build_feed(items: list[dict], feed_link: str) -> str:
         link_url = item.get("og_url") or original_url
         guid = html.escape(original_url)
         link = html.escape(link_url)
-        author = html.escape(item.get("author") or "unknown")
         excerpt = item.get("message_excerpt") or ""
         og_image = item.get("og_image") or ""
         og_description = item.get("og_description") or ""
@@ -443,7 +442,6 @@ def build_feed(items: list[dict], feed_link: str) -> str:
             body_parts.append(f"<p><em>{html.escape(og_site_name)}</em></p>")
         if og_description:
             body_parts.append(f"<p>{html.escape(og_description)}</p>")
-        body_parts.append(f"<p>Shared by {author}</p>")
         if excerpt:
             body_parts.append(f"<p>{html.escape(excerpt)}</p>")
         description_html = "".join(body_parts).replace("]]>", "]]&gt;")
