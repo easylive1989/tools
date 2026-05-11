@@ -1,27 +1,28 @@
-"""HackMD adapter: render the profile page with Playwright then parse anchors.
+"""HackMD adapter: parse the rendered profile page for note cards.
 
-HackMD profile pages (https://hackmd.io/@<user>) are fully client-side rendered
-— the initial HTML has no note data. The caller MUST supply a `fetcher` that
-returns the post-render DOM (typically via Playwright's `page.content()`).
+HackMD profile pages (https://hackmd.io/@<user>) are SPAs — see rss_hub.py for
+the Playwright-based fetcher. The rendered DOM exposes each note as an
+absolute-URL anchor under the profile, e.g.
 
-We accept several anchor shapes since HackMD's permalinks vary:
-  - /@<user>/<noteId>                user-scoped permalinks
-  - /<22-ish-char-shortId>           anonymous/published shortlinks
-  - /s/<shortId>                     publish-link style
+    <a href="https://hackmd.io/@user/noteId">Title</a>
+
+with a sibling `<span class="font-medium">Updated 3 days ago</span>` carrying
+the timestamp as a relative string (no `<time datetime>` attribute).
+
+We:
+  1. Accept any anchor whose resolved URL is exactly `<source_url>/<noteId>`.
+  2. Walk up a few ancestors to find an "Updated ... ago" text and compute
+     `pub_date` relative to now.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, Tag
-
-
-SITE_ROOT = "https://hackmd.io"
 
 
 @dataclass
@@ -40,81 +41,69 @@ def slug_from_url(url: str) -> str:
     return first or "hackmd"
 
 
-_USER_HREF_RE = re.compile(r"^/@[^/]+/[^/?#]+$")
-_SHORT_HREF_RE = re.compile(r"^/(?:s/)?[A-Za-z0-9_-]{12,32}(?:[/?#].*)?$")
-# Junk we never want as a "note": auth, settings, marketing pages, etc.
-_BLOCK_PREFIXES = (
-    "/auth",
-    "/settings",
-    "/join",
-    "/login",
-    "/logout",
-    "/c/",
-    "/s/terms",
-    "/s/privacy",
-    "/api",
+_UNIT_SECONDS = {
+    "second": 1,
+    "minute": 60,
+    "hour": 3600,
+    "day": 86400,
+    "week": 604800,
+    "month": 2592000,   # 30d approximation, HackMD only shows this for old notes
+    "year": 31536000,   # 365d approximation
+}
+
+_RELATIVE_RE = re.compile(
+    r"(?:Updated|Created|Modified)\s+(?:(\d+)|an?|a)\s+(second|minute|hour|day|week|month|year)s?\s+ago",
+    re.IGNORECASE,
 )
 
 
-def _looks_like_note(href: str) -> bool:
-    if not href.startswith("/"):
-        return False
-    if any(href.startswith(p) for p in _BLOCK_PREFIXES):
-        return False
-    if _USER_HREF_RE.match(href):
-        return True
-    if _SHORT_HREF_RE.match(href):
-        # `/@user` itself is short-ish — exclude single-segment user pages.
-        return not href.lstrip("/").startswith("@")
-    return False
+def _parse_relative_time(text: str, *, now: datetime) -> datetime | None:
+    m = _RELATIVE_RE.search(text)
+    if not m:
+        return None
+    count = int(m.group(1)) if m.group(1) else 1
+    unit = m.group(2).lower()
+    dt = now - timedelta(seconds=count * _UNIT_SECONDS[unit])
+    # Round to start-of-day UTC so the relative-time drift between runs
+    # doesn't keep nudging pub_date and producing spurious diffs.
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def _nearby_time(anchor: Tag) -> datetime | None:
-    # Look at the anchor itself, its descendants, and its closest ancestors
-    # for a <time datetime="..."> element. HackMD typically shows relative
-    # times with the absolute datetime stashed in the attribute.
-    candidates: list[Tag] = []
-    candidates.extend(anchor.find_all("time"))
-    parent = anchor.parent
-    depth = 0
-    while parent is not None and depth < 4:
-        candidates.extend(parent.find_all("time", recursive=False))
-        for child in parent.children:
-            if isinstance(child, Tag) and child is not anchor:
-                candidates.extend(child.find_all("time"))
-        parent = parent.parent
-        depth += 1
-    for t in candidates:
-        dt = t.get("datetime") or t.get("data-time") or t.get("title")
-        if not dt:
-            continue
-        try:
-            return datetime.fromisoformat(str(dt).replace("Z", "+00:00"))
-        except ValueError:
-            continue
+def _find_relative_time(anchor: Tag, *, now: datetime) -> datetime | None:
+    container: Tag | None = anchor
+    for _ in range(6):
+        container = container.parent if container else None
+        if container is None:
+            break
+        dt = _parse_relative_time(container.get_text(" ", strip=True), now=now)
+        if dt is not None:
+            return dt
     return None
 
 
 def _clean_title(anchor: Tag) -> str:
-    text = anchor.get_text(" ", strip=True)
-    # Strip duplicated whitespace.
-    return re.sub(r"\s+", " ", text).strip()
+    return re.sub(r"\s+", " ", anchor.get_text(" ", strip=True)).strip()
 
 
 def fetch_items(url: str, *, fetcher) -> list[NoteItem]:
     html = fetcher(url)
     soup = BeautifulSoup(html, "html.parser")
+    base = url.rstrip("/")
+    base_for_join = base + "/"
+    now = datetime.now(tz=timezone.utc)
 
     items: list[NoteItem] = []
     seen: set[str] = set()
     for a in soup.find_all("a", href=True):
-        href = a["href"].strip()
-        if not _looks_like_note(href):
+        link = urljoin(base_for_join, a["href"].strip())
+        if not link.startswith(base + "/"):
+            continue
+        suffix = link[len(base) + 1:]
+        if not suffix or "/" in suffix or "?" in suffix or "#" in suffix:
             continue
         title = _clean_title(a)
-        if not title or len(title) < 2:
+        if not title:
             continue
-        link = urljoin(SITE_ROOT, href.split("#", 1)[0])
         if link in seen:
             continue
         seen.add(link)
@@ -122,6 +111,6 @@ def fetch_items(url: str, *, fetcher) -> list[NoteItem]:
             title=title,
             link=link,
             guid=link,
-            pub_date=_nearby_time(a),
+            pub_date=_find_relative_time(a, now=now),
         ))
     return items
