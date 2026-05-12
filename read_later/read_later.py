@@ -30,7 +30,7 @@ import time
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
-from urllib.parse import urldefrag, urlparse
+from urllib.parse import quote, urldefrag, urlparse
 
 import requests
 
@@ -41,6 +41,7 @@ FEED_PATH = BASE_DIR / "feed.xml"
 DISCORD_API = "https://discord.com/api/v10"
 DEFAULT_FEED_LINK = "https://tools.paul-learning.dev/read_later/feed.xml"
 DEFAULT_MAX_ITEMS = 200
+SUCCESS_REACTION = "✅"
 
 URL_REGEX = re.compile(r"https?://[^\s<>\"'\)\]]+")
 TRAILING_PUNCT = ".,;:!?)]}>"
@@ -81,6 +82,28 @@ def discord_get(path: str, token: str, params: dict | None = None) -> list:
         resp.raise_for_status()
         return resp.json()
     raise RuntimeError(f"Discord API failed for {path}")
+
+
+def discord_react(token: str, channel_id: str, message_id: str, emoji: str) -> bool:
+    headers = {"Authorization": f"Bot {token}", "User-Agent": "read-later-bot/1.0"}
+    encoded = quote(emoji, safe="")
+    url = f"{DISCORD_API}/channels/{channel_id}/messages/{message_id}/reactions/{encoded}/@me"
+    for attempt in range(3):
+        resp = requests.put(url, headers=headers, timeout=30)
+        if resp.status_code in (200, 204):
+            return True
+        if resp.status_code == 429:
+            retry_after = float(resp.json().get("retry_after", 1))
+            log(f"  reaction rate limited, sleeping {retry_after}s")
+            time.sleep(retry_after)
+            continue
+        if resp.status_code >= 500:
+            time.sleep(2 ** attempt)
+            continue
+        log(f"  reaction failed for {message_id}: HTTP {resp.status_code}")
+        return False
+    log(f"  reaction gave up for {message_id}")
+    return False
 
 
 def fetch_messages(token: str, channel_id: str, after_id: str | None) -> list[dict]:
@@ -537,6 +560,15 @@ def main() -> int:
     feed_xml = build_feed(items, feed_link)
     FEED_PATH.write_text(feed_xml, encoding="utf-8")
     log(f"Wrote {FEED_PATH} with {len(items)} items ({len(new_items)} new)")
+
+    reacted: set[str] = set()
+    for item in new_items:
+        msg_id = item.get("message_id")
+        if not msg_id or msg_id in reacted:
+            continue
+        reacted.add(msg_id)
+        discord_react(token, channel_id, msg_id, SUCCESS_REACTION)
+
     return 0
 
 
