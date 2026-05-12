@@ -30,7 +30,7 @@ import time
 from datetime import datetime, timezone
 from email.utils import format_datetime
 from pathlib import Path
-from urllib.parse import urldefrag, urlparse
+from urllib.parse import quote, urldefrag, urlparse
 
 import requests
 
@@ -41,6 +41,7 @@ FEED_PATH = BASE_DIR / "feed.xml"
 DISCORD_API = "https://discord.com/api/v10"
 DEFAULT_FEED_LINK = "https://tools.paul-learning.dev/read_later/feed.xml"
 DEFAULT_MAX_ITEMS = 200
+SUCCESS_REACTION = "✅"
 
 URL_REGEX = re.compile(r"https?://[^\s<>\"'\)\]]+")
 TRAILING_PUNCT = ".,;:!?)]}>"
@@ -81,6 +82,63 @@ def discord_get(path: str, token: str, params: dict | None = None) -> list:
         resp.raise_for_status()
         return resp.json()
     raise RuntimeError(f"Discord API failed for {path}")
+
+
+def discord_react(token: str, channel_id: str, message_id: str, emoji: str) -> tuple[bool, str]:
+    """Add a reaction. Returns (success, reason). reason is a short human-readable string on failure."""
+    headers = {"Authorization": f"Bot {token}", "User-Agent": "read-later-bot/1.0"}
+    encoded = quote(emoji, safe="")
+    url = f"{DISCORD_API}/channels/{channel_id}/messages/{message_id}/reactions/{encoded}/@me"
+    last_reason = "未知錯誤"
+    for attempt in range(3):
+        try:
+            resp = requests.put(url, headers=headers, timeout=30)
+        except requests.RequestException as e:
+            last_reason = f"網路錯誤 ({type(e).__name__})"
+            log(f"  reaction error for {message_id}: {last_reason}")
+            time.sleep(2 ** attempt)
+            continue
+        if resp.status_code in (200, 204):
+            return True, ""
+        if resp.status_code == 429:
+            retry_after = float(resp.json().get("retry_after", 1))
+            log(f"  reaction rate limited, sleeping {retry_after}s")
+            time.sleep(retry_after)
+            last_reason = "rate limited"
+            continue
+        if resp.status_code >= 500:
+            last_reason = f"Discord 伺服器錯誤 (HTTP {resp.status_code})"
+            time.sleep(2 ** attempt)
+            continue
+        if resp.status_code == 403:
+            last_reason = "權限不足 (HTTP 403)"
+        elif resp.status_code == 404:
+            last_reason = "訊息已刪除 (HTTP 404)"
+        else:
+            last_reason = f"HTTP {resp.status_code}"
+        log(f"  reaction failed for {message_id}: {last_reason}")
+        return False, last_reason
+    log(f"  reaction gave up for {message_id}: {last_reason}")
+    return False, last_reason
+
+
+def discord_post_message(token: str, channel_id: str, content: str) -> None:
+    headers = {
+        "Authorization": f"Bot {token}",
+        "User-Agent": "read-later-bot/1.0",
+        "Content-Type": "application/json",
+    }
+    try:
+        resp = requests.post(
+            f"{DISCORD_API}/channels/{channel_id}/messages",
+            headers=headers,
+            json={"content": content},
+            timeout=30,
+        )
+        if resp.status_code >= 400:
+            log(f"  post message failed: HTTP {resp.status_code}")
+    except requests.RequestException as e:
+        log(f"  post message error: {type(e).__name__}")
 
 
 def fetch_messages(token: str, channel_id: str, after_id: str | None) -> list[dict]:
@@ -537,6 +595,21 @@ def main() -> int:
     feed_xml = build_feed(items, feed_link)
     FEED_PATH.write_text(feed_xml, encoding="utf-8")
     log(f"Wrote {FEED_PATH} with {len(items)} items ({len(new_items)} new)")
+
+    reacted: set[str] = set()
+    for item in new_items:
+        msg_id = item.get("message_id")
+        if not msg_id or msg_id in reacted:
+            continue
+        reacted.add(msg_id)
+        ok, reason = discord_react(token, channel_id, msg_id, SUCCESS_REACTION)
+        if not ok:
+            discord_post_message(
+                token,
+                channel_id,
+                f"⚠️ 無法對訊息加 {SUCCESS_REACTION} reaction（訊息 ID: {msg_id}）：{reason}",
+            )
+
     return 0
 
 
