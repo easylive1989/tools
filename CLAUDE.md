@@ -55,7 +55,7 @@ cd document_translator && python -m pytest tests/ -v
 Active workflows (triggered on schedule + `workflow_dispatch`):
 - `monthly-ledger-analysis.yml` — monthly ledger summary to Notion
 - `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
-- `deploy-sharing-bot.yml` — rsyncs sharing bot to VPS, restarts systemd service
+- `deploy-eat-later-bot.yml` — rsyncs eat_later bot to VPS, restarts systemd service
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
