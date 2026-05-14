@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>F · Pixel Town — paul's tools</title>
+<style>
+  :root {
+    --grass: #7ec850;
+    --grass-2: #6cb840;
+    --path: #d8be86;
+    --path-2: #c5a96a;
+    --water: #5ab3e0;
+    --water-2: #3e96c2;
+    --sky: #98d6ff;
+    --text: #1a1f2e;
+    --night: #1f2740;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: ui-monospace, "Press Start 2P", Menlo, monospace;
+    image-rendering: pixelated;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--sky) 0%, var(--sky) 30%, var(--grass) 30%);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(0,0,0,0.5); color: #fff;
+    padding: 5px 12px; border-radius: 0; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, monospace;
+    border: 2px solid #fff;
+  }
+
+  .topbar {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.55); color: #fff;
+    padding: 8px 18px; border: 2px solid #fff;
+    font-size: 13px; z-index: 100;
+    font-family: ui-monospace, monospace;
+    letter-spacing: 1px;
+  }
+  .topbar .pop { color: #ffd56a; }
+
+  .town {
+    width: 100vw; height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background:
+      /* clouds */
+      radial-gradient(60px 22px at 12% 8%, #fff 60%, transparent 70%),
+      radial-gradient(80px 26px at 28% 14%, #fff 60%, transparent 70%),
+      radial-gradient(70px 24px at 72% 6%, #fff 60%, transparent 70%),
+      radial-gradient(50px 18px at 90% 12%, #fff 60%, transparent 70%),
+      /* sky */
+      linear-gradient(180deg, var(--sky) 0%, var(--sky) 28%, transparent 28%),
+      /* grass with checkered pattern */
+      linear-gradient(180deg, transparent 28%, var(--grass) 28%);
+    image-rendering: pixelated;
+  }
+  .town::before {
+    /* grass texture */
+    content: ""; position: absolute; inset: 28% 0 0 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0 4px, transparent 4px 16px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 4px, transparent 4px 16px);
+    pointer-events: none;
+  }
+  /* central crossroad path */
+  .path-h {
+    position: absolute;
+    left: 0; right: 0; height: 60px;
+    background: var(--path);
+    box-shadow: inset 0 2px 0 var(--path-2), inset 0 -2px 0 var(--path-2);
+    z-index: 1;
+  }
+  .path-v {
+    position: absolute;
+    top: 28%; bottom: 0; width: 60px;
+    background: var(--path);
+    box-shadow: inset 2px 0 0 var(--path-2), inset -2px 0 0 var(--path-2);
+    z-index: 1;
+  }
+  /* pond bottom-right */
+  .pond {
+    position: absolute;
+    right: 4%; bottom: 4%;
+    width: 200px; height: 110px;
+    background: var(--water);
+    box-shadow: inset 0 0 0 4px var(--water-2);
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .pond::after {
+    content: "〰️〰️";
+    position: absolute; top: 38%; left: 50%; transform: translateX(-50%);
+    font-size: 22px; color: #fff; opacity: 0.6;
+  }
+
+  /* Buildings */
+  .building {
+    position: absolute;
+    background: #fff;
+    border: 3px solid var(--text);
+    border-bottom-width: 4px;
+    text-align: center;
+    padding: 8px 6px 6px;
+    cursor: pointer;
+    z-index: 5;
+    min-width: 110px;
+    image-rendering: pixelated;
+    transition: transform 0.12s ease, filter 0.12s ease;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
+  }
+  .building:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.05);
+  }
+  .building .roof {
+    height: 22px;
+    margin: -16px -10px 6px;
+    background: var(--roof, #d56b6b);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  .building .icon { font-size: 28px; line-height: 1; margin: 2px 0 4px; }
+  .building .name {
+    font-size: 10px; font-family: ui-monospace, monospace;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    word-break: break-word;
+  }
+  .building .door {
+    width: 16px; height: 22px;
+    background: #6b4226; margin: 4px auto 0;
+    border: 2px solid var(--text);
+    border-bottom: none;
+  }
+  .building.retired {
+    filter: grayscale(1) brightness(0.85);
+  }
+  .building.retired::after {
+    content: "× CLOSED ×";
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    background: #b53a2a; color: #fff;
+    padding: 2px 6px; font-size: 9px;
+    border: 2px solid var(--text);
+    white-space: nowrap;
+  }
+  .building.experiment {
+    border-style: dashed;
+  }
+  .building .badge {
+    position: absolute; top: -10px; right: -8px;
+    background: #f4c25b; color: var(--text);
+    border: 2px solid var(--text);
+    font-size: 9px; padding: 1px 5px;
+    font-family: ui-monospace, monospace;
+  }
+
+  /* NPC sprite (sits near center) */
+  .sprite {
+    position: absolute; left: 50%; top: 56%; transform: translateX(-50%);
+    width: 22px; height: 30px;
+    z-index: 8;
+    image-rendering: pixelated;
+    animation: bob 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes bob { to { transform: translateX(-50%) translateY(-3px); } }
+  .sprite .hat {
+    width: 100%; height: 6px; background: #b53a2a;
+    box-shadow: inset 0 -2px 0 #80271a;
+  }
+  .sprite .head {
+    width: 100%; height: 8px; background: #f0c890;
+    box-shadow: inset 0 -2px 0 #c69f6a;
+  }
+  .sprite .body {
+    width: 100%; height: 12px; background: #4a7fbe;
+    box-shadow: inset 0 -2px 0 #305a8c;
+  }
+  .sprite .legs {
+    width: 100%; height: 4px; background: #3d2818;
+  }
+
+  /* Sign */
+  .sign {
+    position: absolute;
+    left: 20px; top: 33%;
+    background: #c69968;
+    color: var(--text);
+    padding: 8px 12px;
+    border: 3px solid var(--text);
+    font-family: ui-monospace, monospace;
+    font-size: 11px; line-height: 1.5;
+    z-index: 4;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+    max-width: 200px;
+  }
+  .sign h3 { margin: 0 0 4px; font-size: 12px; color: #4a2818; }
+  .sign::before {
+    content: ""; position: absolute; bottom: -28px; left: 30px;
+    width: 6px; height: 28px; background: #4a2818;
+  }
+
+  /* Dialog box */
+  .dialog {
+    position: fixed; left: 50%; bottom: -300px;
+    transform: translateX(-50%);
+    width: 92vw; max-width: 680px;
+    background: #fff;
+    border: 4px solid var(--text);
+    padding: 16px 20px 18px;
+    font-family: ui-monospace, monospace;
+    font-size: 13px; line-height: 1.6;
+    transition: bottom 0.3s ease;
+    z-index: 100;
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
+  }
+  .dialog.open { bottom: 20px; }
+  .dialog .speaker {
+    position: absolute; top: -16px; left: 16px;
+    background: var(--text); color: #fff;
+    padding: 2px 10px; font-size: 11px;
+    border: 2px solid var(--text);
+  }
+  .dialog h2 { margin: 6px 0 8px; font-size: 16px; }
+  .dialog p { margin: 0 0 8px; font-size: 13px; }
+  .dialog .tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 4px; }
+  .dialog .tag {
+    background: #e8e8e8; border: 2px solid var(--text);
+    padding: 1px 7px; font-size: 10px;
+  }
+  .dialog .close-x {
+    position: absolute; top: 6px; right: 10px;
+    background: none; border: none; cursor: pointer;
+    font-family: ui-monospace, monospace; font-size: 16px;
+  }
+  .dialog .arrow {
+    position: absolute; bottom: 8px; right: 16px;
+    font-size: 14px; color: var(--text);
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Tree decoration */
+  .tree {
+    position: absolute;
+    font-size: 32px;
+    z-index: 3;
+    image-rendering: pixelated;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<div class="topbar">Welcome to Paul-town · pop. <span class="pop" id="pop">--</span></div>
+
+<div class="town" id="town">
+
+  <!-- path crossroad -->
+  <div class="path-h" style="top: 56%;"></div>
+  <div class="path-v" style="left: 48%;"></div>
+
+  <!-- pond -->
+  <div class="pond"></div>
+
+  <!-- decorative trees -->
+  <div class="tree" style="top: 35%; left: 6%;">🌳</div>
+  <div class="tree" style="top: 36%; left: 14%;">🌲</div>
+  <div class="tree" style="top: 78%; left: 4%;">🌳</div>
+  <div class="tree" style="top: 35%; right: 8%;">🌲</div>
+  <div class="tree" style="top: 76%; right: 22%;">🌳</div>
+  <div class="tree" style="top: 32%; left: 88%;">🌳</div>
+
+  <!-- sign -->
+  <div class="sign">
+    <h3>📜 town sign</h3>
+    點任一棟建築進去看看。<br/>
+    每棟 = 一個工具。
+  </div>
+
+  <!-- NPC sprite -->
+  <div class="sprite">
+    <div class="hat"></div>
+    <div class="head"></div>
+    <div class="body"></div>
+    <div class="legs"></div>
+  </div>
+
+  <!-- buildings injected by JS -->
+</div>
+
+<!-- Dialog -->
+<div class="dialog" id="dialog">
+  <div class="speaker" id="dlg-speaker">building</div>
+  <button class="close-x" onclick="closeDialog()">[X]</button>
+  <h2 id="dlg-name">—</h2>
+  <p id="dlg-desc">—</p>
+  <div class="tags" id="dlg-tags"></div>
+  <p style="color: #555; font-size: 11px;"><span id="dlg-meta"></span></p>
+  <div class="arrow">▼</div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Buildings positioned on a rough 4x4 grid around the crossroad
+  // Roof colors per category
+  const ROOF = {
+    translate:  '#d56b6b',
+    automate:   '#5ab3e0',
+    media:      '#b58dd9',
+    growth:     '#6fbf73',
+    web:        '#f4c25b',
+    system:     '#888',
+    misc:       '#aaa',
+  };
+  function categoryOf(t) {
+    if (t.tags.includes('gemini')) return 'translate';
+    if (t.tags.includes('notion') && (t.tags.includes('github actions') || t.tags.includes('uv'))) return 'automate';
+    if (t.tags.includes('discord')) return 'automate';
+    if (t.tags.includes('rss')) return 'automate';
+    if (t.tags.includes('whisper') || t.tags.includes('yt-dlp') || t.tags.includes('lottie')) return 'media';
+    if (t.tags.includes('analytics')) return 'growth';
+    if (t.tags.includes('react')) return 'web';
+    if (t.tags.includes('shell')) return 'system';
+    return 'misc';
+  }
+  function npcLineOf(t) {
+    if (t.status === 'retired') return '這裡好像已經沒人住了…';
+    if (t.status === 'experiment') return '※ 警告：此設施仍在實驗中 ※';
+    const lines = [
+      '歡迎光臨！需要點什麼？',
+      '※ 這裡是 ' + t.name + ' ※',
+      '聽說鎮上的人都來這邊。',
+      '老闆說：「跑很久了。」',
+    ];
+    return lines[Math.floor(Math.random() * lines.length)];
+  }
+
+  const town = document.getElementById('town');
+  document.getElementById('pop').textContent = window.TOOLS.length;
+
+  // Layout positions (percentage) — manually placed in 4 quadrants
+  const SLOTS = [
+    { x: 8,  y: 38 }, { x: 22, y: 38 }, { x: 36, y: 38 },
+    { x: 60, y: 38 }, { x: 74, y: 38 }, { x: 88, y: 38 },
+    { x: 8,  y: 64 }, { x: 22, y: 64 }, { x: 36, y: 64 },
+    { x: 60, y: 64 }, { x: 74, y: 64 },
+    { x: 8,  y: 82 }, { x: 22, y: 82 }, { x: 36, y: 82 },
+    { x: 60, y: 82 }, { x: 74, y: 82 }, { x: 88, y: 82 },
+    { x: 88, y: 64 },
+  ];
+
+  window.TOOLS.forEach((t, i) => {
+    const slot = SLOTS[i % SLOTS.length];
+    const cat = categoryOf(t);
+    const b = document.createElement('div');
+    b.className = 'building' + (t.status === 'retired' ? ' retired' : t.status === 'experiment' ? ' experiment' : '');
+    b.style.left = slot.x + '%';
+    b.style.top  = slot.y + '%';
+    b.style.setProperty('--roof', ROOF[cat]);
+    const fav = ['document_translator','ledger_analysis','travel','personal_retro'].includes(t.id);
+    b.innerHTML = `
+      ${fav ? '<div class="badge">★</div>' : ''}
+      <div class="roof"></div>
+      <div class="icon">${t.icon}</div>
+      <div class="name">${t.name}</div>
+      <div class="door"></div>
+    `;
+    b.addEventListener('click', () => openDialog(t));
+    town.appendChild(b);
+  });
+
+  function openDialog(t) {
+    document.getElementById('dlg-speaker').textContent = t.name;
+    document.getElementById('dlg-name').innerHTML = `${t.icon}  ${t.name}`;
+    document.getElementById('dlg-desc').textContent = `「${npcLineOf(t)}」  ` + t.summary;
+    const tagsEl = document.getElementById('dlg-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tag => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tag; tagsEl.appendChild(sp);
+    });
+    document.getElementById('dlg-meta').textContent = `runs: ${t.runs}  ·  status: ${t.status}`;
+    document.getElementById('dialog').classList.add('open');
+  }
+  function closeDialog() { document.getElementById('dialog').classList.remove('open'); }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'x' || e.key === 'X') closeDialog();
+  });
+</script>
+</body>
+</html>

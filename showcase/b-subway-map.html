@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>B · Subway Map — paul's tools</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #111827;
+    --border: #1f2937;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+    --orange: #fb923c;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --green: #34d399;
+    --gray: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,0.10), transparent 60%),
+      radial-gradient(900px 500px at 110% 110%, rgba(192,132,252,0.08), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Helvetica Neue", "PingFang TC", system-ui, sans-serif;
+    overflow: hidden;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(255,255,255,0.08); color: var(--text);
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+  .back-gallery:hover { background: rgba(255,255,255,0.18); }
+  header {
+    padding: 18px 28px 10px 110px;
+    display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  }
+  header h1 { margin: 0; font-size: 22px; }
+  header .subtitle { color: var(--muted); font-size: 13px; }
+  .map-wrap { width: 100vw; height: calc(100vh - 72px); position: relative; }
+  svg.map { width: 100%; height: 100%; display: block; }
+  .line { fill: none; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; opacity: 0.95; }
+  .infra { fill: none; stroke: var(--gray); stroke-width: 2.5; stroke-dasharray: 2 7; stroke-linecap: round; opacity: 0.55; }
+  .line-label { font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; fill: currentColor; opacity: 0.9; }
+  .station { cursor: pointer; }
+  .station .hit { fill: transparent; }
+  .station circle.dot {
+    fill: var(--bg); stroke-width: 4;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    transform-box: fill-box; transform-origin: center;
+  }
+  .station:hover circle.dot { transform: scale(1.15); filter: drop-shadow(0 0 6px currentColor); }
+  .station text { fill: var(--text); font-size: 12.5px; font-weight: 600; pointer-events: none; }
+  .station text.sub { fill: var(--muted); font-size: 10.5px; font-weight: 500; font-family: ui-monospace, Menlo, monospace; }
+  .transfer circle.ring-outer { fill: var(--bg); stroke: var(--text); stroke-width: 3.5; }
+  .transfer circle.ring-inner { fill: var(--text); }
+  .hub rect.body { fill: var(--bg); stroke: var(--gray); stroke-width: 2.5; stroke-dasharray: 4 4; rx: 8; ry: 8; }
+  .hub text { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+  .hub:hover rect.body { stroke: #fff; stroke-dasharray: 0; }
+  .legend {
+    position: absolute; right: 24px; top: 24px;
+    background: rgba(17, 24, 39, 0.85);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; backdrop-filter: blur(8px);
+    font-size: 13px; min-width: 210px;
+  }
+  .legend h3 { margin: 0 0 10px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+  .legend-row { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
+  .legend-swatch { width: 26px; height: 4px; border-radius: 2px; flex: none; }
+  .legend-swatch.dashed { height: 0; border-top: 2px dashed var(--gray); background: transparent; }
+  .legend-mini { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11.5px; line-height: 1.55; }
+  .drawer {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 400px; max-width: 92vw;
+    background: linear-gradient(180deg, #111827 0%, #0d1320 100%);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(.2,.7,.2,1);
+    padding: 28px 26px 24px; overflow-y: auto;
+    box-shadow: -16px 0 40px rgba(0,0,0,0.4);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer .close-x { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+  .drawer h2 { margin: 0 0 6px; font-size: 22px; }
+  .drawer .path { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 12px; margin-bottom: 16px; }
+  .drawer .lines-served { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .line-chip { font-size: 11px; padding: 4px 10px; border-radius: 10px; color: #0b0f17; font-weight: 700; }
+  .drawer p { line-height: 1.65; font-size: 14px; color: #d6dbe5; margin: 0 0 14px; }
+  .drawer .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 18px; }
+  .tag { background: #1f2937; color: #e5e7eb; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-family: ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <h1>🛠 paul's tools <span style="color:var(--muted); font-weight:500;">— 路線圖</span></h1>
+  <span class="subtitle">點任一站看詳細 · 雙圈 = 轉乘站 · 灰色虛線 = 共用的 common/ 模組</span>
+</header>
+
+<div class="map-wrap">
+  <svg class="map" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid meet">
+    <path class="infra" d="M 280 150 C 280 80, 360 60, 440 60 L 560 60 C 640 60, 760 80, 760 150" />
+    <path class="infra" d="M 520 150 L 520 80" />
+    <path class="infra" d="M 740 320 C 1000 340, 1180 480, 1180 540 C 1180 700, 900 720, 760 720 L 540 720 C 380 720, 280 700, 280 680" />
+    <path class="infra" d="M 380 320 C 120 360, 60 520, 90 600 C 120 680, 320 700, 520 680" />
+
+    <path class="line" stroke="#fb923c" d="M 220 150 L 820 150" />
+    <text class="line-label" x="840" y="155" style="color: #fb923c">翻譯線</text>
+    <path class="line" stroke="#60a5fa" d="M 160 320 L 970 320" />
+    <text class="line-label" x="990" y="325" style="color: #60a5fa">內容自動化</text>
+    <path class="line" stroke="#c084fc" d="M 220 490 L 820 490" />
+    <text class="line-label" x="840" y="495" style="color: #c084fc">多媒體</text>
+    <path class="line" stroke="#34d399" d="M 220 660 L 820 660" />
+    <text class="line-label" x="840" y="665" style="color: #34d399">個人成長</text>
+
+    <g class="hub station" data-id="common/gemini" transform="translate(440,42)">
+      <rect class="body" width="160" height="36" />
+      <text x="80" y="22" text-anchor="middle" fill="#cbd5e1">common/gemini</text>
+    </g>
+    <g class="hub station" data-id="common/notion" transform="translate(1140,524)">
+      <rect class="body" width="150" height="36" />
+      <text x="75" y="22" text-anchor="middle" fill="#cbd5e1">common/notion</text>
+    </g>
+    <g class="hub station" data-id="common/notify" transform="translate(40,560)">
+      <rect class="body" width="150" height="36" />
+      <text x="75" y="22" text-anchor="middle" fill="#cbd5e1">common/notify</text>
+    </g>
+
+    <g id="stations"></g>
+  </svg>
+
+  <div class="legend">
+    <h3>路線</h3>
+    <div class="legend-row"><span class="legend-swatch" style="background:#fb923c"></span>翻譯線</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#60a5fa"></span>內容自動化</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#c084fc"></span>多媒體</div>
+    <div class="legend-row"><span class="legend-swatch" style="background:#34d399"></span>個人成長</div>
+    <div class="legend-row"><span class="legend-swatch dashed"></span>基礎建設 (common/)</div>
+    <div class="legend-mini">◎ 雙圈 = 轉乘站<br/>被多個 workflow 共用的工具</div>
+  </div>
+
+  <aside class="drawer" id="drawer">
+    <button class="close-x" onclick="closeDrawer()">×</button>
+    <h2 id="d-name">—</h2>
+    <div class="path" id="d-path">—</div>
+    <div class="lines-served" id="d-lines"></div>
+    <p id="d-desc">—</p>
+    <div class="tags" id="d-tags"></div>
+  </aside>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  const POS = {
+    document_translator: { x: 280, y: 150, line: 'orange', transfer: true, sub: 'docx · md · epub · pdf' },
+    translate:           { x: 520, y: 150, line: 'orange', transfer: true, sub: 'raycast quick translate' },
+    thread_extractor:    { x: 760, y: 150, line: 'orange', sub: 'X / Threads → text' },
+
+    rss:                 { x: 200, y: 320, line: 'blue', sub: 'sync to Notion' },
+    rss_hub:             { x: 380, y: 320, line: 'blue', transfer: true, sub: 'personal feed' },
+    read_later:          { x: 560, y: 320, line: 'blue', sub: 'feed.xml' },
+    medium:              { x: 740, y: 320, line: 'blue', transfer: true, sub: 'Notion → Medium' },
+    sharing:             { x: 920, y: 320, line: 'blue', sub: 'Discord bot · VPS' },
+
+    transcribe:          { x: 280, y: 490, line: 'purple', sub: 'BlackHole + whisper' },
+    media_download:      { x: 520, y: 490, line: 'purple', sub: 'yt-dlp wrapper' },
+    lottie:              { x: 760, y: 490, line: 'purple', sub: 'animation helpers' },
+
+    ledger_analysis:     { x: 280, y: 660, line: 'green', transfer: true, sub: 'monthly · GH Actions' },
+    personal_retro:      { x: 520, y: 660, line: 'green', transfer: true, sub: 'weekly retro' },
+    leadtime_analyze:    { x: 760, y: 660, line: 'green', sub: 'cycle time' },
+  };
+  const LINE_COLOR = { orange: '#fb923c', blue: '#60a5fa', purple: '#c084fc', green: '#34d399' };
+  const LINE_NAME  = { orange: '翻譯線', blue: '內容自動化', purple: '多媒體', green: '個人成長' };
+
+  const stationsG = document.getElementById('stations');
+  Object.entries(POS).forEach(([id, p]) => {
+    const tool = window.TOOLS.find(t => t.id === id);
+    if (!tool) return;
+    const color = LINE_COLOR[p.line];
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'station' + (p.transfer ? ' transfer' : ''));
+    g.setAttribute('data-id', id);
+    g.setAttribute('transform', `translate(${p.x},${p.y})`);
+    g.innerHTML = p.transfer
+      ? `<circle class="hit" r="22"/>
+         <circle class="ring-outer" r="13"/>
+         <circle class="ring-inner" r="5"/>
+         <text x="0" y="-26" text-anchor="middle">${id}</text>
+         <text class="sub" x="0" y="34" text-anchor="middle">${p.sub}</text>`
+      : `<circle class="hit" r="22"/>
+         <circle class="dot" r="10" stroke="${color}" style="color:${color}"/>
+         <text x="0" y="-22" text-anchor="middle">${id}</text>
+         <text class="sub" x="0" y="34" text-anchor="middle">${p.sub}</text>`;
+    stationsG.appendChild(g);
+  });
+
+  // common station hubs as virtual stations
+  const VIRTUAL = {
+    'common/gemini':  { line: 'orange', sub: 'shared util · Gemini wrapper', uses: ['document_translator','translate','ledger_analysis'] },
+    'common/notion':  { line: 'blue',   sub: 'shared util · Notion API',     uses: ['ledger_analysis','personal_retro','medium','rss'] },
+    'common/notify':  { line: 'green',  sub: 'shared util · Discord/macOS',  uses: ['personal_retro','rss_hub'] },
+  };
+
+  const drawer = document.getElementById('drawer');
+  const elName = document.getElementById('d-name');
+  const elPath = document.getElementById('d-path');
+  const elLines = document.getElementById('d-lines');
+  const elDesc = document.getElementById('d-desc');
+  const elTags = document.getElementById('d-tags');
+
+  function chip(text, bg) {
+    const span = document.createElement('span');
+    span.className = 'line-chip'; span.style.background = bg; span.textContent = text;
+    return span;
+  }
+  function openStation(id) {
+    const t = window.TOOLS.find(x => x.id === id);
+    const v = VIRTUAL[id];
+    elName.textContent = id;
+    elLines.innerHTML = ''; elTags.innerHTML = '';
+    if (t) {
+      const lineKey = POS[id]?.line;
+      elPath.textContent = `${id}/`;
+      if (lineKey) elLines.appendChild(chip(LINE_NAME[lineKey], LINE_COLOR[lineKey]));
+      elDesc.textContent = t.summary;
+      t.tags.forEach(tg => {
+        const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; elTags.appendChild(sp);
+      });
+    } else if (v) {
+      elPath.textContent = `${id}.py`;
+      elLines.appendChild(chip('common/', '#cbd5e1'));
+      elDesc.textContent = `${v.sub}. 被以下工具使用：${v.uses.join(' · ')}`;
+    }
+    drawer.classList.add('open');
+  }
+  function closeDrawer() { drawer.classList.remove('open'); }
+  document.querySelectorAll('.station').forEach(el => el.addEventListener('click', () => openStation(el.dataset.id)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+</script>
+</body>
+</html>

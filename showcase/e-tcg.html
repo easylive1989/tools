@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>E · Tool TCG — paul's tools</title>
+<style>
+  :root {
+    --bg: #1a1230;
+    --bg-2: #2a1c4d;
+    --binder: #3b1a4b;
+    --binder-edge: #5a2a72;
+    --gold: #f9d56e;
+    --text: #f5e9ff;
+    --muted: #b9a8d6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background:
+      radial-gradient(1200px 700px at 30% 0%, #4a2887 0%, transparent 60%),
+      radial-gradient(800px 600px at 100% 100%, #6a3b97 0%, transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", sans-serif;
+    overflow-x: hidden;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(255,255,255,0.1); color: var(--text);
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(6px);
+  }
+
+  header {
+    padding: 50px 32px 16px; text-align: center;
+  }
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 34px; font-weight: 800; letter-spacing: -0.5px;
+    background: linear-gradient(90deg, var(--gold), #ffd97a, #fbeaa1, var(--gold));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 12px rgba(249,213,110,0.3));
+  }
+  header .sub { color: var(--muted); font-size: 14px; }
+
+  .tabs {
+    display: flex; justify-content: center; gap: 8px; margin: 20px 0 30px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.16);
+    color: var(--text);
+    padding: 7px 16px; border-radius: 999px; cursor: pointer;
+    font-size: 13px; font-family: ui-monospace, Menlo, monospace;
+  }
+  .tab.active { background: var(--gold); color: #1a1230; border-color: var(--gold); font-weight: 700; }
+
+  .binder {
+    max-width: 1180px; margin: 0 auto;
+    padding: 24px 28px 80px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 22px;
+    perspective: 1200px;
+  }
+  /* Card */
+  .card-wrap { perspective: 1200px; }
+  .card {
+    width: 100%;
+    aspect-ratio: 2.5 / 3.5;
+    border-radius: 14px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1);
+    cursor: pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card:hover { transform: rotateY(0deg) translateY(-4px); }
+  .card.flipped:hover { transform: rotateY(180deg) translateY(-4px); }
+
+  .face {
+    position: absolute; inset: 0; border-radius: 14px;
+    padding: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.18);
+  }
+  .face.back { transform: rotateY(180deg); }
+
+  /* rarity backgrounds */
+  .face.front.active {
+    background:
+      linear-gradient(135deg, #2d1856 0%, #4a2887 100%);
+  }
+  .face.front.holo {
+    background:
+      linear-gradient(135deg, #2d1856 0%, #4a2887 100%);
+  }
+  .face.front.holo::before {
+    content: ""; position: absolute; inset: 0; border-radius: 12px; pointer-events: none;
+    background:
+      conic-gradient(from var(--a, 0deg) at 50% 50%,
+        rgba(255,180,180,0.45),
+        rgba(180,255,200,0.45),
+        rgba(180,200,255,0.45),
+        rgba(255,230,180,0.45),
+        rgba(255,180,180,0.45));
+    mix-blend-mode: color-dodge;
+    opacity: 0.55;
+    animation: rotate-bg 6s linear infinite;
+  }
+  @keyframes rotate-bg { to { --a: 360deg; } }
+  .face.front.experiment {
+    background:
+      linear-gradient(135deg, #2a2a2a 0%, #4a4a4a 100%);
+    filter: saturate(0.6);
+  }
+  .face.front.retired {
+    background:
+      linear-gradient(135deg, #3a2a2a 0%, #5a3a3a 100%);
+    filter: saturate(0.4) brightness(0.85);
+  }
+  .face.front.retired::after {
+    content: "RETIRED";
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-22deg);
+    font-size: 28px; font-weight: 800;
+    color: #ff5959; opacity: 0.85;
+    border: 4px solid #ff5959;
+    padding: 4px 18px; border-radius: 4px;
+    letter-spacing: 4px;
+    z-index: 5;
+  }
+
+  .face .header-row {
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--gold);
+    font-size: 11px; font-family: ui-monospace, Menlo, monospace;
+    margin-bottom: 6px;
+    position: relative; z-index: 2;
+  }
+  .face .rarity {
+    background: rgba(0,0,0,0.4);
+    padding: 1px 6px; border-radius: 4px;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .face .art {
+    flex: 1;
+    background: rgba(0,0,0,0.35);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative; z-index: 2;
+    min-height: 110px;
+  }
+  .face .name {
+    color: #fff; font-weight: 800;
+    font-size: 15px;
+    margin: 10px 0 4px;
+    text-align: center;
+    word-break: break-word;
+    position: relative; z-index: 2;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+  .face .type {
+    color: var(--muted);
+    font-size: 10px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    position: relative; z-index: 2;
+  }
+  .face .stats {
+    background: rgba(0,0,0,0.4);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative; z-index: 2;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .face .stats .row { display: flex; justify-content: space-between; margin: 2px 0; }
+  .face .stats .row .k { color: var(--gold); }
+
+  /* Back face */
+  .face.back {
+    background:
+      repeating-linear-gradient(45deg, #2d1856 0 12px, #3a2168 12px 24px);
+    color: var(--text);
+    padding: 18px 16px 16px;
+    align-items: stretch;
+  }
+  .face.back h3 { margin: 0 0 6px; font-size: 16px; color: var(--gold); text-align: center; }
+  .face.back p { font-size: 12px; line-height: 1.5; color: var(--text); margin: 0 0 8px; }
+  .face.back .meta-row { font-size: 11px; color: var(--muted); margin: 3px 0; font-family: ui-monospace, Menlo, monospace; }
+  .face.back .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; justify-content: center; }
+  .face.back .tag {
+    font-size: 10px; padding: 2px 7px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+
+  .info {
+    text-align: center; color: var(--muted); font-size: 12px;
+    margin-bottom: 30px; font-family: ui-monospace, Menlo, monospace;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <h1>✦ paul's tools — collector's binder ✦</h1>
+  <div class="sub">每張卡都是一個我做的小工具 · 點卡片翻面看背面細節</div>
+</header>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-filter="all">All</div>
+  <div class="tab" data-filter="active">Active</div>
+  <div class="tab" data-filter="experiment">Experiment</div>
+  <div class="tab" data-filter="retired">Retired</div>
+</div>
+
+<div class="info">tip · hover 卡片看 3D 傾斜 · holo 卡是長期跑的自動化</div>
+
+<div class="binder">
+  <div class="grid" id="grid"></div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Rarity logic: active automation = holo; manual active = normal; experiment / retired keep their style
+  const HOLO_IDS = new Set(['ledger_analysis', 'rss_hub', 'read_later', 'sharing', 'travel', 'personal_retro']);
+  function rarityOf(t) {
+    if (t.status === 'retired') return { cls: 'retired', label: 'RETIRED' };
+    if (t.status === 'experiment') return { cls: 'experiment', label: 'COMMON' };
+    if (HOLO_IDS.has(t.id)) return { cls: 'holo', label: '✦ HOLO ✦' };
+    return { cls: 'active', label: 'RARE' };
+  }
+  function typeOf(t) {
+    if (t.tags.includes('gemini')) return 'Translation';
+    if (t.tags.includes('notion') && t.tags.includes('github actions')) return 'Automation';
+    if (t.tags.includes('discord')) return 'Communication';
+    if (t.tags.includes('rss')) return 'Content';
+    if (t.tags.includes('whisper') || t.tags.includes('yt-dlp')) return 'Media';
+    if (t.tags.includes('react')) return 'Web App';
+    if (t.tags.includes('shell')) return 'System';
+    return 'Utility';
+  }
+
+  const grid = document.getElementById('grid');
+  let currentFilter = 'all';
+  function render() {
+    grid.innerHTML = '';
+    window.TOOLS
+      .filter(t => currentFilter === 'all' || t.status === currentFilter)
+      .forEach((t, i) => {
+        const r = rarityOf(t);
+        const collNum = String(i + 1).padStart(3, '0');
+        const total = String(window.TOOLS.length).padStart(3, '0');
+        const wrap = document.createElement('div');
+        wrap.className = 'card-wrap';
+        wrap.innerHTML = `
+          <div class="card" data-id="${t.id}">
+            <div class="face front ${r.cls}">
+              <div class="header-row">
+                <span>#${collNum}/${total}</span>
+                <span class="rarity">${r.label}</span>
+              </div>
+              <div class="art">${t.icon}</div>
+              <div class="name">${t.name}</div>
+              <div class="type">${typeOf(t)}</div>
+              <div class="stats">
+                <div class="row"><span class="k">runs</span><span>${t.runs}</span></div>
+                <div class="row"><span class="k">stack</span><span>${t.tags.slice(0,2).join(' · ')}</span></div>
+              </div>
+            </div>
+            <div class="face back">
+              <h3>${t.name}</h3>
+              <p>${t.summary}</p>
+              <div class="meta-row">▸ status: ${t.status}</div>
+              <div class="meta-row">▸ runs: ${t.runs}</div>
+              <div class="tags">${t.tags.map(x => `<span class="tag">${x}</span>`).join('')}</div>
+            </div>
+          </div>
+        `;
+        wrap.querySelector('.card').addEventListener('click', (e) => {
+          e.currentTarget.classList.toggle('flipped');
+        });
+        grid.appendChild(wrap);
+      });
+  }
+  render();
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      currentFilter = t.dataset.filter;
+      render();
+    });
+  });
+
+  // 3D tilt on hover
+  grid.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.card');
+    if (!card || card.classList.contains('flipped')) return;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `rotateY(${x * 14}deg) rotateX(${-y * 14}deg) translateY(-4px)`;
+  });
+  grid.addEventListener('mouseleave', (e) => {
+    document.querySelectorAll('.card').forEach(c => {
+      if (!c.classList.contains('flipped')) c.style.transform = '';
+    });
+  }, true);
+  grid.addEventListener('mouseout', (e) => {
+    const card = e.target.closest('.card');
+    if (card && !card.contains(e.relatedTarget) && !card.classList.contains('flipped')) {
+      card.style.transform = '';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>G · Zen Garden — paul's tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --soil: #d8c9a3;
+    --soil-2: #c4b48a;
+    --stone: #e4dfd0;
+    --moss: #6e8a4a;
+    --moss-dark: #4a6028;
+    --wood: #6e4a30;
+    --wood-light: #a07a52;
+    --paper: #f8f3e3;
+    --ink: #2c2820;
+    --accent: #b85c3e;
+    --muted: #806e54;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    font-family: 'Shippori Mincho', "Noto Serif TC", "PingFang TC", serif;
+    color: var(--ink);
+    background:
+      /* sand garden raked pattern */
+      repeating-radial-gradient(circle at 50% 30%,
+        transparent 0 60px,
+        rgba(180, 160, 110, 0.18) 60px 62px),
+      radial-gradient(ellipse at 50% 30%, #efe7cf 0%, var(--soil) 70%, var(--soil-2) 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: var(--ink); color: var(--paper);
+    padding: 5px 14px; border-radius: 0; font-size: 12px;
+    text-decoration: none; font-family: 'Shippori Mincho', serif;
+    letter-spacing: 2px;
+  }
+
+  header {
+    padding: 60px 32px 30px;
+    text-align: center;
+  }
+  header .seal {
+    display: inline-block;
+    width: 60px; height: 60px;
+    background: var(--accent); color: var(--paper);
+    font-size: 28px; line-height: 60px;
+    font-family: 'Shippori Mincho', serif; font-weight: 700;
+    margin-bottom: 16px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  }
+  header h1 {
+    margin: 0;
+    font-size: 38px; font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--ink);
+  }
+  header h1 .small { font-size: 14px; letter-spacing: 2px; color: var(--muted); font-weight: 500; }
+  header .sub {
+    margin-top: 12px;
+    color: var(--muted); font-size: 14px; letter-spacing: 1px;
+  }
+
+  .stones {
+    position: relative;
+    margin: 30px auto 60px;
+    max-width: 1100px;
+    padding: 0 40px;
+  }
+  /* big stones / boulders as decoration */
+  .stones::before, .stones::after {
+    content: ""; position: absolute;
+    background: var(--stone);
+    border-radius: 50% 60% 55% 45% / 60% 50% 60% 50%;
+    box-shadow: inset 4px -8px 0 rgba(0,0,0,0.08), 4px 4px 12px rgba(80,60,30,0.18);
+    z-index: 0;
+  }
+  .stones::before { width: 130px; height: 80px; left: -20px; top: -10px; transform: rotate(-12deg); }
+  .stones::after  { width: 100px; height: 60px; right: 0;   top: 200px; transform: rotate(8deg); }
+
+  .garden {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 22px 18px;
+    position: relative;
+    z-index: 2;
+    padding: 20px 0;
+  }
+  .plant {
+    text-align: center;
+    cursor: pointer;
+    padding: 8px 4px 16px;
+    position: relative;
+    transition: transform 0.2s ease;
+  }
+  .plant:hover { transform: translateY(-4px); }
+  .plant .leaves {
+    font-size: 48px;
+    line-height: 1;
+    margin-bottom: 4px;
+    display: inline-block;
+    animation: sway 4s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+  }
+  .plant:nth-child(3n) .leaves   { animation-duration: 5s; animation-delay: -1s; }
+  .plant:nth-child(5n) .leaves   { animation-duration: 6s; animation-delay: -2s; }
+  @keyframes sway {
+    0%   { transform: rotate(-3deg); }
+    100% { transform: rotate(3deg); }
+  }
+  .plant .pot {
+    width: 70px; height: 16px; margin: -2px auto 6px;
+    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 100%);
+    clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+  }
+  .plant .label {
+    display: inline-block;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--wood);
+    padding: 2px 10px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    font-family: ui-monospace, Menlo, monospace;
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+    max-width: 130px;
+    word-break: break-word;
+  }
+  .plant.experiment .leaves { filter: hue-rotate(-20deg) saturate(0.8); }
+  .plant.retired .leaves { filter: grayscale(1) brightness(0.7); }
+  .plant.retired .leaves::after { content: ""; }
+  .plant.retired .label { color: var(--muted); text-decoration: line-through; }
+  .plant.retired::after {
+    content: "枯";
+    position: absolute; top: 4px; right: 8px;
+    color: var(--accent); font-weight: 700; font-size: 18px;
+    opacity: 0.7;
+  }
+
+  .plant .petals {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    pointer-events: none;
+    text-align: center;
+  }
+  .plant.flowering .petals::before {
+    content: "✿";
+    position: absolute; left: 40%; top: 0;
+    color: #f1a3b5;
+    font-size: 16px;
+    animation: fall 6s linear infinite;
+    opacity: 0;
+  }
+  .plant.flowering .petals::after {
+    content: "✿";
+    position: absolute; left: 60%; top: 0;
+    color: #f7c4d2;
+    font-size: 14px;
+    animation: fall 7s linear infinite;
+    animation-delay: -2.5s;
+    opacity: 0;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.9; }
+    100% { transform: translateY(120px) rotate(360deg); opacity: 0; }
+  }
+
+  /* Wooden plaque side panel */
+  .plaque {
+    position: fixed;
+    right: -420px; top: 50%; transform: translateY(-50%);
+    width: 380px; max-width: 92vw;
+    background:
+      linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 100%);
+    color: var(--paper);
+    padding: 26px 26px 24px;
+    border: 6px double var(--paper);
+    box-shadow: -10px 8px 24px rgba(50, 30, 10, 0.35);
+    transition: right 0.32s cubic-bezier(.2,.7,.2,1);
+    z-index: 50;
+    font-family: 'Shippori Mincho', serif;
+  }
+  .plaque.open { right: 28px; }
+  .plaque .close-x {
+    position: absolute; top: 8px; right: 12px;
+    background: none; border: none; color: var(--paper); cursor: pointer;
+    font-size: 18px; font-family: 'Shippori Mincho', serif;
+  }
+  .plaque .seal-small {
+    display: inline-block; padding: 2px 10px;
+    background: var(--accent); color: var(--paper);
+    font-size: 11px; letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .plaque h2 {
+    font-size: 24px; margin: 0 0 4px;
+    letter-spacing: 1.5px;
+  }
+  .plaque .path {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11.5px; color: rgba(248, 243, 227, 0.7);
+    margin-bottom: 14px;
+  }
+  .plaque p {
+    line-height: 1.7; font-size: 14px;
+    color: var(--paper);
+    margin: 8px 0;
+  }
+  .plaque hr {
+    border: none;
+    border-top: 1px dashed rgba(248,243,227,0.4);
+    margin: 14px 0;
+  }
+  .plaque .meta {
+    font-size: 12.5px; color: rgba(248,243,227,0.85);
+    line-height: 1.7;
+  }
+  .plaque .meta strong { color: var(--paper); }
+  .plaque .tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
+  .plaque .tag {
+    background: rgba(0,0,0,0.25);
+    padding: 2px 9px;
+    font-size: 11px;
+    font-family: ui-monospace, Menlo, monospace;
+    color: var(--paper);
+  }
+  .plaque .haiku {
+    font-style: italic;
+    color: rgba(248,243,227,0.75);
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: right;
+  }
+
+  /* faint koi swimming */
+  .koi {
+    position: fixed; bottom: 30px; right: 40px;
+    font-size: 28px;
+    opacity: 0.4;
+    animation: swim 14s ease-in-out infinite alternate;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes swim {
+    0%   { transform: translateX(0) rotate(-6deg); }
+    100% { transform: translateX(-160px) rotate(6deg); }
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <div class="seal">道</div>
+  <h1>工 具 庭 院 <span class="small">/ tool garden</span></h1>
+  <div class="sub">毎日少しずつ、手をかけて育てる。 · 每天一點點地照顧</div>
+</header>
+
+<div class="stones">
+  <div class="garden" id="garden"></div>
+</div>
+
+<aside class="plaque" id="plaque">
+  <button class="close-x" onclick="closePlaque()">✕ 閉</button>
+  <span class="seal-small" id="p-status">ACTIVE</span>
+  <h2 id="p-name">—</h2>
+  <div class="path" id="p-path">—</div>
+  <p id="p-desc">—</p>
+  <hr/>
+  <div class="meta">
+    <div><strong>runs:</strong> <span id="p-runs"></span></div>
+    <div><strong>stack:</strong></div>
+    <div class="tags" id="p-tags"></div>
+  </div>
+  <div class="haiku" id="p-haiku">— 庭の片隅にて —</div>
+</aside>
+
+<div class="koi">🐠</div>
+
+<script src="tools.js"></script>
+<script>
+  // Pick a plant emoji based on tags / status
+  const FLOWER = ['🌸','🌼','🌺','🌷','🪷'];
+  const LEAF   = ['🌿','🌱','🍃','🌾'];
+  const TREE   = ['🌳','🌲','🪴'];
+  function plantOf(t) {
+    if (t.status === 'retired') return '🍂';
+    if (t.status === 'experiment') return '🌱';
+    // active: pick by tag flavor
+    if (t.tags.includes('gemini')) return '🌸';
+    if (t.tags.includes('notion')) return '🪷';
+    if (t.tags.includes('discord')) return '🍀';
+    if (t.tags.includes('rss')) return '🌾';
+    if (t.tags.includes('whisper')) return '🌷';
+    if (t.tags.includes('react')) return '🌳';
+    if (t.tags.includes('analytics')) return '🪴';
+    // fallback
+    const all = [...FLOWER, ...LEAF, ...TREE];
+    return all[Math.floor(Math.abs(t.id.charCodeAt(0) + t.id.length) % all.length)];
+  }
+  function haikuOf(t) {
+    if (t.status === 'retired') return '— 落ちる葉、また次の春に —';
+    if (t.status === 'experiment') return '— まだ小さい芽、未来の花 —';
+    return '— 静かに、毎日働く —';
+  }
+
+  const garden = document.getElementById('garden');
+  // Sort: actives first (in original order), then experiment, then retired
+  const order = { active: 0, experiment: 1, retired: 2 };
+  const sorted = [...window.TOOLS].sort((a,b) => order[a.status] - order[b.status]);
+  // Mark a few "flowering" ones (recently committed / fav)
+  const FLOWERING = new Set(['document_translator','ledger_analysis','personal_retro','travel']);
+
+  sorted.forEach(t => {
+    const p = document.createElement('div');
+    p.className = 'plant ' + t.status + (FLOWERING.has(t.id) ? ' flowering' : '');
+    p.innerHTML = `
+      <div class="petals"></div>
+      <div class="leaves">${plantOf(t)}</div>
+      <div class="pot"></div>
+      <br/><span class="label">${t.name}</span>
+    `;
+    p.addEventListener('click', () => openPlant(t));
+    garden.appendChild(p);
+  });
+
+  function openPlant(t) {
+    document.getElementById('p-status').textContent = t.status.toUpperCase();
+    document.getElementById('p-name').textContent = t.name;
+    document.getElementById('p-path').textContent = '~/tools/' + t.id + '/';
+    document.getElementById('p-desc').textContent = t.summary;
+    document.getElementById('p-runs').textContent = t.runs;
+    const tagsEl = document.getElementById('p-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tag => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tag; tagsEl.appendChild(sp);
+    });
+    document.getElementById('p-haiku').textContent = haikuOf(t);
+    document.getElementById('plaque').classList.add('open');
+  }
+  function closePlaque() { document.getElementById('plaque').classList.remove('open'); }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePlaque(); });
+</script>
+</body>
+</html>

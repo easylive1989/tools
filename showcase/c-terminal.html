@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>C · Terminal — paul's tools</title>
+<style>
+  :root {
+    --bg: #0a0e12;
+    --green: #33ff8a;
+    --green-dim: #1f9a55;
+    --amber: #f0c674;
+    --pink: #ff79c6;
+    --blue: #8be9fd;
+    --muted: #6b7280;
+    --red: #ff5c5c;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background:
+      radial-gradient(1200px 800px at 50% 30%, rgba(51,255,138,0.06), transparent 60%),
+      var(--bg);
+    color: var(--green);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    overflow: hidden;
+    position: relative;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.18) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+    z-index: 1000;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.55) 100%);
+    z-index: 999;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; right: 14px; z-index: 99998;
+    background: rgba(51,255,138,0.08); color: var(--green);
+    padding: 5px 12px; border-radius: 4px; font-size: 11px;
+    text-decoration: none; border: 1px solid rgba(51,255,138,0.3);
+  }
+  .back-gallery:hover { background: rgba(51,255,138,0.2); }
+
+  .term {
+    position: relative; z-index: 10;
+    padding: 30px 36px 80px;
+    max-width: 980px; margin: 0 auto;
+    min-height: 100vh;
+    font-size: 14px; line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .term .out { color: #d1ffe0; }
+  .term .dim { color: var(--green-dim); }
+  .term .amber { color: var(--amber); }
+  .term .pink { color: var(--pink); }
+  .term .blue { color: var(--blue); }
+  .term .red { color: var(--red); }
+  .term .muted { color: var(--muted); }
+  .term a { color: var(--blue); text-decoration: underline; }
+
+  .prompt-line {
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .prompt {
+    color: var(--green);
+    flex: none;
+    white-space: nowrap;
+  }
+  .prompt b { color: var(--pink); }
+  .prompt em { color: var(--amber); font-style: normal; }
+  .input-line {
+    color: var(--green);
+    flex: 1;
+    background: transparent; border: none; outline: none;
+    font: inherit;
+  }
+  .cursor {
+    display: inline-block; width: 8px; height: 16px; vertical-align: middle;
+    background: var(--green);
+    animation: blink 1s steps(2) infinite;
+    margin-left: 1px;
+  }
+  @keyframes blink { 50% { background: transparent; } }
+
+  .hint {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    color: var(--muted); font-size: 11px;
+    background: rgba(0,0,0,0.5); padding: 5px 12px; border-radius: 999px;
+    z-index: 50;
+  }
+  .hint kbd { color: var(--amber); }
+
+  .ascii { color: var(--green); display: inline-block; line-height: 1.1; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<div class="term" id="term"></div>
+
+<div class="hint">指令：<kbd>help</kbd>  <kbd>ls</kbd>  <kbd>cd &lt;tool&gt;</kbd>  <kbd>cat README</kbd>  <kbd>tree</kbd>  <kbd>fortune</kbd>  <kbd>clear</kbd></div>
+
+<script src="tools.js"></script>
+<script>
+  const term = document.getElementById('term');
+  let cwd = '~';
+  const STATE = { history: [], hIdx: -1 };
+
+  function el(tag, cls, html) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function write(html, cls) {
+    const line = el('div', 'out' + (cls ? ' ' + cls : ''));
+    line.innerHTML = html;
+    term.appendChild(line);
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function promptStr() {
+    return `<b>paul</b>@<em>tools</em>:<span class="blue">${cwd}</span><span class="pink">$</span>`;
+  }
+
+  function newPromptLine() {
+    const wrap = el('div', 'prompt-line');
+    const p = el('span', 'prompt');
+    p.innerHTML = promptStr() + ' ';
+    const input = el('input', 'input-line');
+    input.autocomplete = 'off'; input.spellcheck = false;
+    wrap.appendChild(p); wrap.appendChild(input);
+    term.appendChild(wrap);
+    input.focus();
+    input.addEventListener('keydown', onKey);
+    return input;
+  }
+
+  function onKey(e) {
+    const input = e.target;
+    if (e.key === 'Enter') {
+      const cmd = input.value;
+      input.disabled = true; input.removeEventListener('keydown', onKey);
+      // freeze: replace input with span
+      const line = input.parentElement;
+      const frozen = el('span', '', escapeHtml(cmd));
+      line.replaceChild(frozen, input);
+      if (cmd.trim()) { STATE.history.push(cmd); STATE.hIdx = STATE.history.length; }
+      runCommand(cmd.trim());
+      newPromptLine();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (STATE.hIdx > 0) { STATE.hIdx--; input.value = STATE.history[STATE.hIdx]; }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (STATE.hIdx < STATE.history.length - 1) { STATE.hIdx++; input.value = STATE.history[STATE.hIdx]; }
+      else { STATE.hIdx = STATE.history.length; input.value = ''; }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const v = input.value;
+      const parts = v.split(' ');
+      const last = parts[parts.length - 1];
+      if (!last) return;
+      const candidates = window.TOOLS.map(t => t.id).filter(n => n.startsWith(last));
+      if (candidates.length === 1) {
+        parts[parts.length - 1] = candidates[0];
+        input.value = parts.join(' ');
+      } else if (candidates.length > 1) {
+        write('<span class="dim">' + candidates.join('  ') + '</span>');
+      }
+    }
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function runCommand(cmd) {
+    if (!cmd) return;
+    const [name, ...args] = cmd.split(/\s+/);
+    const fn = COMMANDS[name];
+    if (!fn) {
+      // typo helper
+      const all = Object.keys(COMMANDS);
+      const close = all.find(c => c.startsWith(name[0] || ''));
+      write(`<span class="red">command not found:</span> ${escapeHtml(name)}${close ? ' — did you mean <span class="amber">' + close + '</span>?' : ''}`);
+      return;
+    }
+    fn(args);
+  }
+
+  const COMMANDS = {
+    help() {
+      write(`
+<span class="amber">commands</span>
+  <span class="blue">ls</span>             列出所有工具
+  <span class="blue">tree</span>           顯示資料夾樹
+  <span class="blue">cd</span> &lt;tool&gt;      進入工具資料夾
+  <span class="blue">cat</span> README     看 README 摘要
+  <span class="blue">stack</span> &lt;tool&gt;   看技術 stack
+  <span class="blue">status</span>         統計 active / experiment / retired
+  <span class="blue">whoami</span>         我是誰
+  <span class="blue">open</span> &lt;tool&gt;    在新分頁開 GitHub 連結
+  <span class="blue">fortune</span>        隨機格言
+  <span class="blue">clear</span>          清空畫面`);
+    },
+    ls() {
+      const cols = 4;
+      const tools = window.TOOLS.map(t => {
+        if (t.status === 'retired') return `<span class="muted" style="text-decoration:line-through">${t.name}</span>`;
+        if (t.status === 'experiment') return `<span class="amber">${t.name}</span>`;
+        return `<span class="blue">${t.name}</span>`;
+      });
+      let out = '';
+      tools.forEach((s, i) => {
+        out += s.padEnd(28) + ((i+1) % cols === 0 ? '\n' : '  ');
+      });
+      write(out);
+    },
+    tree() {
+      let out = 'tools/\n';
+      window.TOOLS.forEach((t, i) => {
+        const last = i === window.TOOLS.length - 1;
+        const prefix = last ? '└── ' : '├── ';
+        const badge = t.status === 'retired' ? ' <span class="red">(retired)</span>'
+                    : t.status === 'experiment' ? ' <span class="amber">(experiment)</span>'
+                    : '';
+        out += `<span class="dim">${prefix}</span>${t.icon}  ${t.name}${badge}\n`;
+      });
+      out += '<span class="dim">└── </span>common/\n';
+      out += '<span class="dim">    ├── </span>notion.py\n';
+      out += '<span class="dim">    ├── </span>gemini.py\n';
+      out += '<span class="dim">    └── </span>notify.py\n';
+      write(out);
+    },
+    cd(args) {
+      const target = args[0];
+      if (!target || target === '~' || target === '/' || target === '..') {
+        cwd = '~'; return;
+      }
+      const t = window.TOOLS.find(x => x.id === target);
+      if (!t) { write(`<span class="red">cd:</span> no such tool: ${escapeHtml(target)}`); return; }
+      cwd = '~/' + t.id;
+      write(`<span class="dim">→ entered ${t.name}</span>`);
+    },
+    cat(args) {
+      const target = args[0];
+      if (!target || target.toLowerCase() === 'readme' || target.toLowerCase() === 'readme.md') {
+        let id;
+        if (cwd !== '~') id = cwd.replace('~/', '');
+        if (target && target.includes('/')) id = target.split('/')[0];
+        const t = window.TOOLS.find(x => x.id === id);
+        if (!t) {
+          write('<span class="muted"># tools / README</span>\n\npaul 的小工具集合。<span class="dim">cd</span> 進任一資料夾，再 <span class="dim">cat README</span> 看細節。');
+          return;
+        }
+        write(
+`<span class="amber"># ${t.name}</span>  ${t.icon}  <span class="muted">[${t.status}]</span>
+
+${t.summary}
+
+<span class="dim">stack:</span>  ${t.tags.join(' · ')}
+<span class="dim">runs:</span>   ${t.runs}`);
+        return;
+      }
+      write(`<span class="red">cat:</span> ${escapeHtml(target)}: file not found`);
+    },
+    stack(args) {
+      const id = args[0] || (cwd !== '~' ? cwd.replace('~/', '') : null);
+      const t = window.TOOLS.find(x => x.id === id);
+      if (!t) { write('<span class="red">usage:</span> stack &lt;tool&gt;'); return; }
+      write(`${t.name}: <span class="blue">${t.tags.join('</span> · <span class="blue">')}</span>`);
+    },
+    status() {
+      const a = window.TOOLS.filter(t => t.status === 'active').length;
+      const x = window.TOOLS.filter(t => t.status === 'experiment').length;
+      const r = window.TOOLS.filter(t => t.status === 'retired').length;
+      write(`<span class="blue">active</span>:     ${a}\n<span class="amber">experiment</span>: ${x}\n<span class="muted">retired</span>:    ${r}\n<span class="dim">total:</span>      ${a+x+r}`);
+    },
+    whoami() {
+      write('paul — <span class="dim">builder of small tools</span>');
+    },
+    open(args) {
+      const id = args[0];
+      const t = window.TOOLS.find(x => x.id === id);
+      if (!t) { write('<span class="red">usage:</span> open &lt;tool&gt;'); return; }
+      const url = t.link || `${window.REPO_URL}/tree/master/${t.id}`;
+      write(`<span class="dim">opening</span> <a href="${url}" target="_blank">${url}</a>`);
+      window.open(url, '_blank', 'noopener');
+    },
+    fortune() {
+      const lines = [
+        '小工具的價值，不在它做了什麼，而在於它讓你不再做什麼。',
+        '能用 50 行解決的問題，不要寫 500 行。',
+        'Don\'t automate the things you only do once. — me, two years ago',
+        'common/ 是 repo 的良心。',
+        '今天廢的 script，明天會是另一個 script 的 import。',
+      ];
+      write('<span class="amber">' + lines[Math.floor(Math.random() * lines.length)] + '</span>');
+    },
+    clear() {
+      term.innerHTML = '';
+      banner();
+    },
+    sudo(args) {
+      if (args.join(' ').includes('rm -rf')) {
+        write('<span class="red">nice try 😏</span>'); return;
+      }
+      write('<span class="red">paul is not in the sudoers file. This incident will be reported.</span>');
+    },
+    exit() { write('<span class="muted">can\'t exit — this is a website.</span>'); },
+  };
+  COMMANDS.ll = COMMANDS.ls;
+  COMMANDS['?'] = COMMANDS.help;
+
+  function banner() {
+    write(`<span class="amber">
+ ╔═══════════════════════════════════════════════════╗
+ ║   paul's tools  ·  interactive shell  v1.0        ║
+ ║   ${window.TOOLS.length} tools loaded · type <span class="blue">help</span> to get started        ║
+ ╚═══════════════════════════════════════════════════╝</span>
+
+<span class="dim">last login: ${new Date().toUTCString()}</span>
+`);
+  }
+
+  banner();
+  newPromptLine();
+
+  document.addEventListener('click', () => {
+    const inputs = term.querySelectorAll('input.input-line');
+    const last = inputs[inputs.length - 1];
+    if (last && !last.disabled) last.focus();
+  });
+</script>
+</body>
+</html>

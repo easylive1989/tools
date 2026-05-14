@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>D · Notebook — paul's tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f8f1de;
+    --paper-line: #c8b89b;
+    --ink: #2d2520;
+    --red-ink: #b53a2a;
+    --blue-ink: #2b4d7a;
+    --postit-yellow: #fde58a;
+    --postit-pink:   #f7b9c5;
+    --postit-blue:   #b6d8f2;
+    --postit-green:  #c5e3b5;
+    --tape: rgba(212, 190, 130, 0.75);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Patrick Hand', 'Caveat', "Comic Sans MS", cursive, system-ui;
+    color: var(--ink);
+    background:
+      /* coffee stains */
+      radial-gradient(80px 70px at 85% 12%, rgba(120,75,40,0.18), transparent 70%),
+      radial-gradient(50px 45px at 12% 92%, rgba(120,75,40,0.12), transparent 70%),
+      /* grid lines */
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0 / 100% 28px,
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0 / 28px 100%,
+      var(--paper);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.025) 0 1px, transparent 1px 4px);
+    pointer-events: none;
+  }
+  /* left margin red line */
+  body::after {
+    content: ""; position: fixed; top: 0; bottom: 0; left: 84px;
+    width: 2px; background: var(--red-ink); opacity: 0.55; pointer-events: none;
+  }
+
+  .back-gallery {
+    position: fixed; top: 14px; right: 14px; z-index: 99998;
+    background: var(--ink); color: var(--paper);
+    padding: 4px 10px; border-radius: 4px; font-size: 13px;
+    text-decoration: none; font-family: 'Patrick Hand', sans-serif;
+    transform: rotate(-2deg);
+  }
+
+  header {
+    padding: 50px 60px 20px 120px;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Caveat', cursive;
+    margin: 0; font-size: 54px; font-weight: 700;
+    color: var(--ink);
+    transform: rotate(-1deg);
+    display: inline-block;
+  }
+  header h1 .underline {
+    display: block; height: 4px; width: 60%; background: var(--red-ink);
+    border-radius: 4px; margin-top: -4px; transform: rotate(0.5deg);
+    opacity: 0.65;
+  }
+  header .scribble {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 18px; color: var(--blue-ink);
+    margin: 14px 0 0; max-width: 540px; line-height: 1.5;
+  }
+  header .date {
+    position: absolute; top: 50px; right: 80px;
+    font-family: 'Caveat', cursive; font-size: 26px;
+    color: var(--blue-ink); transform: rotate(3deg);
+  }
+
+  .board {
+    position: relative;
+    padding: 28px 60px 120px 120px;
+    min-height: 80vh;
+  }
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 28px 22px;
+  }
+  .note {
+    position: relative;
+    padding: 18px 18px 16px;
+    min-height: 150px;
+    box-shadow: 4px 6px 14px rgba(80, 60, 30, 0.18);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .note:hover { transform: rotate(0deg) scale(1.03) translateY(-2px); box-shadow: 6px 10px 22px rgba(80, 60, 30, 0.22); z-index: 5; }
+  /* slight randomization */
+  .note:nth-child(3n)   { transform: rotate(-2deg);  background: var(--postit-yellow); }
+  .note:nth-child(3n+1) { transform: rotate(1.5deg); background: var(--postit-blue); }
+  .note:nth-child(3n+2) { transform: rotate(-1deg);  background: var(--postit-pink); }
+  .note:nth-child(5n)   { background: var(--postit-green); }
+
+  .note .tape {
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+    width: 60px; height: 18px;
+    background: var(--tape);
+    border-left: 1px dashed rgba(120,90,30,0.35);
+    border-right: 1px dashed rgba(120,90,30,0.35);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+
+  .note .emoji { font-size: 30px; display: block; line-height: 1; margin-bottom: 6px; }
+  .note .name {
+    font-family: 'Caveat', cursive;
+    font-size: 24px; font-weight: 700; color: var(--ink);
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .note .summary {
+    font-size: 14.5px; color: #4a3d2e; line-height: 1.45;
+  }
+  .note .badge {
+    position: absolute; right: -8px; top: -10px;
+    background: var(--blue-ink); color: #fff;
+    font-family: 'Caveat', cursive; font-weight: 700;
+    font-size: 14px; padding: 3px 9px;
+    border-radius: 999px;
+    transform: rotate(8deg);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  }
+  .note .badge.experiment { background: var(--red-ink); }
+  .note.retired {
+    filter: saturate(0.4) brightness(0.95);
+    text-decoration: line-through;
+  }
+  .note.retired::after {
+    content: "DEPRECATED ❌";
+    position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%) rotate(-3deg);
+    font-family: 'Caveat', cursive; font-weight: 700; color: var(--red-ink);
+    background: var(--paper); padding: 2px 10px;
+    border: 2px solid var(--red-ink);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  /* doodles scattered */
+  .doodle {
+    position: absolute; pointer-events: none;
+    font-family: 'Caveat', cursive;
+    color: var(--blue-ink);
+    opacity: 0.6;
+  }
+
+  /* drawer = a torn page */
+  .drawer {
+    position: fixed; right: -440px; top: 0; bottom: 0;
+    width: 420px; max-width: 92vw;
+    background: var(--paper);
+    box-shadow: -6px 0 24px rgba(60, 40, 20, 0.18);
+    transition: right 0.28s ease;
+    padding: 40px 36px 30px 50px;
+    overflow-y: auto;
+    z-index: 50;
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0 / 100% 28px,
+      linear-gradient(var(--paper), var(--paper));
+  }
+  .drawer.open { right: 0; }
+  .drawer::before {
+    /* torn left edge */
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+    width: 10px;
+    background:
+      repeating-linear-gradient(180deg,
+        var(--paper) 0 18px,
+        transparent 18px 22px);
+  }
+  .drawer::after {
+    /* red margin line */
+    content: ""; position: absolute; top: 0; bottom: 0; left: 38px;
+    width: 2px; background: var(--red-ink); opacity: 0.5;
+  }
+  .drawer .close-x {
+    position: absolute; top: 16px; right: 18px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Caveat', cursive; font-size: 26px; color: var(--red-ink);
+  }
+  .drawer h2 {
+    font-family: 'Caveat', cursive; font-size: 38px; margin: 0 0 4px;
+    transform: rotate(-1deg);
+  }
+  .drawer h2 .underline { display: block; height: 3px; width: 70%; background: var(--blue-ink); opacity: 0.5; border-radius: 3px; }
+  .drawer .path { font-family: 'Patrick Hand', cursive; color: #6a5942; margin-bottom: 18px; }
+  .drawer p { font-family: 'Patrick Hand', cursive; font-size: 17px; line-height: 1.55; color: var(--ink); margin: 8px 0; }
+  .drawer .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .tag {
+    background: var(--postit-yellow);
+    border: 1px solid #b09a55;
+    font-family: 'Patrick Hand', cursive; font-size: 14px;
+    padding: 1px 9px; border-radius: 999px;
+    transform: rotate(-2deg);
+    color: var(--ink);
+  }
+  .tags .tag:nth-child(odd) { transform: rotate(2deg); background: var(--postit-blue); border-color: #4a73a5; }
+  .drawer .arrow {
+    font-family: 'Caveat', cursive; font-size: 22px; color: var(--blue-ink);
+    margin: 12px 0; transform: rotate(-2deg); display: inline-block;
+  }
+  .drawer .btn {
+    display: inline-block; margin-top: 14px;
+    font-family: 'Caveat', cursive; font-size: 20px;
+    background: var(--ink); color: var(--paper);
+    padding: 4px 14px; border-radius: 999px;
+    text-decoration: none;
+    transform: rotate(-1.5deg);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <h1>paul's tools<span class="underline"></span></h1>
+  <p class="scribble">— 一些我自己每天在用的小工具。<br/>分類有點亂，能跑的就好 ¯\_(ツ)_/¯</p>
+  <div class="date" id="date"></div>
+</header>
+
+<div class="board">
+  <span class="doodle" style="top: 60px; left: 200px; font-size: 22px; transform: rotate(-8deg);">★ favorites ↘</span>
+  <span class="doodle" style="top: 280px; right: 80px; font-size: 28px; transform: rotate(10deg);">📎</span>
+  <span class="doodle" style="bottom: 100px; left: 180px; font-size: 20px; transform: rotate(-4deg);">// TODO: clean up</span>
+  <span class="doodle" style="bottom: 220px; right: 200px; font-size: 26px; transform: rotate(6deg);">↑↑↑</span>
+
+  <div class="notes" id="notes"></div>
+</div>
+
+<aside class="drawer" id="drawer">
+  <button class="close-x" onclick="closeDrawer()">close ✕</button>
+  <h2 id="d-name">—<span class="underline"></span></h2>
+  <div class="path" id="d-path">—</div>
+  <p id="d-desc">—</p>
+  <div class="arrow">→ tech stack:</div>
+  <div class="tags" id="d-tags"></div>
+  <p style="margin-top: 18px;"><strong>runs:</strong> <span id="d-runs"></span></p>
+  <p><strong>status:</strong> <span id="d-status"></span></p>
+  <a class="btn" id="d-link" href="#" target="_blank" rel="noopener">view source ↗</a>
+</aside>
+
+<script src="tools.js"></script>
+<script>
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = new Date();
+  document.getElementById('date').textContent = `${months[d.getMonth()]} ${d.getDate()}, '${String(d.getFullYear()).slice(-2)}`;
+
+  const wrap = document.getElementById('notes');
+  window.TOOLS.forEach(t => {
+    const n = document.createElement('div');
+    n.className = 'note' + (t.status === 'retired' ? ' retired' : '');
+    const badge = t.status === 'experiment'
+      ? '<span class="badge experiment">experiment</span>'
+      : (t.status === 'active' && ['document_translator','ledger_analysis','travel'].includes(t.id))
+        ? '<span class="badge">★ fav</span>'
+        : '';
+    n.innerHTML = `
+      ${Math.random() < 0.3 ? '<div class="tape"></div>' : ''}
+      ${badge}
+      <span class="emoji">${t.icon}</span>
+      <div class="name">${t.name}</div>
+      <div class="summary">${t.summary}</div>
+    `;
+    n.addEventListener('click', () => openTool(t));
+    wrap.appendChild(n);
+  });
+
+  function openTool(t) {
+    document.getElementById('d-name').innerHTML = t.name + '<span class="underline"></span>';
+    document.getElementById('d-path').textContent = '~/tools/' + t.id + '/';
+    document.getElementById('d-desc').textContent = t.summary;
+    const tagsEl = document.getElementById('d-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tag => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tag; tagsEl.appendChild(sp);
+    });
+    document.getElementById('d-runs').textContent = t.runs;
+    document.getElementById('d-status').textContent = t.status;
+    document.getElementById('d-link').href = t.link || `${window.REPO_URL}/tree/master/${t.id}`;
+    document.getElementById('drawer').classList.add('open');
+  }
+  function closeDrawer() { document.getElementById('drawer').classList.remove('open'); }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+</script>
+</body>
+</html>
