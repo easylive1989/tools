@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>L · Apartment — paul's tools</title>
+<style>
+  :root {
+    --sky-top: #1a2540;
+    --sky-mid: #2a3760;
+    --sky-bottom: #0a1024;
+    --building: #0d0d18;
+    --building-edge: #060610;
+    --window-on: #f4c25b;
+    --window-on-glow: rgba(244, 194, 91, 0.55);
+    --window-warm: #ff9b5e;
+    --window-cool: #c8e0ff;
+    --window-dim: #4a3818;
+    --window-off: #0a0a14;
+    --moon: #f4ead0;
+    --text: #e8d8a8;
+    --muted: #8a98c0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", sans-serif;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 60%, var(--sky-bottom) 100%);
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(244, 194, 91, 0.12); color: var(--window-on);
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid var(--window-on);
+  }
+
+  /* stars and moon */
+  .sky {
+    position: absolute; top: 0; left: 0; right: 0; height: 60vh;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff, transparent),
+      radial-gradient(1px 1px at 28% 35%, #fff, transparent),
+      radial-gradient(1px 1px at 47% 22%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 67% 14%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 82% 35%, #fff, transparent),
+      radial-gradient(1px 1px at 95% 20%, #fff, transparent),
+      radial-gradient(1px 1px at 8% 45%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 50% 6%, #fff, transparent),
+      radial-gradient(1px 1px at 89% 50%, rgba(255,255,255,0.6), transparent);
+  }
+  .moon {
+    position: absolute;
+    top: 8vh; right: 12vw;
+    width: 64px; height: 64px;
+    background: var(--moon);
+    border-radius: 50%;
+    box-shadow:
+      0 0 24px rgba(244, 234, 208, 0.4),
+      inset -8px -8px 0 rgba(0,0,0,0.12);
+    pointer-events: none;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 32px 32px 6px;
+    z-index: 5;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 26px; letter-spacing: 6px;
+    font-weight: 300;
+    color: var(--text);
+  }
+  header h1 b { font-weight: 700; color: var(--window-on); }
+  header .sub {
+    color: var(--muted); font-size: 12px;
+    letter-spacing: 2px; margin-top: 6px;
+    font-style: italic;
+  }
+
+  .scene {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: center;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+
+  .building {
+    position: relative;
+    background: var(--building);
+    border: 2px solid var(--building-edge);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    padding: 24px 18px 0;
+    pointer-events: auto;
+    box-shadow:
+      inset 0 6px 0 rgba(255,255,255,0.04),
+      0 -10px 40px rgba(0,0,0,0.5);
+  }
+  .building .roof {
+    position: absolute; top: -16px; left: -10px; right: -10px;
+    height: 14px;
+    background: var(--building-edge);
+    border-radius: 4px 4px 0 0;
+  }
+  .building .antenna {
+    position: absolute; top: -54px; right: 30px;
+    width: 2px; height: 40px;
+    background: var(--building-edge);
+  }
+  .building .antenna::after {
+    content: ""; position: absolute; top: -3px; left: -2px;
+    width: 6px; height: 6px;
+    background: #ff5c5c;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ff5c5c;
+    animation: blink-red 1.6s steps(2) infinite;
+  }
+  @keyframes blink-red { 50% { opacity: 0.3; } }
+  .building .name-sign {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    color: var(--muted); font-size: 9px;
+    letter-spacing: 4px;
+    font-family: ui-monospace, Menlo, monospace;
+    text-transform: uppercase;
+  }
+
+  .floors {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 4), 1fr);
+    gap: 10px 10px;
+  }
+  .window {
+    width: 56px; height: 64px;
+    background: var(--window-off);
+    border: 2px solid #000;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.15s ease, transform 0.15s ease;
+    overflow: hidden;
+  }
+  /* window cross frame */
+  .window::before {
+    content: ""; position: absolute;
+    top: 50%; left: 0; right: 0; height: 2px;
+    background: #000; opacity: 0.5;
+  }
+  .window::after {
+    content: ""; position: absolute;
+    left: 50%; top: 0; bottom: 0; width: 2px;
+    background: #000; opacity: 0.5;
+  }
+  .window:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+    box-shadow: 0 0 12px var(--window-on-glow);
+  }
+  /* lit windows */
+  .window.on {
+    background: radial-gradient(circle at 50% 40%, var(--window-on) 30%, #c89028 100%);
+    box-shadow:
+      inset 0 0 12px rgba(255,255,255,0.3),
+      0 0 18px var(--window-on-glow);
+  }
+  .window.on.warm {
+    background: radial-gradient(circle at 50% 40%, var(--window-warm) 30%, #c8602a 100%);
+    box-shadow:
+      inset 0 0 12px rgba(255,255,255,0.3),
+      0 0 18px rgba(255, 155, 94, 0.5);
+  }
+  .window.on.cool {
+    background: radial-gradient(circle at 50% 40%, var(--window-cool) 30%, #5a8ad6 100%);
+    box-shadow:
+      inset 0 0 12px rgba(255,255,255,0.3),
+      0 0 18px rgba(200, 224, 255, 0.5);
+  }
+  /* dim (experiment) */
+  .window.dim {
+    background: var(--window-dim);
+    opacity: 0.6;
+  }
+  /* off (retired) */
+  .window.off {
+    background: var(--window-off);
+  }
+
+  /* silhouette inside */
+  .window .person {
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 18px; height: 26px;
+    background: rgba(0,0,0,0.65);
+    clip-path: polygon(50% 0, 80% 35%, 80% 70%, 100% 100%, 0 100%, 20% 70%, 20% 35%);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .window:hover .person { opacity: 1; }
+  .window.off .person, .window.dim .person { display: none; }
+
+  /* small "apartment number" tag on hover */
+  .window .tag {
+    position: absolute;
+    top: -22px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: var(--window-on);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 10px;
+    padding: 2px 6px; border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0; transition: opacity 0.15s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .window:hover .tag { opacity: 1; }
+
+  /* Door at the bottom (entrance) */
+  .door {
+    width: 44px; height: 56px;
+    background: linear-gradient(180deg, #4a3818 0%, #2a1810 100%);
+    border: 2px solid #000;
+    border-bottom: none;
+    margin: 12px auto 0;
+    border-radius: 22px 22px 0 0;
+    position: relative;
+  }
+  .door::after {
+    content: ""; position: absolute;
+    right: 6px; top: 50%; transform: translateY(-50%);
+    width: 4px; height: 4px;
+    background: var(--window-on);
+    border-radius: 50%;
+    box-shadow: 0 0 4px var(--window-on);
+  }
+
+  /* Streetlamp + cat */
+  .lamp {
+    position: absolute;
+    bottom: 0; left: 8vw;
+    width: 4px; height: 180px;
+    background: #1a1a1a;
+    pointer-events: none;
+  }
+  .lamp::before {
+    content: ""; position: absolute;
+    top: 0; left: -10px;
+    width: 28px; height: 12px;
+    background: #1a1a1a;
+    border-radius: 50%;
+  }
+  .lamp::after {
+    content: "";
+    position: absolute;
+    top: 8px; left: -14px;
+    width: 36px; height: 36px;
+    background: radial-gradient(circle, var(--window-on) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0.85;
+  }
+  .cat {
+    position: absolute;
+    bottom: 0; left: calc(8vw + 26px);
+    font-size: 22px;
+    pointer-events: none;
+  }
+
+  /* Apartment interior modal */
+  .interior {
+    position: fixed;
+    right: 28px; top: 50%; transform: translate(440px, -50%);
+    width: 380px; max-width: 90vw;
+    background:
+      linear-gradient(180deg, rgba(244, 194, 91, 0.05) 0%, rgba(244, 194, 91, 0.02) 100%),
+      #1a1814;
+    border: 2px solid var(--window-on);
+    border-radius: 6px;
+    padding: 24px 24px 22px;
+    color: var(--text);
+    transition: transform 0.32s cubic-bezier(.2,.7,.2,1);
+    z-index: 50;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 60px rgba(244, 194, 91, 0.2);
+  }
+  .interior.open { transform: translate(0, -50%); }
+  .interior .close-x {
+    position: absolute; top: 8px; right: 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 20px;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .interior .apt-no {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--window-on);
+    margin-bottom: 8px;
+  }
+  .interior h2 {
+    font-size: 24px; font-weight: 600;
+    margin: 0 0 4px; letter-spacing: 1px;
+  }
+  .interior .occupant {
+    color: var(--muted); font-size: 12px; font-style: italic;
+    margin-bottom: 14px;
+  }
+  .interior p {
+    font-size: 14px; line-height: 1.6;
+    color: var(--text);
+    margin: 8px 0;
+  }
+  .interior hr {
+    border: none; border-top: 1px dashed rgba(244, 194, 91, 0.25);
+    margin: 14px 0;
+  }
+  .interior .meta {
+    font-size: 12px; line-height: 1.7;
+    color: var(--muted);
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .interior .meta b { color: var(--window-on); font-weight: 400; }
+  .interior .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .interior .tag {
+    background: rgba(244, 194, 91, 0.1);
+    color: var(--window-on);
+    border: 1px solid rgba(244, 194, 91, 0.3);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 10px;
+    padding: 2px 8px; border-radius: 3px;
+  }
+
+  .legend-bar {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    color: var(--muted); font-size: 11px;
+    font-family: ui-monospace, Menlo, monospace;
+    background: rgba(0,0,0,0.4);
+    padding: 6px 14px; border-radius: 999px;
+    backdrop-filter: blur(6px);
+    z-index: 5;
+    letter-spacing: 1px;
+  }
+  .legend-bar .dot { display: inline-block; width: 8px; height: 8px; vertical-align: middle; margin-right: 4px; border-radius: 1px; }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<div class="sky"></div>
+<div class="moon"></div>
+
+<header>
+  <h1><b>PAUL</b> · APARTMENTS</h1>
+  <div class="sub">— a quiet building of small automations —</div>
+</header>
+
+<div class="scene">
+  <div class="lamp"></div>
+  <div class="cat">🐈</div>
+  <div class="building" id="building">
+    <div class="antenna"></div>
+    <div class="roof"></div>
+    <div class="name-sign">PAUL · 2026</div>
+    <div class="floors" id="floors" style="--cols: 4;"></div>
+    <div class="door"></div>
+  </div>
+</div>
+
+<aside class="interior" id="interior">
+  <button class="close-x" onclick="closeInterior()">close ✕</button>
+  <div class="apt-no" id="i-apt">APT —</div>
+  <h2 id="i-name">—</h2>
+  <div class="occupant" id="i-occ">—</div>
+  <p id="i-desc">—</p>
+  <hr/>
+  <div class="meta">
+    <div><b>tenant since:</b> <span id="i-since">—</span></div>
+    <div><b>occupation:</b> <span id="i-occ2">—</span></div>
+    <div><b>schedule:</b> <span id="i-runs">—</span></div>
+    <div><b>status:</b> <span id="i-status">—</span></div>
+  </div>
+  <div class="tags" id="i-tags" style="margin-top: 10px;"></div>
+</aside>
+
+<div class="legend-bar">
+  <span class="dot" style="background:#f4c25b; box-shadow:0 0 6px rgba(244,194,91,0.6);"></span> active &nbsp;
+  <span class="dot" style="background:#4a3818;"></span> experiment &nbsp;
+  <span class="dot" style="background:#0a0a14; border:1px solid #333;"></span> retired (vacant)
+</div>
+
+<script src="tools.js"></script>
+<script>
+  const tools = window.TOOLS;
+  // 4 columns × N rows
+  const COLS = 4;
+  const totalCells = Math.ceil(tools.length / COLS) * COLS;
+  // Render top-down so apt 401, 402... 301... etc.
+  // We'll iterate visual order: row 0 = top floor (highest apt number)
+  const rows = Math.ceil(tools.length / COLS);
+  const layout = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const i = r * COLS + c;
+      layout.push({ floor: rows - r, unit: c + 1, idx: i });
+    }
+  }
+
+  const floors = document.getElementById('floors');
+  const occupations = ['translator', 'archivist', 'broadcaster', 'analyst', 'curator', 'cartographer', 'scribe', 'sound engineer', 'caretaker', 'librarian'];
+
+  // Light variation: ~70% on, some warm/cool
+  const WARM_IDS = new Set(['document_translator', 'medium', 'travel', 'ledger_analysis']);
+  const COOL_IDS = new Set(['transcribe', 'media_download', 'rss_hub', 'sharing']);
+
+  layout.forEach((slot, i) => {
+    const t = tools[slot.idx];
+    const win = document.createElement('div');
+    let cls = 'window';
+    if (!t) {
+      cls += ' off';
+    } else if (t.status === 'retired') {
+      cls += ' off';
+    } else if (t.status === 'experiment') {
+      cls += ' dim';
+    } else {
+      if (WARM_IDS.has(t.id)) cls += ' on warm';
+      else if (COOL_IDS.has(t.id)) cls += ' on cool';
+      else cls += ' on';
+    }
+    win.className = cls;
+    const aptNo = slot.floor * 100 + slot.unit;
+    if (t) {
+      win.innerHTML = `
+        <div class="tag">apt ${aptNo} · ${t.name}</div>
+        <div class="person"></div>
+      `;
+      win.addEventListener('click', () => openInterior(t, aptNo));
+    }
+    floors.appendChild(win);
+  });
+
+  function occupationOf(t) {
+    if (t.tags.includes('gemini')) return 'translator';
+    if (t.tags.includes('whisper')) return 'sound engineer';
+    if (t.tags.includes('analytics')) return 'analyst';
+    if (t.tags.includes('rss')) return 'archivist';
+    if (t.tags.includes('discord')) return 'broadcaster';
+    if (t.tags.includes('react')) return 'cartographer';
+    if (t.tags.includes('notion')) return 'scribe';
+    if (t.tags.includes('shell')) return 'caretaker';
+    return 'tinkerer';
+  }
+
+  function openInterior(t, apt) {
+    document.getElementById('i-apt').textContent = 'APT ' + apt;
+    document.getElementById('i-name').textContent = t.icon + '  ' + t.name;
+    document.getElementById('i-occ').textContent = '"a quiet ' + occupationOf(t) + ' lives here."';
+    document.getElementById('i-desc').textContent = t.summary;
+    document.getElementById('i-since').textContent = '20' + (15 + apt % 9);
+    document.getElementById('i-occ2').textContent = occupationOf(t);
+    document.getElementById('i-runs').textContent = t.runs;
+    document.getElementById('i-status').textContent = t.status;
+    const tagsEl = document.getElementById('i-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tg => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; tagsEl.appendChild(sp);
+    });
+    document.getElementById('interior').classList.add('open');
+  }
+  function closeInterior() { document.getElementById('interior').classList.remove('open'); }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeInterior(); });
+</script>
+</body>
+</html>

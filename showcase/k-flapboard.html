@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>K · Departures Board — paul's tools</title>
+<style>
+  :root {
+    --bg: #050505;
+    --panel: #0d0d0d;
+    --flap-bg: #1a1a1a;
+    --flap-edge: #000;
+    --amber: #f9d56e;
+    --amber-glow: rgba(249, 213, 110, 0.5);
+    --green: #6cff8a;
+    --red: #ff5c5c;
+    --gray: #707070;
+    --white: #f0f0f0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background:
+      radial-gradient(900px 500px at 50% 0%, rgba(249, 213, 110, 0.06), transparent 60%),
+      var(--bg);
+    color: var(--amber);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(249, 213, 110, 0.1); color: var(--amber);
+    padding: 5px 12px; border-radius: 0; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid var(--amber); letter-spacing: 1px;
+  }
+
+  header {
+    text-align: center;
+    padding: 50px 32px 18px;
+    border-bottom: 1px solid rgba(249, 213, 110, 0.2);
+    margin-bottom: 28px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 26px; letter-spacing: 8px;
+    color: var(--amber);
+    text-shadow: 0 0 20px var(--amber-glow);
+  }
+  header .sub {
+    color: var(--gray); font-size: 12px; letter-spacing: 3px;
+    margin-top: 8px;
+  }
+  header .clock {
+    margin-top: 14px;
+    font-size: 32px; letter-spacing: 4px;
+    color: var(--amber); text-shadow: 0 0 16px var(--amber-glow);
+  }
+
+  .board-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .board {
+    background: var(--panel);
+    border: 2px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 18px 0 4px;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.05),
+      inset 0 -8px 24px rgba(0,0,0,0.6),
+      0 30px 60px rgba(0,0,0,0.5);
+  }
+  .header-row, .row {
+    display: grid;
+    grid-template-columns: 70px 90px minmax(0, 1fr) 100px 110px;
+    gap: 8px;
+    padding: 0 18px;
+    align-items: center;
+  }
+  .header-row {
+    color: var(--gray);
+    font-size: 11px; letter-spacing: 3px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(249, 213, 110, 0.15);
+    margin-bottom: 6px;
+  }
+  .row {
+    padding-top: 6px; padding-bottom: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .row:hover { background: rgba(249, 213, 110, 0.04); }
+  .row + .row { border-top: 1px solid rgba(249, 213, 110, 0.06); }
+  .row.retired { opacity: 0.5; }
+
+  .flap-text {
+    display: inline-flex;
+    gap: 1px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+  .flap {
+    display: inline-block;
+    background: var(--flap-bg);
+    color: var(--amber);
+    padding: 6px 5px;
+    min-width: 16px;
+    text-align: center;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid var(--flap-edge);
+    border-radius: 2px;
+    text-shadow: 0 0 4px var(--amber-glow);
+    position: relative;
+    overflow: hidden;
+    line-height: 1;
+  }
+  .flap::after {
+    /* horizontal split line */
+    content: ""; position: absolute;
+    left: 0; right: 0; top: 50%; height: 1px;
+    background: rgba(0,0,0,0.6);
+  }
+  .flap.flipping {
+    animation: flip 0.05s ease-out;
+  }
+  @keyframes flip {
+    0% { transform: scaleY(1); }
+    50% { transform: scaleY(0.05); filter: brightness(0.4); }
+    100% { transform: scaleY(1); }
+  }
+
+  /* Status colors */
+  .status-on    { color: var(--green); text-shadow: 0 0 6px rgba(108, 255, 138, 0.5); }
+  .status-dep   { color: var(--amber); }
+  .status-delay { color: var(--amber); animation: blink-amber 1.6s steps(2) infinite; }
+  .status-cxl   { color: var(--red); text-shadow: 0 0 6px rgba(255, 92, 92, 0.4); }
+  @keyframes blink-amber { 50% { opacity: 0.3; } }
+  .status-on .flap, .status-dep .flap, .status-delay .flap, .status-cxl .flap { color: inherit; text-shadow: inherit; }
+
+  .legend-bar {
+    margin-top: 18px;
+    display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
+    color: var(--gray); font-size: 11px; letter-spacing: 2px;
+  }
+  .legend-bar span b { font-weight: 400; }
+  .legend-bar .on  { color: var(--green); }
+  .legend-bar .dl  { color: var(--amber); }
+  .legend-bar .cxl { color: var(--red); }
+
+  /* Boarding pass modal */
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .backdrop.open { display: flex; }
+  .pass {
+    background: #f0e8d2;
+    color: #1a1a1a;
+    width: 100%; max-width: 580px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    font-family: ui-monospace, Menlo, monospace;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 140px;
+  }
+  .pass::before {
+    content: ""; position: absolute;
+    left: calc(100% - 140px); top: 0; bottom: 0;
+    width: 0;
+    border-left: 2px dashed #1a1a1a;
+  }
+  .pass-main { padding: 22px 24px 20px; }
+  .pass-stub {
+    background: #2a1810; color: #f0e8d2;
+    padding: 22px 18px 20px;
+    display: flex; flex-direction: column;
+  }
+  .pass .airline {
+    font-size: 11px; letter-spacing: 3px; color: #8a6a4a;
+    margin-bottom: 4px;
+  }
+  .pass h2 {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 22px; margin: 0 0 4px; letter-spacing: 1px;
+  }
+  .pass .route {
+    color: #5a4020; font-size: 12px; margin-bottom: 14px;
+  }
+  .pass .meta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    font-size: 11px;
+    margin-bottom: 12px;
+  }
+  .pass .meta .k { color: #8a6a4a; letter-spacing: 1.5px; }
+  .pass .meta .v { font-weight: 700; font-size: 14px; }
+  .pass .summary {
+    font-size: 12.5px; line-height: 1.55;
+    color: #2a1810;
+    border-top: 1px dashed #8a6a4a;
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  .pass .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .pass .tag {
+    background: #2a1810; color: #f0e8d2;
+    padding: 1px 7px; font-size: 10px;
+  }
+  .pass-stub .stub-label { font-size: 9px; letter-spacing: 2px; color: #aa8a5a; }
+  .pass-stub .stub-val { font-size: 14px; margin-bottom: 10px; word-break: break-all; }
+  .pass-stub .barcode {
+    margin-top: auto;
+    height: 50px;
+    background: repeating-linear-gradient(90deg, #f0e8d2 0 1px, transparent 1px 2px, #f0e8d2 2px 4px, transparent 4px 7px);
+  }
+  .close-x {
+    position: absolute; top: 8px; right: 12px;
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: #1a1a1a; z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <h1>P A U L &nbsp; T O O L S &nbsp; I N T L</h1>
+  <div class="sub">DEPARTURES · TERMINAL 1</div>
+  <div class="clock" id="clock">--:--:--</div>
+</header>
+
+<div class="board-wrap">
+  <div class="board">
+    <div class="header-row">
+      <div>TIME</div>
+      <div>FLIGHT</div>
+      <div>DESTINATION</div>
+      <div>GATE</div>
+      <div>STATUS</div>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="legend-bar">
+    <span class="on">▣</span> ON TIME &nbsp;
+    <span class="dl">▣</span> DELAYED &nbsp;
+    <span class="cxl">▣</span> CANCELLED &nbsp;
+    <span style="color: var(--gray);">click any flight for boarding pass</span>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="if(event.target===this) closeModal()">
+  <div class="pass">
+    <button class="close-x" onclick="closeModal()">×</button>
+    <div class="pass-main">
+      <div class="airline">PAUL TOOLS · BOARDING PASS</div>
+      <h2 id="p-name">—</h2>
+      <div class="route"><span id="p-from">~/tools</span> → <span id="p-to">—</span></div>
+      <div class="meta">
+        <div><div class="k">FLIGHT</div><div class="v" id="p-flight">—</div></div>
+        <div><div class="k">GATE</div><div class="v" id="p-gate">—</div></div>
+        <div><div class="k">DEPARTS</div><div class="v" id="p-time">—</div></div>
+        <div><div class="k">STATUS</div><div class="v" id="p-status">—</div></div>
+      </div>
+      <div class="summary" id="p-summary">—</div>
+      <div class="tags" id="p-tags"></div>
+    </div>
+    <div class="pass-stub">
+      <div class="stub-label">PASSENGER</div>
+      <div class="stub-val">PAUL</div>
+      <div class="stub-label">SEAT</div>
+      <div class="stub-val" id="p-seat">—</div>
+      <div class="stub-label">RUNS</div>
+      <div class="stub-val" id="p-runs" style="font-size: 11px;">—</div>
+      <div class="barcode"></div>
+    </div>
+  </div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Clock
+  function updateClock() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const ss = String(d.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // Status mapping
+  function statusOf(t) {
+    if (t.status === 'retired')    return { code: 'cxl',   text: '✗ CANCELLED', cls: 'status-cxl' };
+    if (t.status === 'experiment') return { code: 'delay', text: '! DELAYED',   cls: 'status-delay' };
+    // active: half on time, half departed
+    return { code: 'on', text: '✓ ON TIME', cls: 'status-on' };
+  }
+
+  // Helpers
+  function pad(s, n) { return String(s).padStart(n, '0'); }
+  function flightNo(i) { return 'PT ' + pad((i + 1) * 17 % 1000, 3); }
+  function gate(t) {
+    const c = String.fromCharCode(65 + (t.id.charCodeAt(0) % 6));
+    return c + (1 + (t.id.length % 24));
+  }
+  function timeOf(i) {
+    const start = 8 * 60; // 08:00
+    const m = start + i * 13;
+    return pad(Math.floor(m / 60) % 24, 2) + ':' + pad(m % 60, 2);
+  }
+
+  function makeFlapText(text, len) {
+    const padded = text.padEnd(len, ' ').slice(0, len);
+    return padded.split('').map(ch =>
+      `<span class="flap">${ch === ' ' ? '&nbsp;' : ch}</span>`
+    ).join('');
+  }
+
+  const FLAP_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_/-:!✓✗◷ ';
+  function animateFlap(el, finalText, totalDuration = 800) {
+    const len = finalText.length;
+    const flaps = el.querySelectorAll('.flap');
+    const startTime = performance.now();
+    const targetChars = finalText.split('').map(c => c === ' ' ? ' ' : c);
+    function tick(now) {
+      const t = Math.min(1, (now - startTime) / totalDuration);
+      flaps.forEach((flap, i) => {
+        const charDelay = i * 0.03;
+        const localT = Math.max(0, Math.min(1, (t - charDelay) / (1 - charDelay)));
+        if (localT >= 1) {
+          flap.textContent = targetChars[i];
+        } else {
+          flap.textContent = FLAP_CHARS[Math.floor(Math.random() * FLAP_CHARS.length)];
+          flap.classList.add('flipping');
+          setTimeout(() => flap.classList.remove('flipping'), 50);
+        }
+      });
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Build rows
+  const rowsContainer = document.getElementById('rows');
+  const tools = window.TOOLS;
+  const ROWS = [];
+
+  tools.forEach((t, i) => {
+    const s = statusOf(t);
+    const row = document.createElement('div');
+    row.className = 'row ' + s.cls + (t.status === 'retired' ? ' retired' : '');
+    const time = timeOf(i);
+    const fnum = flightNo(i);
+    const dest = t.name.toUpperCase().replace(/_/g, ' ').slice(0, 28);
+    const gt = gate(t);
+    const stext = s.text;
+
+    row.innerHTML = `
+      <div class="flap-text" data-final="${time}">${makeFlapText(time, 5)}</div>
+      <div class="flap-text" data-final="${fnum}">${makeFlapText(fnum, 6)}</div>
+      <div class="flap-text" data-final="${dest}">${makeFlapText(dest, 28)}</div>
+      <div class="flap-text" data-final="${gt}">${makeFlapText(gt, 4)}</div>
+      <div class="flap-text" data-final="${stext}">${makeFlapText(stext, 12)}</div>
+    `;
+    row.addEventListener('click', () => openPass(t, i, s));
+    rowsContainer.appendChild(row);
+    ROWS.push(row);
+  });
+
+  // Animate flaps in sequence on load
+  let rowIdx = 0;
+  function nextRow() {
+    if (rowIdx >= ROWS.length) return;
+    const row = ROWS[rowIdx++];
+    row.querySelectorAll('.flap-text').forEach(ft => {
+      animateFlap(ft, ft.dataset.final, 800);
+    });
+    setTimeout(nextRow, 110);
+  }
+  setTimeout(nextRow, 200);
+
+  // Periodically re-flap one row to feel alive
+  setInterval(() => {
+    const row = ROWS[Math.floor(Math.random() * ROWS.length)];
+    if (!row) return;
+    const ft = row.querySelectorAll('.flap-text')[2]; // destination
+    if (ft) animateFlap(ft, ft.dataset.final, 600);
+  }, 5000);
+
+  // Boarding pass
+  function openPass(t, i, s) {
+    document.getElementById('p-name').textContent = t.name + '  ' + t.icon;
+    document.getElementById('p-to').textContent = '~/' + t.id;
+    document.getElementById('p-flight').textContent = flightNo(i);
+    document.getElementById('p-gate').textContent = gate(t);
+    document.getElementById('p-time').textContent = timeOf(i);
+    document.getElementById('p-status').textContent = s.text;
+    document.getElementById('p-summary').textContent = t.summary;
+    document.getElementById('p-runs').textContent = t.runs;
+    document.getElementById('p-seat').textContent = (1 + i) + (['A','B','C','D','F'][i % 5]);
+    const tagsEl = document.getElementById('p-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tg => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; tagsEl.appendChild(sp);
+    });
+    document.getElementById('backdrop').classList.add('open');
+  }
+  function closeModal() { document.getElementById('backdrop').classList.remove('open'); }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

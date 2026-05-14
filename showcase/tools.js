@@ -103,4 +103,9 @@ window.MOCKUPS = [
   { id: 'e', file: 'e-tcg.html',          name: 'E · Tool TCG',         blurb: '可收藏的工具卡牌' },
   { id: 'f', file: 'f-pixel-town.html',   name: 'F · Pixel Town',       blurb: '像素 RPG 小鎮' },
   { id: 'g', file: 'g-garden.html',       name: 'G · Zen Garden',       blurb: '工具盆栽園' },
+  { id: 'h', file: 'h-radio.html',        name: 'H · Radio Dial',       blurb: '老收音機調頻盤，每個工具一個頻率' },
+  { id: 'i', file: 'i-constellation.html',name: 'I · Constellation',    blurb: '夜空星座圖，工具是星星' },
+  { id: 'j', file: 'j-posters.html',      name: 'J · Movie Posters',    blurb: '電影海報牆，每張不同類型' },
+  { id: 'k', file: 'k-flapboard.html',    name: 'K · Flap Board',       blurb: '機場航班翻牌看板' },
+  { id: 'l', file: 'l-apartment.html',    name: 'L · Apartment',        blurb: '夜晚公寓立面，每個窗戶一個工具' },
 ];

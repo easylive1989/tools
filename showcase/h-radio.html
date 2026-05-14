@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>H · Radio Dial — paul's tools</title>
+<style>
+  :root {
+    --wood: #4d2a14;
+    --wood-2: #6b3e1e;
+    --wood-3: #8b5a2a;
+    --brass: #c89a48;
+    --brass-2: #f4d56a;
+    --cream: #f4ead0;
+    --ink: #1f1812;
+    --red: #c83828;
+    --green: #4ad160;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at 50% 50%, #2a1810 0%, #110806 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(244, 213, 106, 0.15); color: var(--brass-2);
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid var(--brass);
+  }
+
+  .radio {
+    width: 100%; max-width: 920px;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0 2px, transparent 2px 6px),
+      linear-gradient(180deg, var(--wood-3) 0%, var(--wood) 50%, var(--wood-2) 100%);
+    border: 4px solid var(--wood);
+    border-radius: 18px;
+    padding: 22px 26px 26px;
+    box-shadow:
+      inset 0 4px 0 rgba(255,255,255,0.08),
+      inset 0 -6px 0 rgba(0,0,0,0.3),
+      0 30px 60px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .brand {
+    color: var(--brass-2);
+    font-family: "Georgia", "Times New Roman", serif;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  }
+
+  /* Speaker grille + display container */
+  .top-row {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .grille {
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.6) 0 2px, transparent 2px 6px),
+      linear-gradient(180deg, #2a1a0e 0%, #150a06 100%);
+    border: 3px solid var(--wood);
+    border-radius: 10px;
+    padding: 18px 20px;
+    color: var(--brass-2);
+    min-height: 150px;
+    display: flex; flex-direction: column;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.7);
+    position: relative;
+    overflow: hidden;
+  }
+  .grille::before {
+    content: ""; position: absolute; inset: 8px; pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,0.25) 0 1px, transparent 1px 4px);
+    border-radius: 6px;
+  }
+  .grille .now-tag {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--brass);
+    margin-bottom: 6px;
+    position: relative; z-index: 2;
+  }
+  .grille .now-name {
+    font-size: 26px; font-weight: 800;
+    text-shadow: 0 0 12px rgba(244, 213, 106, 0.6);
+    margin-bottom: 4px;
+    position: relative; z-index: 2;
+    word-break: break-word;
+  }
+  .grille .now-freq {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 13px; color: var(--brass);
+    margin-bottom: 12px;
+    position: relative; z-index: 2;
+  }
+  .grille .now-desc {
+    font-size: 13px; line-height: 1.55; color: #f4ead0;
+    position: relative; z-index: 2;
+    flex: 1;
+  }
+  .grille .now-tags {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;
+    position: relative; z-index: 2;
+  }
+  .grille .tag {
+    font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+    background: rgba(244, 213, 106, 0.15);
+    color: var(--brass-2);
+    border: 1px solid rgba(244, 213, 106, 0.4);
+    padding: 1px 7px; border-radius: 3px;
+  }
+
+  /* Knob area */
+  .knobs {
+    display: flex; flex-direction: column; gap: 14px; align-items: center;
+    background:
+      linear-gradient(180deg, #2a1a0e 0%, #150a06 100%);
+    border: 3px solid var(--wood);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: inset 0 0 24px rgba(0,0,0,0.6);
+  }
+  .knob {
+    width: 70px; height: 70px;
+    background: radial-gradient(circle at 35% 30%, #d8a850 0%, var(--brass) 50%, #6e4e1e 100%);
+    border-radius: 50%;
+    border: 3px solid #3a200e;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    cursor: grab;
+  }
+  .knob::after {
+    content: ""; position: absolute;
+    top: 6px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 22px;
+    background: #2a1a0e;
+    border-radius: 2px;
+  }
+  .knob-label {
+    color: var(--brass);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 9px; letter-spacing: 2px;
+    text-align: center;
+  }
+  .led {
+    width: 12px; height: 12px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--green), inset 0 -2px 0 rgba(0,0,0,0.3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.6; } }
+
+  /* Tuning dial */
+  .dial-wrap {
+    background:
+      linear-gradient(180deg, var(--cream) 0%, #e0d4a8 100%);
+    border: 3px solid var(--wood);
+    border-radius: 10px;
+    padding: 14px 16px 16px;
+    position: relative;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -2px 6px rgba(0,0,0,0.15);
+  }
+  .dial-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-family: "Georgia", serif;
+    font-size: 11px; letter-spacing: 2px;
+  }
+  .dial-meta .units { color: var(--red); font-weight: 700; }
+  .dial-track {
+    height: 80px;
+    background:
+      linear-gradient(180deg, #f4ead0 0%, #d8c890 100%);
+    border: 1px solid #8b6e3a;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: grab;
+    position: relative;
+  }
+  .dial-track:active { cursor: grabbing; }
+  .dial-strip {
+    position: relative;
+    height: 100%;
+    will-change: transform;
+  }
+  /* center indicator (red line) */
+  .indicator {
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 2px; background: var(--red);
+    box-shadow: 0 0 6px var(--red);
+    z-index: 10;
+    pointer-events: none;
+  }
+  .indicator::before, .indicator::after {
+    content: ""; position: absolute;
+    left: 50%; transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+  }
+  .indicator::before { top: -4px; border-bottom: 6px solid var(--red); }
+  .indicator::after  { bottom: -4px; border-top: 6px solid var(--red); }
+
+  .station {
+    position: absolute; top: 0; bottom: 0;
+    width: 1px; background: var(--ink);
+    opacity: 0.6;
+  }
+  .station::after {
+    content: attr(data-name);
+    position: absolute;
+    top: 8px; left: 6px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 9.5px;
+    color: var(--ink);
+    white-space: nowrap;
+    transform: rotate(-45deg);
+    transform-origin: left top;
+  }
+  .station.major { background: var(--red); width: 2px; opacity: 1; }
+  .station.experiment::after { color: #8a6a30; font-style: italic; }
+  .station.retired { opacity: 0.3; }
+  .station.retired::after { color: #888; text-decoration: line-through; }
+
+  .freq-numbers {
+    position: absolute; bottom: 4px; left: 0; right: 0;
+    height: 14px;
+    pointer-events: none;
+  }
+  .freq-num {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: "Georgia", serif;
+    font-size: 11px;
+    color: var(--ink);
+  }
+
+  /* Presets */
+  .presets {
+    display: flex; gap: 8px; margin-top: 14px; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .preset {
+    background: linear-gradient(180deg, #d8a850 0%, var(--brass) 50%, #8b5a2a 100%);
+    border: 2px solid #3a200e;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px; font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 0 3px 0 #3a200e, inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .preset:active { transform: translateY(2px); box-shadow: 0 1px 0 #3a200e, inset 0 1px 0 rgba(255,255,255,0.4); }
+  .preset .num { display: block; font-size: 8px; color: var(--red); margin-bottom: 1px; }
+
+  .hint {
+    color: var(--brass);
+    font-size: 11px; text-align: center; margin-top: 14px;
+    font-family: ui-monospace, Menlo, monospace; letter-spacing: 1px;
+  }
+
+  /* Static effect when between stations */
+  .static .now-name,
+  .static .now-desc,
+  .static .now-freq,
+  .static .now-tags { opacity: 0.25; }
+  .static .now-tag::after {
+    content: " ░▒░▓ TUNING ▓░▒░";
+    color: var(--red);
+    margin-left: 8px;
+    font-size: 11px;
+    animation: flicker 0.18s steps(2) infinite;
+  }
+  @keyframes flicker { 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<div class="radio">
+  <div class="brand">— PAUL · TOOLS RECEIVER · MODEL T-2026 —</div>
+
+  <div class="top-row">
+    <div class="grille" id="grille">
+      <div class="now-tag">NOW PLAYING</div>
+      <div class="now-name" id="now-name">—</div>
+      <div class="now-freq" id="now-freq">—</div>
+      <div class="now-desc" id="now-desc">—</div>
+      <div class="now-tags" id="now-tags"></div>
+    </div>
+    <div class="knobs">
+      <div class="led"></div>
+      <div class="knob" style="transform: rotate(-30deg);"></div>
+      <div class="knob-label">VOLUME</div>
+      <div class="knob" style="transform: rotate(45deg);"></div>
+      <div class="knob-label">TONE</div>
+    </div>
+  </div>
+
+  <div class="dial-wrap">
+    <div class="dial-meta">
+      <span>STEREO ◄ ►</span>
+      <span class="units">FM ▸ MHz</span>
+    </div>
+    <div class="dial-track" id="track">
+      <div class="indicator"></div>
+      <div class="dial-strip" id="strip"></div>
+      <div class="freq-numbers" id="freq-numbers"></div>
+    </div>
+
+    <div class="presets" id="presets"></div>
+    <div class="hint">drag the dial · click presets · arrow keys ← → to fine-tune</div>
+  </div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Build station data: each tool gets a unique frequency 88.0–108.0
+  const FREQ_MIN = 88.0, FREQ_MAX = 108.0;
+  const stations = window.TOOLS.map((t, i) => ({
+    tool: t,
+    freq: +(FREQ_MIN + (FREQ_MAX - FREQ_MIN) * (i / (window.TOOLS.length - 1))).toFixed(1),
+  }));
+
+  const STRIP_WIDTH = 2400; // pixels
+  function freqToX(freq) {
+    return ((freq - FREQ_MIN) / (FREQ_MAX - FREQ_MIN)) * STRIP_WIDTH;
+  }
+
+  const strip = document.getElementById('strip');
+  strip.style.width = STRIP_WIDTH + 'px';
+
+  // Build station marks
+  stations.forEach(s => {
+    const mark = document.createElement('div');
+    mark.className = 'station' + (s.tool.status === 'experiment' ? ' experiment' : '')
+                                + (s.tool.status === 'retired' ? ' retired' : '')
+                                + (s.tool.status === 'active' ? ' major' : '');
+    mark.style.left = freqToX(s.freq) + 'px';
+    mark.dataset.name = s.tool.name + '  ' + s.freq.toFixed(1);
+    strip.appendChild(mark);
+  });
+
+  // Frequency numbers (every 2 MHz)
+  const fnums = document.getElementById('freq-numbers');
+  for (let f = Math.ceil(FREQ_MIN); f <= Math.floor(FREQ_MAX); f += 2) {
+    const n = document.createElement('div');
+    n.className = 'freq-num';
+    n.textContent = f;
+    n.style.left = (freqToX(f) / STRIP_WIDTH * 100) + '%';
+    fnums.appendChild(n);
+  }
+  // We'll need to also reposition numbers within strip frame
+  fnums.style.position = 'absolute';
+
+  const track = document.getElementById('track');
+  let trackWidth = track.clientWidth;
+  let currentFreq = stations[0].freq;
+
+  function setFreq(freq, snap = false) {
+    freq = Math.max(FREQ_MIN, Math.min(FREQ_MAX, freq));
+    currentFreq = freq;
+    // translate strip so that the freq is centered
+    const x = freqToX(freq);
+    strip.style.transform = `translateX(${trackWidth / 2 - x}px)`;
+    // Find nearest station
+    const nearest = stations.reduce((a, b) =>
+      Math.abs(b.freq - freq) < Math.abs(a.freq - freq) ? b : a
+    );
+    const onStation = Math.abs(nearest.freq - freq) < 0.15;
+    updateGrille(nearest.tool, onStation, freq);
+  }
+
+  function updateGrille(tool, onStation, freq) {
+    const grille = document.getElementById('grille');
+    document.getElementById('now-freq').textContent = freq.toFixed(1) + ' MHz';
+    if (!onStation) {
+      grille.classList.add('static');
+      return;
+    }
+    grille.classList.remove('static');
+    document.getElementById('now-name').textContent = tool.name + ' ' + tool.icon;
+    document.getElementById('now-desc').textContent = tool.summary;
+    const tagsEl = document.getElementById('now-tags');
+    tagsEl.innerHTML = '';
+    tool.tags.forEach(tg => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; tagsEl.appendChild(sp);
+    });
+  }
+
+  // Drag to tune
+  let dragging = false, dragStartX = 0, dragStartFreq = 0;
+  track.addEventListener('mousedown', (e) => {
+    dragging = true;
+    dragStartX = e.clientX; dragStartFreq = currentFreq;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    const dFreq = -dx / STRIP_WIDTH * (FREQ_MAX - FREQ_MIN);
+    setFreq(dragStartFreq + dFreq);
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    // snap
+    const nearest = stations.reduce((a, b) =>
+      Math.abs(b.freq - currentFreq) < Math.abs(a.freq - currentFreq) ? b : a
+    );
+    if (Math.abs(nearest.freq - currentFreq) < 0.6) setFreq(nearest.freq);
+  });
+
+  // Touch
+  track.addEventListener('touchstart', (e) => {
+    dragging = true;
+    dragStartX = e.touches[0].clientX; dragStartFreq = currentFreq;
+  });
+  track.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - dragStartX;
+    const dFreq = -dx / STRIP_WIDTH * (FREQ_MAX - FREQ_MIN);
+    setFreq(dragStartFreq + dFreq);
+    e.preventDefault();
+  });
+  track.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    const nearest = stations.reduce((a, b) =>
+      Math.abs(b.freq - currentFreq) < Math.abs(a.freq - currentFreq) ? b : a
+    );
+    if (Math.abs(nearest.freq - currentFreq) < 0.6) setFreq(nearest.freq);
+  });
+
+  // Arrow keys
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft')  setFreq(currentFreq - 0.1);
+    if (e.key === 'ArrowRight') setFreq(currentFreq + 0.1);
+  });
+
+  // Presets — favorite tools
+  const PRESET_IDS = ['document_translator', 'ledger_analysis', 'personal_retro', 'travel', 'transcribe', 'rss_hub'];
+  const presetsEl = document.getElementById('presets');
+  PRESET_IDS.forEach((id, i) => {
+    const s = stations.find(x => x.tool.id === id);
+    if (!s) return;
+    const btn = document.createElement('button');
+    btn.className = 'preset';
+    btn.innerHTML = `<span class="num">P${i+1}</span>${s.freq.toFixed(1)}`;
+    btn.title = s.tool.name;
+    btn.addEventListener('click', () => setFreq(s.freq));
+    presetsEl.appendChild(btn);
+  });
+
+  window.addEventListener('resize', () => {
+    trackWidth = track.clientWidth;
+    setFreq(currentFreq);
+  });
+
+  // initial — tune to first station after layout
+  requestAnimationFrame(() => { trackWidth = track.clientWidth; setFreq(stations[0].freq); });
+</script>
+</body>
+</html>

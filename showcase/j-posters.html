@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>J · Movie Posters — paul's tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700&family=Special+Elite&family=Anton&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wall: #2a1f17;
+    --wall-2: #1a120c;
+    --paper: #f8f0d8;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "PingFang TC", sans-serif;
+    color: var(--paper);
+    /* brick wall texture */
+    background:
+      repeating-linear-gradient(0deg,
+        transparent 0 56px,
+        rgba(0,0,0,0.18) 56px 60px),
+      repeating-linear-gradient(90deg,
+        transparent 0 116px,
+        rgba(0,0,0,0.18) 116px 120px),
+      linear-gradient(180deg, var(--wall) 0%, var(--wall-2) 100%);
+    background-size: auto, auto, auto;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 50% 30%, transparent 30%, rgba(0,0,0,0.55) 100%);
+    z-index: 0;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(0,0,0,0.55); color: var(--paper);
+    padding: 5px 12px; border-radius: 0; font-size: 11px;
+    text-decoration: none; font-family: 'Bebas Neue', sans-serif;
+    border: 1px solid var(--paper);
+    letter-spacing: 2px;
+  }
+
+  header {
+    text-align: center;
+    padding: 50px 32px 20px;
+    position: relative; z-index: 1;
+  }
+  header h1 {
+    margin: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; letter-spacing: 8px;
+    color: var(--paper);
+    text-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  header h1 .crimson { color: #d63d3d; }
+  header .marquee {
+    display: inline-block;
+    background: #b53a2a;
+    color: var(--paper);
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 4px 18px;
+    letter-spacing: 4px;
+    margin: 12px 0 4px;
+    font-size: 14px;
+    transform: rotate(-1deg);
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+  }
+  header .sub {
+    color: rgba(248, 240, 216, 0.6);
+    font-style: italic;
+    font-size: 13px;
+  }
+
+  .wall {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 28px 80px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .poster {
+    aspect-ratio: 2 / 3;
+    cursor: pointer;
+    position: relative;
+    box-shadow:
+      4px 6px 0 rgba(0,0,0,0.4),
+      0 12px 30px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+  .poster:hover {
+    transform: translateY(-6px) rotate(0deg) scale(1.03);
+    box-shadow: 5px 10px 0 rgba(0,0,0,0.4), 0 20px 40px rgba(0,0,0,0.6);
+    z-index: 5;
+  }
+  /* slight randomized tilt */
+  .poster:nth-child(4n)   { transform: rotate(-1.5deg); }
+  .poster:nth-child(4n+1) { transform: rotate(1deg); }
+  .poster:nth-child(4n+2) { transform: rotate(-0.5deg); }
+
+  /* scotch tape */
+  .poster::before {
+    content: ""; position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg);
+    width: 60px; height: 18px;
+    background: rgba(255, 245, 220, 0.5);
+    border-left: 1px dashed rgba(120, 100, 60, 0.4);
+    border-right: 1px dashed rgba(120, 100, 60, 0.4);
+    z-index: 10;
+  }
+
+  .review {
+    position: absolute; bottom: 12px; left: 12px; right: 12px;
+    background: rgba(0,0,0,0.75);
+    color: #f4c25b;
+    font-family: 'Special Elite', "Courier New", monospace;
+    font-size: 11px; padding: 6px 10px;
+    border-left: 3px solid #f4c25b;
+    opacity: 0; transition: opacity 0.2s ease;
+    z-index: 8;
+  }
+  .poster:hover .review { opacity: 1; }
+
+  .poster.retired::after {
+    content: "STOPPED PLAYING";
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-22deg);
+    background: #b53a2a; color: var(--paper);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 4px;
+    padding: 4px 18px;
+    border: 4px solid var(--paper);
+    z-index: 6;
+    white-space: nowrap;
+  }
+  .poster.retired { filter: saturate(0.4) brightness(0.7); }
+
+  /* === GENRE STYLES === */
+  /* artsy / minimalist white */
+  .poster.artsy {
+    background: #f0e8d2;
+    color: #1a1a1a;
+    padding: 24px 18px;
+    display: flex; flex-direction: column;
+  }
+  .poster.artsy .director {
+    font-family: 'Special Elite', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #8a7a4a; margin-bottom: auto;
+  }
+  .poster.artsy .icon { font-size: 80px; text-align: center; line-height: 1; margin: 24px 0; }
+  .poster.artsy .title {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 32px; line-height: 0.95; text-align: center;
+    margin-bottom: 4px;
+  }
+  .poster.artsy .tagline {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 11px; text-align: center; color: #5a5040;
+    margin-bottom: auto;
+  }
+  .poster.artsy .credits {
+    font-family: 'Special Elite', monospace; font-size: 9px;
+    letter-spacing: 1px; text-align: center; color: #6a5a3a;
+    margin-top: 20px;
+  }
+
+  /* noir / thriller — black with red accent */
+  .poster.noir {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #f0e8d2;
+    padding: 22px 18px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .poster.noir::after {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(214, 61, 61, 0.18), transparent 60%);
+  }
+  .poster.noir .icon { font-size: 64px; text-align: center; margin: 20px 0; filter: drop-shadow(0 0 12px rgba(214, 61, 61, 0.6)); position: relative; z-index: 2; }
+  .poster.noir .title {
+    font-family: 'Anton', sans-serif;
+    font-size: 30px; letter-spacing: 2px;
+    text-align: center; color: #d63d3d;
+    text-shadow: 2px 2px 0 #000;
+    position: relative; z-index: 2;
+    line-height: 0.95;
+  }
+  .poster.noir .tagline {
+    font-family: 'Special Elite', monospace; font-size: 11px;
+    text-align: center; color: #aaa;
+    margin-top: 10px; font-style: italic;
+    position: relative; z-index: 2;
+  }
+  .poster.noir .credits {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 9px; letter-spacing: 2px;
+    text-align: center; color: #888;
+    margin-top: auto;
+    position: relative; z-index: 2;
+  }
+
+  /* sci-fi — gradient blue/purple */
+  .poster.scifi {
+    background:
+      radial-gradient(circle at 70% 20%, #6a3b97 0%, transparent 50%),
+      linear-gradient(180deg, #1a1f4a 0%, #0a0824 100%);
+    color: #eef0ff;
+    padding: 22px 18px;
+    display: flex; flex-direction: column;
+  }
+  .poster.scifi::after {
+    content: ""; position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+      radial-gradient(1px 1px at 60% 50%, #fff, transparent),
+      radial-gradient(1px 1px at 85% 80%, #fff, transparent);
+    opacity: 0.7;
+  }
+  .poster.scifi .icon { font-size: 70px; text-align: center; margin: 18px 0; filter: drop-shadow(0 0 16px rgba(180, 200, 255, 0.6)); position: relative; z-index: 2; }
+  .poster.scifi .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px; letter-spacing: 6px;
+    text-align: center;
+    background: linear-gradient(180deg, #b6d3ff 0%, #6e5cff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 30px rgba(110, 92, 255, 0.6);
+    position: relative; z-index: 2;
+  }
+  .poster.scifi .tagline {
+    font-family: 'Special Elite', monospace; font-size: 11px;
+    text-align: center; color: #b6c4ff;
+    margin-top: 8px;
+    position: relative; z-index: 2;
+  }
+  .poster.scifi .credits {
+    font-family: ui-monospace, Menlo, monospace; font-size: 9px;
+    letter-spacing: 2px; text-align: center; color: #8a9ad6;
+    margin-top: auto;
+    position: relative; z-index: 2;
+  }
+
+  /* documentary — sepia */
+  .poster.doc {
+    background:
+      linear-gradient(180deg, #d8c890 0%, #b8a060 100%);
+    color: #2a1810;
+    padding: 22px 18px;
+    display: flex; flex-direction: column;
+  }
+  .poster.doc::before { background: rgba(0,0,0,0.3); }
+  .poster.doc .icon { font-size: 64px; text-align: center; margin: 18px 0; filter: sepia(1) saturate(2); }
+  .poster.doc .director {
+    font-family: 'Special Elite', monospace; font-size: 9px;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #5a4020;
+  }
+  .poster.doc .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; line-height: 1; text-align: center;
+    color: #2a1810; font-weight: 700;
+    border-top: 3px solid #2a1810;
+    border-bottom: 3px solid #2a1810;
+    padding: 8px 0;
+    margin: 10px 0;
+  }
+  .poster.doc .tagline {
+    font-family: 'Playfair Display', serif; font-size: 11px;
+    text-align: center; font-style: italic; color: #5a4020;
+  }
+  .poster.doc .credits {
+    font-family: 'Special Elite', monospace; font-size: 9px;
+    letter-spacing: 1px; text-align: center; color: #5a4020;
+    margin-top: auto;
+  }
+
+  /* romance / 70s — pastel pink */
+  .poster.romance {
+    background: linear-gradient(180deg, #f4b9c9 0%, #e08aa3 100%);
+    color: #4a1a30;
+    padding: 22px 18px;
+    display: flex; flex-direction: column;
+  }
+  .poster.romance .icon { font-size: 70px; text-align: center; margin: 20px 0; }
+  .poster.romance .title {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 34px; text-align: center; color: #4a1a30;
+    line-height: 1; text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+  }
+  .poster.romance .tagline {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 12px; text-align: center; margin-top: 10px; color: #6a2a48;
+  }
+  .poster.romance .credits {
+    font-family: 'Special Elite', monospace; font-size: 9px;
+    letter-spacing: 1px; text-align: center; color: #6a2a48;
+    margin-top: auto;
+  }
+
+  /* finance / wall street */
+  .poster.finance {
+    background:
+      linear-gradient(180deg, #1a2a3a 0%, #0a1424 100%);
+    color: #4ad160;
+    padding: 22px 18px;
+    display: flex; flex-direction: column;
+  }
+  .poster.finance::after {
+    content: "+24.5%  -12.1%  +88.7%  +5.2%";
+    position: absolute; bottom: 50px; left: 0; right: 0;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 9px; color: rgba(74, 209, 96, 0.4);
+    text-align: center;
+  }
+  .poster.finance .icon { font-size: 60px; text-align: center; margin: 18px 0; }
+  .poster.finance .title {
+    font-family: 'Anton', sans-serif;
+    font-size: 30px; letter-spacing: 2px;
+    text-align: center; color: #4ad160;
+    line-height: 0.95;
+  }
+  .poster.finance .tagline {
+    font-family: 'Special Elite', monospace; font-size: 10px;
+    text-align: center; color: #a8c8b0;
+    margin-top: 8px;
+  }
+  .poster.finance .credits {
+    font-family: ui-monospace, Menlo, monospace; font-size: 9px;
+    letter-spacing: 1px; text-align: center; color: #6a8a70;
+    margin-top: auto;
+  }
+
+  /* === MODAL === */
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .backdrop.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    color: #2a1810;
+    max-width: 540px;
+    width: 100%;
+    border-radius: 4px;
+    padding: 32px 32px 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    font-family: 'Special Elite', monospace;
+    position: relative;
+  }
+  .modal .close-x {
+    position: absolute; top: 12px; right: 16px;
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: #2a1810;
+  }
+  .modal .marquee {
+    display: inline-block;
+    background: #b53a2a; color: var(--paper);
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 2px 10px; letter-spacing: 3px;
+    font-size: 11px; margin-bottom: 12px;
+  }
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; margin: 0 0 4px;
+  }
+  .modal .credits-line {
+    font-size: 11px; color: #5a4020; margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+  .modal p { font-size: 14px; line-height: 1.6; margin: 8px 0; }
+  .modal .review-line {
+    border-left: 3px solid #b53a2a;
+    padding-left: 12px;
+    font-style: italic;
+    color: #5a4020;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .modal .meta {
+    display: grid; grid-template-columns: 80px 1fr; gap: 4px 12px;
+    margin-top: 14px; font-size: 12px;
+  }
+  .modal .meta .k { color: #8a6a4a; letter-spacing: 1px; }
+  .modal .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .modal .tag {
+    background: #2a1810; color: var(--paper);
+    padding: 2px 8px; font-size: 10px;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<header>
+  <h1>PAUL <span class="crimson">·</span> CINEMA</h1>
+  <div class="marquee">★ NOW SHOWING ★</div>
+  <div class="sub">"each tool, a feature presentation"</div>
+</header>
+
+<div class="wall" id="wall"></div>
+
+<div class="backdrop" id="backdrop" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal()">×</button>
+    <div class="marquee">FEATURE</div>
+    <h2 id="m-title">—</h2>
+    <div class="credits-line" id="m-credits">—</div>
+    <p id="m-summary">—</p>
+    <div class="review-line" id="m-review">—</div>
+    <div class="meta">
+      <div class="k">RUNTIME</div><div id="m-runs">—</div>
+      <div class="k">RATING</div><div id="m-rating">—</div>
+      <div class="k">STATUS</div><div id="m-status">—</div>
+    </div>
+    <div class="tags" id="m-tags" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Genre detection
+  function genreOf(t) {
+    if (t.tags.includes('gemini')) return 'artsy';
+    if (t.tags.includes('whisper') || t.tags.includes('blackhole') || t.tags.includes('scraping')) return 'noir';
+    if (t.tags.includes('discord') || t.tags.includes('react') || t.tags.includes('vps')) return 'scifi';
+    if (t.tags.includes('analytics') || t.tags.includes('openai')) return 'doc';
+    if (t.tags.includes('rss') || t.tags.includes('medium api')) return 'romance';
+    if (t.tags.includes('notion') && t.id.includes('ledger')) return 'finance';
+    return 'artsy';
+  }
+
+  // Fake taglines per tool
+  const TAGLINES = {
+    document_translator: 'A document. A translator. A choice.',
+    translate:           'Two languages. One keystroke.',
+    thread_extractor:    'Some threads were never meant to be untangled.',
+    rss:                 'In a world of feeds, only one knew the way home.',
+    rss_hub:             'The hub. The feed. The legend.',
+    read_later:          'Sometimes "later" never comes. Sometimes it does.',
+    medium:              'From draft to publish — at any cost.',
+    sharing:             'Behind every great Discord, there is a bot.',
+    transcribe:          'They thought it was off the record. They were wrong.',
+    media_download:      'Everything that goes online... can come down again.',
+    lottie:              'Animation, by design.',
+    ledger_analysis:     'The numbers don\'t lie. Or do they?',
+    personal_retro:      'A weekly reckoning, written in markdown.',
+    leadtime_analyze:    'Time is the only metric that matters.',
+    travel:              'The journey planned itself.',
+    macos_init:          'A clean machine. A fresh start.',
+    tinyflow:            'Sometimes small is everything.',
+    claw:                'It rose. It ruled. It retired.',
+  };
+  const REVIEWS = {
+    artsy:   '"A meditative triumph." — Sundance Insider',
+    noir:    '"Dark, twisted, brilliant." — Indie Critic Weekly',
+    scifi:   '"A dazzling vision of automation." — Tech Premiere',
+    doc:     '"Honest, intimate, unforgettable." — Doc Quarterly',
+    romance: '"You\'ll fall in love." — Modern Reader',
+    finance: '"Wall Street will never be the same." — Money Watch',
+  };
+  const RATING = {
+    active: '★★★★½',
+    experiment: '★★★☆☆',
+    retired: '☆☆☆☆☆ (out of release)',
+  };
+
+  const wall = document.getElementById('wall');
+  window.TOOLS.forEach(t => {
+    const g = genreOf(t);
+    const div = document.createElement('div');
+    div.className = 'poster ' + g + (t.status === 'retired' ? ' retired' : '');
+    const stack = t.tags.slice(0, 3).join(' · ');
+    div.innerHTML = `
+      <div class="director">a paul film</div>
+      <div class="icon">${t.icon}</div>
+      <div class="title">${t.name.toUpperCase().replace(/_/g, ' ')}</div>
+      <div class="tagline">"${TAGLINES[t.id] || 'Coming soon to a terminal near you.'}"</div>
+      <div class="credits">${stack.toUpperCase()}</div>
+      <div class="review">${REVIEWS[g]}</div>
+    `;
+    div.addEventListener('click', () => openModal(t, g));
+    wall.appendChild(div);
+  });
+
+  function openModal(t, g) {
+    document.getElementById('m-title').textContent = t.name;
+    document.getElementById('m-credits').textContent =
+      `directed by paul · starring ${t.tags.slice(0, 3).join(', ')}`;
+    document.getElementById('m-summary').textContent = t.summary;
+    document.getElementById('m-review').textContent = REVIEWS[g];
+    document.getElementById('m-runs').textContent = t.runs;
+    document.getElementById('m-rating').textContent = RATING[t.status];
+    document.getElementById('m-status').textContent = t.status;
+    const tagsEl = document.getElementById('m-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tg => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; tagsEl.appendChild(sp);
+    });
+    document.getElementById('backdrop').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('backdrop').classList.remove('open');
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>I · Constellation — paul's tools</title>
+<style>
+  :root {
+    --void: #050818;
+    --void-2: #0e1530;
+    --star: #f8f4d6;
+    --dim: #6f7aa0;
+    --line: rgba(180, 200, 255, 0.18);
+    --accent: #b6d3ff;
+    --warm: #f4c25b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(900px 500px at 70% 30%, rgba(120, 80, 180, 0.18), transparent 60%),
+      radial-gradient(800px 600px at 20% 80%, rgba(60, 110, 180, 0.18), transparent 60%),
+      var(--void);
+    color: var(--star);
+    font-family: "Georgia", "Times New Roman", "PingFang TC", serif;
+    position: relative;
+  }
+  .back-gallery {
+    position: fixed; top: 14px; left: 14px; z-index: 99998;
+    background: rgba(255,255,255,0.08); color: var(--star);
+    padding: 5px 12px; border-radius: 999px; font-size: 11px;
+    text-decoration: none; font-family: ui-monospace, Menlo, monospace;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+
+  /* twinkling stars background */
+  .bg-stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, #fff, transparent),
+      radial-gradient(1px 1px at 28% 65%, #fff, transparent),
+      radial-gradient(1px 1px at 47% 38%, #fff, transparent),
+      radial-gradient(1px 1px at 67% 14%, #fff, transparent),
+      radial-gradient(1px 1px at 82% 56%, #fff, transparent),
+      radial-gradient(1px 1px at 95% 80%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 36% 88%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 8% 90%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 58% 6%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 75% 34%, #fff, transparent),
+      radial-gradient(1px 1px at 21% 12%, #fff, transparent),
+      radial-gradient(1px 1px at 50% 70%, #fff, transparent),
+      radial-gradient(1px 1px at 89% 22%, #fff, transparent),
+      radial-gradient(2px 2px at 40% 18%, rgba(255,255,255,0.6), transparent);
+    opacity: 0.7;
+    animation: twinkle 6s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { 50% { opacity: 0.35; } }
+
+  header {
+    position: relative; z-index: 5;
+    text-align: center;
+    padding: 50px 28px 14px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 32px; font-weight: 400;
+    letter-spacing: 6px; color: var(--star);
+    text-shadow: 0 0 20px rgba(248, 244, 214, 0.4);
+  }
+  header h1 small { font-size: 13px; color: var(--dim); letter-spacing: 4px; }
+  header .sub {
+    color: var(--dim); font-style: italic; font-size: 14px; margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  .sky {
+    position: relative;
+    width: 100vw; height: calc(100vh - 130px);
+    z-index: 2;
+  }
+  svg.constellations {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .const-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 5; fill: none; }
+  .star {
+    cursor: pointer;
+  }
+  .star circle.glow { fill: var(--star); filter: drop-shadow(0 0 8px var(--star)); }
+  .star circle.core { fill: #fff; }
+  .star.experiment circle.glow { fill: var(--warm); filter: drop-shadow(0 0 8px var(--warm)); }
+  .star.retired circle.glow { fill: #555; filter: none; opacity: 0.45; }
+  .star.retired circle.core { fill: #888; }
+  .star text {
+    fill: var(--dim); font-size: 11px;
+    font-family: "Georgia", serif; font-style: italic;
+    pointer-events: none;
+    text-anchor: middle;
+    opacity: 0;
+    transition: opacity 0.2s ease, fill 0.2s ease;
+  }
+  .star:hover text, .star.focused text { opacity: 1; fill: var(--star); }
+  .star.focused circle.core { animation: pulse-core 1.6s ease-in-out infinite; }
+  @keyframes pulse-core {
+    0%, 100% { r: 3; }
+    50% { r: 5; }
+  }
+  .const-label {
+    fill: var(--accent);
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* Star info card (when clicked) */
+  .star-card {
+    position: fixed;
+    right: 32px; top: 50%; transform: translate(440px, -50%);
+    width: 380px; max-width: 90vw;
+    background: rgba(14, 18, 40, 0.85);
+    border: 1px solid rgba(180, 200, 255, 0.3);
+    border-radius: 8px;
+    padding: 26px 24px 22px;
+    color: var(--star);
+    backdrop-filter: blur(12px);
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1);
+    z-index: 50;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+  .star-card.open { transform: translate(0, -50%); }
+  .star-card .close-x {
+    position: absolute; top: 10px; right: 14px;
+    background: none; border: none; cursor: pointer;
+    color: var(--dim); font-size: 18px;
+    font-family: "Georgia", serif;
+  }
+  .star-card .designation {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .star-card h2 {
+    font-family: "Georgia", serif;
+    font-size: 24px; font-weight: 400;
+    margin: 0 0 4px;
+    letter-spacing: 1px;
+  }
+  .star-card .const {
+    font-style: italic; font-size: 12px; color: var(--dim);
+    margin-bottom: 16px;
+  }
+  .star-card p {
+    font-family: "Georgia", serif;
+    font-size: 14px; line-height: 1.65;
+    color: #d8e0f5; margin: 8px 0;
+  }
+  .star-card hr {
+    border: none; border-top: 1px dotted rgba(180, 200, 255, 0.25);
+    margin: 14px 0;
+  }
+  .star-card .chart {
+    display: grid; grid-template-columns: 100px 1fr;
+    gap: 6px 12px; font-size: 12.5px; line-height: 1.6;
+  }
+  .star-card .chart .k {
+    color: var(--dim); font-style: italic;
+    font-family: "Georgia", serif;
+  }
+  .star-card .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .star-card .tag {
+    font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+    background: rgba(180, 200, 255, 0.1);
+    color: var(--accent);
+    padding: 2px 8px; border-radius: 999px;
+    border: 1px solid rgba(180, 200, 255, 0.2);
+  }
+
+  .legend {
+    position: fixed; left: 24px; bottom: 24px;
+    color: var(--dim); font-size: 11px;
+    font-family: "Georgia", serif; font-style: italic;
+    line-height: 1.7;
+    z-index: 5;
+  }
+  .legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<a class="back-gallery" href="index.html">← gallery</a>
+
+<div class="bg-stars"></div>
+
+<header>
+  <h1>Stellar Atlas <small>· paul's tools</small></h1>
+  <div class="sub">— a private cartography of small automations —</div>
+</header>
+
+<div class="sky">
+  <svg class="constellations" id="sky" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<aside class="star-card" id="card">
+  <button class="close-x" onclick="closeCard()">close ✕</button>
+  <div class="designation" id="c-designation">—</div>
+  <h2 id="c-name">—</h2>
+  <div class="const" id="c-const">—</div>
+  <p id="c-desc">—</p>
+  <hr/>
+  <div class="chart">
+    <div class="k">apparent mag</div><div id="c-mag">—</div>
+    <div class="k">spectral type</div><div id="c-type">—</div>
+    <div class="k">discovered</div><div id="c-disc">—</div>
+    <div class="k">runs</div><div id="c-runs">—</div>
+  </div>
+  <div class="tags" id="c-tags" style="margin-top:12px;"></div>
+</aside>
+
+<div class="legend">
+  <div><span class="dot" style="background:#f8f4d6; box-shadow:0 0 8px #f8f4d6;"></span> active star</div>
+  <div><span class="dot" style="background:#f4c25b; box-shadow:0 0 8px #f4c25b;"></span> variable star (experiment)</div>
+  <div><span class="dot" style="background:#555;"></span> dwarf star (retired)</div>
+</div>
+
+<script src="tools.js"></script>
+<script>
+  // Group tools into constellations by category
+  const CONSTELLATIONS = [
+    { name: 'TRANSLATIO',     match: t => t.tags.includes('gemini'),  center: [180, 160] },
+    { name: 'AUTOMATA',       match: t => t.tags.includes('notion') || t.tags.includes('github actions') || t.tags.includes('rss'),
+                              center: [720, 220] },
+    { name: 'MEDIA',          match: t => t.tags.includes('whisper') || t.tags.includes('yt-dlp') || t.tags.includes('lottie'),
+                              center: [1100, 500] },
+    { name: 'AURORA PERSONAE',match: t => t.tags.includes('analytics') || t.tags.includes('discord') || t.tags.includes('openai'),
+                              center: [340, 540] },
+    { name: 'EXTERNUM',       match: t => t.tags.includes('react') || t.tags.includes('shell') || t.tags.includes('vps'),
+                              center: [900, 80] },
+    { name: 'ULTIMA',         match: () => true, center: [800, 580] }, // catchall
+  ];
+
+  // Assign each tool to first matching constellation
+  const grouped = {};
+  CONSTELLATIONS.forEach(c => grouped[c.name] = []);
+  window.TOOLS.forEach(t => {
+    const c = CONSTELLATIONS.find(c => c.match(t));
+    grouped[c.name].push(t);
+  });
+
+  // Place stars around each constellation center with deterministic jitter
+  function hash(s) {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }
+  const placed = []; // { tool, x, y, mag, const }
+  CONSTELLATIONS.forEach(c => {
+    const tools = grouped[c.name];
+    tools.forEach((t, i) => {
+      const angle = (hash(t.id) % 360) * Math.PI / 180;
+      const radius = 70 + (hash(t.id) % 90);
+      const x = c.center[0] + Math.cos(angle) * radius + ((i % 3) - 1) * 30;
+      const y = c.center[1] + Math.sin(angle) * radius + ((i % 2) - 0.5) * 30;
+      placed.push({ tool: t, x, y, const: c.name });
+    });
+  });
+
+  const sky = document.getElementById('sky');
+
+  // Draw constellation lines (dashed connections within each group)
+  CONSTELLATIONS.forEach(c => {
+    const stars = placed.filter(p => p.const === c.name);
+    if (stars.length < 2) return;
+    // sort by x for a nicer line
+    const sorted = [...stars].sort((a, b) => a.x - b.x);
+    let d = `M ${sorted[0].x} ${sorted[0].y}`;
+    for (let i = 1; i < sorted.length; i++) d += ` L ${sorted[i].x} ${sorted[i].y}`;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'const-line');
+    path.setAttribute('d', d);
+    sky.appendChild(path);
+
+    // constellation label
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('class', 'const-label');
+    txt.setAttribute('x', c.center[0]);
+    txt.setAttribute('y', c.center[1] - 110);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = c.name;
+    sky.appendChild(txt);
+  });
+
+  // Draw stars
+  placed.forEach(p => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'star ' + p.tool.status);
+    g.setAttribute('transform', `translate(${p.x},${p.y})`);
+
+    const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    glow.setAttribute('class', 'glow');
+    glow.setAttribute('r', '6');
+    glow.setAttribute('opacity', '0.35');
+
+    const core = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    core.setAttribute('class', 'core');
+    core.setAttribute('r', '3');
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('y', -14);
+    label.textContent = p.tool.name;
+
+    g.appendChild(glow); g.appendChild(core); g.appendChild(label);
+    g.addEventListener('click', () => openStar(p));
+    g.addEventListener('mouseenter', () => g.classList.add('focused'));
+    g.addEventListener('mouseleave', () => { if (!g.classList.contains('selected')) g.classList.remove('focused'); });
+
+    sky.appendChild(g);
+  });
+
+  // Card
+  function openStar(p) {
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('selected', 'focused'));
+    placed.find(x => x === p);
+    const t = p.tool;
+    const designation = `HD ${(hash(t.id) % 90000 + 10000)}`;
+    document.getElementById('c-designation').textContent = designation;
+    document.getElementById('c-name').textContent = t.name;
+    document.getElementById('c-const').textContent = `in the constellation of ${p.const}`;
+    document.getElementById('c-desc').textContent = t.summary;
+    const mag = t.status === 'retired' ? '8.2 (faint)' : t.status === 'experiment' ? '4.5 (variable)' : '2.1 (bright)';
+    const type = t.tags.slice(0, 2).join(' · ');
+    const disc = '20' + (15 + hash(t.id) % 9);
+    document.getElementById('c-mag').textContent = mag;
+    document.getElementById('c-type').textContent = type;
+    document.getElementById('c-disc').textContent = disc;
+    document.getElementById('c-runs').textContent = t.runs;
+    const tagsEl = document.getElementById('c-tags');
+    tagsEl.innerHTML = '';
+    t.tags.forEach(tg => {
+      const sp = document.createElement('span'); sp.className = 'tag'; sp.textContent = tg; tagsEl.appendChild(sp);
+    });
+    document.getElementById('card').classList.add('open');
+  }
+  function closeCard() {
+    document.getElementById('card').classList.remove('open');
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCard(); });
+</script>
+</body>
+</html>
