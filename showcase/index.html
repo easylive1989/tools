@@ -3,640 +3,664 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>paul's tools — 路線圖 (mockup)</title>
+<title>Tools OS — paul's tools</title>
 <style>
   :root {
-    --bg: #0b0f17;
-    --bg-soft: #0f1421;
-    --panel: #111827;
-    --border: #1f2937;
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --orange: #fb923c;
-    --blue: #60a5fa;
-    --purple: #c084fc;
-    --green: #34d399;
-    --gray: #94a3b8;
+    --desktop: #6a7a8f;
+    --desktop-2: #4f5d70;
+    --window: #dcdcdc;
+    --window-edge: #ffffff;
+    --window-shadow: #6b6b6b;
+    --ink: #000000;
+    --muted: #555;
+    --accent: #2b4cff;
+    --retired: #aa3a3a;
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
+  html, body { height: 100%; margin: 0; }
   body {
-    margin: 0;
+    font-family: "Geneva", "Chicago", "Tahoma", -apple-system, ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
     background:
-      radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,0.10), transparent 60%),
-      radial-gradient(900px 500px at 110% 110%, rgba(192,132,252,0.08), transparent 60%),
-      var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang TC",
-                 "Noto Sans TC", system-ui, sans-serif;
+      radial-gradient(1200px 700px at 30% 20%, #7e8ea3 0%, transparent 60%),
+      radial-gradient(900px 600px at 80% 90%, #59697f 0%, transparent 55%),
+      var(--desktop);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ===== MENU BAR ===== */
+  .menubar {
+    position: fixed; top: 0; left: 0; right: 0; height: 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #e6e6e6 100%);
+    border-bottom: 1px solid #000;
+    display: flex; align-items: center;
+    padding: 0 10px;
+    font-size: 13px;
+    z-index: 9999;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset;
+  }
+  .menubar .apple { font-size: 14px; margin-right: 14px; cursor: pointer; }
+  .menubar .menu-item { padding: 0 9px; height: 100%; display: inline-flex; align-items: center; cursor: pointer; border-radius: 2px; }
+  .menubar .menu-item:hover { background: var(--ink); color: #fff; }
+  .menubar .menu-item.app-name { font-weight: 700; }
+  .menubar .spacer { flex: 1; }
+  .menubar .clock { font-family: ui-monospace, Menlo, monospace; font-size: 12px; padding: 0 8px; }
+
+  /* ===== DESKTOP ===== */
+  .desktop {
+    position: absolute; top: 24px; left: 0; right: 0; bottom: 64px;
     overflow: hidden;
   }
-  header {
-    padding: 18px 28px 10px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    flex-wrap: wrap;
+
+  /* ===== DESKTOP ICONS ===== */
+  .icon-grid {
+    position: absolute; top: 16px; right: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 92px);
+    gap: 8px 6px;
+    max-height: calc(100% - 32px);
   }
-  header h1 {
-    margin: 0;
-    font-size: 22px;
-    letter-spacing: 0.4px;
-    font-weight: 700;
+  .icon {
+    width: 92px; padding: 6px 4px 4px;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: center;
   }
-  header .subtitle { color: var(--muted); font-size: 13px; }
-  header .pill {
-    margin-left: auto;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  .icon.selected { background: rgba(0,0,0,0.35); }
+  .icon.selected .label { background: var(--ink); color: #fff; padding: 1px 4px; border-radius: 2px; }
+  .icon-art {
+    width: 48px; height: 48px;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.45);
+    position: relative;
+    overflow: hidden;
+  }
+  .icon-art::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 8px;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.18) 0 1px,
+      transparent 1px 2px
+    );
+  }
+  .icon.retired .icon-art { filter: grayscale(1) brightness(0.85); }
+  .icon.retired .icon-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        rgba(170,58,58,0.18) 0 6px,
+        transparent 6px 12px
+      );
+  }
+  .icon .label {
+    margin-top: 4px;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+    font-size: 11.5px;
+    line-height: 1.25;
+    word-break: break-word;
+    max-width: 86px;
   }
 
-  .map-wrap {
-    width: 100vw;
-    height: calc(100vh - 72px);
+  /* ===== WINDOWS ===== */
+  .window {
+    position: absolute;
+    min-width: 280px;
+    background: var(--window);
+    border: 1px solid var(--ink);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.55);
+    display: flex; flex-direction: column;
+  }
+  .window.active { box-shadow: 3px 3px 0 rgba(0,0,0,0.65); }
+
+  .titlebar {
+    height: 19px;
+    border-bottom: 1px solid var(--ink);
+    display: flex; align-items: center;
+    padding: 0 4px;
+    cursor: grab;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        var(--ink) 0 1px,
+        #fff 1px 3px
+      );
     position: relative;
   }
-  svg.map { width: 100%; height: 100%; display: block; }
-
-  /* Lines */
-  .line {
-    fill: none;
-    stroke-width: 12;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0.95;
-  }
-  .infra {
-    fill: none;
-    stroke: var(--gray);
-    stroke-width: 2.5;
-    stroke-dasharray: 2 7;
-    stroke-linecap: round;
-    opacity: 0.55;
-  }
-  .line-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    fill: currentColor;
-    opacity: 0.9;
-  }
-
-  /* Stations */
-  .station { cursor: pointer; }
-  .station .hit { fill: transparent; }
-  .station circle.dot {
-    fill: var(--bg);
-    stroke-width: 4;
-    transition: transform 0.15s ease, filter 0.15s ease;
-    transform-box: fill-box;
-    transform-origin: center;
-  }
-  .station:hover circle.dot { transform: scale(1.15); filter: drop-shadow(0 0 6px currentColor); }
-  .station text {
-    fill: var(--text);
-    font-size: 12.5px;
-    font-weight: 600;
+  .window:not(.active) .titlebar { background: #efefef; }
+  .titlebar:active { cursor: grabbing; }
+  .titlebar .title {
+    position: absolute; left: 0; right: 0; text-align: center;
+    font-size: 12px; font-weight: 700;
     pointer-events: none;
   }
-  .station text.sub {
-    fill: var(--muted);
-    font-size: 10.5px;
-    font-weight: 500;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  .titlebar .title-bg {
+    background: var(--window);
+    padding: 0 8px;
   }
-
-  /* Transfer (interchange) station marker */
-  .transfer circle.ring-outer { fill: var(--bg); stroke: var(--text); stroke-width: 3.5; }
-  .transfer circle.ring-inner { fill: var(--text); }
-  .transfer:hover circle.ring-outer { stroke: #fff; }
-
-  /* Infra hub stations */
-  .hub rect.body {
-    fill: var(--bg);
-    stroke: var(--gray);
-    stroke-width: 2.5;
-    stroke-dasharray: 4 4;
-    rx: 8; ry: 8;
+  .ctrl {
+    width: 12px; height: 12px;
+    background: var(--window);
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    z-index: 1;
   }
-  .hub text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
-  .hub:hover rect.body { stroke: #fff; stroke-dasharray: 0; }
-
-  /* Legend */
-  .legend {
+  .ctrl.close { margin-right: auto; }
+  .ctrl.zoom { margin-left: auto; }
+  .ctrl:hover { background: #c0c0c0; }
+  .ctrl.close:hover::before {
+    content: "";
     position: absolute;
-    right: 24px;
-    top: 24px;
-    background: rgba(17, 24, 39, 0.85);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    backdrop-filter: blur(8px);
+    width: 10px; height: 10px;
+    background:
+      linear-gradient(45deg, transparent 45%, var(--ink) 45% 55%, transparent 55%),
+      linear-gradient(-45deg, transparent 45%, var(--ink) 45% 55%, transparent 55%);
+  }
+
+  .window-body {
+    padding: 14px 16px 16px;
     font-size: 13px;
-    min-width: 210px;
-  }
-  .legend h3 {
-    margin: 0 0 10px;
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--muted);
-    font-weight: 700;
-  }
-  .legend-row { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
-  .legend-swatch { width: 26px; height: 4px; border-radius: 2px; flex: none; }
-  .legend-swatch.dashed {
-    height: 0;
-    border-top: 2px dashed var(--gray);
-    background: transparent;
-  }
-  .legend-mini {
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 11.5px;
-    line-height: 1.55;
-  }
-
-  /* Drawer */
-  .drawer {
-    position: absolute;
-    right: 0; top: 0; bottom: 0;
-    width: 400px;
-    max-width: 92vw;
-    background: linear-gradient(180deg, #111827 0%, #0d1320 100%);
-    border-left: 1px solid var(--border);
-    transform: translateX(100%);
-    transition: transform 0.28s cubic-bezier(.2,.7,.2,1);
-    padding: 28px 26px 24px;
+    line-height: 1.6;
+    color: var(--ink);
+    max-height: 60vh;
     overflow-y: auto;
-    box-shadow: -16px 0 40px rgba(0,0,0,0.4);
   }
-  .drawer.open { transform: translateX(0); }
-  .drawer .close-x {
-    position: absolute;
-    top: 14px; right: 16px;
-    background: none; border: none;
+  .window-body h2 {
+    font-size: 15px;
+    margin: 0 0 4px;
+    font-family: "Chicago", Geneva, sans-serif;
+  }
+  .window-body .path {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px;
     color: var(--muted);
+    margin-bottom: 10px;
+    word-break: break-all;
+  }
+  .window-body p { margin: 0 0 10px; }
+  .window-body hr { border: none; border-top: 1px dashed #999; margin: 10px 0; }
+  .window-body .tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 10px; }
+  .tag {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 10px;
+    border: 1px solid var(--ink);
+    background: #fff;
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+  .meta-row { display: flex; gap: 8px; font-size: 12px; color: var(--muted); margin: 2px 0; }
+  .meta-row strong { color: var(--ink); min-width: 64px; display: inline-block; }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border: 1px solid var(--ink);
+    margin-left: 6px;
+    vertical-align: middle;
+    background: #fff;
+  }
+  .badge.retired { background: #ffe9e9; color: var(--retired); border-color: var(--retired); }
+  .badge.active { background: #e7f6e7; color: #1f6a1f; border-color: #1f6a1f; }
+  .badge.experiment { background: #fff7d6; color: #855a00; border-color: #855a00; }
+  .btn {
+    display: inline-block;
+    font: inherit;
+    font-size: 12px;
+    padding: 2px 12px;
+    border: 1px solid var(--ink);
+    background: linear-gradient(180deg, #fff 0%, #d4d4d4 100%);
+    cursor: pointer;
+    border-radius: 999px;
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+  }
+  .btn:active { transform: translate(1px,1px); box-shadow: none; }
+
+  /* ===== DOCK ===== */
+  .dock {
+    position: fixed; bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    height: 56px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(0,0,0,0.4);
+    border-radius: 14px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    backdrop-filter: blur(8px);
+    z-index: 9000;
+  }
+  .dock .dock-item {
+    width: 44px; height: 44px;
+    border: 1px solid var(--ink);
+    background: #fff;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
     font-size: 22px;
     cursor: pointer;
-    line-height: 1;
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.35);
+    transition: transform 0.15s ease;
+    position: relative;
   }
-  .drawer .close-x:hover { color: var(--text); }
-  .drawer h2 { margin: 0 0 6px; font-size: 22px; }
-  .drawer .path {
-    color: var(--muted);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-  .drawer .lines-served {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-bottom: 18px;
-  }
-  .line-chip {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 10px;
-    color: #0b0f17;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-  .drawer p { line-height: 1.65; font-size: 14px; color: #d6dbe5; margin: 0 0 14px; }
-  .drawer .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 18px; }
-  .tag {
-    background: #1f2937;
-    color: #e5e7eb;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-family: ui-monospace, Menlo, monospace;
-  }
-  .drawer .meta {
-    margin-top: 14px;
-    border-top: 1px solid var(--border);
-    padding-top: 14px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .drawer .meta strong { color: var(--text); }
-
-  /* Hint when nothing selected */
-  .hint {
+  .dock .dock-item:hover { transform: translateY(-6px) scale(1.08); }
+  .dock .dock-item .dock-label {
     position: absolute;
-    left: 24px; bottom: 22px;
-    color: var(--muted);
-    font-size: 12px;
-    background: rgba(17,24,39,0.7);
-    border: 1px solid var(--border);
-    padding: 8px 12px;
-    border-radius: 10px;
-    backdrop-filter: blur(6px);
+    bottom: 110%;
+    background: var(--ink); color: #fff;
+    font-size: 11px;
+    padding: 2px 6px; border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
   }
-  .hint kbd {
-    background: #1f2937; color: #e5e7eb;
-    padding: 1px 6px; border-radius: 4px;
-    font-family: ui-monospace, Menlo, monospace; font-size: 11px;
+  .dock .dock-item:hover .dock-label { opacity: 1; }
+  .dock .divider { width: 1px; height: 32px; background: rgba(0,0,0,0.35); margin: 0 4px; }
+
+  /* ===== BOOT SPLASH ===== */
+  .boot {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #000;
+    color: #d4ffd4;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 13px;
+    padding: 40px 28px;
+    line-height: 1.7;
+    white-space: pre-wrap;
   }
+  .boot.fade-out { animation: bootOut 0.6s ease forwards; }
+  @keyframes bootOut {
+    to { opacity: 0; visibility: hidden; }
+  }
+  .boot .happy-mac {
+    font-family: ui-monospace, monospace;
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 18px;
+    line-height: 1.3;
+  }
+  .cursor { display: inline-block; width: 8px; background: #d4ffd4; margin-left: 2px; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { background: transparent; } }
+
+  /* ===== ABOUT WINDOW STYLES ===== */
+  .about-window .window-body { text-align: center; padding: 24px 22px; }
+  .about-window .about-logo {
+    font-size: 56px; margin-bottom: 8px;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.4));
+  }
+  .about-window h2 { font-size: 18px; margin-bottom: 2px; }
+  .about-window .ver { font-size: 11px; color: var(--muted); margin-bottom: 14px; font-family: ui-monospace, Menlo, monospace; }
+  .about-window p { text-align: left; font-size: 12.5px; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🛠 paul's tools <span style="color:var(--muted); font-weight:500;">— 路線圖</span></h1>
-  <span class="subtitle">點任一站看詳細 · 雙圈 = 轉乘站 · 灰色虛線 = 共用的 common/ 模組</span>
-  <span class="pill">mockup · proposal B</span>
-</header>
+<!-- BOOT SPLASH -->
+<div class="boot" id="boot">
+<div class="happy-mac">    ┌─────────────┐
+    │  ┌──┐ ┌──┐ │
+    │  │··│ │··│ │
+    │  └──┘ └──┘ │
+    │   \____/   │
+    └─────────────┘
+   Welcome to Tools OS</div>
+[ ok ] mounting /Users/paul/tools ............ OK
+[ ok ] loading common/notion ................. OK
+[ ok ] loading common/gemini ................. OK
+[ ok ] loading common/notify ................. OK
+[ ok ] scanning workflows .................... 6 active, 2 disabled
+[ ok ] starting Finder .......................<span class="cursor"></span>
+</div>
 
-<div class="map-wrap">
-  <svg class="map" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid meet">
-    <!-- ===== INFRA dashed connectors (drawn first, so lines overlay them) ===== -->
-    <!-- common/gemini hub → translate, document_translator, thread_extractor -->
-    <path class="infra" d="M 280 150 C 280 80, 360 60, 440 60 L 560 60 C 640 60, 760 80, 760 150" />
-    <path class="infra" d="M 520 150 L 520 80" />
+<!-- MENU BAR -->
+<div class="menubar">
+  <span class="apple" onclick="openAbout()">🍎</span>
+  <span class="menu-item app-name">Finder</span>
+  <span class="menu-item">File</span>
+  <span class="menu-item">Edit</span>
+  <span class="menu-item">View</span>
+  <span class="menu-item">Special</span>
+  <span class="menu-item">Help</span>
+  <span class="spacer"></span>
+  <span class="clock" id="clock">--:--</span>
+</div>
 
-    <!-- common/notion hub → medium, ledger_analysis, personal_retro -->
-    <path class="infra" d="M 740 320 C 1000 340, 1180 480, 1180 540 C 1180 700, 900 720, 760 720 L 540 720 C 380 720, 280 700, 280 680" />
+<!-- DESKTOP -->
+<div class="desktop" id="desktop">
+  <div class="icon-grid" id="icon-grid"></div>
+</div>
 
-    <!-- common/notify hub → rss_hub, personal_retro -->
-    <path class="infra" d="M 380 320 C 120 360, 60 520, 90 600 C 120 680, 320 700, 520 680" />
-
-    <!-- ===== MAIN LINES ===== -->
-    <!-- Orange: 翻譯線 -->
-    <path class="line" stroke="var(--orange)" d="M 220 150 L 820 150" />
-    <text class="line-label" x="840" y="155" style="color: var(--orange)">翻譯線</text>
-
-    <!-- Blue: 內容自動化線 -->
-    <path class="line" stroke="var(--blue)" d="M 160 320 L 970 320" />
-    <text class="line-label" x="990" y="325" style="color: var(--blue)">內容自動化</text>
-
-    <!-- Purple: 多媒體線 -->
-    <path class="line" stroke="var(--purple)" d="M 220 490 L 820 490" />
-    <text class="line-label" x="840" y="495" style="color: var(--purple)">多媒體</text>
-
-    <!-- Green: 個人成長線 -->
-    <path class="line" stroke="var(--green)" d="M 220 660 L 820 660" />
-    <text class="line-label" x="840" y="665" style="color: var(--green)">個人成長</text>
-
-    <!-- ===== INFRA HUBS (rounded rect labels) ===== -->
-    <g class="hub station" data-id="common/gemini" transform="translate(440,42)">
-      <rect class="body" width="160" height="36" />
-      <text x="80" y="22" text-anchor="middle" fill="#cbd5e1">common/gemini</text>
-    </g>
-    <g class="hub station" data-id="common/notion" transform="translate(1140,524)">
-      <rect class="body" width="150" height="36" />
-      <text x="75" y="22" text-anchor="middle" fill="#cbd5e1">common/notion</text>
-    </g>
-    <g class="hub station" data-id="common/notify" transform="translate(40,560)">
-      <rect class="body" width="150" height="36" />
-      <text x="75" y="22" text-anchor="middle" fill="#cbd5e1">common/notify</text>
-    </g>
-
-    <!-- ===== STATIONS ===== -->
-    <!-- Orange line stations -->
-    <g class="station transfer" data-id="document_translator" transform="translate(280,150)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">document_translator</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">docx · md · epub · pdf</text>
-    </g>
-    <g class="station transfer" data-id="translate" transform="translate(520,150)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">translate</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">raycast quick translate</text>
-    </g>
-    <g class="station" data-id="thread_extractor" transform="translate(760,150)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--orange)" style="color: var(--orange)" />
-      <text x="0" y="-22" text-anchor="middle">thread_extractor</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">X / Threads → text</text>
-    </g>
-
-    <!-- Blue line stations -->
-    <g class="station" data-id="rss" transform="translate(200,320)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--blue)" style="color: var(--blue)" />
-      <text x="0" y="-22" text-anchor="middle">rss</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">sync to Notion</text>
-    </g>
-    <g class="station transfer" data-id="rss_hub" transform="translate(380,320)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">rss_hub</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">personal feed</text>
-    </g>
-    <g class="station" data-id="read_later" transform="translate(560,320)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--blue)" style="color: var(--blue)" />
-      <text x="0" y="-22" text-anchor="middle">read_later</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">feed.xml</text>
-    </g>
-    <g class="station transfer" data-id="medium" transform="translate(740,320)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">medium</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">Notion → Medium</text>
-    </g>
-    <g class="station" data-id="sharing" transform="translate(920,320)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--blue)" style="color: var(--blue)" />
-      <text x="0" y="-22" text-anchor="middle">sharing</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">Discord bot · VPS</text>
-    </g>
-
-    <!-- Purple line stations -->
-    <g class="station" data-id="transcribe" transform="translate(280,490)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--purple)" style="color: var(--purple)" />
-      <text x="0" y="-22" text-anchor="middle">transcribe</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">BlackHole + whisper</text>
-    </g>
-    <g class="station" data-id="media_download" transform="translate(520,490)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--purple)" style="color: var(--purple)" />
-      <text x="0" y="-22" text-anchor="middle">media_download</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">yt-dlp wrapper</text>
-    </g>
-    <g class="station" data-id="lottie" transform="translate(760,490)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--purple)" style="color: var(--purple)" />
-      <text x="0" y="-22" text-anchor="middle">lottie</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">animation helpers</text>
-    </g>
-
-    <!-- Green line stations -->
-    <g class="station transfer" data-id="ledger_analysis" transform="translate(280,660)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">ledger_analysis</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">monthly · GH Actions</text>
-    </g>
-    <g class="station transfer" data-id="personal_retro" transform="translate(520,660)">
-      <circle class="hit" r="22" />
-      <circle class="ring-outer" r="13" />
-      <circle class="ring-inner" r="5" />
-      <text x="0" y="-26" text-anchor="middle">personal_retro</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">weekly retro</text>
-    </g>
-    <g class="station" data-id="leadtime_analyze" transform="translate(760,660)">
-      <circle class="hit" r="22" />
-      <circle class="dot" r="10" stroke="var(--green)" style="color: var(--green)" />
-      <text x="0" y="-22" text-anchor="middle">leadtime_analyze</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">cycle time</text>
-    </g>
-
-    <!-- Travel (standalone island, lower right) -->
-    <g class="station" data-id="travel" transform="translate(1180,150)">
-      <circle class="hit" r="26" />
-      <circle class="dot" r="11" stroke="#f472b6" style="color: #f472b6" />
-      <text x="0" y="-22" text-anchor="middle">travel</text>
-      <text class="sub" x="0" y="34" text-anchor="middle">itinerary apps · Pages</text>
-    </g>
-  </svg>
-
-  <div class="legend">
-    <h3>路線</h3>
-    <div class="legend-row"><span class="legend-swatch" style="background:var(--orange)"></span>翻譯線</div>
-    <div class="legend-row"><span class="legend-swatch" style="background:var(--blue)"></span>內容自動化</div>
-    <div class="legend-row"><span class="legend-swatch" style="background:var(--purple)"></span>多媒體</div>
-    <div class="legend-row"><span class="legend-swatch" style="background:var(--green)"></span>個人成長</div>
-    <div class="legend-row"><span class="legend-swatch dashed"></span>基礎建設 (common/)</div>
-    <div class="legend-mini">
-      ◎ 雙圈 = 轉乘站<br/>
-      被多個 workflow 共用的工具
-    </div>
+<!-- DOCK -->
+<div class="dock">
+  <div class="dock-item" onclick="openAbout()">
+    🍎<span class="dock-label">About</span>
   </div>
-
-  <div class="hint">
-    試試點 <kbd>document_translator</kbd> 或 <kbd>personal_retro</kbd>
+  <div class="dock-item" onclick="openReadme()">
+    📘<span class="dock-label">README</span>
   </div>
-
-  <aside class="drawer" id="drawer">
-    <button class="close-x" onclick="closeDrawer()" aria-label="close">×</button>
-    <h2 id="d-name">—</h2>
-    <div class="path" id="d-path">—</div>
-    <div class="lines-served" id="d-lines"></div>
-    <p id="d-desc">—</p>
-    <div class="tags" id="d-tags"></div>
-    <div class="meta" id="d-meta"></div>
-  </aside>
+  <div class="dock-item" onclick="openTerminal()">
+    💻<span class="dock-label">Terminal</span>
+  </div>
+  <div class="divider"></div>
+  <div class="dock-item" onclick="openGithub()">
+    🐙<span class="dock-label">GitHub</span>
+  </div>
+  <div class="dock-item" onclick="closeAllWindows()">
+    🗑<span class="dock-label">Close all</span>
+  </div>
 </div>
 
 <script>
-  const LINE_META = {
-    orange:  { name: '翻譯線',       color: '#fb923c' },
-    blue:    { name: '內容自動化',   color: '#60a5fa' },
-    purple:  { name: '多媒體',       color: '#c084fc' },
-    green:   { name: '個人成長',     color: '#34d399' },
-    pink:    { name: 'travel',       color: '#f472b6' },
-    infra:   { name: 'common/',      color: '#94a3b8' },
-  };
+  // ====== DATA ======
+  // status: active | retired | experiment
+  const TOOLS = [
+    { id: 'document_translator', name: 'document_translator', icon: '📄',
+      status: 'active', tags: ['python', 'typer', 'gemini', 'docx', 'epub', 'pdf'],
+      summary: '把 docx / md / epub / pdf 翻成繁中。Typer CLI 包 Gemini，可切 CLI 或 API 模式。',
+      runs: 'manual · CLI',
+    },
+    { id: 'ledger_analysis', name: 'ledger_analysis', icon: '💰',
+      status: 'active', tags: ['python', 'notion', 'github actions'],
+      summary: '月度記帳分析，產出摘要寫回 Notion。GitHub Actions 每月自動跑。',
+      runs: 'GitHub Actions · monthly',
+    },
+    { id: 'personal_retro', name: 'personal_retro', icon: '🪞',
+      status: 'active', tags: ['python', 'notion', 'discord', 'openai'],
+      summary: '個人 weekly retro：從 Notion 抓 log、用 LLM 整理回顧，發到 Discord。',
+      runs: 'manual / cron',
+    },
+    { id: 'transcribe', name: 'transcribe', icon: '🎙',
+      status: 'active', tags: ['python', 'blackhole', 'whisper', 'macos'],
+      summary: 'macOS 用 BlackHole 錄 Discord 音訊，可串接 Whisper 自動轉錄。',
+      runs: 'manual · CLI',
+    },
+    { id: 'travel', name: 'travel', icon: '✈️',
+      status: 'active', tags: ['react', 'vite', 'github pages'],
+      summary: '旅遊行程 web app + 編輯器，部署在 tools.paul-learning.dev/travel。',
+      runs: 'GitHub Pages',
+      link: 'https://tools.paul-learning.dev/travel/2026_austria_czechia/',
+    },
+    { id: 'rss', name: 'rss', icon: '📡',
+      status: 'active', tags: ['python', 'uv', 'notion', 'raycast'],
+      summary: '把多個 RSS 來源同步到 Notion；從 Raycast 用 uv run 觸發。',
+      runs: 'Raycast',
+    },
+    { id: 'rss_hub', name: 'rss_hub', icon: '📰',
+      status: 'active', tags: ['python', 'github actions', 'rss'],
+      summary: '產生個人化的 RSS feed，由 GitHub Actions 定期更新並部署到 Pages。',
+      runs: 'GitHub Actions',
+    },
+    { id: 'read_later', name: 'read_later', icon: '📑',
+      status: 'active', tags: ['python', 'rss'],
+      summary: '把暫存的待讀文章輸出成 feed.xml，整合進 reader。',
+      runs: 'GitHub Actions',
+    },
+    { id: 'medium', name: 'medium', icon: '✍️',
+      status: 'active', tags: ['python', 'notion', 'medium api'],
+      summary: '把寫好的文章從 Notion 推到 Medium。',
+      runs: 'manual',
+    },
+    { id: 'sharing', name: 'sharing', icon: '🤖',
+      status: 'active', tags: ['python', 'discord', 'vps', 'systemd'],
+      summary: 'VPS 上的 Discord 分享 bot，systemd 跑；用 rsync workflow 部署。',
+      runs: 'VPS · systemd',
+    },
+    { id: 'thread_extractor', name: 'thread_extractor', icon: '🧵',
+      status: 'active', tags: ['python', 'scraping'],
+      summary: '從 X / Threads 抓討論串並輸出整理過的文字。',
+      runs: 'manual',
+    },
+    { id: 'media_download', name: 'media_download', icon: '⬇️',
+      status: 'active', tags: ['python', 'yt-dlp'],
+      summary: '批次下載多媒體素材的小工具。',
+      runs: 'manual',
+    },
+    { id: 'leadtime_analyze', name: 'leadtime_analyze', icon: '📊',
+      status: 'active', tags: ['python', 'analytics'],
+      summary: '分析 lead time / cycle time 的小工具。',
+      runs: 'manual',
+    },
+    { id: 'translate', name: 'translate', icon: '🌐',
+      status: 'active', tags: ['python', 'raycast', 'gemini'],
+      summary: 'Raycast 上的快速翻譯腳本。',
+      runs: 'Raycast',
+    },
+    { id: 'macos_init', name: 'macos_init', icon: '🛠',
+      status: 'active', tags: ['shell', 'macos'],
+      summary: '新 macOS 機器的初始化腳本。',
+      runs: 'manual',
+    },
+    { id: 'lottie', name: 'lottie', icon: '✨',
+      status: 'experiment', tags: ['lottie'],
+      summary: 'Lottie 動畫相關處理 (實驗性)。',
+      runs: '—',
+    },
+    { id: 'tinyflow', name: 'tinyflow', icon: '🌊',
+      status: 'experiment', tags: ['python'],
+      summary: '小型 workflow 實驗。',
+      runs: '—',
+    },
+    { id: 'claw', name: 'claw', icon: '🦀',
+      status: 'retired', tags: ['archived'],
+      summary: '已退役 — 保留在 repo 作為歷史紀錄。',
+      runs: '—',
+    },
+  ];
 
-  const STATIONS = {
-    document_translator: {
-      line: 'orange',
-      path: 'document_translator/',
-      desc: '把 docx / md / epub / pdf 翻成繁中。Typer CLI 包 Gemini，可切 CLI 或 API 模式。每個格式各有 handler，共用 GeminiClient wrapper。',
-      tags: ['python', 'typer', 'gemini', 'docx', 'epub', 'pdf'],
-      uses: ['common/gemini'],
-      transfers: ['common/gemini'],
-    },
-    translate: {
-      line: 'orange',
-      path: 'translate/',
-      desc: '從 Raycast 一鍵翻譯選中文字的小腳本。',
-      tags: ['python', 'raycast', 'gemini'],
-      uses: ['common/gemini'],
-      transfers: ['common/gemini'],
-    },
-    thread_extractor: {
-      line: 'orange',
-      path: 'thread_extractor/',
-      desc: '從 X / Threads 抓討論串並輸出整理過的文字，方便存檔或翻譯。',
-      tags: ['python', 'scraping'],
-      uses: [],
-    },
-    rss: {
-      line: 'blue',
-      path: 'rss/',
-      desc: '把多個 RSS 來源同步到 Notion；從 Raycast 用 uv run 觸發。',
-      tags: ['python', 'uv', 'notion', 'raycast'],
-      uses: ['common/notion'],
-    },
-    rss_hub: {
-      line: 'blue',
-      path: 'rss_hub/',
-      desc: '產生個人化的 RSS feed，由 GitHub Actions 定期更新並部署到 GitHub Pages 給 reader 訂閱。',
-      tags: ['python', 'github actions', 'rss', 'pages'],
-      uses: ['common/notify'],
-      transfers: ['common/notify'],
-    },
-    read_later: {
-      line: 'blue',
-      path: 'read_later/',
-      desc: '把暫存的待讀文章輸出成 feed.xml，整合進 reader 流程。',
-      tags: ['python', 'rss', 'github actions'],
-      uses: [],
-    },
-    medium: {
-      line: 'blue',
-      path: 'medium/',
-      desc: '把寫好的文章從 Notion 推送到 Medium。',
-      tags: ['python', 'notion', 'medium api'],
-      uses: ['common/notion'],
-      transfers: ['common/notion'],
-    },
-    sharing: {
-      line: 'blue',
-      path: 'sharing/',
-      desc: 'VPS 上的 Discord 分享 bot，由 systemd 跑；GitHub Actions rsync 部署。',
-      tags: ['python', 'discord', 'vps', 'systemd'],
-      uses: [],
-    },
-    transcribe: {
-      line: 'purple',
-      path: 'transcribe/',
-      desc: 'macOS 用 BlackHole 錄 Discord 音訊，可串接 Whisper 自動轉錄。',
-      tags: ['python', 'blackhole', 'whisper', 'macos'],
-      uses: [],
-    },
-    media_download: {
-      line: 'purple',
-      path: 'media_download/',
-      desc: '批次下載多媒體素材的小工具。',
-      tags: ['python', 'yt-dlp'],
-      uses: [],
-    },
-    lottie: {
-      line: 'purple',
-      path: 'lottie/',
-      desc: 'Lottie 動畫相關處理 helper。',
-      tags: ['lottie', 'animation'],
-      uses: [],
-    },
-    ledger_analysis: {
-      line: 'green',
-      path: 'ledger_analysis/',
-      desc: '月度記帳分析，產出摘要寫回 Notion。GitHub Actions 每月自動跑。',
-      tags: ['python', 'notion', 'github actions', 'gemini'],
-      uses: ['common/notion', 'common/gemini'],
-      transfers: ['common/notion'],
-    },
-    personal_retro: {
-      line: 'green',
-      path: 'personal_retro/',
-      desc: '個人 weekly retro：從 Notion 抓 log，用 LLM 整理回顧，發到 Discord。',
-      tags: ['python', 'notion', 'discord', 'openai'],
-      uses: ['common/notion', 'common/notify'],
-      transfers: ['common/notion', 'common/notify'],
-    },
-    leadtime_analyze: {
-      line: 'green',
-      path: 'leadtime_analyze/',
-      desc: '分析 lead time / cycle time 的小工具。',
-      tags: ['python', 'analytics'],
-      uses: [],
-    },
-    travel: {
-      line: 'pink',
-      path: 'travel/',
-      desc: '旅遊行程 web app + 編輯器，部署在 tools.paul-learning.dev 下的 /travel 路徑。',
-      tags: ['react', 'vite', 'github pages'],
-      uses: [],
-    },
-    'common/gemini': {
-      line: 'infra',
-      path: 'common/gemini.py',
-      desc: 'Gemini client wrapper：自動切 CLI / API、強化 PATH（給 Raycast / cron 用）、ANSI 清洗、tenacity retry。',
-      tags: ['shared util', 'gemini', 'cli', 'retry'],
-      usedBy: ['document_translator', 'translate', 'ledger_analysis'],
-    },
-    'common/notion': {
-      line: 'infra',
-      path: 'common/notion.py',
-      desc: 'NotionApi wrapper：封裝 Notion REST API。是內容自動化與個人成長兩條線的轉乘樞紐。',
-      tags: ['shared util', 'notion'],
-      usedBy: ['ledger_analysis', 'personal_retro', 'medium', 'rss'],
-    },
-    'common/notify': {
-      line: 'infra',
-      path: 'common/notify.py',
-      desc: 'send_notification (macOS terminal-notifier) + send_to_discord webhook。',
-      tags: ['shared util', 'discord', 'macos'],
-      usedBy: ['personal_retro', 'rss_hub'],
-    },
-  };
+  const REPO_URL = 'https://github.com/easylive1989/tools';
 
-  const drawer = document.getElementById('drawer');
-  const elName = document.getElementById('d-name');
-  const elPath = document.getElementById('d-path');
-  const elLines = document.getElementById('d-lines');
-  const elDesc = document.getElementById('d-desc');
-  const elTags = document.getElementById('d-tags');
-  const elMeta = document.getElementById('d-meta');
-
-  function chip(text, bg) {
-    const span = document.createElement('span');
-    span.className = 'line-chip';
-    span.style.background = bg;
-    span.textContent = text;
-    return span;
+  // ====== CLOCK ======
+  function updateClock() {
+    const d = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${days[d.getDay()]}  ${hh}:${mm}`;
   }
+  setInterval(updateClock, 1000);
+  updateClock();
 
-  function openStation(id) {
-    const s = STATIONS[id];
-    if (!s) return;
-    elName.textContent = id;
-    elPath.textContent = s.path;
-
-    elLines.innerHTML = '';
-    const lm = LINE_META[s.line];
-    elLines.appendChild(chip(lm.name, lm.color));
-    (s.transfers || []).forEach(t => {
-      elLines.appendChild(chip('轉乘 → ' + t, '#cbd5e1'));
-    });
-
-    elDesc.textContent = s.desc;
-
-    elTags.innerHTML = '';
-    (s.tags || []).forEach(t => {
-      const span = document.createElement('span');
-      span.className = 'tag';
-      span.textContent = t;
-      elTags.appendChild(span);
-    });
-
-    elMeta.innerHTML = '';
-    if (s.uses && s.uses.length) {
-      elMeta.innerHTML += `<div><strong>使用：</strong> ${s.uses.join(' · ')}</div>`;
-    }
-    if (s.usedBy && s.usedBy.length) {
-      elMeta.innerHTML += `<div><strong>被誰用：</strong> ${s.usedBy.join(' · ')}</div>`;
-    }
-    elMeta.innerHTML += `<div style="margin-top:6px;"><strong>GitHub：</strong> easylive1989/tools/${s.path}</div>`;
-
-    drawer.classList.add('open');
-  }
-  function closeDrawer() { drawer.classList.remove('open'); }
-
-  document.querySelectorAll('.station').forEach(el => {
-    el.addEventListener('click', () => openStation(el.dataset.id));
+  // ====== BOOT ======
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const boot = document.getElementById('boot');
+      boot.classList.add('fade-out');
+      setTimeout(() => boot.remove(), 700);
+    }, 1500);
   });
+
+  // ====== ICONS ======
+  const grid = document.getElementById('icon-grid');
+  TOOLS.forEach(tool => {
+    const el = document.createElement('div');
+    el.className = 'icon' + (tool.status === 'retired' ? ' retired' : '');
+    el.dataset.id = tool.id;
+    el.innerHTML = `
+      <div class="icon-art">${tool.icon}</div>
+      <div class="label">${tool.name}</div>
+    `;
+    let clickTimer = null;
+    el.addEventListener('click', (e) => {
+      document.querySelectorAll('.icon.selected').forEach(n => n.classList.remove('selected'));
+      el.classList.add('selected');
+      if (clickTimer) {
+        clearTimeout(clickTimer); clickTimer = null;
+        openTool(tool.id);
+      } else {
+        clickTimer = setTimeout(() => { clickTimer = null; }, 280);
+      }
+    });
+    grid.appendChild(el);
+  });
+
+  document.getElementById('desktop').addEventListener('mousedown', (e) => {
+    if (e.target.closest('.icon') || e.target.closest('.window')) return;
+    document.querySelectorAll('.icon.selected').forEach(n => n.classList.remove('selected'));
+  });
+
+  // ====== WINDOWS ======
+  let zCounter = 100;
+  const openWindows = new Map();
+
+  function focusWindow(win) {
+    document.querySelectorAll('.window').forEach(w => w.classList.remove('active'));
+    win.classList.add('active');
+    win.style.zIndex = ++zCounter;
+  }
+
+  function buildWindow({ id, title, body, width = 380, x, y, extraClass = '' }) {
+    if (openWindows.has(id)) {
+      focusWindow(openWindows.get(id));
+      return openWindows.get(id);
+    }
+    const win = document.createElement('div');
+    win.className = 'window active ' + extraClass;
+    win.style.width = width + 'px';
+    const desktop = document.getElementById('desktop');
+    const dw = desktop.clientWidth, dh = desktop.clientHeight;
+    if (x == null) x = 60 + (openWindows.size * 24);
+    if (y == null) y = 40 + (openWindows.size * 24);
+    win.style.left = Math.min(x, dw - width - 40) + 'px';
+    win.style.top  = Math.min(y, dh - 160) + 'px';
+
+    win.innerHTML = `
+      <div class="titlebar">
+        <div class="ctrl close" title="close"></div>
+        <div class="title"><span class="title-bg">${title}</span></div>
+        <div class="ctrl zoom" title="zoom"></div>
+      </div>
+      <div class="window-body">${body}</div>
+    `;
+    desktop.appendChild(win);
+
+    win.querySelector('.ctrl.close').addEventListener('click', () => {
+      win.remove(); openWindows.delete(id);
+    });
+    win.addEventListener('mousedown', () => focusWindow(win));
+    makeDraggable(win);
+    focusWindow(win);
+    openWindows.set(id, win);
+    return win;
+  }
+
+  function makeDraggable(win) {
+    const bar = win.querySelector('.titlebar');
+    let dx = 0, dy = 0, dragging = false;
+    bar.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('ctrl')) return;
+      dragging = true;
+      const rect = win.getBoundingClientRect();
+      dx = e.clientX - rect.left;
+      dy = e.clientY - rect.top;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const desktop = document.getElementById('desktop');
+      const dRect = desktop.getBoundingClientRect();
+      let nx = e.clientX - dx - dRect.left;
+      let ny = e.clientY - dy - dRect.top;
+      nx = Math.max(-10, Math.min(nx, dRect.width - 60));
+      ny = Math.max(0, Math.min(ny, dRect.height - 30));
+      win.style.left = nx + 'px';
+      win.style.top  = ny + 'px';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+  }
+
+  function openTool(id) {
+    const t = TOOLS.find(x => x.id === id);
+    if (!t) return;
+    const statusBadge = `<span class="badge ${t.status}">${t.status}</span>`;
+    const tagsHtml = t.tags.map(x => `<span class="tag">${x}</span>`).join('');
+    const linkHtml = t.link
+      ? `<a class="btn" href="${t.link}" target="_blank" rel="noopener">Open live →</a> `
+      : '';
+    const body = `
+      <h2>${t.name}${statusBadge}</h2>
+      <div class="path">${REPO_URL.replace('https://github.com/', '')}/tree/master/${t.id}</div>
+      <p>${t.summary}</p>
+      <div class="tags">${tagsHtml}</div>
+      <hr/>
+      <div class="meta-row"><strong>Runs:</strong> ${t.runs}</div>
+      <div class="meta-row"><strong>Status:</strong> ${t.status}</div>
+      <div style="margin-top:12px;">
+        ${linkHtml}
+        <a class="btn" href="${REPO_URL}/tree/master/${t.id}" target="_blank" rel="noopener">View source ↗</a>
+      </div>
+    `;
+    buildWindow({ id, title: t.name, body, width: 380 });
+  }
+
+  // ====== ABOUT / OTHER WINDOWS ======
+  function openAbout() {
+    const body = `
+      <div class="about-logo">🛠</div>
+      <h2>Tools OS</h2>
+      <div class="ver">version 1.0 · build ${new Date().getFullYear()}.${String(new Date().getMonth()+1).padStart(2,'0')}</div>
+      <p>paul 自己用的各種小自動化工具集合。雙擊桌面上的圖示打開介紹。</p>
+      <p style="font-size:11px; color:#666;">© paul-learning.dev — 用愛和 Python 編譯</p>
+      <a class="btn" href="${REPO_URL}" target="_blank" rel="noopener">View on GitHub</a>
+    `;
+    buildWindow({ id: '__about', title: 'About this Tools OS', body, width: 320, extraClass: 'about-window' });
+  }
+
+  function openReadme() {
+    const active = TOOLS.filter(t => t.status === 'active').length;
+    const retired = TOOLS.filter(t => t.status === 'retired').length;
+    const experiment = TOOLS.filter(t => t.status === 'experiment').length;
+    const body = `
+      <h2>README</h2>
+      <div class="path">tools/README</div>
+      <p>這個 repo 裝著我日常用的各種小工具。每個資料夾就是一個獨立的工具，可以單獨跑。</p>
+      <p><strong>目前狀態：</strong><br/>
+        <span class="badge active">active</span> ${active} 個 ·
+        <span class="badge experiment">experiment</span> ${experiment} 個 ·
+        <span class="badge retired">retired</span> ${retired} 個
+      </p>
+      <p style="font-size:11.5px; color:#555;">提示：雙擊桌面圖示開啟工具的詳細介紹；右下角 dock 有 GitHub 連結。</p>
+    `;
+    buildWindow({ id: '__readme', title: 'README', body, width: 360 });
+  }
+
+  function openTerminal() {
+    const body = `
+      <div style="background:#000; color:#33ff33; font-family: ui-monospace, Menlo, monospace; font-size:12px; padding:12px; min-height: 160px; line-height:1.5;">
+$ ls ~/tools<br/>
+${TOOLS.map(t => t.name).join('  ')}<br/><br/>
+$ whoami<br/>
+paul — builder of small tools<br/><br/>
+$ <span class="cursor" style="background:#33ff33;"></span>
+      </div>
+      <p style="font-size:11px; color:#666; margin-top:10px;">這只是視覺彩蛋。真要互動式 terminal 就是提案 C 了。</p>
+    `;
+    buildWindow({ id: '__terminal', title: 'Terminal', body, width: 440 });
+  }
+
+  function openGithub() {
+    window.open(REPO_URL, '_blank', 'noopener');
+  }
+
+  function closeAllWindows() {
+    document.querySelectorAll('.window').forEach(w => w.remove());
+    openWindows.clear();
+  }
+
+  // ====== KEYBOARD ======
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeDrawer();
+    if (e.key === 'Escape') {
+      const top = [...openWindows.values()].pop();
+      if (top) { const id = [...openWindows.keys()].pop(); top.remove(); openWindows.delete(id); }
+    }
   });
 </script>
 </body>
