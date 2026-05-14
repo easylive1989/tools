@@ -32,9 +32,6 @@ cd document_translator
 source venv/bin/activate
 python src/docx_translator.py <file> [--use-cli] [--target-lang "Traditional Chinese"]
 
-# Discord audio recorder + transcriber
-cd transcribe && python record_blackhole.py [--transcribe]
-
 # Ledger analysis (needs NOTION_SECRET)
 python ledger_analysis/ledger_analysis.py
 ```
