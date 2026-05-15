@@ -555,6 +555,7 @@ struct ContentView: View {
     @StateObject private var store = VocabularyStore()
     @State private var practiceWord: String? = nil
     @State private var vocabPopoverShown: Bool = false
+    @State private var isFileTranslating: Bool = false
     @FocusState private var inputFocused: Bool
 
     private var activeTab: TranslationTab? {
@@ -621,6 +622,19 @@ struct ContentView: View {
                 }
                 .buttonStyle(.plain)
                 .keyboardShortcut(.return, modifiers: .command)
+
+                Button(action: { if !isFileTranslating { pickAndTranslateFile() } }) {
+                    Text(isFileTranslating ? "翻譯中…" : "📄")
+                        .font(.system(size: 14))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(6)
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(nsColor: .separatorColor).opacity(0.8), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .disabled(isFileTranslating)
+                .help(isFileTranslating ? "翻譯檔案中…" : "選擇 .docx 或 .pdf 檔案翻譯")
 
                 Button(action: { vocabPopoverShown.toggle() }) {
                     Text("🔖")
@@ -775,6 +789,82 @@ struct ContentView: View {
 
     private func clearInput() {
         inputText = ""
+    }
+
+    private func pickAndTranslateFile() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.allowedFileTypes = ["docx", "pdf"]
+        panel.message = "選擇要翻譯的 .docx 或 .pdf 檔案"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        runFileTranslation(at: url.path)
+    }
+
+    private func runFileTranslation(at filePath: String) {
+        isFileTranslating = true
+        Task {
+            let result = await translateFileViaScript(path: filePath)
+            isFileTranslating = false
+            showFileTranslateAlert(success: result.success, message: result.message)
+        }
+    }
+
+    private func translateFileViaScript(path: String) async -> (success: Bool, message: String) {
+        await withCheckedContinuation { continuation in
+            let exec = Bundle.main.executablePath ?? CommandLine.arguments[0]
+            let scriptPath = (exec as NSString).deletingLastPathComponent + "/file_translator.py"
+
+            var env = ProcessInfo.processInfo.environment
+            env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (env["PATH"] ?? "")
+
+            let proc = Process()
+            proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            proc.arguments = ["uv", "run", "--quiet", scriptPath, path]
+            proc.environment = env
+
+            let outPipe = Pipe()
+            let errPipe = Pipe()
+            proc.standardOutput = outPipe
+            proc.standardError = errPipe
+
+            proc.terminationHandler = { p in
+                let outStr = (String(data: outPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let errStr = (String(data: errPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if p.terminationStatus == 0 && !outStr.isEmpty {
+                    continuation.resume(returning: (true, outStr))
+                } else {
+                    let msg = errStr.isEmpty ? "翻譯失敗（exit \(p.terminationStatus)）" : String(errStr.suffix(500))
+                    continuation.resume(returning: (false, msg))
+                }
+            }
+
+            do {
+                try proc.run()
+            } catch {
+                continuation.resume(returning: (false, "啟動失敗：\(error.localizedDescription)"))
+            }
+        }
+    }
+
+    private func showFileTranslateAlert(success: Bool, message: String) {
+        let alert = NSAlert()
+        alert.messageText = success ? "翻譯完成" : "翻譯失敗"
+        alert.informativeText = message
+        alert.alertStyle = success ? .informational : .warning
+        if success {
+            alert.addButton(withTitle: "在 Finder 顯示")
+            alert.addButton(withTitle: "完成")
+        } else {
+            alert.addButton(withTitle: "確定")
+        }
+        let response = alert.runModal()
+        if success && response == .alertFirstButtonReturn {
+            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: message)])
+        }
     }
 
     private func summarizeActive() {

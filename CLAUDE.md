@@ -24,28 +24,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 Most tools are single scripts. Common patterns:
 
 ```bash
-# Document translation
-cd document_translator
-source venv/bin/activate
-python src/docx_translator.py <file> [--use-cli] [--target-lang "Traditional Chinese"]
-
 # Ledger analysis (needs NOTION_SECRET)
 python ledger_analysis/ledger_analysis.py
 ```
 
-## document_translator Architecture
+## translate (隨身翻譯 + 檔案翻譯)
 
-The most structured sub-project. Entry points in `src/` (`docx_translator.py`, `obsidian_md_translator.py`, etc.) each:
-1. Parse CLI args via `typer`
-2. Initialise a `GeminiClient` via `src/utils/cli_helper.py`
-3. Delegate to a handler in `src/handlers/` (one per format: markdown, docx, epub, pdf)
-
-`src/services/gemini.py` is a thin wrapper over `common.gemini.GeminiClient` that adds translation-specific logic (`translate_text`, `translate_texts`).
-
-Run tests:
-```bash
-cd document_translator && python -m pytest tests/ -v
-```
+SwiftUI app (`translate/translator.swift`) for selection-based translation, plus a
+file-translation button that delegates to `translate/file_translator.py` —
+a `uv run` script that translates `.docx` / `.pdf` via the local `gemini` CLI
+and writes `<stem>_translated.docx` next to the source.
 
 ## GitHub Actions
 
@@ -60,12 +48,11 @@ Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`.
 
 ## Environment Variables
 
-Scripts read secrets directly from environment (no `.env` loading at root level; `document_translator` uses `python-dotenv`):
+Scripts read secrets directly from environment (no `.env` loading at root level):
 
 | Variable | Used by |
 |---|---|
 | `NOTION_SECRET` | `ledger_analysis.py` |
-| `GOOGLE_API_KEY` | `document_translator` (API mode) |
 
 ## Secrets and Sensitive Data
 
