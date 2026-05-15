@@ -36,6 +36,27 @@ jobs:
             cd /opt/eat_later
             python3 -m venv .venv
             .venv/bin/pip install -q -r requirements.txt
+
+            if [ ! -f /etc/systemd/system/eat-later-bot.service ]; then
+              cat > /etc/systemd/system/eat-later-bot.service << 'EOF'
+          [Unit]
+          Description=Eat Later Bot - Discord Restaurant Collector
+          After=network.target
+
+          [Service]
+          EnvironmentFile=/etc/eat-later-bot.env
+          WorkingDirectory=/opt/eat_later
+          ExecStart=/opt/eat_later/.venv/bin/python bot.py
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+              systemctl daemon-reload
+              systemctl enable eat-later-bot
+            fi
+
             systemctl restart eat-later-bot
             systemctl status eat-later-bot --no-pager
           "
