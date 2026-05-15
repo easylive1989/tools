@@ -8,6 +8,7 @@ macOS 隨身翻譯小工具：選取任意 app 裡的文字 → 按 Raycast hotk
 |---|---|
 | `translator.swift` | SwiftUI + AppKit 的 GUI 原始碼，同時內含 `--get-selection` CLI 模式 |
 | `translator_gui.sh` | Raycast 進入點：編譯、簽章、擷取選取文字、啟動/通知 GUI |
+| `file_translator.py` | `uv run` 腳本：翻譯 `.docx` / `.pdf`，輸出 `<stem>_translated.docx` |
 | `translator_app` | 編譯產物（已 `.gitignore`，每台機器本地重建） |
 | `translator_app.stamp` | 記錄 `OS 版本\|source mtime`，用來判斷是否需要重編（已 `.gitignore`） |
 
@@ -21,6 +22,7 @@ macOS 隨身翻譯小工具：選取任意 app 裡的文字 → 按 Raycast hotk
 - **⌘↩** 翻譯目前輸入框內容
 - **⌘V**（輸入框未 focus 時）把剪貼簿內容貼進輸入框並翻譯
 - **⌘Q / Esc** 關閉視窗
+- **📄** 選擇 `.docx` 或 `.pdf` 檔案翻譯（透過 `file_translator.py`，需要 `uv`）；翻譯中按鈕顯示「翻譯中…」，完成後在原檔旁產生 `<stem>_translated.docx`
 - **📋** 複製目前 Tab 的翻譯結果
 - **總結** 對目前 Tab 的原文做繁體中文總結，結果追加在翻譯下方（每個 Tab 只能總結一次）
 - **− / +** 調整輸出字級

@@ -1,9 +1,0 @@
-google-generativeai
-typer
-rich
-python-docx
-pdf2docx
-tenacity
-python-dotenv
-EbookLib
-beautifulsoup4
