@@ -24,9 +24,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 Most tools are single scripts. Common patterns:
 
 ```bash
-# RSS sync (Raycast launcher uses uv)
-cd rss && uv run rss.py
-
 # Document translation
 cd document_translator
 source venv/bin/activate
