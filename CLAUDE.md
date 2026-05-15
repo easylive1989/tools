@@ -24,9 +24,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 Most tools are single scripts. Common patterns:
 
 ```bash
-# RSS sync (Raycast launcher uses uv)
-cd rss && uv run rss.py
-
 # Document translation
 cd document_translator
 source venv/bin/activate
@@ -67,10 +64,8 @@ Scripts read secrets directly from environment (no `.env` loading at root level;
 
 | Variable | Used by |
 |---|---|
-| `NOTION_SECRET` | `ledger_analysis.py`, `personal_retro/`, `medium/` |
-| `DISCORD_*_WEBHOOK_URL` | `personal_retro/` |
+| `NOTION_SECRET` | `ledger_analysis.py` |
 | `GOOGLE_API_KEY` | `document_translator` (API mode) |
-| `OPENAI_API_KEY` | `personal_retro/daily_review.py` |
 
 ## Secrets and Sensitive Data
 
