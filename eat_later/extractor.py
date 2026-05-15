@@ -68,7 +68,7 @@ def fetch_page_text(url: str) -> str | None:
         resp = requests.get(
             url,
             timeout=10,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; SharingBot/1.0)"},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; EatLaterBot/1.0)"},
         )
         if resp.status_code != 200:
             return None

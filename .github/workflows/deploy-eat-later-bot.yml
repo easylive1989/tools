@@ -1,11 +1,11 @@
-name: Deploy Sharing Bot
+name: Deploy Eat Later Bot
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'sharing/**'
+      - 'eat_later/**'
       - 'common/**'
   workflow_dispatch:
 
@@ -26,16 +26,16 @@ jobs:
       - name: Sync code to VPS
         run: |
           rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
-            sharing/ root@${{ secrets.VPS_HOST }}:/opt/sharing/
+            eat_later/ root@${{ secrets.VPS_HOST }}:/opt/eat_later/
           rsync -av --exclude='__pycache__' --exclude='*.pyc' \
-            common/ root@${{ secrets.VPS_HOST }}:/opt/sharing/common/
+            common/ root@${{ secrets.VPS_HOST }}:/opt/eat_later/common/
 
       - name: Install deps and restart service
         run: |
           ssh root@${{ secrets.VPS_HOST }} "
-            cd /opt/sharing
+            cd /opt/eat_later
             python3 -m venv .venv
             .venv/bin/pip install -q -r requirements.txt
-            systemctl restart sharing-bot
-            systemctl status sharing-bot --no-pager
+            systemctl restart eat-later-bot
+            systemctl status eat-later-bot --no-pager
           "

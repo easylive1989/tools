@@ -25,7 +25,7 @@ REACTION_PARTIAL = "🔖"
 REACTION_ERROR = "❌"
 
 
-class SharingBot(discord.Client):
+class EatLaterBot(discord.Client):
     def __init__(self, channel_id: int, gemini: GeminiClient, notion: NotionApi):
         intents = discord.Intents.default()
         intents.message_content = True
@@ -36,7 +36,7 @@ class SharingBot(discord.Client):
         self.notion = notion
 
     async def on_ready(self) -> None:
-        log.info("sharing bot ready, watching channel %s", self.channel_id)
+        log.info("eat_later bot ready, watching channel %s", self.channel_id)
 
     async def on_message(self, msg: discord.Message) -> None:
         if msg.author.bot:
@@ -65,12 +65,12 @@ class SharingBot(discord.Client):
 
 async def main() -> None:
     token = os.environ["CLAW_DISCORD_TOKEN"]
-    channel_id = int(os.environ["SHARING_CHANNEL_ID"])
+    channel_id = int(os.environ["EAT_LATER_CHANNEL_ID"])
     notion_secret = os.environ["NOTION_SECRET"]
 
     gemini = GeminiClient(model_name="flash")  # raises ValueError if GOOGLE_API_KEY missing
     notion = NotionApi(notion_secret)
-    bot = SharingBot(channel_id, gemini, notion)
+    bot = EatLaterBot(channel_id, gemini, notion)
 
     async with bot:
         await bot.start(token)

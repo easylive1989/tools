@@ -13,29 +13,29 @@ VPS=root@$VPS_HOST
 
 echo "==> 同步程式碼到 VPS..."
 rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
-  sharing/ $VPS:/opt/sharing/
+  eat_later/ $VPS:/opt/eat_later/
 rsync -av --exclude='__pycache__' --exclude='*.pyc' \
-  common/ $VPS:/opt/sharing/common/
+  common/ $VPS:/opt/eat_later/common/
 
 echo "==> 在 VPS 安裝依賴..."
 ssh $VPS "
-  cd /opt/sharing
+  cd /opt/eat_later
   python3 -m venv .venv
   .venv/bin/pip install -q -r requirements.txt
 "
 
 echo "==> 設定 systemd service（首次執行）..."
 ssh $VPS "
-  if [ ! -f /etc/systemd/system/sharing-bot.service ]; then
-    cat > /etc/systemd/system/sharing-bot.service << 'EOF'
+  if [ ! -f /etc/systemd/system/eat-later-bot.service ]; then
+    cat > /etc/systemd/system/eat-later-bot.service << 'EOF'
 [Unit]
-Description=Sharing Bot - Discord Restaurant Collector
+Description=Eat Later Bot - Discord Restaurant Collector
 After=network.target
 
 [Service]
-EnvironmentFile=/etc/sharing-bot.env
-WorkingDirectory=/opt/sharing
-ExecStart=/opt/sharing/.venv/bin/python bot.py
+EnvironmentFile=/etc/eat-later-bot.env
+WorkingDirectory=/opt/eat_later
+ExecStart=/opt/eat_later/.venv/bin/python bot.py
 Restart=always
 RestartSec=5
 
@@ -43,7 +43,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload
-    systemctl enable sharing-bot
+    systemctl enable eat-later-bot
     echo 'service created and enabled'
   else
     echo 'service already exists, skipping'
@@ -51,4 +51,4 @@ EOF
 "
 
 echo "==> 重啟服務..."
-ssh $VPS "systemctl restart sharing-bot && sleep 2 && systemctl status sharing-bot --no-pager"
+ssh $VPS "systemctl restart eat-later-bot && sleep 2 && systemctl status eat-later-bot --no-pager"
