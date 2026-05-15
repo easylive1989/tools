@@ -44,7 +44,7 @@ jobs:
           After=network.target
 
           [Service]
-          EnvironmentFile=/etc/eat-later-bot.env
+          EnvironmentFile=/opt/eat_later/.env
           WorkingDirectory=/opt/eat_later
           ExecStart=/opt/eat_later/.venv/bin/python bot.py
           Restart=always
