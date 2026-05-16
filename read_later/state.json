@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr",
+      "message_id": "1505062587937718404",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1505062587937718404",
+      "shared_at": "2026-05-16T04:21:23.675000+00:00",
+      "title": "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr",
+      "url": "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@yashiro001/post/DYXZbTZmUvn?xmt=AQG0pVQoxQzuvnTHGubB4s3QVrNHaqmHv8cUsllmUKqNjsqJYW18NtLebVeWnOa1mRG5pn0c&slof=1",
+      "message_id": "1505060959528685749",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1505060959528685749",
+      "shared_at": "2026-05-16T04:14:55.432000+00:00",
+      "title": "Threads",
+      "url": "https://www.threads.com/@yashiro001/post/DYXZbTZmUvn?xmt=AQG0pVQoxQzuvnTHGubB4s3QVrNHaqmHv8cUsllmUKqNjsqJYW18NtLebVeWnOa1mRG5pn0c&slof=1"
+    },
+    {
       "author": "Paul Wu",
       "message_excerpt": "https://www.threads.com/@levelup.daily_lab/post/DYVqGd-E3L7?xmt=AQG0ETYfUI7QijkaPZG2e_0LffgJXOOLgJeiEJ4rNpq4bg",
       "message_id": "1504855062617260135",
@@ -399,7 +417,7 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1504855062617260135",
+  "last_message_id": "1505062587937718404",
   "seen_urls": [
     "https://www.facebook.com/gipi.net/posts/pfbid02PQNyZ5uALVpgEJshbVMDYyp2seXWQZpQKF6n5TrAimqUDMTnZEJbwxwgZQjL71MLl?locale=zh_TW",
     "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
@@ -409,6 +427,7 @@
     "https://www.facebook.com/modeerf/posts/pfbid0SyYzCmXntBJzS8kzqQXTQokVM9aC3QjMrorrgyJmZ6dQzEjuge3CKLCqdhz191Pgl?locale=zh_TW",
     "https://www.facebook.com/share/18hmEoXkQB/?mibextid=wwXIfr",
     "https://www.facebook.com/share/1BXW9nGMCc/?mibextid=wwXIfr",
+    "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr",
     "https://www.facebook.com/thingsaboutwebdev/posts/pfbid02Xr5U3r8b9L9Ev3GUGXEDgLA7vJB1NWtF8GDC7dShLW9b3wUmoaQtEu9ziq1gCrbil?locale=zh_TW",
     "https://www.threads.com/@0x0funky/post/DXiNaLZAQ6b?xmt=AQG0EBdd_ubCesXtzcfIGSN_mEgRkkEcgM3coCjW04cg0LFrB5Ic_dddoRkk0t6BGTC_njXF&slof=1",
     "https://www.threads.com/@abyssinian98/post/DXo0j_rkcj_?xmt=AQG0r-NVBmAKVvdXTZA3j6xK0AOfFa7CFSwA1JEgkW4vcm153bHifFKxcfj9CAxTgv_y_SBM&slof=1",
@@ -440,6 +459,7 @@
     "https://www.threads.com/@silatawtataysi/post/DYMwDmxkkXa?xmt=AQG0lrS2yXHUTjB9Nd3lIHLRdiDocKh3ZHm2XWAZx_lKYjZbv5lso-HwgWOIzNvMOKdosfTT&slof=1",
     "https://www.threads.com/@wesleylavie/post/DYCWS0skr2I?xmt=AQG0_1LESFZJg_gYjkYXILENlq_hsW4LV2YGC7FrBv5qHANS_HHiFIlCEOawgGHl9Pyd8SBN&slof=1",
     "https://www.threads.com/@yangyang.629/post/DYRqeY7k7qO?xmt=AQG0LzN9TsT-t-CAcaINoUyBQy8BQxAekhkWGY4K8RhiSP3o8XYX-b6WDAbYSRbkCJfPrWTO&slof=1",
+    "https://www.threads.com/@yashiro001/post/DYXZbTZmUvn?xmt=AQG0pVQoxQzuvnTHGubB4s3QVrNHaqmHv8cUsllmUKqNjsqJYW18NtLebVeWnOa1mRG5pn0c&slof=1",
     "https://www.threads.com/@yrzheee/post/DYM-e9Ekd1v?xmt=AQG0ojYbMtkBRRS0Hs96J9m96rhD2Y5Bk7XekSg8aj8MbvSbt2XbNIvq_u8jSlLAsXn6uAzZ&slof=1"
   ]
 }
