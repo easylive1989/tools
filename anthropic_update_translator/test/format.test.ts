@@ -55,6 +55,27 @@ describe("buildOutgoingMessage", () => {
     expect(out.content).toBe("https://x.com/AnthropicAI/status/456");
   });
 
+  it("當 source.embeds 為空時 throw", () => {
+    expect(() =>
+      buildOutgoingMessage({ id: "x", content: "", embeds: [] }, "text"),
+    ).toThrow("buildOutgoingMessage: source has no embed");
+  });
+
+  it("regex 不擷取尾端標點(括號)", () => {
+    const source: DiscordMessage = {
+      id: "103",
+      content: "see this (https://twitter.com/AnthropicAI/status/789)",
+      embeds: [
+        {
+          author: { name: "Anthropic (@AnthropicAI)" },
+          description: "hello",
+        },
+      ],
+    };
+    const out = buildOutgoingMessage(source, "你好");
+    expect(out.content).toBe("https://twitter.com/AnthropicAI/status/789");
+  });
+
   it("當 content 與 embed.url 都沒有 URL 時,content 為空字串", () => {
     const source: DiscordMessage = {
       id: "102",

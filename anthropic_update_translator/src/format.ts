@@ -1,7 +1,7 @@
 import type { DiscordEmbed, DiscordMessage } from "./filter";
 
 const ANTHROPIC_ORANGE = 0xd97757;
-const TWITTER_URL_REGEX = /https?:\/\/(?:twitter\.com|x\.com)\/[^\s]+/i;
+const TWITTER_URL_REGEX = /https?:\/\/(?:twitter\.com|x\.com)\/[^\s)"'<>,]+/i;
 
 export interface OutgoingMessage {
   content: string;
