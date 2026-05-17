@@ -1,0 +1,17 @@
+name = "anthropic-update-translator"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+SOURCE_CHANNEL_ID = "REPLACE_WITH_SOURCE_CHANNEL_ID"
+TARGET_CHANNEL_ID = "REPLACE_WITH_TARGET_CHANNEL_ID"
+TRANSLATOR = "gemini"
+GEMINI_MODEL = "gemini-2.5-flash"
+CLAUDE_MODEL = "claude-haiku-4-5-20251001"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
