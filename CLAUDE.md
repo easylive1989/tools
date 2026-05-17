@@ -41,10 +41,11 @@ Active workflows (triggered on schedule + `workflow_dispatch`):
 - `monthly-ledger-analysis.yml` — monthly ledger summary to Notion
 - `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
 - `deploy-eat-later-bot.yml` — rsyncs eat_later bot to VPS, restarts systemd service
+- `deploy-anthropic-translator.yml` — deploys the Anthropic update translator Cloudflare Worker (cron: every 5 min)
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
-Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`.
+Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DISCORD_BOT_TOKEN`, `GEMINI_API_KEY`.
 
 ## Environment Variables
 
