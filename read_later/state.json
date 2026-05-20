@@ -2,6 +2,29 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@happy.3clatte/post/DYjT7yUnYqC?xmt=AQG0roQzhX7mRvv7f_eeSRDAdEMgjwZcwj4rXebEd1kIUM1vJRyIqmK7l2fCj7FpXlaXPoX8&slof=1",
+      "message_id": "1506610951397310565",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1506610951397310565",
+      "shared_at": "2026-05-20T10:54:02.291000+00:00",
+      "title": "Threads",
+      "url": "https://www.threads.com/@happy.3clatte/post/DYjT7yUnYqC?xmt=AQG0roQzhX7mRvv7f_eeSRDAdEMgjwZcwj4rXebEd1kIUM1vJRyIqmK7l2fCj7FpXlaXPoX8&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://github.com/ParthJadhav/app-store-screenshots",
+      "message_id": "1506607677403562005",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1506607677403562005",
+      "og_description": "end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.",
+      "og_image": "https://opengraph.githubassets.com/2e394975b522f14e6f876614b77c025d2c106870492bd3d63ef42e2172763593/ParthJadhav/app-store-screenshots",
+      "og_site_name": "GitHub",
+      "og_type": "object",
+      "og_url": "https://github.com/ParthJadhav/app-store-screenshots",
+      "shared_at": "2026-05-20T10:41:01.710000+00:00",
+      "title": "GitHub - ParthJadhav/app-store-screenshots: end to end app store screenshot creation using AI",
+      "url": "https://github.com/ParthJadhav/app-store-screenshots"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@30plus.project/post/DYHS3YrkRts?xmt=AQG0MXo8mOGvMf2uk52fxKqxho15m5WSuQuU7R53atWdiW-IMTsa1vzuQ9C_VNeBejZLXyCf&slof=1",
       "message_id": "1506477310088577244",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506477310088577244",
@@ -516,8 +539,9 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1506477310088577244",
+  "last_message_id": "1506610951397310565",
   "seen_urls": [
+    "https://github.com/ParthJadhav/app-store-screenshots",
     "https://www.facebook.com/gipi.net/posts/pfbid02PQNyZ5uALVpgEJshbVMDYyp2seXWQZpQKF6n5TrAimqUDMTnZEJbwxwgZQjL71MLl?locale=zh_TW",
     "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
     "https://www.facebook.com/intleconobserve/posts/pfbid0KGfULDWvA53GRacB6jVSkvCfRs7rggJHQQDocNrYNyPiHYVaE5AjXAkvYdzwnRJxl?locale=zh_TW",
@@ -544,6 +568,7 @@
     "https://www.threads.com/@future__stock499/post/DYHCK3XFFDi?xmt=AQG0CYpASulGhCQkxcm7nSAkXsMQbq6T-CDKYN_yEiwot95SMONXYHbpUBYVXTWPdcFRSGM&slof=1",
     "https://www.threads.com/@gbasw81/post/DYM0mrJiWCv?xmt=AQG0i8ZNd3yGQNG_9S9pD0M1saR_d5XGrOpQKCJ-fcvBl7YyvOJLZOnQ5w5XsSLFuZ43ZnBd&slof=1",
     "https://www.threads.com/@govin999999/post/DXt_GbMkyUE?xmt=AQG0ZmCuWyFhpykcNLwZp5hSTMTc1H3OUawLaMwXypHAjqS5DsrSFMyF_mTcZ8FXQYCsrSc&slof=1",
+    "https://www.threads.com/@happy.3clatte/post/DYjT7yUnYqC?xmt=AQG0roQzhX7mRvv7f_eeSRDAdEMgjwZcwj4rXebEd1kIUM1vJRyIqmK7l2fCj7FpXlaXPoX8&slof=1",
     "https://www.threads.com/@harbinger_orca/post/DYRb1XdEfx6?xmt=AQG0wybj8X53tmdf_IOOD9luoJjiXM2ST7TRYJcBJWefxs7mXYq9uYtBJcSNvn6YHNLu0NE&slof=1",
     "https://www.threads.com/@hei_ai.automation/post/DYdxJJJkw-O?xmt=AQG0k_nyJE80B8YVgUtN2Mcyoob1RCyveI209Yi7Jcllj_81WF196bB2_vBwAGdy4Zr515I&slof=1",
     "https://www.threads.com/@kikitataysi/post/DYQynzckhZ3?xmt=AQG0McUzsl_5DCzL-PSJeAA0txtbG-XUd-SHM4TUYBLUh7Q5yZgM_mlTAAt5u2eozIWrd6I&slof=1",
