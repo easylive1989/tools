@@ -13,6 +13,7 @@ export default {
   async scheduled(_event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
     const state = new State(env.KV);
     const discord = new DiscordClient(env.DISCORD_BOT_TOKEN);
+    const communityDiscord = new DiscordClient(env.COMMUNITY_BOT_TOKEN);
 
     const lastId = await state.getLastMessageId();
     if (lastId === null) {
@@ -73,14 +74,21 @@ export default {
         throw err;
       }
 
+      const outgoing = buildOutgoingMessage(msg, translated);
       try {
-        await discord.postMessage(
-          env.TARGET_CHANNEL_ID,
-          buildOutgoingMessage(msg, translated),
-        );
+        await discord.postMessage(env.TARGET_CHANNEL_ID, outgoing);
       } catch (err) {
         console.error(`postMessage failed for ${msg.id}: ${(err as Error).message}`);
         return; // 不推進,下次重做(可能重發)
+      }
+
+      try {
+        await communityDiscord.postMessage(env.COMMUNITY_CHANNEL_ID, outgoing);
+      } catch (err) {
+        // 社群頻道是附加目的地,失敗時不阻塞主流程(避免主頻道重發)
+        console.error(
+          `community postMessage failed for ${msg.id}: ${(err as Error).message}`,
+        );
       }
 
       await state.setLastMessageId(msg.id);
