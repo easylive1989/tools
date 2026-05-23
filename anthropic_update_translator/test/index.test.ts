@@ -10,11 +10,9 @@ afterEach(() => {
 function makeEnv(kv: MemoryKV, overrides: Partial<Env> = {}): Env {
   return {
     DISCORD_BOT_TOKEN: "BT",
-    COMMUNITY_BOT_TOKEN: "CBT",
     GEMINI_API_KEY: "GK",
     SOURCE_CHANNEL_ID: "SRC",
     TARGET_CHANNEL_ID: "TGT",
-    COMMUNITY_CHANNEL_ID: "COM",
     TRANSLATOR: "gemini",
     GEMINI_MODEL: "gemini-2.5-flash",
     CLAUDE_MODEL: "claude-haiku-4-5-20251001",
@@ -93,7 +91,6 @@ describe("scheduled handler", () => {
               }),
             ),
           "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
-          "/channels/COM/messages": () => new Response("{}", { status: 200 }),
         },
         (url, body) => posts.push({ url, body }),
       ),
@@ -105,55 +102,6 @@ describe("scheduled handler", () => {
     const targetPost = posts.find((p) => p.url.includes("/channels/TGT/messages"));
     expect(targetPost).toBeDefined();
     expect(JSON.parse(targetPost!.body).embeds[0].description).toBe("你好世界");
-    const communityPost = posts.find((p) => p.url.includes("/channels/COM/messages"));
-    expect(communityPost).toBeDefined();
-    expect(JSON.parse(communityPost!.body).embeds[0].description).toBe("你好世界");
-  });
-
-  it("社群頻道 POST 失敗時不阻塞:仍推進 last_message_id", async () => {
-    const kv = new MemoryKV();
-    await kv.put("last_message_id", "100");
-
-    const posts: { url: string; body: string }[] = [];
-    vi.stubGlobal(
-      "fetch",
-      routedFetch(
-        {
-          "/messages?after=100": () =>
-            new Response(
-              JSON.stringify([
-                {
-                  id: "101",
-                  content: "https://twitter.com/AnthropicAI/status/101",
-                  embeds: [
-                    {
-                      author: { name: "Anthropic (@AnthropicAI)" },
-                      description: "Hello world",
-                      url: "https://twitter.com/AnthropicAI/status/101",
-                    },
-                  ],
-                },
-              ]),
-            ),
-          "generativelanguage.googleapis.com": () =>
-            new Response(
-              JSON.stringify({
-                candidates: [{ content: { parts: [{ text: "你好世界" }] } }],
-              }),
-            ),
-          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
-          "/channels/COM/messages": () =>
-            new Response("forbidden", { status: 403 }),
-        },
-        (url, body) => posts.push({ url, body }),
-      ),
-    );
-
-    await worker.scheduled(event, makeEnv(kv), ctx);
-
-    expect(await kv.get("last_message_id")).toBe("101");
-    expect(posts.some((p) => p.url.includes("/channels/TGT/messages"))).toBe(true);
-    expect(posts.some((p) => p.url.includes("/channels/COM/messages"))).toBe(true);
   });
 
   it("不符合 filter 的訊息只推進 ID,不翻譯也不發送", async () => {

@@ -7,11 +7,9 @@ import type { Env } from "../../src/env";
 function env(overrides: Partial<Env>): Env {
   return {
     DISCORD_BOT_TOKEN: "DT",
-    COMMUNITY_BOT_TOKEN: "CBT",
     GEMINI_API_KEY: "GK",
     SOURCE_CHANNEL_ID: "S",
     TARGET_CHANNEL_ID: "T",
-    COMMUNITY_CHANNEL_ID: "C",
     TRANSLATOR: "gemini",
     GEMINI_MODEL: "gemini-2.5-flash",
     CLAUDE_MODEL: "claude-haiku-4-5-20251001",

@@ -39,9 +39,7 @@ jobs:
           workingDirectory: anthropic_update_translator
           secrets: |
             DISCORD_BOT_TOKEN
-            COMMUNITY_BOT_TOKEN
             GEMINI_API_KEY
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          COMMUNITY_BOT_TOKEN: ${{ secrets.COMMUNITY_BOT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
