@@ -19,15 +19,6 @@ Scripts in subdirectories add the repo root to `sys.path` so `from common.X impo
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 ```
 
-## Running Tools
-
-Most tools are single scripts. Common patterns:
-
-```bash
-# Ledger analysis (needs NOTION_SECRET)
-python ledger_analysis/ledger_analysis.py
-```
-
 ## translate (隨身翻譯 + 檔案翻譯)
 
 SwiftUI app (`translate/translator.swift`) for selection-based translation, plus a
@@ -38,7 +29,6 @@ and writes `<stem>_translated.docx` next to the source.
 ## GitHub Actions
 
 Active workflows (triggered on schedule + `workflow_dispatch`):
-- `monthly-ledger-analysis.yml` — monthly ledger summary to Notion
 - `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
 - `deploy-eat-later-bot.yml` — rsyncs eat_later bot to VPS, restarts systemd service
 - `deploy-anthropic-translator.yml` — deploys the Anthropic update translator Cloudflare Worker (cron: every 5 min)
@@ -53,7 +43,7 @@ Scripts read secrets directly from environment (no `.env` loading at root level)
 
 | Variable | Used by |
 |---|---|
-| `NOTION_SECRET` | `ledger_analysis.py` |
+| `NOTION_SECRET` | `eat_later/bot.py` |
 
 ## Secrets and Sensitive Data
 
