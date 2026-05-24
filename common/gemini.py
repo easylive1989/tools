@@ -10,9 +10,9 @@ from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
 
 
-def is_gemini_cli_available() -> bool:
-    """Check if gemini CLI is installed locally."""
-    return shutil.which("gemini") is not None
+def is_claude_cli_available() -> bool:
+    """Check if claude CLI is installed locally."""
+    return shutil.which("claude") is not None
 
 
 class GeminiClient:
@@ -38,12 +38,11 @@ class GeminiClient:
         self.model = genai.GenerativeModel(target_model)
 
     def _generate_via_cli(self, prompt: str, timeout: int = 120) -> str:
-        target_model = self.model_map.get(self.model_name.lower(), self.model_name)
         env = os.environ.copy()
         env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
 
         result = subprocess.run(
-            ["gemini", "-m", target_model, "-o", "text", prompt],
+            ["claude", "-p", prompt, "--model", "sonnet"],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -52,7 +51,7 @@ class GeminiClient:
 
         if result.returncode != 0:
             err = _ANSI_RE.sub("", result.stderr).strip()
-            raise RuntimeError(f"Gemini CLI error: {err}")
+            raise RuntimeError(f"Claude CLI error: {err}")
 
         return _ANSI_RE.sub("", result.stdout).strip()
 

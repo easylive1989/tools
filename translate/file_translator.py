@@ -7,7 +7,7 @@
 # ///
 """
 Translate a .docx or .pdf file into Traditional Chinese using the local
-`gemini` CLI. Output is written next to the source file as
+`claude` CLI. Output is written next to the source file as
 `<stem>_translated.docx` (PDF inputs are converted to DOCX first).
 
 Usage:
@@ -24,7 +24,7 @@ from docx import Document
 from pdf2docx import Converter
 
 
-GEMINI_MODEL = "gemini-2.5-flash"
+CLAUDE_MODEL = "sonnet"
 TARGET_LANG = "Traditional Chinese"
 MAX_WORKERS = 5
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
@@ -34,7 +34,7 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
-def gemini_translate(text: str) -> str:
+def claude_translate(text: str) -> str:
     if not text or not text.strip():
         return text
     prompt = (
@@ -47,7 +47,7 @@ def gemini_translate(text: str) -> str:
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
     result = subprocess.run(
-        ["gemini", "-m", GEMINI_MODEL, "-o", "text", prompt],
+        ["claude", "-p", prompt, "--model", CLAUDE_MODEL],
         capture_output=True,
         text=True,
         timeout=180,
@@ -55,7 +55,7 @@ def gemini_translate(text: str) -> str:
     )
     if result.returncode != 0:
         err = ANSI_RE.sub("", result.stderr).strip()
-        raise RuntimeError(f"gemini CLI failed: {err[:300]}")
+        raise RuntimeError(f"claude CLI failed: {err[:300]}")
     return ANSI_RE.sub("", result.stdout).strip()
 
 
@@ -64,7 +64,7 @@ def translate_many(texts: list[str]) -> list[str]:
     done = 0
     total = len(texts)
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(gemini_translate, t): i for i, t in enumerate(texts)}
+        futures = {ex.submit(claude_translate, t): i for i, t in enumerate(texts)}
         for fut in as_completed(futures):
             idx = futures[fut]
             results[idx] = fut.result()

@@ -234,9 +234,9 @@ struct VocabularyPopover: View {
     }
 }
 
-// MARK: - GeminiRunner Actor
+// MARK: - ClaudeRunner Actor
 
-actor GeminiRunner {
+actor ClaudeRunner {
     private var liveTasks: [UUID: Process] = [:]
 
     func translate(id: UUID, text: String) async -> String {
@@ -282,7 +282,7 @@ actor GeminiRunner {
         return await withCheckedContinuation { continuation in
             let proc = Process()
             proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            proc.arguments = ["gemini", "-m", "gemini-2.5-flash", "-p", prompt]
+            proc.arguments = ["claude", "-p", prompt, "--model", "sonnet"]
             proc.environment = env
 
             let outPipe = Pipe()
@@ -545,7 +545,7 @@ class VocabularyTextView: NSTextView {
 
 struct ContentView: View {
     let initialText: String
-    let runner: GeminiRunner
+    let runner: ClaudeRunner
 
     @State private var inputText: String = ""
     @State private var tabs: [TranslationTab] = []
@@ -914,7 +914,7 @@ struct ContentView: View {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
-    let runner = GeminiRunner()
+    let runner = ClaudeRunner()
     var sigusr1Source: DispatchSourceSignal?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
