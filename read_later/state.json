@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://youtube.com/watch?v=6mLYZF97oaU&si=UZhiFz-Kuuimjdo_",
+      "message_id": "1508255580911964191",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1508255580911964191",
+      "shared_at": "2026-05-24T23:49:12.523000+00:00",
+      "title": "- YouTube",
+      "url": "https://youtube.com/watch?v=6mLYZF97oaU&si=UZhiFz-Kuuimjdo_"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@yanzi.mama/post/DYuiztPif-w?xmt=AQG0gisCugkhmhf41BoLipgz6DQ3QuEH4fs9PBRPEP4wG0-16S4DVVpNBiXYGt7-tTs1SgA&slof=1",
       "message_id": "1508149062321438862",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1508149062321438862",
@@ -87,7 +96,7 @@
       "message_id": "1506926735612973269",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506926735612973269",
       "og_description": "Claude Code plugin for designing modular systems from functional requirements and reviewing existing codebases for modularity problems with actionable improvement recommendations. Based on the Bala...",
-      "og_image": "https://opengraph.githubassets.com/428ebba5a5c6e086e0cab4fcb6ba48728ec4415bd6b291c883e97665aaf68e1a/vladikk/modularity",
+      "og_image": "https://opengraph.githubassets.com/15f5de6f94d1a906d2e5d9b55eecd5c604cfd211c762d78a30f880926e421587/vladikk/modularity",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/vladikk/modularity",
@@ -119,7 +128,7 @@
       "message_id": "1506607677403562005",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506607677403562005",
       "og_description": "end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.",
-      "og_image": "https://opengraph.githubassets.com/50f65fe5495f614425228a3e860c3fa7b42e649de72b9a086b91b41e7fb8c424/ParthJadhav/app-store-screenshots",
+      "og_image": "https://opengraph.githubassets.com/dd312127aba6b02e3ed056fdc4ba7d8572367babee1a9eca27d21f95638e05b1/ParthJadhav/app-store-screenshots",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/ParthJadhav/app-store-screenshots",
@@ -643,7 +652,7 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1508149062321438862",
+  "last_message_id": "1508255580911964191",
   "seen_urls": [
     "https://github.com/ParthJadhav/app-store-screenshots",
     "https://github.com/vladikk/modularity",
@@ -710,6 +719,7 @@
     "https://www.threads.com/@yeeggg_/post/DYoff8uEklX?xmt=AQG05VMlruV8JpB6XsDCylpHOpReGM7luQcMnOkRJq-OPBqmRSc60iF9mduHnv4MOjg7qS9v&slof=1",
     "https://www.threads.com/@yrrr9981/post/DYqNFtJk8pi?xmt=AQG0NXTy7QSB8uABYsW84au5kY_kdsfCbHRVL80N8HL_cI6z254s8pAF4_KnitElRSJNCnbu&slof=1",
     "https://www.threads.com/@yrzheee/post/DYM-e9Ekd1v?xmt=AQG0ojYbMtkBRRS0Hs96J9m96rhD2Y5Bk7XekSg8aj8MbvSbt2XbNIvq_u8jSlLAsXn6uAzZ&slof=1",
-    "https://www.threads.com/@yushengli1105/post/DYcZJGLmrT5?xmt=AQG0goVmiO8-gGZfoZr-SDO2y0Kp_RpbnIFH252Y4nUR2c-4psneQ80YyOdaaa0nYEr-FytK&slof=1"
+    "https://www.threads.com/@yushengli1105/post/DYcZJGLmrT5?xmt=AQG0goVmiO8-gGZfoZr-SDO2y0Kp_RpbnIFH252Y4nUR2c-4psneQ80YyOdaaa0nYEr-FytK&slof=1",
+    "https://youtube.com/watch?v=6mLYZF97oaU&si=UZhiFz-Kuuimjdo_"
   ]
 }
