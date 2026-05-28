@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "author": "Paul Wu",
+      "message_excerpt": "https://www.youtube.com/watch?v=gdrPkpXuNks",
+      "message_id": "1509345920632885260",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1509345920632885260",
+      "shared_at": "2026-05-28T00:01:49.770000+00:00",
+      "title": "- YouTube",
+      "url": "https://www.youtube.com/watch?v=gdrPkpXuNks"
+    },
+    {
+      "author": "Paul Wu",
+      "message_excerpt": "https://www.youtube.com/watch?v=ozVTJm3n2U4",
+      "message_id": "1509340876801839269",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1509340876801839269",
+      "shared_at": "2026-05-27T23:41:47.227000+00:00",
+      "title": "- YouTube",
+      "url": "https://www.youtube.com/watch?v=ozVTJm3n2U4"
+    },
+    {
       "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@qrtt1/post/DYzqEf6k3mj?xmt=AQG0LaEOzDrJpLOyvmGpq7B4EPz86MAzp8wBp0-ideBtFDOlxW-gZGw0GNMxqKPyhBO7nTl0&slof=1",
       "message_id": "1509005898302099669",
@@ -155,7 +173,7 @@
       "message_id": "1506607677403562005",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506607677403562005",
       "og_description": "end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.",
-      "og_image": "https://opengraph.githubassets.com/5106c9e1946572577738a24f9379f6ba324ed295d9a7489a4fd704ddc2e4d9b1/ParthJadhav/app-store-screenshots",
+      "og_image": "https://opengraph.githubassets.com/c956cbf09231f451ec4e40a69de6068e142a305b66f9635bd73f0e79e1584938/ParthJadhav/app-store-screenshots",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/ParthJadhav/app-store-screenshots",
@@ -679,7 +697,7 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1509005898302099669",
+  "last_message_id": "1509345920632885260",
   "seen_urls": [
     "https://github.com/ParthJadhav/app-store-screenshots",
     "https://github.com/vladikk/modularity",
@@ -750,6 +768,8 @@
     "https://www.threads.com/@yrrr9981/post/DYqNFtJk8pi?xmt=AQG0NXTy7QSB8uABYsW84au5kY_kdsfCbHRVL80N8HL_cI6z254s8pAF4_KnitElRSJNCnbu&slof=1",
     "https://www.threads.com/@yrzheee/post/DYM-e9Ekd1v?xmt=AQG0ojYbMtkBRRS0Hs96J9m96rhD2Y5Bk7XekSg8aj8MbvSbt2XbNIvq_u8jSlLAsXn6uAzZ&slof=1",
     "https://www.threads.com/@yushengli1105/post/DYcZJGLmrT5?xmt=AQG0goVmiO8-gGZfoZr-SDO2y0Kp_RpbnIFH252Y4nUR2c-4psneQ80YyOdaaa0nYEr-FytK&slof=1",
+    "https://www.youtube.com/watch?v=gdrPkpXuNks",
+    "https://www.youtube.com/watch?v=ozVTJm3n2U4",
     "https://youtube.com/watch?v=6mLYZF97oaU&si=UZhiFz-Kuuimjdo_"
   ]
 }
