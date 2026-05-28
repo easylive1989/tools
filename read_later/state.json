@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "author": "Paul CH",
+      "message_excerpt": "https://github.com/anthropics/knowledge-work-plugins",
+      "message_id": "1509371397908987994",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1509371397908987994",
+      "og_description": "Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins",
+      "og_image": "https://opengraph.githubassets.com/922bd3c686683c6cb3452abc63feaea3694d9c44e614c23a1688d66a46c6dcd0/anthropics/knowledge-work-plugins",
+      "og_site_name": "GitHub",
+      "og_type": "object",
+      "og_url": "https://github.com/anthropics/knowledge-work-plugins",
+      "shared_at": "2026-05-28T01:43:04.026000+00:00",
+      "title": "GitHub - anthropics/knowledge-work-plugins: Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork",
+      "url": "https://github.com/anthropics/knowledge-work-plugins"
+    },
+    {
       "author": "Paul Wu",
       "message_excerpt": "https://www.youtube.com/watch?v=gdrPkpXuNks",
       "message_id": "1509345920632885260",
@@ -173,7 +187,7 @@
       "message_id": "1506607677403562005",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506607677403562005",
       "og_description": "end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.",
-      "og_image": "https://opengraph.githubassets.com/c956cbf09231f451ec4e40a69de6068e142a305b66f9635bd73f0e79e1584938/ParthJadhav/app-store-screenshots",
+      "og_image": "https://opengraph.githubassets.com/3a606a3c6f03fe06065dea5adeeb743f726f4862278fa77559425164b0b6fbd5/ParthJadhav/app-store-screenshots",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/ParthJadhav/app-store-screenshots",
@@ -697,9 +711,10 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1509345920632885260",
+  "last_message_id": "1509371397908987994",
   "seen_urls": [
     "https://github.com/ParthJadhav/app-store-screenshots",
+    "https://github.com/anthropics/knowledge-work-plugins",
     "https://github.com/vladikk/modularity",
     "https://www.facebook.com/gipi.net/posts/pfbid02PQNyZ5uALVpgEJshbVMDYyp2seXWQZpQKF6n5TrAimqUDMTnZEJbwxwgZQjL71MLl?locale=zh_TW",
     "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
