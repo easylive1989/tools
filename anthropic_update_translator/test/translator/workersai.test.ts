@@ -15,8 +15,8 @@ describe("WorkersAiTranslator", () => {
     const out = await t.translate("Hello");
 
     expect(out).toBe("翻譯結果");
-    expect((ai.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe(MODEL);
-    const messages = (ai.run as ReturnType<typeof vi.fn>).mock.calls[0][1].messages;
+    expect((ai.run as ReturnType<typeof vi.fn>).mock.calls[0]![0]).toBe(MODEL);
+    const messages = (ai.run as ReturnType<typeof vi.fn>).mock.calls[0]![1].messages;
     expect(messages[0].content).toContain("Hello");
   });
 
@@ -26,7 +26,7 @@ describe("WorkersAiTranslator", () => {
     const out = await t.translateArticle("Long body");
 
     expect(out).toBe("翻好的文章");
-    const messages = (ai.run as ReturnType<typeof vi.fn>).mock.calls[0][1].messages;
+    const messages = (ai.run as ReturnType<typeof vi.fn>).mock.calls[0]![1].messages;
     expect(messages[0].content).toContain("Long body");
   });
 

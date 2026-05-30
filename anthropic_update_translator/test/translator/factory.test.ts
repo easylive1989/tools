@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createTranslator } from "../../src/translator";
 import { GeminiTranslator } from "../../src/translator/gemini";
 import { ClaudeTranslator } from "../../src/translator/claude";
+import { WorkersAiTranslator } from "../../src/translator/workersai";
 import type { Env } from "../../src/env";
 
 function env(overrides: Partial<Env>): Env {
@@ -14,6 +15,9 @@ function env(overrides: Partial<Env>): Env {
     GEMINI_MODEL: "gemini-2.5-flash",
     CLAUDE_MODEL: "claude-haiku-4-5-20251001",
     KV: {} as KVNamespace,
+    WORKERSAI_MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    HACKMD_API_TOKEN: "HM",
+    AI: {} as Ai,
     ...overrides,
   };
 }
@@ -37,5 +41,10 @@ describe("createTranslator", () => {
     expect(() =>
       createTranslator(env({ TRANSLATOR: "foo" as Env["TRANSLATOR"] })),
     ).toThrow(/Unknown TRANSLATOR/);
+  });
+
+  it("回傳 WorkersAiTranslator 當 TRANSLATOR=workersai", () => {
+    const t = createTranslator(env({ TRANSLATOR: "workersai" }));
+    expect(t).toBeInstanceOf(WorkersAiTranslator);
   });
 });
