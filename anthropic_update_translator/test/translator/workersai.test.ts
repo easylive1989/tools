@@ -30,6 +30,12 @@ describe("WorkersAiTranslator", () => {
     expect(messages[0].content).toContain("Long body");
   });
 
+  it("translateArticle response 缺欄位時拋 TranslationError", async () => {
+    const ai = fakeAi(() => ({ foo: "bar" }));
+    const t = new WorkersAiTranslator(ai, MODEL);
+    await expect(t.translateArticle("x")).rejects.toBeInstanceOf(TranslationError);
+  });
+
   it("response 缺 response 欄位時拋 TranslationError", async () => {
     const ai = fakeAi(() => ({ foo: "bar" }));
     const t = new WorkersAiTranslator(ai, MODEL);

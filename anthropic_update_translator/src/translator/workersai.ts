@@ -29,8 +29,15 @@ export class WorkersAiTranslator implements Translator {
   private async run(prompt: string): Promise<string> {
     let out: unknown;
     try {
-      const run = this.ai.run as (model: string, opts: { messages: { role: string; content: string }[] }) => Promise<unknown>;
-      out = await run(this.model, { messages: [{ role: "user", content: prompt }] });
+      const ai = this.ai as unknown as {
+        run(
+          model: string,
+          opts: { messages: { role: string; content: string }[] },
+        ): Promise<unknown>;
+      };
+      out = await ai.run(this.model, {
+        messages: [{ role: "user", content: prompt }],
+      });
     } catch (err) {
       throw new TranslationError(`Workers AI run failed: ${(err as Error).message}`);
     }
