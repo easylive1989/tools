@@ -1,6 +1,8 @@
 import {
+  buildArticlePrompt,
   buildPrompt,
   TranslationError,
+  validateArticleTranslation,
   validateTranslation,
   type Translator,
 } from "./types";
@@ -17,10 +19,20 @@ export class GeminiTranslator implements Translator {
   constructor(private apiKey: string, private model: string) {}
 
   async translate(text: string): Promise<string> {
+    const translated = await this.request(buildPrompt(text));
+    validateTranslation(text, translated);
+    return translated.trim();
+  }
+
+  async translateArticle(markdown: string): Promise<string> {
+    const translated = await this.request(buildArticlePrompt(markdown));
+    validateArticleTranslation(translated);
+    return translated.trim();
+  }
+
+  private async request(prompt: string): Promise<string> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
-    const body = JSON.stringify({
-      contents: [{ parts: [{ text: buildPrompt(text) }] }],
-    });
+    const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
 
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
@@ -50,8 +62,6 @@ export class GeminiTranslator implements Translator {
         `Gemini response missing candidates[0].content.parts[0].text: ${JSON.stringify(data)}`,
       );
     }
-
-    validateTranslation(text, translated);
-    return translated.trim();
+    return translated;
   }
 }

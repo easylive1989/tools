@@ -1,6 +1,8 @@
 import {
+  buildArticlePrompt,
   buildPrompt,
   TranslationError,
+  validateArticleTranslation,
   validateTranslation,
   type Translator,
 } from "./types";
@@ -16,6 +18,18 @@ export class ClaudeTranslator implements Translator {
   constructor(private apiKey: string, private model: string) {}
 
   async translate(text: string): Promise<string> {
+    const translated = await this.request(buildPrompt(text));
+    validateTranslation(text, translated);
+    return translated.trim();
+  }
+
+  async translateArticle(markdown: string): Promise<string> {
+    const translated = await this.request(buildArticlePrompt(markdown));
+    validateArticleTranslation(translated);
+    return translated.trim();
+  }
+
+  private async request(prompt: string): Promise<string> {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
 
@@ -31,7 +45,7 @@ export class ClaudeTranslator implements Translator {
         body: JSON.stringify({
           model: this.model,
           max_tokens: MAX_TOKENS,
-          messages: [{ role: "user", content: buildPrompt(text) }],
+          messages: [{ role: "user", content: prompt }],
         }),
         signal: ctrl.signal,
       });
@@ -53,8 +67,6 @@ export class ClaudeTranslator implements Translator {
         `Claude response missing content[*].text: ${JSON.stringify(data)}`,
       );
     }
-
-    validateTranslation(text, translated);
-    return translated.trim();
+    return translated;
   }
 }
