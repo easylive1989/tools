@@ -306,6 +306,49 @@ describe("scheduled handler", () => {
     expect(await kv.get("last_message_id")).toBe("101");
   });
 
+  it("HackMD 建立失敗:推文照常發,不附連結也不寫入 KV", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/z",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/z",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/z": () =>
+            new Response("<article><h1>Z</h1><p>Body.</p></article>", { status: 200 }),
+          "api.hackmd.io/v1/notes": () => new Response("boom", { status: 500 }),
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    const post = posts.find((p) => p.url.includes("/channels/TGT/messages"))!;
+    expect(JSON.parse(post.body).embeds[0].description).toBe("譯文");
+    expect(JSON.parse(post.body).content).not.toContain("hackmd.io");
+    expect(await kv.get("hackmd:101")).toBeNull();
+    expect(await kv.get("last_message_id")).toBe("101");
+  });
+
   it("KV 已有 hackmd 連結:不重建 note,直接附用既有連結", async () => {
     const kv = new MemoryKV();
     await kv.put("last_message_id", "100");

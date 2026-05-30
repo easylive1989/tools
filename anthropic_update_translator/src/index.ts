@@ -12,7 +12,7 @@ import type { Env } from "./env";
 
 const FETCH_BATCH_LIMIT = 50;
 const MAX_RETRIES = 4;
-const ARTICLE_CHUNK_CHARS = 3000;
+const ARTICLE_CHUNK_CHARS = 3000; // 每批譯文原文上限,控制在 Workers AI 單次 prompt 預算內
 
 /**
  * 嘗試把推文連到的 anthropic.com 文章翻成繁中、寫進 HackMD,回傳 note 連結。
