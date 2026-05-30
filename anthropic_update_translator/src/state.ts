@@ -1,5 +1,6 @@
 const LAST_MESSAGE_KEY = "last_message_id";
 const RETRY_PREFIX = "retry:";
+const HACKMD_PREFIX = "hackmd:";
 
 export class State {
   constructor(private kv: KVNamespace) {}
@@ -27,5 +28,13 @@ export class State {
 
   async clearRetryCount(messageId: string): Promise<void> {
     await this.kv.delete(RETRY_PREFIX + messageId);
+  }
+
+  async getHackMdLink(messageId: string): Promise<string | null> {
+    return this.kv.get(HACKMD_PREFIX + messageId);
+  }
+
+  async setHackMdLink(messageId: string, link: string): Promise<void> {
+    await this.kv.put(HACKMD_PREFIX + messageId, link);
   }
 }
