@@ -5,9 +5,12 @@ export interface Env {
 
   SOURCE_CHANNEL_ID: string;
   TARGET_CHANNEL_ID: string;
-  TRANSLATOR: "gemini" | "claude";
+  TRANSLATOR: "gemini" | "claude" | "workersai";
   GEMINI_MODEL: string;
   CLAUDE_MODEL: string;
+  WORKERSAI_MODEL: string;
+  HACKMD_API_TOKEN: string;
 
+  AI: Ai;
   KV: KVNamespace;
 }

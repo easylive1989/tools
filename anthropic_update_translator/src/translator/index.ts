@@ -1,6 +1,7 @@
 import type { Env } from "../env";
 import { GeminiTranslator } from "./gemini";
 import { ClaudeTranslator } from "./claude";
+import { WorkersAiTranslator } from "./workersai";
 import type { Translator } from "./types";
 
 export type { Translator } from "./types";
@@ -15,6 +16,8 @@ export function createTranslator(env: Env): Translator {
       }
       return new ClaudeTranslator(env.CLAUDE_API_KEY, env.CLAUDE_MODEL);
     }
+    case "workersai":
+      return new WorkersAiTranslator(env.AI, env.WORKERSAI_MODEL);
     default:
       throw new Error(`Unknown TRANSLATOR: ${env.TRANSLATOR}`);
   }
