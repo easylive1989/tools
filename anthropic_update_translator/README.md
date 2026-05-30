@@ -1,6 +1,6 @@
 # anthropic-update-translator
 
-Cloudflare Worker:每 5 分鐘輪詢 Discord `anthropic-update-raw` 頻道,把 Anthropic / Claude 官方推文 embed 翻成繁體中文,在 `anthropic-updates` 頻道用 Bot 發送同款 embed。
+Cloudflare Worker:每 5 分鐘輪詢 Discord `anthropic-update-raw` 頻道,把 Anthropic / Claude 官方推文 embed 翻成繁體中文,在 `anthropic-updates` 頻道用 Bot 發送同款 embed。若推文附帶 anthropic.com 文章連結,Worker 會自動抓取完整文章內容、透過 Cloudflare Workers AI 翻譯成繁體中文、建立可公開閱讀的 HackMD 筆記,並將筆記連結附加到 Discord 訊息中。
 
 ## 一次性設定
 
@@ -28,15 +28,26 @@ Cloudflare Worker:每 5 分鐘輪詢 Discord `anthropic-update-raw` 頻道,把 A
    - `CLOUDFLARE_ACCOUNT_ID`
    - `DISCORD_BOT_TOKEN`
    - `GEMINI_API_KEY`
+   - `HACK_MD_API_KEY` — HackMD personal access token;deploy workflow 會將其注入 Worker 環境變數 `HACKMD_API_TOKEN`
+
+   > **預設翻譯器為 Cloudflare Workers AI**(`TRANSLATOR = "workersai"`),透過 `wrangler.toml` 的 `[ai]` block 綁定 `AI` binding,**不需要額外 API key**。
 
 6. push 觸發 `.github/workflows/deploy-anthropic-translator.yml`,或在 Actions 頁面手動 `workflow_dispatch`。
 
-## 切換到 Claude 翻譯
+## 切換到 Claude / Gemini 翻譯(可選 fallback)
 
+預設使用 Workers AI。若需切換至其他翻譯器:
+
+**切換到 Claude:**
 1. GitHub Secrets 新增 `CLAUDE_API_KEY`。
 2. 修改 `wrangler.toml`:`TRANSLATOR = "claude"`。
 3. 修改 workflow,在 `secrets:` 與 `env:` 區塊加入 `CLAUDE_API_KEY`。
 4. push 觸發部署。
+
+**切換到 Gemini:**
+1. 確認 `GEMINI_API_KEY` secret 已存在。
+2. 修改 `wrangler.toml`:`TRANSLATOR = "gemini"`。
+3. push 觸發部署。
 
 ## 本機開發
 

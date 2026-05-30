@@ -5,12 +5,16 @@ compatibility_date = "2026-05-01"
 [triggers]
 crons = ["*/5 * * * *"]
 
+[ai]
+binding = "AI"
+
 [vars]
 SOURCE_CHANNEL_ID = "1505413807017562172"
 TARGET_CHANNEL_ID = "1505415363058339910"
-TRANSLATOR = "gemini"
+TRANSLATOR = "workersai"
 GEMINI_MODEL = "gemini-2.5-flash"
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
+WORKERSAI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
 [[kv_namespaces]]
 binding = "KV"

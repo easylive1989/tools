@@ -40,6 +40,8 @@ jobs:
           secrets: |
             DISCORD_BOT_TOKEN
             GEMINI_API_KEY
+            HACKMD_API_TOKEN
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          HACKMD_API_TOKEN: ${{ secrets.HACK_MD_API_KEY }}
