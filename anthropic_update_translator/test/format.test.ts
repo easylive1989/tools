@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { buildOutgoingMessage } from "../src/format";
+import { buildOutgoingMessage, buildHackMdContent } from "../src/format";
 import type { DiscordMessage } from "../src/filter";
+import type { Article } from "../src/article";
 
 const ANTHROPIC_ORANGE = 0xd97757;
 
@@ -90,5 +91,44 @@ describe("buildOutgoingMessage", () => {
 
     const out = buildOutgoingMessage(source, "你好");
     expect(out.content).toBe("");
+  });
+});
+
+describe("buildHackMdContent", () => {
+  it("組出 H1 標題 + 來源行 + 譯文", () => {
+    const article: Article = {
+      url: "https://www.anthropic.com/news/x",
+      title: "New Model",
+      paragraphs: ["a", "b"],
+    };
+    const out = buildHackMdContent(article, "翻好的內文");
+    expect(out).toContain("# New Model");
+    expect(out).toContain("> 原文:https://www.anthropic.com/news/x");
+    expect(out).toContain("翻好的內文");
+    expect(out.indexOf("# New Model")).toBeLessThan(out.indexOf("翻好的內文"));
+  });
+});
+
+describe("buildOutgoingMessage with hackmdUrl", () => {
+  it("有 hackmdUrl 時附在 content", () => {
+    const source: DiscordMessage = {
+      id: "1",
+      content: "https://twitter.com/AnthropicAI/status/1",
+      embeds: [{ author: { name: "Anthropic (@AnthropicAI)" }, description: "hi", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const out = buildOutgoingMessage(source, "你好", "https://hackmd.io/@x/abc");
+    expect(out.content).toContain("https://twitter.com/AnthropicAI/status/1");
+    expect(out.content).toContain("https://hackmd.io/@x/abc");
+    expect(out.embeds[0]!.description).toBe("你好");
+  });
+
+  it("無 hackmdUrl 時 content 不變(只有 tweet 連結)", () => {
+    const source: DiscordMessage = {
+      id: "1",
+      content: "https://twitter.com/AnthropicAI/status/1",
+      embeds: [{ author: { name: "Anthropic (@AnthropicAI)" }, description: "hi", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const out = buildOutgoingMessage(source, "你好");
+    expect(out.content).toBe("https://twitter.com/AnthropicAI/status/1");
   });
 });
