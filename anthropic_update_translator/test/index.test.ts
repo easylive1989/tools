@@ -7,6 +7,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+function makeAi(response: string) {
+  return { run: async () => ({ response }) } as unknown as Ai;
+}
+
 function makeEnv(kv: MemoryKV, overrides: Partial<Env> = {}): Env {
   return {
     DISCORD_BOT_TOKEN: "BT",
@@ -16,6 +20,9 @@ function makeEnv(kv: MemoryKV, overrides: Partial<Env> = {}): Env {
     TRANSLATOR: "gemini",
     GEMINI_MODEL: "gemini-2.5-flash",
     CLAUDE_MODEL: "claude-haiku-4-5-20251001",
+    WORKERSAI_MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    HACKMD_API_TOKEN: "HMTOKEN",
+    AI: makeAi("譯文"),
     KV: asKV(kv),
     ...overrides,
   };
@@ -204,5 +211,148 @@ describe("scheduled handler", () => {
 
     expect(await kv.get("last_message_id")).toBe("101");
     expect(await kv.get("retry:101")).toBeNull();
+  });
+
+  it("推文含 anthropic.com 文章連結:建 HackMD note 並把連結附在 Discord content", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    let hackmdCalled = 0;
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/new-model",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "We released something. https://www.anthropic.com/news/new-model",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/new-model": () =>
+            new Response("<article><h1>New Model</h1><p>Body paragraph.</p></article>", { status: 200 }),
+          "api.hackmd.io/v1/notes": () => {
+            hackmdCalled += 1;
+            return new Response(JSON.stringify({ id: "n1", publishLink: "https://hackmd.io/@x/n1" }), { status: 201 });
+          },
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    expect(hackmdCalled).toBe(1);
+    expect(await kv.get("hackmd:101")).toBe("https://hackmd.io/@x/n1");
+    const post = posts.find((p) => p.url.includes("/channels/TGT/messages"))!;
+    expect(JSON.parse(post.body).content).toContain("https://hackmd.io/@x/n1");
+    expect(await kv.get("last_message_id")).toBe("101");
+  });
+
+  it("文章抓取失敗:推文照常發,content 不含 HackMD 連結", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    let hackmdCalled = 0;
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/broken",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/broken",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/broken": () => new Response("err", { status: 500 }),
+          "api.hackmd.io/v1/notes": () => {
+            hackmdCalled += 1;
+            return new Response("{}", { status: 201 });
+          },
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    expect(hackmdCalled).toBe(0);
+    const post = posts.find((p) => p.url.includes("/channels/TGT/messages"))!;
+    expect(JSON.parse(post.body).content).not.toContain("hackmd.io");
+    expect(JSON.parse(post.body).embeds[0].description).toBe("譯文");
+    expect(await kv.get("last_message_id")).toBe("101");
+  });
+
+  it("KV 已有 hackmd 連結:不重建 note,直接附用既有連結", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+    await kv.put("hackmd:101", "https://hackmd.io/@x/cached");
+
+    const posts: { url: string; body: string }[] = [];
+    let hackmdCalled = 0;
+    let articleFetched = false;
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/x",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/x",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/x": () => {
+            articleFetched = true;
+            return new Response("<article><h1>x</h1><p>y</p></article>", { status: 200 });
+          },
+          "api.hackmd.io/v1/notes": () => {
+            hackmdCalled += 1;
+            return new Response(JSON.stringify({ publishLink: "new" }), { status: 201 });
+          },
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    expect(hackmdCalled).toBe(0);
+    expect(articleFetched).toBe(false);
+    const post = posts.find((p) => p.url.includes("/channels/TGT/messages"))!;
+    expect(JSON.parse(post.body).content).toContain("https://hackmd.io/@x/cached");
   });
 });

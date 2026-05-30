@@ -1,13 +1,47 @@
 import { DiscordClient, RateLimitError } from "./discord";
 import { shouldTranslate } from "./filter";
-import { buildOutgoingMessage } from "./format";
+import { buildHackMdContent, buildOutgoingMessage } from "./format";
 import { State } from "./state";
-import { createTranslator } from "./translator";
+import { createTranslator, type Translator } from "./translator";
 import { TranslationError } from "./translator/types";
+import { extractAnthropicArticle } from "./article";
+import { chunkParagraphs } from "./chunk";
+import { HackMdClient } from "./hackmd";
+import type { DiscordMessage } from "./filter";
 import type { Env } from "./env";
 
 const FETCH_BATCH_LIMIT = 50;
 const MAX_RETRIES = 4;
+const ARTICLE_CHUNK_CHARS = 3000;
+
+/**
+ * 嘗試把推文連到的 anthropic.com 文章翻成繁中、寫進 HackMD,回傳 note 連結。
+ * 已建過(KV 有快取)就直接回快取連結;沒有 anthropic.com 連結就回 undefined。
+ * 任一步驟失敗會往上丟,由呼叫端 try/catch 吞掉(HackMD 為附加功能)。
+ */
+async function resolveHackMdLink(
+  msg: DiscordMessage,
+  translator: Translator,
+  hackmd: HackMdClient,
+  state: State,
+): Promise<string | undefined> {
+  const cached = await state.getHackMdLink(msg.id);
+  if (cached) return cached;
+
+  const article = await extractAnthropicArticle(msg);
+  if (!article) return undefined;
+
+  const batches = chunkParagraphs(article.paragraphs, ARTICLE_CHUNK_CHARS);
+  const parts: string[] = [];
+  for (const batch of batches) {
+    parts.push(await translator.translateArticle(batch));
+  }
+
+  const content = buildHackMdContent(article, parts.join("\n\n"));
+  const { publishLink } = await hackmd.createNote(content);
+  await state.setHackMdLink(msg.id, publishLink);
+  return publishLink;
+}
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, _ctx: ExecutionContext): Promise<void> {
@@ -45,6 +79,7 @@ export default {
     if (messages.length === 0) return;
 
     const translator = createTranslator(env);
+    const hackmd = new HackMdClient(env.HACKMD_API_TOKEN);
 
     for (const msg of messages) {
       if (!shouldTranslate(msg)) {
@@ -73,7 +108,15 @@ export default {
         throw err;
       }
 
-      const outgoing = buildOutgoingMessage(msg, translated);
+      // HackMD 支線:附加功能,失敗只 log,不影響推文發送
+      let hackmdUrl: string | undefined;
+      try {
+        hackmdUrl = await resolveHackMdLink(msg, translator, hackmd, state);
+      } catch (err) {
+        console.error(`HackMD pipeline failed for ${msg.id}: ${(err as Error).message}`);
+      }
+
+      const outgoing = buildOutgoingMessage(msg, translated, hackmdUrl);
       try {
         await discord.postMessage(env.TARGET_CHANNEL_ID, outgoing);
       } catch (err) {
