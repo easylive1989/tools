@@ -1,0 +1,118 @@
+import { describe, expect, it, vi } from "vitest";
+import {
+  collectUrls,
+  isAnthropicHost,
+  extractArticleFromHtml,
+  extractAnthropicArticle,
+} from "../src/article";
+import type { DiscordMessage } from "../src/filter";
+
+function fakeResponse(opts: { ok?: boolean; url?: string; html?: string }) {
+  return {
+    ok: opts.ok ?? true,
+    status: opts.ok === false ? 500 : 200,
+    url: opts.url ?? "",
+    text: async () => opts.html ?? "",
+  } as unknown as Response;
+}
+
+const HTML = `
+  <html><head><title>Fallback Title</title></head>
+  <body><article>
+    <h1>Real Title</h1>
+    <p>First paragraph.</p>
+    <p>  Second &amp; paragraph.  </p>
+    <p></p>
+  </article></body></html>`;
+
+describe("collectUrls", () => {
+  it("從 content / description / embed.url 收集並去重", () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "see https://www.anthropic.com/news/x and https://t.co/abc",
+      embeds: [{ description: "https://www.anthropic.com/news/x", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const urls = collectUrls(msg);
+    expect(urls).toContain("https://www.anthropic.com/news/x");
+    expect(urls).toContain("https://t.co/abc");
+    expect(urls.filter((u) => u === "https://www.anthropic.com/news/x")).toHaveLength(1);
+  });
+});
+
+describe("isAnthropicHost", () => {
+  it("anthropic.com 與子網域為真,其他為假", () => {
+    expect(isAnthropicHost("https://www.anthropic.com/news/x")).toBe(true);
+    expect(isAnthropicHost("https://anthropic.com/x")).toBe(true);
+    expect(isAnthropicHost("https://youtube.com/x")).toBe(false);
+    expect(isAnthropicHost("not a url")).toBe(false);
+  });
+});
+
+describe("extractArticleFromHtml", () => {
+  it("抽出 h1 標題與非空段落,解碼 entity", () => {
+    const parsed = extractArticleFromHtml(HTML);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.title).toBe("Real Title");
+    expect(parsed!.paragraphs).toEqual(["First paragraph.", "Second & paragraph."]);
+  });
+
+  it("無段落時回 null", () => {
+    expect(extractArticleFromHtml("<html><h1>x</h1></html>")).toBeNull();
+  });
+});
+
+describe("extractAnthropicArticle", () => {
+  it("直連 anthropic.com → 抓 HTML 並回傳 Article", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://www.anthropic.com/news/x",
+      embeds: [{ description: "text", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const fetchImpl = vi.fn(async () => fakeResponse({ html: HTML }));
+    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(article).not.toBeNull();
+    expect(article!.url).toBe("https://www.anthropic.com/news/x");
+    expect(article!.title).toBe("Real Title");
+    expect(article!.paragraphs[0]).toBe("First paragraph.");
+  });
+
+  it("t.co 短網址轉址到 anthropic.com → 用最終網址", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://t.co/abc",
+      embeds: [{ description: "text", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const fetchImpl = vi.fn(async () =>
+      fakeResponse({ url: "https://www.anthropic.com/news/y", html: HTML }),
+    );
+    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(article).not.toBeNull();
+    expect(article!.url).toBe("https://www.anthropic.com/news/y");
+  });
+
+  it("沒有 anthropic.com 連結 → 回 null,不 fetch", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://youtube.com/watch?v=1",
+      embeds: [{ description: "text", url: "https://twitter.com/AnthropicAI/status/1" }],
+    };
+    const fetchImpl = vi.fn();
+    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(article).toBeNull();
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("fetch 失敗 → 回 null", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://www.anthropic.com/news/x",
+      embeds: [{ description: "text" }],
+    };
+    const fetchImpl = vi.fn(async () => fakeResponse({ ok: false }));
+    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+    expect(article).toBeNull();
+  });
+});
