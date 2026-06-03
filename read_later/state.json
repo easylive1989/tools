@@ -2,6 +2,24 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@whaleagent/post/DZHgJQZEbtD?xmt=AQG0HGhxv3-KkD6x9c92yW0HUxMz2KWFLpq-5vq6XVbPKq5sUqQ8-SVcSp9u5KR4-ofsXgN0&slof=1",
+      "message_id": "1511705586079895553",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1511705586079895553",
+      "shared_at": "2026-06-03T12:18:17.853000+00:00",
+      "title": "Threads",
+      "url": "https://www.threads.com/@whaleagent/post/DZHgJQZEbtD?xmt=AQG0HGhxv3-KkD6x9c92yW0HUxMz2KWFLpq-5vq6XVbPKq5sUqQ8-SVcSp9u5KR4-ofsXgN0&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@ajhsu0820/post/DZGyiJ3kw-j?xmt=AQG0Vq4tAdtDZ0PROBB3tMGQ8uYNlxWfQjC4jiwTZFlvkPLY7ku5bMfzVjmfR4ZKV7ZCdOjJ&slof=1",
+      "message_id": "1511698586013008004",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1511698586013008004",
+      "shared_at": "2026-06-03T11:50:28.907000+00:00",
+      "title": "Threads",
+      "url": "https://www.threads.com/@ajhsu0820/post/DZGyiJ3kw-j?xmt=AQG0Vq4tAdtDZ0PROBB3tMGQ8uYNlxWfQjC4jiwTZFlvkPLY7ku5bMfzVjmfR4ZKV7ZCdOjJ&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@pingkuei/post/DZDxy0NjE44?xmt=AQG0dg1X8KLjuGKKEmBPLu3CIALY3X2oBgk5gN7GConxWh59yMX7JBqCCgaoxMg9Y_JQm_bC&slof=1",
       "message_id": "1511179918002880623",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1511179918002880623",
@@ -96,7 +114,7 @@
       "message_id": "1509371397908987994",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1509371397908987994",
       "og_description": "Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins",
-      "og_image": "https://opengraph.githubassets.com/95a0e0cd11acec7b49065c01ff8f6a6dc06f56fdfe6967818dda1c3e4fd6f6dc/anthropics/knowledge-work-plugins",
+      "og_image": "https://opengraph.githubassets.com/5c971bcd6f8e7216b4e84ed3399601a9fb4f1dea2a764e05fafd0569afeee38d/anthropics/knowledge-work-plugins",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/anthropics/knowledge-work-plugins",
@@ -277,7 +295,7 @@
       "message_id": "1506607677403562005",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1506607677403562005",
       "og_description": "end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.",
-      "og_image": "https://opengraph.githubassets.com/644a951aacf9ad835b35182dbb3e2609d725804bb092cbc8e3a1e3af932c85f1/ParthJadhav/app-store-screenshots",
+      "og_image": "https://opengraph.githubassets.com/49e169d805c1a43635c9b2b9af5a9f59799e0b9517d982d39a9382a68301b0f8/ParthJadhav/app-store-screenshots",
       "og_site_name": "GitHub",
       "og_type": "object",
       "og_url": "https://github.com/ParthJadhav/app-store-screenshots",
@@ -801,7 +819,7 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1511179918002880623",
+  "last_message_id": "1511705586079895553",
   "seen_urls": [
     "https://github.com/ParthJadhav/app-store-screenshots",
     "https://github.com/anthropics/knowledge-work-plugins",
@@ -823,6 +841,7 @@
     "https://www.threads.com/@abyssinian98/post/DYCGru5gmP5?xmt=AQG0wOFdW7RVWwiKbU5PPDavct56V_UnWnR02M-WU0lSnz83YVztv55_x_gR3eMR1kWE2yE&slof=1",
     "https://www.threads.com/@ai.alter/post/DZCoB6IjtUr?xmt=AQG01D2PO6YNRRGuM5csgf67XYhOCnqrQsML6syVE_i4F9K7TtkJHJ8wP6X_D5Ou9nXpNgeO&slof=1",
     "https://www.threads.com/@aiposthub/post/DYj7XniCLWc?xmt=AQG0bQNk5KVrnm-Hw7Cfq3uFI3sR_e4oPpwkGyOZ3C8REGchknXNQYi7FT8NZDTdFaxA5TbO&slof=1",
+    "https://www.threads.com/@ajhsu0820/post/DZGyiJ3kw-j?xmt=AQG0Vq4tAdtDZ0PROBB3tMGQ8uYNlxWfQjC4jiwTZFlvkPLY7ku5bMfzVjmfR4ZKV7ZCdOjJ&slof=1",
     "https://www.threads.com/@akiraxtwo/post/DY7pwuvgo2H?xmt=AQG0rCYL3BWn7qGYuQGN5vQYCfDoWAfnvfueFg8iGi_EDCI7O99pVg1M8RLJxbucZS_tf3Y&slof=1",
     "https://www.threads.com/@alex_wang.dev/post/DYpI6zQkiG5?xmt=AQG0iddyVSrl5pkwjZ9YvsHCv4FhpZ_fqs3cqORZKyb1xPHTYvtllQQkTMEYmIpWWKfXtF8p&slof=1",
     "https://www.threads.com/@aoyamaa._/post/DYtX1dRkZWv?xmt=AQG06XJ-PrcjA7UqJKjKddito0DMpOOb_OZTXfe_a8yDR059RXAsMRPse9Q7zIzL6TxuIPiT&slof=1",
@@ -872,6 +891,7 @@
     "https://www.threads.com/@tripleh.ai/post/DYYWM9wEh5x?xmt=AQG0wtS_6oT1cGmAeiBj-0XWTxfdSu3zSjiakFzkKFD82rBIFWf9zryis8HeI-WMFrTTbe6v&slof=1",
     "https://www.threads.com/@wesleylavie/post/DYCWS0skr2I?xmt=AQG0_1LESFZJg_gYjkYXILENlq_hsW4LV2YGC7FrBv5qHANS_HHiFIlCEOawgGHl9Pyd8SBN&slof=1",
     "https://www.threads.com/@wesleylavie/post/DYZITLQElmu?xmt=AQG0AFdFlj4F-eY74izU4iJkDKzP5-G8LzdKVrNmqkgkt6DbW45F0PAEjBYF5McAGyIRdF4_&slof=1",
+    "https://www.threads.com/@whaleagent/post/DZHgJQZEbtD?xmt=AQG0HGhxv3-KkD6x9c92yW0HUxMz2KWFLpq-5vq6XVbPKq5sUqQ8-SVcSp9u5KR4-ofsXgN0&slof=1",
     "https://www.threads.com/@with._.kiri/post/DYo4Bupkpa9?xmt=AQG0eDeBRAhQKBy2FBprin7EvV87twuMmJbZUhh8sU6xKYBVn39SYtZuSlT7CujXfltAj_8A&slof=1",
     "https://www.threads.com/@yangme_0/post/DYYO_C8k26k?xmt=AQG02sheMTh59Ad-9OIJXWQ-vnjdyOa5HmAshkD1vgZoDhCAAiKgALZleDHnNCBcu55DGd4&slof=1",
     "https://www.threads.com/@yangyang.629/post/DYRqeY7k7qO?xmt=AQG0LzN9TsT-t-CAcaINoUyBQy8BQxAekhkWGY4K8RhiSP3o8XYX-b6WDAbYSRbkCJfPrWTO&slof=1",
