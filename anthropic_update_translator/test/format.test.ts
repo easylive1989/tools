@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { buildOutgoingMessage, buildHackMdContent } from "../src/format";
+import {
+  buildOutgoingMessage,
+  buildHackMdContent,
+  buildHackMdErrorMessage,
+} from "../src/format";
 import type { DiscordMessage } from "../src/filter";
 import type { Article } from "../src/article";
 
@@ -106,6 +110,58 @@ describe("buildHackMdContent", () => {
     expect(out).toContain("> 原文:https://www.anthropic.com/news/x");
     expect(out).toContain("翻好的內文");
     expect(out.indexOf("# New Model")).toBeLessThan(out.indexOf("翻好的內文"));
+  });
+});
+
+describe("buildHackMdErrorMessage", () => {
+  const source: DiscordMessage = {
+    id: "1",
+    content: "https://twitter.com/AnthropicAI/status/1",
+    embeds: [
+      {
+        author: { name: "Anthropic (@AnthropicAI)" },
+        description: "hi",
+        url: "https://twitter.com/AnthropicAI/status/1",
+      },
+    ],
+  };
+
+  it("no-link:含 ⚠️ 標頭、推文連結與對應原因說明,embeds 為空", () => {
+    const out = buildHackMdErrorMessage(source, "no-link");
+    expect(out.content).toContain("⚠️");
+    expect(out.content).toContain("全文翻譯未產生 HackMD 連結");
+    expect(out.content).toContain("https://twitter.com/AnthropicAI/status/1");
+    expect(out.content).toContain("anthropic.com 文章連結");
+    expect(out.embeds).toEqual([]);
+  });
+
+  it("各 reason 對應不同中文說明", () => {
+    expect(buildHackMdErrorMessage(source, "fetch-failed").content).toContain("抓取失敗");
+    expect(buildHackMdErrorMessage(source, "no-content").content).toContain("內文段落");
+    expect(buildHackMdErrorMessage(source, "translate-failed").content).toContain("翻譯失敗");
+    expect(buildHackMdErrorMessage(source, "hackmd-failed").content).toContain("HackMD");
+  });
+
+  it("有 detail 時附在訊息中", () => {
+    const out = buildHackMdErrorMessage(source, "hackmd-failed", "500 boom");
+    expect(out.content).toContain("500 boom");
+  });
+
+  it("detail 過長時截斷到 500 字", () => {
+    const long = "x".repeat(900);
+    const out = buildHackMdErrorMessage(source, "hackmd-failed", long);
+    expect(out.content).toContain("x".repeat(500));
+    expect(out.content).not.toContain("x".repeat(501));
+  });
+
+  it("從 content 擷取推文連結(embed.url 缺失時)", () => {
+    const noUrl: DiscordMessage = {
+      id: "2",
+      content: "see https://x.com/AnthropicAI/status/456 here",
+      embeds: [{ author: { name: "Anthropic (@AnthropicAI)" }, description: "hi" }],
+    };
+    const out = buildHackMdErrorMessage(noUrl, "no-link");
+    expect(out.content).toContain("https://x.com/AnthropicAI/status/456");
   });
 });
 

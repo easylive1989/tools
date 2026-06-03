@@ -62,19 +62,20 @@ describe("extractArticleFromHtml", () => {
 });
 
 describe("extractAnthropicArticle", () => {
-  it("直連 anthropic.com → 抓 HTML 並回傳 Article", async () => {
+  it("直連 anthropic.com → 抓 HTML 並回傳 { ok: true, article }", async () => {
     const msg: DiscordMessage = {
       id: "1",
       content: "https://www.anthropic.com/news/x",
       embeds: [{ description: "text", url: "https://twitter.com/AnthropicAI/status/1" }],
     };
     const fetchImpl = vi.fn(async () => fakeResponse({ html: HTML }));
-    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
 
-    expect(article).not.toBeNull();
-    expect(article!.url).toBe("https://www.anthropic.com/news/x");
-    expect(article!.title).toBe("Real Title");
-    expect(article!.paragraphs[0]).toBe("First paragraph.");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.article.url).toBe("https://www.anthropic.com/news/x");
+    expect(result.article.title).toBe("Real Title");
+    expect(result.article.paragraphs[0]).toBe("First paragraph.");
   });
 
   it("t.co 短網址轉址到 anthropic.com → 用最終網址", async () => {
@@ -86,33 +87,104 @@ describe("extractAnthropicArticle", () => {
     const fetchImpl = vi.fn(async () =>
       fakeResponse({ url: "https://www.anthropic.com/news/y", html: HTML }),
     );
-    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
 
-    expect(article).not.toBeNull();
-    expect(article!.url).toBe("https://www.anthropic.com/news/y");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.article.url).toBe("https://www.anthropic.com/news/y");
   });
 
-  it("沒有 anthropic.com 連結 → 回 null,不 fetch", async () => {
+  it("沒有 anthropic.com 連結 → { ok: false, reason: 'no-link' },不 fetch", async () => {
     const msg: DiscordMessage = {
       id: "1",
       content: "https://youtube.com/watch?v=1",
       embeds: [{ description: "text", url: "https://twitter.com/AnthropicAI/status/1" }],
     };
     const fetchImpl = vi.fn();
-    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
 
-    expect(article).toBeNull();
+    expect(result).toEqual({ ok: false, reason: "no-link" });
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("fetch 失敗 → 回 null", async () => {
+  it("fetch 非 200 → { ok: false, reason: 'fetch-failed' }", async () => {
     const msg: DiscordMessage = {
       id: "1",
       content: "https://www.anthropic.com/news/x",
       embeds: [{ description: "text" }],
     };
     const fetchImpl = vi.fn(async () => fakeResponse({ ok: false }));
-    const article = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
-    expect(article).toBeNull();
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.reason).toBe("fetch-failed");
+    expect(result.url).toBe("https://www.anthropic.com/news/x");
+  });
+
+  it("fetch 拋例外 → { ok: false, reason: 'fetch-failed' }", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://www.anthropic.com/news/x",
+      embeds: [{ description: "text" }],
+    };
+    const fetchImpl = vi.fn(async () => {
+      throw new Error("network down");
+    });
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.reason).toBe("fetch-failed");
+  });
+
+  it("短網址轉址到非 anthropic.com → { ok: false, reason: 'fetch-failed' }", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://t.co/abc",
+      embeds: [{ description: "text" }],
+    };
+    const fetchImpl = vi.fn(async () =>
+      fakeResponse({ url: "https://youtube.com/watch?v=1", html: HTML }),
+    );
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.reason).toBe("fetch-failed");
+  });
+
+  it("抓到 anthropic 頁面但無內文段落 → { ok: false, reason: 'no-content' }", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://www.anthropic.com/news/x",
+      embeds: [{ description: "text" }],
+    };
+    const fetchImpl = vi.fn(async () =>
+      fakeResponse({ html: "<html><h1>標題但無段落</h1></html>" }),
+    );
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.reason).toBe("no-content");
+    expect(result.url).toBe("https://www.anthropic.com/news/x");
+  });
+
+  it("有多個連結,no-content 優先於 fetch-failed 回報", async () => {
+    const msg: DiscordMessage = {
+      id: "1",
+      content: "https://www.anthropic.com/news/broken https://www.anthropic.com/news/empty",
+      embeds: [{ description: "text" }],
+    };
+    const fetchImpl = vi.fn(async (url: string) => {
+      if (url.includes("/broken")) return fakeResponse({ ok: false });
+      return fakeResponse({ html: "<html><h1>no p</h1></html>" });
+    });
+    const result = await extractAnthropicArticle(msg, fetchImpl as unknown as typeof fetch);
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.reason).toBe("no-content");
   });
 });

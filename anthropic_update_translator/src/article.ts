@@ -6,6 +6,12 @@ export interface Article {
   paragraphs: string[];
 }
 
+export type ArticleFailure = "no-link" | "fetch-failed" | "no-content";
+
+export type ArticleExtraction =
+  | { ok: true; article: Article }
+  | { ok: false; reason: ArticleFailure; url?: string };
+
 const URL_REGEX = /https?:\/\/[^\s)"'<>]+/g;
 const SHORT_LINK_HOSTS = new Set(["t.co", "bit.ly", "buff.ly", "ow.ly"]);
 
@@ -66,35 +72,65 @@ export function extractArticleFromHtml(html: string): { title: string; paragraph
   return { title, paragraphs };
 }
 
+// 失敗原因優先序:抓到頁面卻無內文(no-content)比抓取失敗(fetch-failed)更有資訊。
+const FAILURE_RANK: Record<Exclude<ArticleFailure, "no-link">, number> = {
+  "fetch-failed": 1,
+  "no-content": 2,
+};
+
 export async function extractAnthropicArticle(
   msg: DiscordMessage,
   fetchImpl: typeof fetch = fetch,
-): Promise<Article | null> {
-  for (const url of collectUrls(msg)) {
-    if (!isAnthropicHost(url) && !isShortLink(url)) continue;
+): Promise<ArticleExtraction> {
+  const candidates = collectUrls(msg).filter((u) => isAnthropicHost(u) || isShortLink(u));
+  if (candidates.length === 0) return { ok: false, reason: "no-link" };
 
+  let failure: { reason: Exclude<ArticleFailure, "no-link">; url: string } | null = null;
+  const recordFailure = (reason: Exclude<ArticleFailure, "no-link">, url: string) => {
+    if (!failure || FAILURE_RANK[reason] > FAILURE_RANK[failure.reason]) {
+      failure = { reason, url };
+    }
+  };
+
+  for (const url of candidates) {
     let resp: Response;
     try {
       resp = await fetchImpl(url, { redirect: "follow" });
     } catch {
+      recordFailure("fetch-failed", url);
       continue;
     }
-    if (!resp.ok) continue;
+    if (!resp.ok) {
+      recordFailure("fetch-failed", url);
+      continue;
+    }
 
     const finalUrl = resp.url || url;
-    if (!isAnthropicHost(finalUrl)) continue;
+    if (!isAnthropicHost(finalUrl)) {
+      recordFailure("fetch-failed", url);
+      continue;
+    }
 
     let html: string;
     try {
       html = await resp.text();
     } catch {
+      recordFailure("fetch-failed", finalUrl);
       continue;
     }
 
     const parsed = extractArticleFromHtml(html);
-    if (!parsed) continue;
+    if (!parsed) {
+      recordFailure("no-content", finalUrl);
+      continue;
+    }
 
-    return { url: finalUrl, title: parsed.title, paragraphs: parsed.paragraphs };
+    return {
+      ok: true,
+      article: { url: finalUrl, title: parsed.title, paragraphs: parsed.paragraphs },
+    };
   }
-  return null;
+
+  // candidates 非空,迴圈未成功 → failure 必為非 null
+  return { ok: false, reason: failure!.reason, url: failure!.url };
 }

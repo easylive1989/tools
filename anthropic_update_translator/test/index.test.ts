@@ -349,6 +349,174 @@ describe("scheduled handler", () => {
     expect(await kv.get("last_message_id")).toBe("101");
   });
 
+  it("文章抓取失敗:補發一則錯誤通知說明原因(fetch-failed)", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/broken",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/broken",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/broken": () => new Response("err", { status: 500 }),
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    const tgtPosts = posts.filter((p) => p.url.includes("/channels/TGT/messages"));
+    expect(tgtPosts).toHaveLength(2); // 翻譯推文 + 錯誤通知
+    const errPost = tgtPosts.find((p) => p.body.includes("全文翻譯未產生 HackMD 連結"))!;
+    expect(errPost).toBeDefined();
+    expect(JSON.parse(errPost.body).content).toContain("抓取失敗");
+    expect(await kv.get("last_message_id")).toBe("101");
+  });
+
+  it("純文字推文(無 anthropic 連結):補發 no-link 通知", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://twitter.com/AnthropicAI/status/101",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "just text, no article link",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    const errPost = posts.find(
+      (p) => p.url.includes("/channels/TGT/messages") && p.body.includes("全文翻譯未產生 HackMD 連結"),
+    )!;
+    expect(errPost).toBeDefined();
+    expect(JSON.parse(errPost.body).content).toContain("anthropic.com 文章連結");
+  });
+
+  it("HackMD 建立失敗:補發 hackmd-failed 通知含細節", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/z",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/z",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/z": () =>
+            new Response("<article><h1>Z</h1><p>Body.</p></article>", { status: 200 }),
+          "api.hackmd.io/v1/notes": () => new Response("boom", { status: 500 }),
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    const errPost = posts.find(
+      (p) => p.url.includes("/channels/TGT/messages") && p.body.includes("全文翻譯未產生 HackMD 連結"),
+    )!;
+    expect(errPost).toBeDefined();
+    expect(JSON.parse(errPost.body).content).toContain("建立 HackMD 筆記失敗");
+  });
+
+  it("成功建立 HackMD:不補發錯誤通知", async () => {
+    const kv = new MemoryKV();
+    await kv.put("last_message_id", "100");
+
+    const posts: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      routedFetch(
+        {
+          "/messages?after=100": () =>
+            new Response(
+              JSON.stringify([
+                {
+                  id: "101",
+                  content: "https://www.anthropic.com/news/ok",
+                  embeds: [
+                    {
+                      author: { name: "Anthropic (@AnthropicAI)" },
+                      description: "text https://www.anthropic.com/news/ok",
+                      url: "https://twitter.com/AnthropicAI/status/101",
+                    },
+                  ],
+                },
+              ]),
+            ),
+          "anthropic.com/news/ok": () =>
+            new Response("<article><h1>ok</h1><p>body</p></article>", { status: 200 }),
+          "api.hackmd.io/v1/notes": () =>
+            new Response(JSON.stringify({ publishLink: "https://hackmd.io/@x/ok" }), { status: 201 }),
+          "/channels/TGT/messages": () => new Response("{}", { status: 200 }),
+        },
+        (url, body) => posts.push({ url, body }),
+      ),
+    );
+
+    await worker.scheduled(event, makeEnv(kv, { TRANSLATOR: "workersai" }), ctx);
+
+    const errPost = posts.find(
+      (p) => p.url.includes("/channels/TGT/messages") && p.body.includes("全文翻譯未產生 HackMD 連結"),
+    );
+    expect(errPost).toBeUndefined();
+  });
+
   it("KV 已有 hackmd 連結:不重建 note,直接附用既有連結", async () => {
     const kv = new MemoryKV();
     await kv.put("last_message_id", "100");

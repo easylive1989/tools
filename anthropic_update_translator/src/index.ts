@@ -1,6 +1,11 @@
 import { DiscordClient, RateLimitError } from "./discord";
 import { shouldTranslate } from "./filter";
-import { buildHackMdContent, buildOutgoingMessage } from "./format";
+import {
+  buildHackMdContent,
+  buildHackMdErrorMessage,
+  buildOutgoingMessage,
+  type HackMdFailureReason,
+} from "./format";
 import { State } from "./state";
 import { createTranslator, type Translator } from "./translator";
 import { TranslationError } from "./translator/types";
@@ -15,32 +20,54 @@ const MAX_RETRIES = 4;
 const ARTICLE_CHUNK_CHARS = 3000; // 每批譯文原文上限,控制在 Workers AI 單次 prompt 預算內
 
 /**
- * 嘗試把推文連到的 anthropic.com 文章翻成繁中、寫進 HackMD,回傳 note 連結。
- * 已建過(KV 有快取)就直接回快取連結;沒有 anthropic.com 連結就回 undefined。
- * 任一步驟失敗會往上丟,由呼叫端 try/catch 吞掉(HackMD 為附加功能)。
+ * HackMD 支線的結果:
+ * - ok / cached → 成功取得 note 連結(cached 為 KV 既有)
+ * - skipped → 沒抓到文章(原因見 reason),屬可預期情況
+ * - failed → 翻譯或建立 note 失敗(detail 帶錯誤訊息)
+ */
+type HackMdOutcome =
+  | { kind: "ok"; link: string }
+  | { kind: "cached"; link: string }
+  | { kind: "skipped"; reason: HackMdFailureReason }
+  | { kind: "failed"; reason: HackMdFailureReason; detail: string };
+
+/**
+ * 嘗試把推文連到的 anthropic.com 文章翻成繁中、寫進 HackMD。
+ * 已建過(KV 有快取)直接回快取連結;否則回報是哪一類情況/失敗。
+ * 本函式不 throw(翻譯與 HackMD 的錯誤都轉成 outcome)。
  */
 async function resolveHackMdLink(
   msg: DiscordMessage,
   translator: Translator,
   hackmd: HackMdClient,
   state: State,
-): Promise<string | undefined> {
+): Promise<HackMdOutcome> {
   const cached = await state.getHackMdLink(msg.id);
-  if (cached) return cached;
+  if (cached) return { kind: "cached", link: cached };
 
-  const article = await extractAnthropicArticle(msg);
-  if (!article) return undefined;
+  const extraction = await extractAnthropicArticle(msg);
+  if (!extraction.ok) return { kind: "skipped", reason: extraction.reason };
+  const article = extraction.article;
 
   const batches = chunkParagraphs(article.paragraphs, ARTICLE_CHUNK_CHARS);
   const parts: string[] = [];
   for (const batch of batches) {
-    parts.push(await translator.translateArticle(batch));
+    try {
+      parts.push(await translator.translateArticle(batch));
+    } catch (err) {
+      return { kind: "failed", reason: "translate-failed", detail: (err as Error).message };
+    }
   }
 
   const content = buildHackMdContent(article, parts.join("\n\n"));
-  const { publishLink } = await hackmd.createNote(content);
+  let publishLink: string;
+  try {
+    ({ publishLink } = await hackmd.createNote(content));
+  } catch (err) {
+    return { kind: "failed", reason: "hackmd-failed", detail: (err as Error).message };
+  }
   await state.setHackMdLink(msg.id, publishLink);
-  return publishLink;
+  return { kind: "ok", link: publishLink };
 }
 
 export default {
@@ -109,12 +136,15 @@ export default {
       }
 
       // HackMD 支線:附加功能,失敗只 log,不影響推文發送
-      let hackmdUrl: string | undefined;
+      let outcome: HackMdOutcome;
       try {
-        hackmdUrl = await resolveHackMdLink(msg, translator, hackmd, state);
+        outcome = await resolveHackMdLink(msg, translator, hackmd, state);
       } catch (err) {
-        console.error(`HackMD pipeline failed for ${msg.id}: ${(err as Error).message}`);
+        // 多半是 KV 例外等非預期錯誤,當成 failed 處理
+        outcome = { kind: "failed", reason: "hackmd-failed", detail: (err as Error).message };
       }
+      const hackmdUrl =
+        outcome.kind === "ok" || outcome.kind === "cached" ? outcome.link : undefined;
 
       const outgoing = buildOutgoingMessage(msg, translated, hackmdUrl);
       try {
@@ -122,6 +152,20 @@ export default {
       } catch (err) {
         console.error(`postMessage failed for ${msg.id}: ${(err as Error).message}`);
         return; // 不推進,下次重做(可能重發)
+      }
+
+      // 沒產生 HackMD 連結 → 補發一則錯誤通知說明原因(發送失敗只 log,不影響推進)
+      if (!hackmdUrl && outcome.kind !== "ok" && outcome.kind !== "cached") {
+        const detail = outcome.kind === "failed" ? outcome.detail : undefined;
+        console.error(`HackMD pipeline ${outcome.reason} for ${msg.id}${detail ? `: ${detail}` : ""}`);
+        try {
+          await discord.postMessage(
+            env.TARGET_CHANNEL_ID,
+            buildHackMdErrorMessage(msg, outcome.reason, detail),
+          );
+        } catch (err) {
+          console.error(`HackMd error notice failed for ${msg.id}: ${(err as Error).message}`);
+        }
       }
 
       await state.setLastMessageId(msg.id);
