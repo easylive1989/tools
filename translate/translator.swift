@@ -92,7 +92,7 @@ private func stripANSI(_ s: String) -> String {
 
 private let vocabularyFilePath: String = {
     let home = FileManager.default.homeDirectoryForCurrentUser.path
-    return "\(home)/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/vocabulary.md"
+    return "\(home)/Library/Mobile Documents/com~apple~CloudDocs/vocabulary.md"
 }()
 
 // MARK: - Data Model
