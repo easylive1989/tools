@@ -6,7 +6,7 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Sun, 07 Jun 2026 20:23:42 +0000</lastBuildDate>
+<lastBuildDate>Sun, 07 Jun 2026 22:20:15 +0000</lastBuildDate>
 <item>
 <title>Threads</title>
 <link>https://www.threads.com/@wnf.lifestyle/post/DZSHnllE2RR?xmt=AQG0WMiyNnYhe84m4NeNDCBru_LFJlN6KHeUcH9GtnJSA-M04ywI-4Ch95u2XqGt4rEmVQs&amp;slof=1</link>
@@ -180,7 +180,7 @@
 <link>https://github.com/anthropics/knowledge-work-plugins</link>
 <guid isPermaLink="true">https://github.com/anthropics/knowledge-work-plugins</guid>
 <pubDate>Thu, 28 May 2026 01:43:04 +0000</pubDate>
-<description><![CDATA[<p><img src="https://opengraph.githubassets.com/4426a0a6550ef5cd9210c96166af63c8362d94a8f759b0f813e7b08692100971/anthropics/knowledge-work-plugins" alt="" /></p><p><em>GitHub</em></p><p>Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins</p><p>https://github.com/anthropics/knowledge-work-plugins</p>]]></description>
+<description><![CDATA[<p><img src="https://opengraph.githubassets.com/d031dbd742934b1dc0e995c74f4f1ce6c501e5202f0386855805c0e50e0705ff/anthropics/knowledge-work-plugins" alt="" /></p><p><em>GitHub</em></p><p>Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins</p><p>https://github.com/anthropics/knowledge-work-plugins</p>]]></description>
 </item>
 <item>
 <title>- YouTube</title>
@@ -292,7 +292,7 @@
 <link>https://github.com/vladikk/modularity</link>
 <guid isPermaLink="true">https://github.com/vladikk/modularity</guid>
 <pubDate>Thu, 21 May 2026 07:48:51 +0000</pubDate>
-<description><![CDATA[<p><img src="https://opengraph.githubassets.com/9dd0cdf96c841a8dd69133049e5f24ded3ceb0ddf72998c7a7c9244f0871ed0e/vladikk/modularity" alt="" /></p><p><em>GitHub</em></p><p>Claude Code plugin for designing modular systems from functional requirements and reviewing existing codebases for modularity problems with actionable improvement recommendations. Based on the Bala...</p><p>https://github.com/vladikk/modularity</p>]]></description>
+<description><![CDATA[<p><img src="https://opengraph.githubassets.com/0cb817826cc9394b90736b3bce2d113836b57e666724d2ea82a63621ab8f4d5e/vladikk/modularity" alt="" /></p><p><em>GitHub</em></p><p>Claude Code plugin for designing modular systems from functional requirements and reviewing existing codebases for modularity problems with actionable improvement recommendations. Based on the Bala...</p><p>https://github.com/vladikk/modularity</p>]]></description>
 </item>
 <item>
 <title>Threads</title>
