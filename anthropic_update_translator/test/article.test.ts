@@ -59,6 +59,50 @@ describe("extractArticleFromHtml", () => {
   it("無段落時回 null", () => {
     expect(extractArticleFromHtml("<html><h1>x</h1></html>")).toBeNull();
   });
+
+  it("過濾掉 nav / header / footer 裡的選單文字,只留內文段落", () => {
+    const html = `
+      <html><body>
+        <header><p>Research</p><p>Economic Futures</p></header>
+        <nav><p>Learn</p><p>News</p><p>Try Claude</p><p>Science</p></nav>
+        <main>
+          <article>
+            <h1>Paving the way for agents in biology</h1>
+            <p>Actual first paragraph of the article.</p>
+            <p>Actual second paragraph.</p>
+          </article>
+        </main>
+        <footer><p>Commitments</p></footer>
+      </body></html>`;
+    const parsed = extractArticleFromHtml(html);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.title).toBe("Paving the way for agents in biology");
+    expect(parsed!.paragraphs).toEqual([
+      "Actual first paragraph of the article.",
+      "Actual second paragraph.",
+    ]);
+  });
+
+  it("沒有 article 標籤時退回 main 範圍", () => {
+    const html = `
+      <html><body>
+        <nav><p>Try Claude</p></nav>
+        <main><p>Body paragraph.</p></main>
+      </body></html>`;
+    const parsed = extractArticleFromHtml(html);
+    expect(parsed!.paragraphs).toEqual(["Body paragraph."]);
+  });
+
+  it("沒有 article / main 時退回整頁,但仍排除 nav/header/footer", () => {
+    const html = `
+      <html><body>
+        <header><p>Research</p></header>
+        <p>Loose body paragraph.</p>
+        <footer><p>News</p></footer>
+      </body></html>`;
+    const parsed = extractArticleFromHtml(html);
+    expect(parsed!.paragraphs).toEqual(["Loose body paragraph."]);
+  });
 });
 
 describe("extractAnthropicArticle", () => {
