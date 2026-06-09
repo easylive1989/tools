@@ -58,13 +58,40 @@ function clean(html: string): string {
   return decodeEntities(stripTags(html)).replace(/\s+/g, " ").trim();
 }
 
+// 非內文區塊:導覽列、頁首頁尾、側欄、script/style。這些區塊裡的 <p>
+// (例如 anthropic.com 頂部選單的 Research / News / Try Claude 等)
+// 不該被當成文章段落送去翻譯。
+const NOISE_TAGS = ["script", "style", "nav", "header", "footer", "aside"];
+
+function stripNoiseBlocks(html: string): string {
+  let out = html;
+  for (const tag of NOISE_TAGS) {
+    out = out.replace(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?</${tag}>`, "gi"), " ");
+  }
+  return out;
+}
+
+// 將內文範圍縮到 <article>(優先)或 <main>,排除版面其他區塊;
+// 找不到語意標籤時退回整份 HTML。
+function scopeToMainContent(html: string): string {
+  const article = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+  if (article?.[1]) return article[1];
+  const main = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+  if (main?.[1]) return main[1];
+  return html;
+}
+
 export function extractArticleFromHtml(html: string): { title: string; paragraphs: string[] } | null {
-  const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  const cleaned = stripNoiseBlocks(html);
+
+  const h1 = cleaned.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   const title = clean(h1?.[1] ?? titleTag?.[1] ?? "") || "Anthropic";
 
+  const scope = scopeToMainContent(cleaned);
+
   const paragraphs: string[] = [];
-  for (const m of html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+  for (const m of scope.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
     const text = clean(m[1] ?? "");
     if (text !== "") paragraphs.push(text);
   }
