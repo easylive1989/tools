@@ -6,7 +6,28 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Thu, 11 Jun 2026 00:27:21 +0000</lastBuildDate>
+<lastBuildDate>Thu, 11 Jun 2026 03:01:27 +0000</lastBuildDate>
+<item>
+<title>Threads</title>
+<link>https://www.threads.com/@__yasac/post/DZaqX04E3Tg?xmt=AQG0_4jbZwCKyCBi7JXtJ21rqveTMWsq0ITLj19raHDzBcWFjPL6ODqzyK794mnXCDb3UVGO&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@__yasac/post/DZaqX04E3Tg?xmt=AQG0_4jbZwCKyCBi7JXtJ21rqveTMWsq0ITLj19raHDzBcWFjPL6ODqzyK794mnXCDb3UVGO&amp;slof=1</guid>
+<pubDate>Thu, 11 Jun 2026 01:38:02 +0000</pubDate>
+<description><![CDATA[<p>https://www.threads.com/@__yasac/post/DZaqX04E3Tg?xmt=AQG0_4jbZwCKyCBi7JXtJ21rqveTMWsq0ITLj19raHDzBcWFjPL6ODqzyK794mnXCDb3UVGO&amp;slof=1</p>]]></description>
+</item>
+<item>
+<title>Threads</title>
+<link>https://www.threads.com/@sebastianmorino/post/DZaU1XmDfEY?xmt=AQG0qKHdDr0Ys41jhA8qUpRNIRygbxv7RkIgLK6Vn_BHL2yPxhAFfTLmUfTb17rq4r864zRe&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@sebastianmorino/post/DZaU1XmDfEY?xmt=AQG0qKHdDr0Ys41jhA8qUpRNIRygbxv7RkIgLK6Vn_BHL2yPxhAFfTLmUfTb17rq4r864zRe&amp;slof=1</guid>
+<pubDate>Thu, 11 Jun 2026 01:33:00 +0000</pubDate>
+<description><![CDATA[<p>https://www.threads.com/@sebastianmorino/post/DZaU1XmDfEY?xmt=AQG0qKHdDr0Ys41jhA8qUpRNIRygbxv7RkIgLK6Vn_BHL2yPxhAFfTLmUfTb17rq4r864zRe&amp;slof=1</p>]]></description>
+</item>
+<item>
+<title>Threads</title>
+<link>https://www.threads.com/@fiafia.ai/post/DZZJd85koHd?xmt=AQG0ZXXVkuW5HP2jMXC21bi9SWKmEHzXwpmIU-VhGGXrGjKTX5fq5RULVWT6-7F4EGgCdg0c&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@fiafia.ai/post/DZZJd85koHd?xmt=AQG0ZXXVkuW5HP2jMXC21bi9SWKmEHzXwpmIU-VhGGXrGjKTX5fq5RULVWT6-7F4EGgCdg0c&amp;slof=1</guid>
+<pubDate>Thu, 11 Jun 2026 01:03:32 +0000</pubDate>
+<description><![CDATA[<p>https://www.threads.com/@fiafia.ai/post/DZZJd85koHd?xmt=AQG0ZXXVkuW5HP2jMXC21bi9SWKmEHzXwpmIU-VhGGXrGjKTX5fq5RULVWT6-7F4EGgCdg0c&amp;slof=1</p>]]></description>
+</item>
 <item>
 <title>Threads</title>
 <link>https://www.threads.com/@raycast_taiwan/post/DZZu6yGgHcG?xmt=AQG0TKxrGdp3gyRf5ejoNlSjmBHui1mmEwD3_W2sCqZ1roVf9Pk14LDf7lpBXnwuiLbjbFdh&amp;slof=1</link>
@@ -240,7 +261,7 @@
 <link>https://github.com/anthropics/knowledge-work-plugins</link>
 <guid isPermaLink="true">https://github.com/anthropics/knowledge-work-plugins</guid>
 <pubDate>Thu, 28 May 2026 01:43:04 +0000</pubDate>
-<description><![CDATA[<p><img src="https://opengraph.githubassets.com/e69f616d2c23d5003ec43240681dcacede267051b3299cd6ce094ca4d668bad5/anthropics/knowledge-work-plugins" alt="" /></p><p><em>GitHub</em></p><p>Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins</p><p>https://github.com/anthropics/knowledge-work-plugins</p>]]></description>
+<description><![CDATA[<p><img src="https://opengraph.githubassets.com/3b031f493781671f4cb0c5970c9601af2e76243958abe486a958119895cdad67/anthropics/knowledge-work-plugins" alt="" /></p><p><em>GitHub</em></p><p>Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork - anthropics/knowledge-work-plugins</p><p>https://github.com/anthropics/knowledge-work-plugins</p>]]></description>
 </item>
 <item>
 <title>- YouTube</title>
@@ -352,7 +373,7 @@
 <link>https://github.com/vladikk/modularity</link>
 <guid isPermaLink="true">https://github.com/vladikk/modularity</guid>
 <pubDate>Thu, 21 May 2026 07:48:51 +0000</pubDate>
-<description><![CDATA[<p><img src="https://opengraph.githubassets.com/677893b1f7fdd8b1b76d3263d6c36bc543d0257be803c5b78c5e585c5e199336/vladikk/modularity" alt="" /></p><p><em>GitHub</em></p><p>Claude Code plugin for designing modular systems from functional requirements and reviewing existing codebases for modularity problems with actionable improvement recommendations. Based on the Bala...</p><p>https://github.com/vladikk/modularity</p>]]></description>
+<description><![CDATA[<p><img src="https://opengraph.githubassets.com/229696b49ee83dae1781d06f37f12fa00734bcaad3a45a28a0a909474ab2ef43/vladikk/modularity" alt="" /></p><p><em>GitHub</em></p><p>Claude Code plugin for designing modular systems from functional requirements and reviewing existing codebases for modularity problems with actionable improvement recommendations. Based on the Bala...</p><p>https://github.com/vladikk/modularity</p>]]></description>
 </item>
 <item>
 <title>Threads</title>
@@ -373,7 +394,7 @@
 <link>https://github.com/ParthJadhav/app-store-screenshots</link>
 <guid isPermaLink="true">https://github.com/ParthJadhav/app-store-screenshots</guid>
 <pubDate>Wed, 20 May 2026 10:41:01 +0000</pubDate>
-<description><![CDATA[<p><img src="https://opengraph.githubassets.com/0550e1bcb367cbf885f68d831665d7cd08321ba0d15aa6e8b2e1c01844c15ac2/ParthJadhav/app-store-screenshots" alt="" /></p><p><em>GitHub</em></p><p>end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.</p><p>https://github.com/ParthJadhav/app-store-screenshots</p>]]></description>
+<description><![CDATA[<p><img src="https://opengraph.githubassets.com/760c2b681926c0905bc8ef70e7218a2de707729ba39e86dcdae1b8373d2246eb/ParthJadhav/app-store-screenshots" alt="" /></p><p><em>GitHub</em></p><p>end to end app store screenshot creation using AI. Contribute to ParthJadhav/app-store-screenshots development by creating an account on GitHub.</p><p>https://github.com/ParthJadhav/app-store-screenshots</p>]]></description>
 </item>
 <item>
 <title>Threads</title>
