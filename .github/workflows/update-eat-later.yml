@@ -1,0 +1,47 @@
+name: Update Eat Later
+
+on:
+  schedule:
+    # 每兩小時執行一次
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-eat-later
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r eat_later/requirements.txt
+
+      - name: Run eat-later sync
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          EAT_LATER_CHANNEL_ID: ${{ secrets.EAT_LATER_CHANNEL_ID }}
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: python eat_later/eat_later.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- eat_later/state.json; then
+            echo "No changes."
+            exit 0
+          fi
+          git add eat_later/state.json
+          git commit -m "chore(eat_later): update state"
+          git push
