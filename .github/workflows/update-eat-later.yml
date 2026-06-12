@@ -29,7 +29,6 @@ jobs:
       - name: Run eat-later sync
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          EAT_LATER_CHANNEL_ID: ${{ secrets.EAT_LATER_CHANNEL_ID }}
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: python eat_later/eat_later.py

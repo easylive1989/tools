@@ -36,7 +36,7 @@ Active workflows (triggered on schedule + `workflow_dispatch`):
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
-Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_READ_LATER_CHANNEL_ID`, `EAT_LATER_CHANNEL_ID`, `GEMINI_API_KEY`, `HACK_MD_API_KEY`.
+Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_READ_LATER_CHANNEL_ID`, `GEMINI_API_KEY`, `HACK_MD_API_KEY`.
 
 ## Environment Variables
 
@@ -44,7 +44,7 @@ Scripts read secrets directly from environment (no `.env` loading at root level)
 
 | Variable | Used by |
 |---|---|
-| `DISCORD_BOT_TOKEN`, `EAT_LATER_CHANNEL_ID`, `NOTION_SECRET`, `GOOGLE_API_KEY` | `eat_later/eat_later.py` |
+| `DISCORD_BOT_TOKEN`, `NOTION_SECRET`, `GOOGLE_API_KEY` | `eat_later/eat_later.py` (channel id is hard-coded) |
 
 ## Secrets and Sensitive Data
 

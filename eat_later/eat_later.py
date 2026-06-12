@@ -9,7 +9,6 @@ write it to Notion, and react ✅ (full) / 🔖 (partial) / ❌ (error).
 
 Required env vars:
     DISCORD_BOT_TOKEN
-    EAT_LATER_CHANNEL_ID
     NOTION_SECRET
     GOOGLE_API_KEY        used by common.gemini for the extraction step
 """
@@ -45,6 +44,7 @@ BASE_DIR = Path(__file__).resolve().parent
 STATE_PATH = BASE_DIR / "state.json"
 
 DISCORD_API = "https://discord.com/api/v10"
+CHANNEL_ID = "1498113717286600847"
 
 REACTION_OK = "✅"
 REACTION_PARTIAL = "🔖"
@@ -152,11 +152,11 @@ def is_bot_message(msg: dict) -> bool:
 
 def main() -> int:
     token = os.environ.get("DISCORD_BOT_TOKEN")
-    channel_id = os.environ.get("EAT_LATER_CHANNEL_ID")
     notion_secret = os.environ.get("NOTION_SECRET")
-    if not token or not channel_id or not notion_secret:
-        log.error("DISCORD_BOT_TOKEN, EAT_LATER_CHANNEL_ID and NOTION_SECRET are required")
+    if not token or not notion_secret:
+        log.error("DISCORD_BOT_TOKEN and NOTION_SECRET are required")
         return 1
+    channel_id = CHANNEL_ID
 
     gemini = GeminiClient(model_name="flash")  # raises ValueError if GOOGLE_API_KEY missing
     notion = NotionApi(notion_secret)
