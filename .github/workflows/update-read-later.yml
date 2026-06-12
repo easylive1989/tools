@@ -39,7 +39,6 @@ jobs:
       - name: Run read-later sync
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          DISCORD_READ_LATER_CHANNEL_ID: ${{ secrets.DISCORD_READ_LATER_CHANNEL_ID }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: python read_later/read_later.py
 

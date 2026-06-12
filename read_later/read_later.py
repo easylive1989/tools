@@ -10,7 +10,6 @@ Firecrawl credits.
 
 Required env vars:
     DISCORD_BOT_TOKEN
-    DISCORD_READ_LATER_CHANNEL_ID
     FIRECRAWL_API_KEY
 
 Optional env vars:
@@ -368,9 +367,9 @@ CONTENT_KEYS = (
 
 def main() -> int:
     token = os.environ.get("DISCORD_BOT_TOKEN")
-    channel_id = os.environ.get("DISCORD_READ_LATER_CHANNEL_ID")
-    if not token or not channel_id:
-        log("DISCORD_BOT_TOKEN and DISCORD_READ_LATER_CHANNEL_ID are required")
+    channel_id = "1501760423442251896"
+    if not token:
+        log("DISCORD_BOT_TOKEN is required")
         return 1
 
     feed_link = os.environ.get("READ_LATER_FEED_LINK", DEFAULT_FEED_LINK)
