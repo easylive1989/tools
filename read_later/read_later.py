@@ -1,22 +1,22 @@
-"""Pull URLs shared in a Discord channel and emit them as an RSS feed.
+"""Pull URLs shared in a Discord channel and emit them as a full-text RSS feed.
+
+For each URL, Firecrawl scrapes the page and returns metadata + cleaned-up
+article HTML/markdown, which is embedded directly in the RSS <description>.
 
 State (read_later/state.json) tracks which messages have been processed and
-which URLs have already been emitted, so each URL appears at most once and only
-new messages are fetched on subsequent runs.
+which URLs have already been emitted. Only newly discovered URLs are scraped;
+cached content for existing items is preserved across runs to avoid burning
+Firecrawl credits.
 
 Required env vars:
     DISCORD_BOT_TOKEN
     DISCORD_READ_LATER_CHANNEL_ID
+    FIRECRAWL_API_KEY
 
 Optional env vars:
     READ_LATER_FEED_LINK   public URL where feed.xml will be served
                            (default: https://tools.paul-learning.dev/read_later/feed.xml)
     READ_LATER_MAX_ITEMS   max items kept in the RSS feed (default: 200)
-    APIFY_TOKEN            if set, FB / Threads / IG URLs are enriched via Apify
-                           instead of plain HTML scraping (which those sites block).
-    APIFY_FACEBOOK_ACTOR   override actor IDs (default: apify~facebook-posts-scraper,
-    APIFY_THREADS_ACTOR    apify~threads-scraper, apify~instagram-post-scraper).
-    APIFY_INSTAGRAM_ACTOR
 """
 
 from __future__ import annotations
@@ -42,6 +42,9 @@ DISCORD_API = "https://discord.com/api/v10"
 DEFAULT_FEED_LINK = "https://tools.paul-learning.dev/read_later/feed.xml"
 DEFAULT_MAX_ITEMS = 200
 SUCCESS_REACTION = "✅"
+
+FIRECRAWL_API = "https://api.firecrawl.dev/v2/scrape"
+FIRECRAWL_TOKEN_ENV = "FIRECRAWL_API_KEY"
 
 URL_REGEX = re.compile(r"https?://[^\s<>\"'\)\]]+")
 TRAILING_PUNCT = ".,;:!?)]}>"
@@ -205,245 +208,77 @@ def extract_urls(content: str) -> list[str]:
     return out
 
 
-TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+def fetch_firecrawl_content(url: str) -> dict | None:
+    """Scrape a URL via Firecrawl's /v2/scrape and return metadata + content.
 
-OG_PROPERTIES = ("og:title", "og:description", "og:image", "og:site_name", "og:type", "og:url")
-
-
-def _og_pattern(prop: str) -> tuple[re.Pattern, re.Pattern]:
-    forward = re.compile(
-        rf'<meta[^>]+property=["\']{re.escape(prop)}["\'][^>]+content=["\']([^"\']*)["\']',
-        re.IGNORECASE,
-    )
-    reverse = re.compile(
-        rf'<meta[^>]+content=["\']([^"\']*)["\'][^>]+property=["\']{re.escape(prop)}["\']',
-        re.IGNORECASE,
-    )
-    return forward, reverse
-
-
-_OG_PATTERNS = {prop: _og_pattern(prop) for prop in OG_PROPERTIES}
-
-
-def _clean(text: str, limit: int | None = None) -> str:
-    cleaned = html.unescape(text).strip()
-    cleaned = re.sub(r"\s+", " ", cleaned)
-    if limit and len(cleaned) > limit:
-        cleaned = cleaned[:limit]
-    return cleaned
-
-
-APIFY_TOKEN_ENV = "APIFY_TOKEN"
-APIFY_DEFAULT_ACTORS = {
-    "facebook": "apify~facebook-posts-scraper",
-    "threads": "claude_code_reviewer~threads-scraper",
-    "instagram": "apify~instagram-post-scraper",
-}
-SOCIAL_HOSTS = {
-    "facebook": ("facebook.com", "fb.com", "fb.watch", "m.facebook.com"),
-    "threads": ("threads.net", "threads.com"),
-    "instagram": ("instagram.com",),
-}
-PLATFORM_LABEL = {"facebook": "Facebook", "threads": "Threads", "instagram": "Instagram"}
-
-
-def detect_social_platform(url: str) -> str | None:
-    if not url:
-        return None
-    host = urlparse(url).netloc.lower()
-    for platform, hosts in SOCIAL_HOSTS.items():
-        if any(h in host for h in hosts):
-            return platform
-    return None
-
-
-def _apify_input(platform: str, url: str) -> dict:
-    if platform == "facebook":
-        return {"startUrls": [{"url": url}], "resultsLimit": 1}
-    if platform == "threads":
-        # claude_code_reviewer/threads-scraper: explicit single-post mode.
-        return {"mode": "post", "postUrls": [url]}
-    if platform == "instagram":
-        return {"directUrls": [url], "resultsLimit": 1}
-    return {"startUrls": [{"url": url}]}
-
-
-def _apify_pick(item: dict, *keys: str) -> str:
-    for k in keys:
-        v = item.get(k)
-        if v:
-            return str(v)
-    return ""
-
-
-def _apify_author(item: dict) -> str:
-    a = item.get("author")
-    if isinstance(a, str) and a:
-        return a
-    if isinstance(a, dict):
-        for k in ("username", "fullName", "name", "handle"):
-            if a.get(k):
-                return str(a[k])
-    for sub in ("user", "owner"):
-        u = item.get(sub)
-        if isinstance(u, dict):
-            for k in ("username", "fullName", "name"):
-                if u.get(k):
-                    return str(u[k])
-    return _apify_pick(item, "authorName", "ownerUsername", "pageName", "username")
-
-
-def _apify_text(item: dict) -> str:
-    txt = _apify_pick(item, "content", "text", "caption", "postText", "description")
-    if txt:
-        return txt
-    parts = item.get("threadParts")
-    if isinstance(parts, list):
-        chunks: list[str] = []
-        for p in parts:
-            if isinstance(p, dict):
-                c = p.get("content") or p.get("text")
-                if c:
-                    chunks.append(str(c))
-            elif isinstance(p, str) and p:
-                chunks.append(p)
-        return "\n\n".join(chunks)
-    return ""
-
-
-def _apify_image(item: dict) -> str:
-    for key in ("mediaUrls", "media", "images", "imageUrls", "videoUrls"):
-        v = item.get(key)
-        if isinstance(v, list):
-            for m in v:
-                if isinstance(m, dict):
-                    u = m.get("url") or m.get("src") or m.get("displayUrl") or m.get("thumbnail")
-                    if u:
-                        return str(u)
-                elif isinstance(m, str) and m:
-                    return m
-    return _apify_pick(item, "displayUrl", "thumbnailUrl", "videoThumbnailUrl")
-
-
-def fetch_apify_metadata(url: str, platform: str) -> dict | None:
-    """Hit Apify's run-sync endpoint for a single FB/Threads/IG post.
-
-    Returns metadata dict matching fetch_og_metadata's shape, or None on any failure
-    so the caller can fall back to plain OG scraping.
+    Returns a dict with keys: title, optionally og_description, og_image,
+    og_site_name, og_url, content_html, content_markdown. Returns None when
+    the API key is missing or the request fails, so callers can fall back to
+    leaving the item with whatever it already had.
     """
-    token = os.environ.get(APIFY_TOKEN_ENV)
+    token = os.environ.get(FIRECRAWL_TOKEN_ENV)
     if not token:
+        log("  FIRECRAWL_API_KEY not set, skipping content fetch")
         return None
-    override = os.environ.get(f"APIFY_{platform.upper()}_ACTOR", "").strip()
-    actor = (override or APIFY_DEFAULT_ACTORS[platform]).replace("/", "~")
-    api_url = f"https://api.apify.com/v2/acts/{actor}/run-sync-get-dataset-items"
-    log(f"  Apify {platform}: {actor.replace('~', '/')}")
-    try:
-        resp = requests.post(
-            api_url,
-            params={"token": token},
-            json=_apify_input(platform, url),
-            timeout=180,
-        )
-        if resp.status_code >= 400:
-            log(f"  Apify {platform} HTTP {resp.status_code}")
-            return None
-        data = resp.json()
-    except requests.RequestException as e:
-        log(f"  Apify {platform} failed: {type(e).__name__}")
-        return None
-
-    if not isinstance(data, list) or not data:
-        log(f"  Apify {platform} returned no items")
-        return None
-
-    item = data[0]
-    text = _apify_text(item).strip()
-    author = _apify_author(item).strip()
-    image = _apify_image(item)
-    canonical = _apify_pick(item, "postUrl", "url", "permalink") or url
-    label = PLATFORM_LABEL.get(platform, platform)
-
-    if text:
-        first_line = text.split("\n", 1)[0].strip()
-        title = first_line[:200] if first_line else f"{author or label} on {label}"
-    elif author:
-        title = f"{author} on {label}"
-    else:
-        title = url
-
-    metadata: dict = {"title": title[:300]}
-    if text:
-        metadata["og_description"] = text[:1000]
-    if image:
-        metadata["og_image"] = image
-    if author:
-        metadata["og_site_name"] = f"{author} · {label}"
-    else:
-        metadata["og_site_name"] = label
-    metadata["og_url"] = canonical
-    metadata["og_type"] = "article"
-    return metadata
-
-
-def fetch_metadata(url: str) -> dict | None:
-    """Choose the right backend (Apify for socials, generic OG scrape otherwise)."""
-    platform = detect_social_platform(url)
-    if platform:
-        result = fetch_apify_metadata(url, platform)
-        if result:
-            return result
-        log(f"  Apify {platform} unavailable, falling back to og: scrape")
-    return fetch_og_metadata(url)
-
-
-def fetch_og_metadata(url: str) -> dict | None:
-    """Return a dict with title/description/image/site_name/type/og_url for the URL.
-
-    Returns None if the page can't be fetched, so callers can keep prior metadata.
-    Missing fields are omitted.
-    """
     headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36"
-        ),
-        "Accept-Language": "en,zh-TW;q=0.8,zh;q=0.7",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "url": url,
+        "formats": ["markdown", "html"],
+        "onlyMainContent": True,
+        "timeout": 30000,
     }
     try:
-        resp = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
-        if resp.status_code >= 400:
-            return None
-        text = resp.text
-    except requests.RequestException:
+        resp = requests.post(FIRECRAWL_API, headers=headers, json=payload, timeout=90)
+    except requests.RequestException as e:
+        log(f"  Firecrawl failed: {type(e).__name__}")
+        return None
+    if resp.status_code >= 400:
+        log(f"  Firecrawl HTTP {resp.status_code}")
+        return None
+    try:
+        body = resp.json()
+    except ValueError:
+        log("  Firecrawl returned non-JSON")
+        return None
+    if not body.get("success"):
+        log(f"  Firecrawl unsuccessful: {body.get('error', '')}")
         return None
 
-    found: dict[str, str] = {}
-    for prop, (forward, reverse) in _OG_PATTERNS.items():
-        m = forward.search(text) or reverse.search(text)
-        if m:
-            value = _clean(m.group(1), limit=2000)
-            if value:
-                found[prop] = value
+    data = body.get("data") or {}
+    meta = data.get("metadata") or {}
 
-    title = found.get("og:title")
-    if not title:
-        m = TITLE_RE.search(text)
-        if m:
-            title = _clean(m.group(1), limit=300)
+    out: dict = {}
+    title = meta.get("title") or meta.get("ogTitle") or url
+    out["title"] = str(title)[:300]
 
-    metadata: dict = {"title": (title or url)[:300]}
-    if found.get("og:description"):
-        metadata["og_description"] = found["og:description"][:1000]
-    if found.get("og:image"):
-        metadata["og_image"] = found["og:image"]
-    if found.get("og:site_name"):
-        metadata["og_site_name"] = found["og:site_name"][:200]
-    if found.get("og:type"):
-        metadata["og_type"] = found["og:type"][:100]
-    if found.get("og:url"):
-        metadata["og_url"] = found["og:url"]
-    return metadata
+    description = meta.get("description") or meta.get("ogDescription")
+    if description:
+        out["og_description"] = str(description)[:1000]
+
+    image = meta.get("ogImage") or meta.get("image")
+    if image:
+        out["og_image"] = str(image)
+
+    site_name = meta.get("ogSiteName")
+    if site_name:
+        out["og_site_name"] = str(site_name)[:200]
+
+    canonical = meta.get("sourceURL") or meta.get("ogUrl")
+    if canonical:
+        out["og_url"] = str(canonical)
+
+    html_content = data.get("html")
+    if html_content:
+        out["content_html"] = html_content
+
+    markdown_content = data.get("markdown")
+    if markdown_content:
+        out["content_markdown"] = markdown_content
+
+    return out
 
 
 def message_link(guild_id: str | None, channel_id: str, message_id: str) -> str:
@@ -490,6 +325,7 @@ def build_feed(items: list[dict], feed_link: str) -> str:
         og_image = item.get("og_image") or ""
         og_description = item.get("og_description") or ""
         og_site_name = item.get("og_site_name") or ""
+        content_html = item.get("content_html") or ""
 
         body_parts: list[str] = []
         if og_image:
@@ -498,10 +334,12 @@ def build_feed(items: list[dict], feed_link: str) -> str:
             )
         if og_site_name:
             body_parts.append(f"<p><em>{html.escape(og_site_name)}</em></p>")
-        if og_description:
+        if content_html:
+            body_parts.append(content_html)
+        elif og_description:
             body_parts.append(f"<p>{html.escape(og_description)}</p>")
         if excerpt:
-            body_parts.append(f"<p>{html.escape(excerpt)}</p>")
+            body_parts.append(f"<hr /><p><em>Shared:</em> {html.escape(excerpt)}</p>")
         description_html = "".join(body_parts).replace("]]>", "]]&gt;")
         parts.append("<item>")
         parts.append(f"<title>{title}</title>")
@@ -515,6 +353,17 @@ def build_feed(items: list[dict], feed_link: str) -> str:
     parts.append("</rss>")
     parts.append("")
     return "\n".join(parts)
+
+
+CONTENT_KEYS = (
+    "title",
+    "og_description",
+    "og_image",
+    "og_site_name",
+    "og_url",
+    "content_html",
+    "content_markdown",
+)
 
 
 def main() -> int:
@@ -568,24 +417,18 @@ def main() -> int:
             )
 
     if new_items:
+        log(f"Scraping {len(new_items)} new URL(s) via Firecrawl")
+        for item in new_items:
+            content = fetch_firecrawl_content(item["url"])
+            if content is None:
+                continue
+            for key in CONTENT_KEYS:
+                if key in content:
+                    item[key] = content[key]
         items.extend(new_items)
 
     items.sort(key=lambda i: i["shared_at"], reverse=True)
     items = items[:max_items]
-
-    log(f"Refreshing OG metadata for {len(items)} items")
-    og_keys = ("title", "og_description", "og_image", "og_site_name", "og_type", "og_url")
-    for item in items:
-        if not item.get("url"):
-            continue
-        metadata = fetch_metadata(item["url"])
-        if metadata is None:
-            continue
-        for key in og_keys:
-            if key in metadata:
-                item[key] = metadata[key]
-            else:
-                item.pop(key, None)
 
     state["last_message_id"] = highest_id
     state["seen_urls"] = sorted(seen_urls)
