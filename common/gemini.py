@@ -2,9 +2,8 @@ import os
 import re
 import shutil
 import subprocess
-import google.generativeai as genai
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable
+from google import genai
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 _ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
@@ -32,10 +31,7 @@ class GeminiClient:
         if not api_key:
             raise ValueError("GOOGLE_API_KEY environment variable not set.")
 
-        genai.configure(api_key=api_key)
-
-        target_model = self.model_map.get(model_name.lower(), model_name)
-        self.model = genai.GenerativeModel(target_model)
+        self.client = genai.Client(api_key=api_key)
 
     def _generate_via_cli(self, prompt: str, timeout: int = 120) -> str:
         env = os.environ.copy()
@@ -56,12 +52,12 @@ class GeminiClient:
         return _ANSI_RE.sub("", result.stdout).strip()
 
     @retry(
-        retry=retry_if_exception_type((ResourceExhausted, ServiceUnavailable)),
         wait=wait_exponential(multiplier=2, min=4, max=60),
         stop=stop_after_attempt(20)
     )
     def _generate_via_api(self, prompt: str) -> str:
-        response = self.model.generate_content(prompt)
+        target_model = self.model_map.get(self.model_name.lower(), self.model_name)
+        response = self.client.models.generate_content(model=target_model, contents=prompt)
         return response.text.strip()
 
     def generate(self, prompt: str, timeout: int = 120) -> str:
