@@ -43,14 +43,8 @@ jobs:
             chmod 600 /etc/threads-monitor.env
 
             # 建立執行包裝腳本
-            cat > /opt/threads_monitor/run.sh << 'RUNEOF'
-#!/bin/bash
-set -a
-source /etc/threads-monitor.env
-set +a
-cd /opt/threads_monitor
-exec .venv/bin/python monitor.py
-RUNEOF
+            printf '#!/bin/bash\nset -a\nsource /etc/threads-monitor.env\nset +a\ncd /opt/threads_monitor\nexec .venv/bin/python monitor.py\n' \
+              > /opt/threads_monitor/run.sh
             chmod +x /opt/threads_monitor/run.sh
 
             # 首次部署時建立 cron job
