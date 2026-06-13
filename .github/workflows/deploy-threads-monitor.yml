@@ -1,0 +1,65 @@
+name: Deploy Threads Monitor
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'threads_monitor/**'
+      - 'common/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync code to VPS
+        run: |
+          rsync -av --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' \
+            threads_monitor/ root@${{ secrets.VPS_HOST }}:/opt/threads_monitor/
+          rsync -av --exclude='__pycache__' --exclude='*.pyc' \
+            common/ root@${{ secrets.VPS_HOST }}:/opt/threads_monitor/common/
+
+      - name: Install deps and setup
+        run: |
+          ssh root@${{ secrets.VPS_HOST }} "
+            cd /opt/threads_monitor
+            python3 -m venv .venv
+            .venv/bin/pip install -q -r requirements.txt
+            .venv/bin/playwright install chromium --with-deps
+
+            # 寫入 env file（每次部署更新，確保 secret 最新）
+            echo 'NOTION_SECRET=${{ secrets.NOTION_SECRET }}' > /etc/threads-monitor.env
+            chmod 600 /etc/threads-monitor.env
+
+            # 建立執行包裝腳本
+            cat > /opt/threads_monitor/run.sh << 'RUNEOF'
+#!/bin/bash
+set -a
+source /etc/threads-monitor.env
+set +a
+cd /opt/threads_monitor
+exec .venv/bin/python monitor.py
+RUNEOF
+            chmod +x /opt/threads_monitor/run.sh
+
+            # 首次部署時建立 cron job
+            if [ ! -f /etc/cron.d/threads-monitor ]; then
+              echo '*/30 * * * * root /opt/threads_monitor/run.sh >> /var/log/threads_monitor.log 2>&1' \
+                > /etc/cron.d/threads-monitor
+              chmod 644 /etc/cron.d/threads-monitor
+              echo 'cron job created'
+            else
+              echo 'cron job already exists'
+            fi
+          "
