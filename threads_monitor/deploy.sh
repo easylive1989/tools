@@ -36,7 +36,7 @@ ssh $VPS "
 echo "==> 設定 cron job（首次執行時建立）..."
 ssh $VPS "
   if [ ! -f /etc/cron.d/threads-monitor ]; then
-    echo '*/30 * * * * root /opt/threads_monitor/run.sh >> /var/log/threads_monitor.log 2>&1' \
+    echo '0 * * * * root /opt/threads_monitor/run.sh >> /var/log/threads_monitor.log 2>&1' \
       > /etc/cron.d/threads-monitor
     chmod 644 /etc/cron.d/threads-monitor
     echo 'cron job created'
