@@ -65,6 +65,11 @@ def record_seen_post(notion: NotionApi, keyword: str, post: ThreadPost) -> None:
 
 
 def main() -> None:
+    hour = datetime.now().hour
+    if 0 <= hour < 8:
+        print(f"Quiet hours (00:00–08:00), skipping. Current hour: {hour:02d}:xx")
+        return
+
     notion_secret = os.environ.get("NOTION_SECRET")
     if not notion_secret:
         print("Error: NOTION_SECRET not set", file=sys.stderr)
