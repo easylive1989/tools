@@ -1,6 +1,7 @@
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -65,9 +66,9 @@ def record_seen_post(notion: NotionApi, keyword: str, post: ThreadPost) -> None:
 
 
 def main() -> None:
-    hour = datetime.now().hour
-    if 0 <= hour < 8:
-        print(f"Quiet hours (00:00–08:00), skipping. Current hour: {hour:02d}:xx")
+    hour = datetime.now(ZoneInfo("Asia/Taipei")).hour
+    if 0 <= hour < 10:
+        print(f"Quiet hours (TW 00:00–10:00), skipping. Current hour: {hour:02d}:xx")
         return
 
     notion_secret = os.environ.get("NOTION_SECRET")
