@@ -2,6 +2,42 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1",
+      "message_id": "1515881012280692806",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515881012280692806",
+      "shared_at": "2026-06-15T00:49:57.035000+00:00",
+      "title": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1",
+      "url": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@kai_ch_chen/post/DZljPF3k3Ca?xmt=AQG0_f1gTK5ykTYlHOftI7Jt_rWwa0eX1LeI2uARq8YtZbZxkqJW14fdAZX-3S2jMBZQZvKC&slof=1",
+      "message_id": "1515880496423374919",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515880496423374919",
+      "shared_at": "2026-06-15T00:47:54.045000+00:00",
+      "title": "https://www.threads.com/@kai_ch_chen/post/DZljPF3k3Ca?xmt=AQG0_f1gTK5ykTYlHOftI7Jt_rWwa0eX1LeI2uARq8YtZbZxkqJW14fdAZX-3S2jMBZQZvKC&slof=1",
+      "url": "https://www.threads.com/@kai_ch_chen/post/DZljPF3k3Ca?xmt=AQG0_f1gTK5ykTYlHOftI7Jt_rWwa0eX1LeI2uARq8YtZbZxkqJW14fdAZX-3S2jMBZQZvKC&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@lushha28/post/DZkMxtQCRx3?xmt=AQG0ZdorgGTKHDhr7LdMy9TomqNkI5kzgY-vuyNHUYPd1P-VX92u1mYOmFh_LoZOSVvHkfos&slof=1",
+      "message_id": "1515879788298899517",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515879788298899517",
+      "shared_at": "2026-06-15T00:45:05.215000+00:00",
+      "title": "https://www.threads.com/@lushha28/post/DZkMxtQCRx3?xmt=AQG0ZdorgGTKHDhr7LdMy9TomqNkI5kzgY-vuyNHUYPd1P-VX92u1mYOmFh_LoZOSVvHkfos&slof=1",
+      "url": "https://www.threads.com/@lushha28/post/DZkMxtQCRx3?xmt=AQG0ZdorgGTKHDhr7LdMy9TomqNkI5kzgY-vuyNHUYPd1P-VX92u1mYOmFh_LoZOSVvHkfos&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1",
+      "message_id": "1515879484706787329",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515879484706787329",
+      "shared_at": "2026-06-15T00:43:52.833000+00:00",
+      "title": "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1",
+      "url": "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@vava_ai_artist/post/DZjM1pJk9_l?xmt=AQG0Vym1XPxxlT7d9QxIKJo-drv-jhvVyrdPm1HzeYjkwv8H-0x63g6NkU0umyI2gzYgEGzm&slof=1",
       "message_id": "1515575968989712487",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1515575968989712487",
@@ -1296,7 +1332,7 @@
       "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1515575968989712487",
+  "last_message_id": "1515881012280692806",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1373,6 +1409,7 @@
     "https://www.threads.com/@k4lok.s/post/DZXi1WUkbX1?xmt=AQG0txzaJhnmYDQUfavp396lINUCEHUd2K6wfueF3_pNtqJ0MNuS1W0xS7CmuPDu8jAlULge&slof=1",
     "https://www.threads.com/@kai_ch_chen/post/DYrnV4UGXYu?xmt=AQG0ulhwf_c6TxWzIFSeminnGuUC9z06LwzesSdyLadfj_1DmGVUVO_gQNzsJ7wUnMPMddg&slof=1",
     "https://www.threads.com/@kai_ch_chen/post/DZe9TaKE_oE?xmt=AQG0gMKYeri1fWnF1adK0Y3-XyIEsns5y0c-PRmrxGJuV0gLDXlkYs24P-di74hhlepDRsk&slof=1",
+    "https://www.threads.com/@kai_ch_chen/post/DZljPF3k3Ca?xmt=AQG0_f1gTK5ykTYlHOftI7Jt_rWwa0eX1LeI2uARq8YtZbZxkqJW14fdAZX-3S2jMBZQZvKC&slof=1",
     "https://www.threads.com/@kikitataysi/post/DYQynzckhZ3?xmt=AQG0McUzsl_5DCzL-PSJeAA0txtbG-XUd-SHM4TUYBLUh7Q5yZgM_mlTAAt5u2eozIWrd6I&slof=1",
     "https://www.threads.com/@kikitataysi/post/DZJJKSwD9vP?xmt=AQG0uN2pnuWZpvRwP5xyLpIar1hDG8JwFcSUcInD1JynGxTXz3uARQxlgvhaQYYk0ImAXvcM&slof=1",
     "https://www.threads.com/@kufutw/post/DZcG4vNAEOD?xmt=AQG0jrYCdZpjPuk77349syl0B5FVRquUbkpfL95QhWMPDr_rIyaN-BT053zwwTwXLe4oXRE&slof=1",
@@ -1383,6 +1420,7 @@
     "https://www.threads.com/@life.coach.mtcity/post/DYHpH42negX?xmt=AQG0NXNYSzXiBuPft-xq7uJ8u-hAU7tsqpWs2pDDr-rqcmteOT-VpByh4kr-IFop81vukBwc&slof=1",
     "https://www.threads.com/@littlepink177/post/DYMh98WEnq1?xmt=AQG0HAhDP3E--2dSnW4Y_Ox7m7BTmfoCB_wsGZ9RkOnnOuULl1uS-BpM6Mpzj2qd_VMkti5I&slof=1",
     "https://www.threads.com/@lky_exercise/post/DZaEcmhFDGO?xmt=AQG01juN571fVxn-qSNR2vddGz-R1cstGRBryw7CG-T6Zbx1E3pz3VE06nOhJQ53WdrFYyL4&slof=1",
+    "https://www.threads.com/@lushha28/post/DZkMxtQCRx3?xmt=AQG0ZdorgGTKHDhr7LdMy9TomqNkI5kzgY-vuyNHUYPd1P-VX92u1mYOmFh_LoZOSVvHkfos&slof=1",
     "https://www.threads.com/@martin.lo/post/DYKYc9AgaFX?xmt=AQG0XtQD3TSGN2e0QYJVmJiP6mz4MudIQ7C4vnLZ7PDxhnAFpiln2QYOhouSS1EWcHttaS4&slof=1",
     "https://www.threads.com/@master_aiaiai/post/DZbIA1ODlVS?xmt=AQG0lixWKp2l5o04rwVEXlpbrElTMt2IKrShFPFu8A2rR7DsAOMRlBDkRfARBsy1jy_Vwsg&slof=1",
     "https://www.threads.com/@mengshyue.tsai/post/DWWiddhEicr?xmt=AQG0qSAWy_tl6QDgSmRjbmghLL6KlGamjWEmfR6KOEo9sMEEs25WgZbthDP3djlU1DfwaT_J&slof=1",
@@ -1391,6 +1429,7 @@
     "https://www.threads.com/@msfiveam.diary/post/DZL_gswD-l4?xmt=AQG0xrlgqMdSajiVKEHonC-J_z04O1Lok4I9qNvogZiHt4xht67zrmujmJGoQuerFzpbSbQ&slof=1",
     "https://www.threads.com/@mywish0326/post/DYa_Qr5k8QF?xmt=AQG0FzicLWKFfTsxywdAz_PIsKLdEqr3zrSp32yknoa1Jo04xau3J1aqVh1l2z3M9Ktk-hM&slof=1",
     "https://www.threads.com/@nicus_song/post/DYILW4_kiX2?xmt=AQG0k89r0iBAg_5i1xXrm2W6iC9vnPBYnBlEiiU2h3clTbFyEKLt19op8F2JKEYDQIPuOVU&slof=1",
+    "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1",
     "https://www.threads.com/@paul_invest00/post/DYd4MHRCY-J?xmt=AQG0gvxH2_obwVni1VZywLolxOZekf5kTedSmL_snAwh8zoM1-7S0q05sKDnHK8EcxkmR6k&slof=1",
     "https://www.threads.com/@phdesk.ph/post/DYQ4UEek-ic?xmt=AQG01jljbsgTOry91FIbjaey_0AGlH3Flscz1Fu8fO4QBGJJTPbCI0cOxRaUtUY4IhTy4TQ&slof=1",
     "https://www.threads.com/@pie_trick/post/DZAAldJiOhE?xmt=AQG08v7FWbFJlOmk2ynIvwqUhq9yZ3aYf3rqvu0AaXP6_r4RX5Jhx5dkljr3IDAR0vLoizbT&slof=1",
@@ -1409,6 +1448,7 @@
     "https://www.threads.com/@techtip_s/post/DZawKOOkhbH?xmt=AQG0zCVsvrx90t87KrGUkfX55YF3YNNfem_FwPZkpyfl7CHyCkW5uYTVFXViTZVq94iL3hM&slof=1",
     "https://www.threads.com/@tripleh.ai/post/DYYWM9wEh5x?xmt=AQG0wtS_6oT1cGmAeiBj-0XWTxfdSu3zSjiakFzkKFD82rBIFWf9zryis8HeI-WMFrTTbe6v&slof=1",
     "https://www.threads.com/@vava_ai_artist/post/DZjM1pJk9_l?xmt=AQG0Vym1XPxxlT7d9QxIKJo-drv-jhvVyrdPm1HzeYjkwv8H-0x63g6NkU0umyI2gzYgEGzm&slof=1",
+    "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1",
     "https://www.threads.com/@wesleylavie/post/DYCWS0skr2I?xmt=AQG0_1LESFZJg_gYjkYXILENlq_hsW4LV2YGC7FrBv5qHANS_HHiFIlCEOawgGHl9Pyd8SBN&slof=1",
     "https://www.threads.com/@wesleylavie/post/DYZITLQElmu?xmt=AQG0AFdFlj4F-eY74izU4iJkDKzP5-G8LzdKVrNmqkgkt6DbW45F0PAEjBYF5McAGyIRdF4_&slof=1",
     "https://www.threads.com/@wgi327119/post/DZc2gTUlHu4?xmt=AQG0S-b57wLMjOpjvajsFQKpsavzyczkDh5QjRVRF732JSe8unsYiD2x8AgLLchu-sQJJBc&slof=1",
