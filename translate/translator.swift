@@ -48,11 +48,17 @@ if CommandLine.arguments.contains("--get-selection") {
 
 // MARK: - Constants & Helpers
 
-private let SYSTEM_PROMPT =
-    "你是翻譯工具。將輸入翻譯成繁體中文。" +
-    "僅輸出翻譯結果，不加解釋、引號或額外格式。" +
-    "保留原文的排版結構：若原文是 Markdown 格式（如標題、粗體、清單等），翻譯結果也須維持相同的 Markdown 格式；" +
-    "若原文以換行分隔段落，翻譯結果也須在對應位置以相同方式換行。"
+private let SYSTEM_PROMPT = """
+<instructions>
+- 你是翻譯工具。請將以下輸入的文字翻譯成繁體中文。
+- 翻譯結果的格式、排版與換行必須與原文 100% 完全相同，原本是 Markdown 格式就必須完全維持原本的 Markdown 格式。
+- 【重要】連換行（包括空行、縮排、換行符號數）都要與原文一模一樣，不得有任何增減或合併。
+- 【特別注意】連續的換行符號（例如用於區隔段落的雙換行 `\\n\\n`）必須如實輸出為 `\\n\\n`，絕對不可被合併或縮減為單一換行符 `\\n`。
+- 請原封不動地保留原文中所有的 Markdown 語法標記（包括但不限於 `#`, `##`, `*`, `**`, `-`, `> `, `[連結](url)`, 行內程式碼, 程式碼區塊等），「只」翻譯其中的內容文字，切勿丟失、簡化或重構任何 Markdown 語法。
+- 保留原文的排版結構：每一行的換行、段落空格、清單階層必須在對應位置完全相同。
+- 僅輸出翻譯結果，絕對不要加入任何前言、後語、解釋、額外引號。
+</instructions>
+"""
 
 private let SUMMARY_PROMPT = """
 你是一個專業的內容總結工具。請閱讀以下內容，並以繁體中文產生結構化總結。
@@ -234,9 +240,9 @@ struct VocabularyPopover: View {
     }
 }
 
-// MARK: - ClaudeRunner Actor
+// MARK: - AgyRunner Actor
 
-actor ClaudeRunner {
+actor AgyRunner {
     private var liveTasks: [UUID: Process] = [:]
 
     func translate(id: UUID, text: String) async -> String {
@@ -282,7 +288,7 @@ actor ClaudeRunner {
         return await withCheckedContinuation { continuation in
             let proc = Process()
             proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            proc.arguments = ["claude", "-p", prompt, "--model", "sonnet"]
+            proc.arguments = ["agy", "--model", "gemini-3.5-flash-high", "--prompt", prompt]
             proc.environment = env
 
             let outPipe = Pipe()
@@ -545,7 +551,7 @@ class VocabularyTextView: NSTextView {
 
 struct ContentView: View {
     let initialText: String
-    let runner: ClaudeRunner
+    let runner: AgyRunner
 
     @State private var inputText: String = ""
     @State private var tabs: [TranslationTab] = []
@@ -914,7 +920,7 @@ struct ContentView: View {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
-    let runner = ClaudeRunner()
+    let runner = AgyRunner()
     var sigusr1Source: DispatchSourceSignal?
 
     func applicationDidFinishLaunching(_ notification: Notification) {

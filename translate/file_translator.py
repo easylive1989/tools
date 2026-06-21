@@ -24,7 +24,7 @@ from docx import Document
 from pdf2docx import Converter
 
 
-CLAUDE_MODEL = "sonnet"
+AGY_MODEL = "gemini-3.5-flash-high"
 TARGET_LANG = "Traditional Chinese"
 MAX_WORKERS = 5
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")
@@ -34,20 +34,25 @@ def log(msg: str) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
-def claude_translate(text: str) -> str:
+def agy_translate(text: str) -> str:
     if not text or not text.strip():
         return text
     prompt = (
-        f"Translate the following text into {TARGET_LANG}. "
-        "Maintain the original tone and style. "
-        "Do not add any explanations or extra text. "
-        "Just provide the translation.\n\n"
-        f"Text: {text}"
+        f"<instructions>\n"
+        f"- Translate the following text into {TARGET_LANG}.\n"
+        f"- Maintain the original tone and style.\n"
+        f"- Do not add any explanations, introductory text, or extra characters. Just provide the translation.\n"
+        f"- 【CRITICAL】The format and line breaks (newlines) of the translation must be 100% identical to the input text. If the input is in Markdown format, keep the exact Markdown format.\n"
+        f"- Keep all Markdown syntax markers (e.g., `#`, `##`, `*`, `**`, `-`, `> `, `[text](url)`, backticks, code blocks) completely untouched. Only translate the text inside them.\n"
+        f"- Retain the layout structure: every single newline (line break), empty line, indentation, list hierarchy, and paragraph break must be placed in the exact same position as the original text, with no modifications or additions.\n"
+        f"- 【IMPORTANT】Consecutive newlines (e.g., double newlines `\\n\\n` separating paragraphs or text blocks) must be outputted EXACTLY as `\\n\\n`. Do NOT collapse or merge multiple newlines into a single newline `\\n`.\n"
+        f"</instructions>\n\n"
+        f"Text:\n{text}"
     )
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + env.get("PATH", "")
     result = subprocess.run(
-        ["claude", "-p", prompt, "--model", CLAUDE_MODEL],
+        ["agy", "--model", AGY_MODEL, "--prompt", prompt],
         capture_output=True,
         text=True,
         timeout=180,
@@ -55,7 +60,7 @@ def claude_translate(text: str) -> str:
     )
     if result.returncode != 0:
         err = ANSI_RE.sub("", result.stderr).strip()
-        raise RuntimeError(f"claude CLI failed: {err[:300]}")
+        raise RuntimeError(f"agy CLI failed: {err[:300]}")
     return ANSI_RE.sub("", result.stdout).strip()
 
 
@@ -64,7 +69,7 @@ def translate_many(texts: list[str]) -> list[str]:
     done = 0
     total = len(texts)
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(claude_translate, t): i for i, t in enumerate(texts)}
+        futures = {ex.submit(agy_translate, t): i for i, t in enumerate(texts)}
         for fut in as_completed(futures):
             idx = futures[fut]
             results[idx] = fut.result()
