@@ -298,6 +298,52 @@ def author_name(msg: dict) -> str:
     return author.get("global_name") or author.get("username") or "unknown"
 
 
+def label_from_url(url: str) -> str:
+    """Derive a readable label from a URL when no scraped title is available.
+
+    Firecrawl returns nothing for JS-rendered / login-walled sites (Threads,
+    Instagram, …), so the raw URL would otherwise become the RSS title. Pull a
+    handle or host out instead so the entry is recognizable in a reader.
+    """
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    if host.startswith("www."):
+        host = host[4:]
+    segments = [s for s in parsed.path.split("/") if s]
+    if segments and segments[0].startswith("@"):
+        handle = segments[0][1:]
+        if "threads" in host:
+            return f"@{handle} 的 Threads 貼文"
+        if "instagram" in host:
+            return f"@{handle} 的 Instagram 貼文"
+        return f"@{handle}（{host}）"
+    return f"{host} 分享連結" if host else url
+
+
+def display_title(item: dict) -> str:
+    """Human-friendly RSS title.
+
+    A real scraped title differs from the URL; when they match it means
+    Firecrawl never returned one, so fall back to a label derived from the URL.
+    """
+    title = item.get("title")
+    url = item["url"]
+    if title and title != url:
+        return title
+    return label_from_url(url)
+
+
+def shared_note(excerpt: str) -> str:
+    """The user's note for a shared link, with the bare URL(s) stripped out.
+
+    Many messages are just a URL; in that case there is no note to show and we
+    avoid dumping the long link into the feed body.
+    """
+    note = ANGLE_URL_REGEX.sub("", excerpt)
+    note = URL_REGEX.sub("", note)
+    return note.strip()
+
+
 def build_feed(items: list[dict], feed_link: str) -> str:
     now = format_datetime(datetime.now(tz=timezone.utc))
     parts: list[str] = []
@@ -315,12 +361,12 @@ def build_feed(items: list[dict], feed_link: str) -> str:
 
     for item in items:
         pub = format_datetime(datetime.fromisoformat(item["shared_at"]))
-        title = html.escape(item.get("title") or item["url"])
+        title = html.escape(display_title(item))
         original_url = item["url"]
         link_url = item.get("og_url") or original_url
         guid = html.escape(original_url)
         link = html.escape(link_url)
-        excerpt = item.get("message_excerpt") or ""
+        excerpt = shared_note(item.get("message_excerpt") or "")
         og_image = item.get("og_image") or ""
         og_description = item.get("og_description") or ""
         og_site_name = item.get("og_site_name") or ""
