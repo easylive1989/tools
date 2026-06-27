@@ -6,7 +6,2044 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Sat, 27 Jun 2026 10:35:47 +0000</lastBuildDate>
+<lastBuildDate>Sat, 27 Jun 2026 12:20:20 +0000</lastBuildDate>
+<item>
+<title>13:30
+|
+14:10
+當AI 帶來思考外包x認知負債，要如何不讓AI 奴役你
+講者：柯仁傑 (David Ko/敏捷三叔公)
+會場：DE 會議室 - HackMD</title>
+<link>https://hackmd.io/@DevOpsDay/2026/%2FBJ49A7FWfx?fbclid=IwZnRzaASskf9leHRuA2FlbQIxMQBzcnRjBmFwcF9pZAo2NjI4NTY4Mzc5AAEeH65IR-X338AVhCo8gfKZxtTDYX5Nj4wORzCt0dn_9cLGPU_Kmnf6IVZZak0_aem_w_6SABpuOgVm0D5426vshg</link>
+<guid isPermaLink="true">https://hackmd.io/@DevOpsDay/2026/%2FBJ49A7FWfx?fbclid=IwZnRzaASskf9leHRuA2FlbQIxMQBzcnRjBmFwcF9pZAo2NjI4NTY4Mzc5AAEeH65IR-X338AVhCo8gfKZxtTDYX5Nj4wORzCt0dn_9cLGPU_Kmnf6IVZZak0_aem_w_6SABpuOgVm0D5426vshg</guid>
+<pubDate>Sat, 27 Jun 2026 11:23:48 +0000</pubDate>
+<description><![CDATA[<p><img src="https://hackmd.io/api/_/preview/WNSBbOJATt62iNShdB5nsg" alt="" /></p><p><em>HackMD</em></p><!DOCTYPE html><html lang="en-US" data-themeable="true" theme="dark">
+
+<body class="ui-book-mode-body" style="" theme="dark" data-view-theme="light">
+    <div id="doc" class="container markdown-body" style="display:none;" data-hard-breaks="false">DevOpsDays Taipei 2026 共同筆記
+===
+
+## 歡迎來到 DevOpsDays Taipei 2026！
+
+- [歡迎來到 DevOpsDays！](/@DevOpsDay/r1RnH1uWMg)
+- [DevOpsDays 2026 官方網站](https://devopsdays.tw/) [target=_blank]
+- [DevOpsDays 2026 議程表](https://devopsdays.tw/2026/agenda) [target=_blank]
+- [HackMD 快速入門](https://hackmd.io/s/BJvtP4zGX)
+- [HackMD 會議功能介紹](https://hackmd.io/s/BJHWlNQMX)
+
+## 議程筆記
+
+### 6/25（四）議程
+
+&lt;ul&gt;
+&lt;li&gt;
+  &lt;a href="/Skz9AmKbMx" style="--a: url(&amp;quot;https://hackmd.io/?s=09:30&amp;e=09:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:30&lt;br /&gt;|&lt;br /&gt;09:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Welcome opening&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳正瑋 (艦長)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/B1GcC7FZfg" style="--a: url(&amp;quot;https://hackmd.io/?s=09:40&amp;e=10:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:40&lt;br /&gt;|&lt;br /&gt;10:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;從多模型視角談與 AI 共智&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：李智樺 (Ruddy 老師)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/ByXqCQt-Gl" style="--a: url(&amp;quot;https://hackmd.io/?s=11:00&amp;e=12:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:00&lt;br /&gt;|&lt;br /&gt;12:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;當 Coding Agent 能寫 Code，架構師該做什麼改變?&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：吳剛志 (Andrew Wu)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Skm5AmtbGe" style="--a: url(&amp;quot;https://hackmd.io/?s=12:45&amp;e=13:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;12:45&lt;br /&gt;|&lt;br /&gt;13:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;以 AI Agent 重構 SDLC：建構企業級自動軟體交付流程&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：濮紹華 (AlanPu)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/BJ49A7FWfx" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;當AI 帶來思考外包x認知負債，要如何不讓AI 奴役你&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：柯仁傑 (David Ko/敏捷三叔公)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/BJE507YbMe" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI 讓效率提升，但誰來保護品質的人？&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：盧建成 (Augustin Lu)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/r1BqC7t-Ge" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;DevSecOps 漏洞發現、追蹤與數據統計自動化分享！&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：何品緯 (Hopin)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/BkU9R7tWze" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI落地生存法則：DevOps、DataOps與MLOps密不可分的ML專案現場&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：林煒鈞 (Jim Lin) &amp; 陳正瑋 (艦長)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/BJL507KZfl" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;部署零停機的秘密：Kamal 流量切換原理拆解&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：高見龍&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/S1w9C7FWGe" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Flow 不死：AI 時代 DevOps 的不變本質&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳正瑋 (艦長)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/H1w5RXY-Gl" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;從產品團隊看，十年打造的 Infra Platform&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳俊毅 (Levi Chen)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/S1_qA7Y-ze" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;以 kagent × A2A 構築自主協作的 Agentic K8s&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：蕭兆洋 (Charles Hsiao)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Bk_c0XtbGx" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;當 AI Agent 接管你的 On-Call&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：翁傳翔 (Herb)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SyFq0QYZMx" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=16:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;16:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工程師的新角色：掌控 AI 從需求到程式碼&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：楊琬晴 (Rose)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/H1KqAmYWzg" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI 輔助遺留系統現代化的經驗分享&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王家駿 (James)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Hy99RmKbMx" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Platform Engineering 遇上 GenAI&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：林樹熙 (Shuhsi)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJc9AQtWzx" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;基於 Agent Skills、MCP 與 Playwright 的全鏈路智慧測試實踐&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：蔡明哲 (Max)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/BJs9RQtbfe" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;GSI 協議：提升 AI 驅動 SDD 的效率與敏捷性&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：薛華慶 (James)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJj9RQKbGg" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;從 Vibe Coding 到 SDD：AI 時代的小團隊開發流程實驗&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：鍾筑安 (Judy ch)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/HyncRXYbzl" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;不用擔心被 AI 裁員，因為出事還是你要負責&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：蔡宗城 (smalltown)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Skh9RmY-fg" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;一個人的 DevOps：從程式碼到 Production&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：鄭重男 (Nickle Cheng)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/HyT5RQtZGe" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;真。無人值守！團隊的怪物新人: OpenClaw&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王仁宏 (3ric) &amp; 簡汎羽 (Nick Chien)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/r1p50QY-Ge" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;在DevOps生命週期的AI輔助驅動&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：郭家齊 (Edward Kuo)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+### 6/25（四）工作坊
+&lt;ul&gt;
+&lt;li&gt;
+  &lt;a href="/uLa8jLPNTaKfJ8NTC6HnPQ" style="--a: url(&amp;quot;https://hackmd.io/?s=09:40&amp;e=12:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:40&lt;br /&gt;|&lt;br /&gt;12:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;
+          工作坊 ♦ agile boot camp 積木敏捷體驗營&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：葉承宇 (Dean Yeh/丁哥)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/jRq_l5VPTUmmH4gTLQEkrw" style="--a: url(&amp;quot;https://hackmd.io/?s=11:00&amp;e=12:30&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:00&lt;br /&gt;|&lt;br /&gt;12:30&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ devops 交給 skill + ai agent 一條龍弄到好吧&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：黃品叡 (Paul)、謝明宏 (Alex Hsieh)、邱清章 (Joel)、徐兆彣 (Astrid)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/vDeR6ctMSTWoKHQ2XVw2Bw" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;15:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ AI 時代的應用安全：邁向 Mythos Ready 的實務策略&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：丁蓀 (Black Duck)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/7St7hql-RYqUB7BMdnHwtA" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;15:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ 如何使用 JFrog Curation 阻擋惡意 NPM 套件 Axios 的下載？&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王青 (JFrog)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/yCltZjHRSXmMz4wAT3-PGw" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;17:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ 企業級CI/CD設計框架經驗分享&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：范明城 (趣未智慧有限公司)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/JMtspg9yR4m6P4lVlkTVrA" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;17:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ ReBAC with OpenFGA, Powered by MCP&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：劉庭瑋、方亞伯 (TSMC)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+### 6/26（五）議程
+&lt;ul&gt;
+&lt;li&gt;
+  &lt;a href="/ryCcAQKbMl" style="--a: url(&amp;quot;https://hackmd.io/?s=09:30&amp;e=09:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:30&lt;br /&gt;|&lt;br /&gt;09:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Welcome opening&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：吳其勳&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJA5CXYZGe" style="--a: url(&amp;quot;https://hackmd.io/?s=09:40&amp;e=10:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:40&lt;br /&gt;|&lt;br /&gt;10:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Quality Management Systems in the Agile Era: Balancing ISO 9001 Compliance and Agility&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Hosotani Yasuo (Yasuo)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/S1koRQYZfl" style="--a: url(&amp;quot;https://hackmd.io/?s=11:00&amp;e=12:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:00&lt;br /&gt;|&lt;br /&gt;12:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;OKR and DevOps — Why OKRs Fail, and DevOps as the Practice to Make Them Work (In Japanese)OKR and DevOps -なぜOKRは失敗するのか？そして、それを乗り越える実践としてのDevOps-&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Ikuo Odanaka (小田中育生)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABCDEF 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Hk1j0QtZGg" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI 不只幫你寫 Code： 當專案從 300 暴增到 1500， 我們如何撐住 DevOps&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：吳柏毅 (appleboy)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJljAQYbGg" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;以趨勢科技為例，如何實現低成本高效率的 Observability2.0&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Scott Liao &amp; Herber Wang&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rklsRXt-fl" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;走出混沌的DevOps時代 : 智慧協作&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：李智樺 (Ruddy 老師)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SJ-s07YZfl" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI 時代的 DevSecOps 變革：安全開發流程的重塑與實踐&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：蔡龍佑 (Tygrus)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJ-jC7Kbfe" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;14:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;告別 RCA 撰寫地獄：利用 MCP 讓 AI 替你完成維運最後一哩路&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：宋岡諺 (Johnny Sung)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SJzsCXFbGx" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;GenAI Maturity Model:打造可監控、可治理得 AI系統&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Ray Wang &amp; Shanna&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Syfi0QYbzx" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Shipping Infrastructure Safely with Modern IaC and CI/CD Patterns&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Edwin Moedano Cardiel (Edwin)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SygQiRQY-fl" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;從寫到管：打造 GCP DevOps Agent 的實戰紀錄&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：楊騏 (Jason Yang)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/r1XoRXYbGl" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;Alert 分析進化史：從 Excel 到 AI Agent，6 個月的迭代與妥協&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：周建毅 (Miles)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SJxEiRQFZMx" style="--a: url(&amp;quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;14:30&lt;br /&gt;|&lt;br /&gt;15:10&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;淨化 AI 軟體供應鏈：攔截惡意開源套件，把 Repository 變成企業信任中心&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王青 (Alex Wang)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rJSs0XF-fe" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;每分鐘超過 5 億筆可觀測性服務&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：熊崇緯 (Chungwei)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/S1BiAXYZzg" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;LLM 驅動的 ML Pipeline as Code&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳彥誠 (Ian)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/SJLoCQYWMe" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;AI driven SBOM &amp; Remediation&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Himanshu Sangshetti&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/H18s07KbMe" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;打造金融業 SRE Portal：在高監管環境下實現自助治理與可靠性工程&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：秦芝儀&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/ryDjR7K-Gx" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;15:55&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;OTel Lakehouse: From O11y to AIOps&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：游舜傑 (Jay)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/HyvjCmYbGe" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;CI/CD 也需要自己的 Observability：Centralized Pipeline 的觀察與實踐&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：吳明倫 (Allen Wu)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/Bydi07F-zg" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;不是我的系統，但與我有關！團隊從「各自為政」到「群體決策」的協作實踐&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳家丞 (Michael Chen)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/ryOiA7Y-Mg" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;當 Release 不再靠人工：自動化版本治理與 DevX 實戰&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：陳松林 (小松 XiaoSong)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/rkKi0XYWGl" style="--a: url(&amp;quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;16:15&lt;br /&gt;|&lt;br /&gt;16:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;DataOps + ChatOps: 打造跨團隊協作的控制面&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：石璨華 (Rex)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/B1KsC7Ybfl" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:30&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:30&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;從 Vibe Coding 到 AI-Native DevOps&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：董大偉 (David)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：DE 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/B19jRmtWGe" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;打造 Agent Production Day 2 Operations&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：Jimmy Liao &amp; Kevin Chiu&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/ry5sAXtWzx" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;漏洞這麼多哪裡修得完：DevOps 實務中的漏洞決策與優先排序&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：高于凱 (HackerCat)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：ABC 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/H1siCXK-fl" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;規格驅動的 AI 強化 DevOps&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：張哲嘉 (Che Chia Chang)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：F 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;li&gt;
+  &lt;a href="/HksiAXYbfe" style="--a: url(&amp;quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;17:00&lt;br /&gt;|&lt;br /&gt;17:40&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;DevOps衰退？從CIO大調查看AI原生浪潮的衝擊&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王宏仁&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+### 6/26（五）工作坊
+&lt;ul&gt;
+&lt;li&gt;
+  &lt;a href="/vLsTbF1vS-mjnwxXSDRgCA" style="--a: url(&amp;quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:30&lt;br /&gt;|&lt;br /&gt;11:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ 從 MCP 到 Agentic AI: Windows 維運自動化實戰&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王偉任 (Microsoft MVP)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/eP2XeaQpSVGWWSi5riRp_g" style="--a: url(&amp;quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:30&lt;br /&gt;|&lt;br /&gt;11:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ 不再只是寫腳本！讓 AI 代理人成為你的 SRE 最佳夥伴&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：林建宏 (Soho)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/QaY3P8UwRH60bAqG1Zwj4Q" style="--a: url(&amp;quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;09:30&lt;br /&gt;|&lt;br /&gt;11:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ 從開發到部署全都交給 AI：實作 AI 驅動的自動化流程&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：吳柏毅 (聯發科技)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/j1Ynl5NGTASli4QlY9jnsg" style="--a: url(&amp;quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:30&lt;br /&gt;|&lt;br /&gt;13:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ AI Agent 上雲實戰：用 Google ADK + Cloud Run 打造自動化測試程式碼審查員&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：劉育維 (APMIC)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/8BvSIDomR4qbADVncShewQ" style="--a: url(&amp;quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:30&lt;br /&gt;|&lt;br /&gt;13:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ Google ADK即時語音串流實現GCP平台與DevOps的整合應用&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：葉昱宏 (國泰人壽)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：605+606 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/0jWctRt6RcijhKdDhaLLHg" style="--a: url(&amp;quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;11:30&lt;br /&gt;|&lt;br /&gt;13:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ Go 整合 ECS Service Connect 與 LLM 實作 AIOps 自動化決策&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：何剛 (鈦創軟體資訊)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：607+608 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/9yKecwHySD6pvo9pcsS7pA" style="--a: url(&amp;quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;13:30&lt;br /&gt;|&lt;br /&gt;15:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ Bootcamp AI-DD Spec Driven Develop 工作坊&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：王健行 (91APP)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+
+&lt;li&gt;
+  &lt;a href="/ioFBUoAIQvyKaGRiHQ6UZQ" style="--a: url(&amp;quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&amp;quot;)"&gt;
+    &lt;div class="time"&gt;15:30&lt;br /&gt;|&lt;br /&gt;17:00&lt;/div&gt;
+    &lt;div class="title"&gt;
+      &lt;div class="session-title"&gt;工作坊 ♦ Bootcamp 你的 Repo 會自己上班了：用 GitHub Agentic Workflows 打造 Continuous AI&lt;/div&gt;
+      &lt;div class="session-speaker"&gt;講者：謝政廷 (TSMC)&lt;/div&gt;
+      &lt;div class="session-room"&gt;會場：603+604 會議室&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/a&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;style&gt;
+/* Minimal timeline layout for index book */
+#summary &gt; h3 + ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#summary &gt; h3 + ul li {
+  margin: 0;
+  padding: 0;
+}
+
+#summary &gt; h3 + ul a {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 10px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+#summary &gt; h3 + ul a::after {
+  content: "";
+  display: block;
+  width: 2px;
+  flex-shrink: 0;
+  background-image: var(--a);
+}
+
+.time {
+  min-width: 48px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.title {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.session-title {
+  font-weight: 600;
+}
+
+.session-speaker,
+.session-room {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.session-speaker {
+  font-weight: 500;
+}
+
+.session-room {
+  font-weight: 500;
+}
+
+&lt;/style&gt;
+
+###### tags: `DevOpsDays Taipei 2026`
+
+</div>
+    <div id="meta" style="display: none;">{"title":"DevOpsDays Taipei 2026 共同筆記","breaks":false,"description":"歡迎來到 DevOpsDays！","contributors":"[{\"id\":\"72abacbd-0926-4b6c-bfcf-7d76201b2faf\",\"add\":15852,\"del\":9884,\"latestUpdatedAt\":1782189858073}]"}</div>
+    <div class="summary pl-1.5">
+        <div class="toolbar flex flex-row gap-1 absolute top-0 w-auto py-2 px-1.5 -mx-1.5 w-full">
+            <div class="input-group-sm search flex-shrink min-w-0 w-full">
+                <input class="
+                        ui-summary-search w-full
+                        text-text-default bg-background-default px-3 py-2 text-normal font-normal leading-normal
+                        rounded border border-solid border-border-default outline-none focus:outline-none
+                        placeholder:text-text-subtler focus-within:border-border-primary-subtler focus:border-border-primary-subtler
+                    " placeholder="Search title...">
+            </div>
+            <div class="btn ui-summary-action ui-summary-refresh" aria-hidden="true" title="Refresh">
+                <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+            </div>
+            <span class="ui-summary-action-disabled ui-summary-refresh-disabled" aria-disabled="true" style="display: none" data-original-title="<span class='whitespace-pre'>Unavailable offline</span>" data-placement="bottom" data-toggle="tooltip" data-html="true">
+                <i class="ph ph-arrows-clockwise pointer-events-auto" aria-hidden="true"></i>
+            </span>
+            
+            <div class="btn ui-summary-action ui-summary-collapse" aria-hidden="true" title="Collapse">
+                <i class="ph ph-caret-double-left" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div id="summary"><h1 data-startline="NaN" data-endline="NaN">DevOpsDays Taipei 2026 共同筆記</h1><h2 data-startline="NaN" data-endline="NaN" class="collapsible"><span class="heading-span">歡迎來到 DevOpsDays Taipei 2026！</span><span class="collapsible-icons">
+        <i class="ph ph-caret-down" aria-hidden="true"></i>
+      </span></h2><ul class="nav nav-pills nav-stacked" data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0">
+<li data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0"><a href="https://hackmd.io/@DevOpsDay/2026/%2F%40DevOpsDay%2Fr1RnH1uWMg" data-href="/@DevOpsDay/r1RnH1uWMg">歡迎來到 DevOpsDays！</a></li>
+<li data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0"><a href="https://devopsdays.tw/" target="_blank" rel="noopener ugc nofollow" class="external"><span>DevOpsDays 2026 官方網站</span><span class="flex h-fit"><i class="ph ph-arrow-square-out"></i></span></a></li>
+<li data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0"><a href="https://devopsdays.tw/2026/agenda" target="_blank" rel="noopener ugc nofollow" class="external"><span>DevOpsDays 2026 議程表</span><span class="flex h-fit"><i class="ph ph-arrow-square-out"></i></span></a></li>
+<li data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0"><a href="https://hackmd.io/@DevOpsDay/2026/https%3A%2F%2Fhackmd.io%2Fs%2FBJvtP4zGX" data-href="https://hackmd.io/s/BJvtP4zGX">HackMD 快速入門</a></li>
+<li data-startline="NaN" data-endline="NaN" data-position="NaN" data-size="0"><a href="https://hackmd.io/@DevOpsDay/2026/https%3A%2F%2Fhackmd.io%2Fs%2FBJHWlNQMX" data-href="https://hackmd.io/s/BJHWlNQMX">HackMD 會議功能介紹</a></li>
+</ul><h2 data-startline="NaN" data-endline="NaN">議程筆記</h2><h3 data-startline="NaN" data-endline="NaN" class="collapsible"><span class="heading-span">6/25（四）議程</span><span class="collapsible-icons">
+        <i class="ph ph-caret-down" aria-hidden="true"></i>
+      </span></h3><ul class="nav nav-pills nav-stacked">
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSkz9AmKbMx" style="--a: url(&quot;https://hackmd.io/?s=09:30&amp;e=09:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Skz9AmKbMx">
+    <div class="time">09:30<br>|<br>09:40</div>
+    <div class="title">
+      <div class="session-title">Welcome opening</div>
+      <div class="session-speaker">講者：陳正瑋 (艦長)</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FB1GcC7FZfg" style="--a: url(&quot;https://hackmd.io/?s=09:40&amp;e=10:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/B1GcC7FZfg">
+    <div class="time">09:40<br>|<br>10:40</div>
+    <div class="title">
+      <div class="session-title">從多模型視角談與 AI 共智</div>
+      <div class="session-speaker">講者：李智樺 (Ruddy 老師)</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FByXqCQt-Gl" style="--a: url(&quot;https://hackmd.io/?s=11:00&amp;e=12:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ByXqCQt-Gl">
+    <div class="time">11:00<br>|<br>12:00</div>
+    <div class="title">
+      <div class="session-title">當 Coding Agent 能寫 Code，架構師該做什麼改變?</div>
+      <div class="session-speaker">講者：吳剛志 (Andrew Wu)</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSkm5AmtbGe" style="--a: url(&quot;https://hackmd.io/?s=12:45&amp;e=13:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Skm5AmtbGe">
+    <div class="time">12:45<br>|<br>13:10</div>
+    <div class="title">
+      <div class="session-title">以 AI Agent 重構 SDLC：建構企業級自動軟體交付流程</div>
+      <div class="session-speaker">講者：濮紹華 (AlanPu)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li class="active">
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBJ49A7FWfx" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/BJ49A7FWfx">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">當AI 帶來思考外包x認知負債，要如何不讓AI 奴役你</div>
+      <div class="session-speaker">講者：柯仁傑 (David Ko/敏捷三叔公)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBJE507YbMe" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/BJE507YbMe">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">AI 讓效率提升，但誰來保護品質的人？</div>
+      <div class="session-speaker">講者：盧建成 (Augustin Lu)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2Fr1BqC7t-Ge" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/r1BqC7t-Ge">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">DevSecOps 漏洞發現、追蹤與數據統計自動化分享！</div>
+      <div class="session-speaker">講者：何品緯 (Hopin)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBkU9R7tWze" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/BkU9R7tWze">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">AI落地生存法則：DevOps、DataOps與MLOps密不可分的ML專案現場</div>
+      <div class="session-speaker">講者：林煒鈞 (Jim Lin) &amp; 陳正瑋 (艦長)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBJL507KZfl" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/BJL507KZfl">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">部署零停機的秘密：Kamal 流量切換原理拆解</div>
+      <div class="session-speaker">講者：高見龍</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FS1w9C7FWGe" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/S1w9C7FWGe">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">Flow 不死：AI 時代 DevOps 的不變本質</div>
+      <div class="session-speaker">講者：陳正瑋 (艦長)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FH1w5RXY-Gl" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/H1w5RXY-Gl">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">從產品團隊看，十年打造的 Infra Platform</div>
+      <div class="session-speaker">講者：陳俊毅 (Levi Chen)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FS1_qA7Y-ze" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/S1_qA7Y-ze">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">以 kagent × A2A 構築自主協作的 Agentic K8s</div>
+      <div class="session-speaker">講者：蕭兆洋 (Charles Hsiao)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBk_c0XtbGx" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Bk_c0XtbGx">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">當 AI Agent 接管你的 On-Call</div>
+      <div class="session-speaker">講者：翁傳翔 (Herb)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSyFq0QYZMx" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=16:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SyFq0QYZMx">
+    <div class="time">15:30<br>|<br>16:10</div>
+    <div class="title">
+      <div class="session-title">工程師的新角色：掌控 AI 從需求到程式碼</div>
+      <div class="session-speaker">講者：楊琬晴 (Rose)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FH1KqAmYWzg" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/H1KqAmYWzg">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">AI 輔助遺留系統現代化的經驗分享</div>
+      <div class="session-speaker">講者：王家駿 (James)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHy99RmKbMx" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Hy99RmKbMx">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">Platform Engineering 遇上 GenAI</div>
+      <div class="session-speaker">講者：林樹熙 (Shuhsi)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJc9AQtWzx" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJc9AQtWzx">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">基於 Agent Skills、MCP 與 Playwright 的全鏈路智慧測試實踐</div>
+      <div class="session-speaker">講者：蔡明哲 (Max)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBJs9RQtbfe" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/BJs9RQtbfe">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">GSI 協議：提升 AI 驅動 SDD 的效率與敏捷性</div>
+      <div class="session-speaker">講者：薛華慶 (James)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJj9RQKbGg" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJj9RQKbGg">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">從 Vibe Coding 到 SDD：AI 時代的小團隊開發流程實驗</div>
+      <div class="session-speaker">講者：鍾筑安 (Judy ch)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHyncRXYbzl" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/HyncRXYbzl">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">不用擔心被 AI 裁員，因為出事還是你要負責</div>
+      <div class="session-speaker">講者：蔡宗城 (smalltown)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSkh9RmY-fg" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Skh9RmY-fg">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">一個人的 DevOps：從程式碼到 Production</div>
+      <div class="session-speaker">講者：鄭重男 (Nickle Cheng)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHyT5RQtZGe" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/HyT5RQtZGe">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">真。無人值守！團隊的怪物新人: OpenClaw</div>
+      <div class="session-speaker">講者：王仁宏 (3ric) &amp; 簡汎羽 (Nick Chien)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2Fr1p50QY-Ge" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/r1p50QY-Ge">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">在DevOps生命週期的AI輔助驅動</div>
+      <div class="session-speaker">講者：郭家齊 (Edward Kuo)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+</ul><h3 data-startline="NaN" data-endline="NaN" class="collapsible"><span class="heading-span">6/25（四）工作坊</span><span class="collapsible-icons">
+        <i class="ph ph-caret-down" aria-hidden="true"></i>
+      </span></h3><ul class="nav nav-pills nav-stacked">
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FuLa8jLPNTaKfJ8NTC6HnPQ" style="--a: url(&quot;https://hackmd.io/?s=09:40&amp;e=12:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/uLa8jLPNTaKfJ8NTC6HnPQ">
+    <div class="time">09:40<br>|<br>12:40</div>
+    <div class="title">
+      <div class="session-title">
+          工作坊 ♦ agile boot camp 積木敏捷體驗營</div>
+      <div class="session-speaker">講者：葉承宇 (Dean Yeh/丁哥)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FjRq_l5VPTUmmH4gTLQEkrw" style="--a: url(&quot;https://hackmd.io/?s=11:00&amp;e=12:30&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/jRq_l5VPTUmmH4gTLQEkrw">
+    <div class="time">11:00<br>|<br>12:30</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ devops 交給 skill + ai agent 一條龍弄到好吧</div>
+      <div class="session-speaker">講者：黃品叡 (Paul)、謝明宏 (Alex Hsieh)、邱清章 (Joel)、徐兆彣 (Astrid)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FvDeR6ctMSTWoKHQ2XVw2Bw" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/vDeR6ctMSTWoKHQ2XVw2Bw">
+    <div class="time">13:30<br>|<br>15:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ AI 時代的應用安全：邁向 Mythos Ready 的實務策略</div>
+      <div class="session-speaker">講者：丁蓀 (Black Duck)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2F7St7hql-RYqUB7BMdnHwtA" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/7St7hql-RYqUB7BMdnHwtA">
+    <div class="time">13:30<br>|<br>15:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ 如何使用 JFrog Curation 阻擋惡意 NPM 套件 Axios 的下載？</div>
+      <div class="session-speaker">講者：王青 (JFrog)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FyCltZjHRSXmMz4wAT3-PGw" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/yCltZjHRSXmMz4wAT3-PGw">
+    <div class="time">15:30<br>|<br>17:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ 企業級CI/CD設計框架經驗分享</div>
+      <div class="session-speaker">講者：范明城 (趣未智慧有限公司)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FJMtspg9yR4m6P4lVlkTVrA" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/JMtspg9yR4m6P4lVlkTVrA">
+    <div class="time">15:30<br>|<br>17:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ ReBAC with OpenFGA, Powered by MCP</div>
+      <div class="session-speaker">講者：劉庭瑋、方亞伯 (TSMC)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+</ul><h3 data-startline="NaN" data-endline="NaN" class="collapsible"><span class="heading-span">6/26（五）議程</span><span class="collapsible-icons">
+        <i class="ph ph-caret-down" aria-hidden="true"></i>
+      </span></h3><ul class="nav nav-pills nav-stacked">
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FryCcAQKbMl" style="--a: url(&quot;https://hackmd.io/?s=09:30&amp;e=09:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ryCcAQKbMl">
+    <div class="time">09:30<br>|<br>09:40</div>
+    <div class="title">
+      <div class="session-title">Welcome opening</div>
+      <div class="session-speaker">講者：吳其勳</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJA5CXYZGe" style="--a: url(&quot;https://hackmd.io/?s=09:40&amp;e=10:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJA5CXYZGe">
+    <div class="time">09:40<br>|<br>10:40</div>
+    <div class="title">
+      <div class="session-title">Quality Management Systems in the Agile Era: Balancing ISO 9001 Compliance and Agility</div>
+      <div class="session-speaker">講者：Hosotani Yasuo (Yasuo)</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FS1koRQYZfl" style="--a: url(&quot;https://hackmd.io/?s=11:00&amp;e=12:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/S1koRQYZfl">
+    <div class="time">11:00<br>|<br>12:00</div>
+    <div class="title">
+      <div class="session-title">OKR and DevOps — Why OKRs Fail, and DevOps as the Practice to Make Them Work (In Japanese)OKR and DevOps -なぜOKRは失敗するのか？そして、それを乗り越える実践としてのDevOps-</div>
+      <div class="session-speaker">講者：Ikuo Odanaka (小田中育生)</div>
+      <div class="session-room">會場：ABCDEF 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHk1j0QtZGg" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Hk1j0QtZGg">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">AI 不只幫你寫 Code： 當專案從 300 暴增到 1500， 我們如何撐住 DevOps</div>
+      <div class="session-speaker">講者：吳柏毅 (appleboy)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJljAQYbGg" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJljAQYbGg">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">以趨勢科技為例，如何實現低成本高效率的 Observability2.0</div>
+      <div class="session-speaker">講者：Scott Liao &amp; Herber Wang</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrklsRXt-fl" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rklsRXt-fl">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">走出混沌的DevOps時代 : 智慧協作</div>
+      <div class="session-speaker">講者：李智樺 (Ruddy 老師)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSJ-s07YZfl" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SJ-s07YZfl">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">AI 時代的 DevSecOps 變革：安全開發流程的重塑與實踐</div>
+      <div class="session-speaker">講者：蔡龍佑 (Tygrus)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJ-jC7Kbfe" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=14:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJ-jC7Kbfe">
+    <div class="time">13:30<br>|<br>14:10</div>
+    <div class="title">
+      <div class="session-title">告別 RCA 撰寫地獄：利用 MCP 讓 AI 替你完成維運最後一哩路</div>
+      <div class="session-speaker">講者：宋岡諺 (Johnny Sung)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSJzsCXFbGx" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SJzsCXFbGx">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">GenAI Maturity Model:打造可監控、可治理得 AI系統</div>
+      <div class="session-speaker">講者：Ray Wang &amp; Shanna</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSyfi0QYbzx" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Syfi0QYbzx">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">Shipping Infrastructure Safely with Modern IaC and CI/CD Patterns</div>
+      <div class="session-speaker">講者：Edwin Moedano Cardiel (Edwin)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSygQiRQY-fl" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SygQiRQY-fl">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">從寫到管：打造 GCP DevOps Agent 的實戰紀錄</div>
+      <div class="session-speaker">講者：楊騏 (Jason Yang)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2Fr1XoRXYbGl" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/r1XoRXYbGl">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">Alert 分析進化史：從 Excel 到 AI Agent，6 個月的迭代與妥協</div>
+      <div class="session-speaker">講者：周建毅 (Miles)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSJxEiRQFZMx" style="--a: url(&quot;https://hackmd.io/?s=14:30&amp;e=15:10&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SJxEiRQFZMx">
+    <div class="time">14:30<br>|<br>15:10</div>
+    <div class="title">
+      <div class="session-title">淨化 AI 軟體供應鏈：攔截惡意開源套件，把 Repository 變成企業信任中心</div>
+      <div class="session-speaker">講者：王青 (Alex Wang)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrJSs0XF-fe" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rJSs0XF-fe">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">每分鐘超過 5 億筆可觀測性服務</div>
+      <div class="session-speaker">講者：熊崇緯 (Chungwei)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FS1BiAXYZzg" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/S1BiAXYZzg">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">LLM 驅動的 ML Pipeline as Code</div>
+      <div class="session-speaker">講者：陳彥誠 (Ian)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FSJLoCQYWMe" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/SJLoCQYWMe">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">AI driven SBOM &amp; Remediation</div>
+      <div class="session-speaker">講者：Himanshu Sangshetti</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FH18s07KbMe" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/H18s07KbMe">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">打造金融業 SRE Portal：在高監管環境下實現自助治理與可靠性工程</div>
+      <div class="session-speaker">講者：秦芝儀</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FryDjR7K-Gx" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=15:55&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ryDjR7K-Gx">
+    <div class="time">15:30<br>|<br>15:55</div>
+    <div class="title">
+      <div class="session-title">OTel Lakehouse: From O11y to AIOps</div>
+      <div class="session-speaker">講者：游舜傑 (Jay)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHyvjCmYbGe" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/HyvjCmYbGe">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">CI/CD 也需要自己的 Observability：Centralized Pipeline 的觀察與實踐</div>
+      <div class="session-speaker">講者：吳明倫 (Allen Wu)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FBydi07F-zg" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/Bydi07F-zg">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">不是我的系統，但與我有關！團隊從「各自為政」到「群體決策」的協作實踐</div>
+      <div class="session-speaker">講者：陳家丞 (Michael Chen)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FryOiA7Y-Mg" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ryOiA7Y-Mg">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">當 Release 不再靠人工：自動化版本治理與 DevX 實戰</div>
+      <div class="session-speaker">講者：陳松林 (小松 XiaoSong)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FrkKi0XYWGl" style="--a: url(&quot;https://hackmd.io/?s=16:15&amp;e=16:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/rkKi0XYWGl">
+    <div class="time">16:15<br>|<br>16:40</div>
+    <div class="title">
+      <div class="session-title">DataOps + ChatOps: 打造跨團隊協作的控制面</div>
+      <div class="session-speaker">講者：石璨華 (Rex)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FB1KsC7Ybfl" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:30&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/B1KsC7Ybfl">
+    <div class="time">17:00<br>|<br>17:30</div>
+    <div class="title">
+      <div class="session-title">從 Vibe Coding 到 AI-Native DevOps</div>
+      <div class="session-speaker">講者：董大偉 (David)</div>
+      <div class="session-room">會場：DE 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FB19jRmtWGe" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/B19jRmtWGe">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">打造 Agent Production Day 2 Operations</div>
+      <div class="session-speaker">講者：Jimmy Liao &amp; Kevin Chiu</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2Fry5sAXtWzx" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ry5sAXtWzx">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">漏洞這麼多哪裡修得完：DevOps 實務中的漏洞決策與優先排序</div>
+      <div class="session-speaker">講者：高于凱 (HackerCat)</div>
+      <div class="session-room">會場：ABC 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FH1siCXK-fl" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/H1siCXK-fl">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">規格驅動的 AI 強化 DevOps</div>
+      <div class="session-speaker">講者：張哲嘉 (Che Chia Chang)</div>
+      <div class="session-room">會場：F 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FHksiAXYbfe" style="--a: url(&quot;https://hackmd.io/?s=17:00&amp;e=17:40&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/HksiAXYbfe">
+    <div class="time">17:00<br>|<br>17:40</div>
+    <div class="title">
+      <div class="session-title">DevOps衰退？從CIO大調查看AI原生浪潮的衝擊</div>
+      <div class="session-speaker">講者：王宏仁</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+</ul><h3 data-startline="NaN" data-endline="NaN" class="collapsible"><span class="heading-span">6/26（五）工作坊</span><span class="collapsible-icons">
+        <i class="ph ph-caret-down" aria-hidden="true"></i>
+      </span></h3><ul class="nav nav-pills nav-stacked">
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FvLsTbF1vS-mjnwxXSDRgCA" style="--a: url(&quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/vLsTbF1vS-mjnwxXSDRgCA">
+    <div class="time">09:30<br>|<br>11:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ 從 MCP 到 Agentic AI: Windows 維運自動化實戰</div>
+      <div class="session-speaker">講者：王偉任 (Microsoft MVP)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FeP2XeaQpSVGWWSi5riRp_g" style="--a: url(&quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/eP2XeaQpSVGWWSi5riRp_g">
+    <div class="time">09:30<br>|<br>11:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ 不再只是寫腳本！讓 AI 代理人成為你的 SRE 最佳夥伴</div>
+      <div class="session-speaker">講者：林建宏 (Soho)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FQaY3P8UwRH60bAqG1Zwj4Q" style="--a: url(&quot;https://hackmd.io/?s=09:30&amp;e=11:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/QaY3P8UwRH60bAqG1Zwj4Q">
+    <div class="time">09:30<br>|<br>11:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ 從開發到部署全都交給 AI：實作 AI 驅動的自動化流程</div>
+      <div class="session-speaker">講者：吳柏毅 (聯發科技)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2Fj1Ynl5NGTASli4QlY9jnsg" style="--a: url(&quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/j1Ynl5NGTASli4QlY9jnsg">
+    <div class="time">11:30<br>|<br>13:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ AI Agent 上雲實戰：用 Google ADK + Cloud Run 打造自動化測試程式碼審查員</div>
+      <div class="session-speaker">講者：劉育維 (APMIC)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2F8BvSIDomR4qbADVncShewQ" style="--a: url(&quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/8BvSIDomR4qbADVncShewQ">
+    <div class="time">11:30<br>|<br>13:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ Google ADK即時語音串流實現GCP平台與DevOps的整合應用</div>
+      <div class="session-speaker">講者：葉昱宏 (國泰人壽)</div>
+      <div class="session-room">會場：605+606 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2F0jWctRt6RcijhKdDhaLLHg" style="--a: url(&quot;https://hackmd.io/?s=11:30&amp;e=13:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/0jWctRt6RcijhKdDhaLLHg">
+    <div class="time">11:30<br>|<br>13:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ Go 整合 ECS Service Connect 與 LLM 實作 AIOps 自動化決策</div>
+      <div class="session-speaker">講者：何剛 (鈦創軟體資訊)</div>
+      <div class="session-room">會場：607+608 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2F9yKecwHySD6pvo9pcsS7pA" style="--a: url(&quot;https://hackmd.io/?s=13:30&amp;e=15:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/9yKecwHySD6pvo9pcsS7pA">
+    <div class="time">13:30<br>|<br>15:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ Bootcamp AI-DD Spec Driven Develop 工作坊</div>
+      <div class="session-speaker">講者：王健行 (91APP)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+<li>
+  <a href="https://hackmd.io/@DevOpsDay/2026/%2FioFBUoAIQvyKaGRiHQ6UZQ" style="--a: url(&quot;https://hackmd.io/?s=15:30&amp;e=17:00&amp;d=F7F7F7&amp;c=FF7828&quot;)" data-href="/ioFBUoAIQvyKaGRiHQ6UZQ">
+    <div class="time">15:30<br>|<br>17:00</div>
+    <div class="title">
+      <div class="session-title">工作坊 ♦ Bootcamp 你的 Repo 會自己上班了：用 GitHub Agentic Workflows 打造 Continuous AI</div>
+      <div class="session-speaker">講者：謝政廷 (TSMC)</div>
+      <div class="session-room">會場：603+604 會議室</div>
+    </div>
+  </a>
+</li>
+</ul><h6 data-startline="NaN" data-endline="NaN">tags: <code data-position="NaN" data-size="22">DevOpsDays Taipei 2026</code></h6></div>
+    </div>
+    <div class="topbar">
+        <div class="btn ui-summary-action ui-summary-open p-1.5" aria-hidden="true" title="Expand" "="">
+            <span class="visible-xs-inline">Expand menu </span>
+            <i class="ph ph-caret-double-right text-lg leading-sm" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="container-mask"></div>
+    <div class="book-container">
+        <div class="ui-book-spinner unselectable hidden-print"><div class="spinner" role="progressbar" style="position: absolute; width: 0px; z-index: 2000000000; left: 50%; top: 50%;"><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-0-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(0deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-1-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(32deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-2-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(65deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-3-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(98deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-4-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(130deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-5-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(163deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-6-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(196deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-7-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(229deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-8-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(261deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-9-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(294deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-10-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(327deg) translate(30px, 0px); border-radius: 0px;"></div></div></div></div>
+    <div id="JTJGQko0OUE3RldmeA==" src="https://hackmd.io/WNSBbOJATt62iNShdB5nsg" width="100%" height="100%" frameborder="0" last-active-time="1782562818394" data-original-tag="iframe">
+    
+
+
+
+
+
+
+
+
+
+
+
+<title>HackMD - Collaborative Markdown Knowledge Base</title>
+
+
+
+
+
+
+
+    
+
+
+
+    
+
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+<!-- article meta -->
+
+
+
+
+
+<!-- profile meta -->
+
+
+
+<link rel="icon" type="image/png" href="https://hackmd.io/favicon.png">
+<link rel="apple-touch-icon" href="https://hackmd.io/apple-touch-icon.png">
+<link rel="preload" href="https://hackmd.io/offline-access/offline-access-description-light.svg" as="image">
+<link rel="preload" href="https://hackmd.io/offline-access/offline-access-description-dark.svg" as="image">
+
+
+
+
+
+
+
+<!-- Google Tag Manager -->
+
+<!-- End Google Tag Manager -->
+
+
+ <link href="https://assets.hackmd.io/build/font-vendor.ea8218d7d4f468b2c430.css" rel="stylesheet"><link href="https://assets.hackmd.io/build/common-vendor.fd34b1d1ad1390fa8864.css" rel="stylesheet"><link href="https://assets.hackmd.io/build/index-vendor.baee54bd991cebf8a8ac.css" rel="stylesheet"><link href="https://assets.hackmd.io/build/index.9fabd5d6b2cf43dff615.css" rel="stylesheet">
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+<![endif]-->
+
+
+
+
+
+
+<!-- plausible -->
+
+
+
+
+    
+<link rel="stylesheet" type="text/css" href="https://assets.hackmd.io/build/fretboard.7a98c97ae43fb8ca354b.css">
+
+<span data-radix-focus-guard="" tabindex="0" style="outline: none; opacity: 0; position: fixed; pointer-events: none;"></span>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="ui-spinner unselectable hidden-print" style="display: none;"><div class="spinner" role="progressbar" style="position: absolute; width: 0px; z-index: 2000000000; left: 50%; top: 50%;"><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-0-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(0deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-1-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(32deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-2-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(65deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-3-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(98deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-4-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(130deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-5-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(163deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-6-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(196deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-7-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(229deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-8-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(261deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-9-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(294deg) translate(30px, 0px); border-radius: 0px;"></div></div><div style="position: absolute; top: -1px; transform: translate3d(0px, 0px, 0px); opacity: 0.25; animation: 0.909091s linear 0s infinite normal none running opacity-60-25-10-11;"><div style="position: absolute; width: 22px; height: 2px; background: rgb(0, 0, 0); box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 1px; transform-origin: left center; transform: rotate(327deg) translate(30px, 0px); border-radius: 0px;"></div></div></div></div>
+
+    <div class="sidenav sidenav-import-from" style="display: none;">
+        <a class="sidenav-item sidenav-back ui-import-from-back" tabindex="-1" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#">
+            <i class="ph ph-caret-left" style="width:auto"></i>
+            <i class="ph ph-arrow-square-in" style="margin: 0px 0px 0px 15px;"></i>
+            <span>Import from</span>
+        </a>
+        <a class="sidenav-item ui-import-dropbox" tabindex="-1" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#" target="_self">
+            <i class="ph ph-dropbox-logo"></i>
+            <span>Dropbox</span>
+        </a>
+        <a class="sidenav-item ui-import-google-drive" tabindex="-1" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#" target="_self">
+            <img src="https://hackmd.io/images/logo_google_drive.png" width="20" height="20">
+            <span>Google Drive</span>
+        </a>
+        <a class="sidenav-item ui-import-gist" tabindex="-1" data-toggle="modal" data-target="#gistImportModal">
+            <i class="fa fa-github fa-20 w-5 h-5 text-center" style="line-height: 20px;"></i>
+            <span>Gist</span>
+        </a>
+        
+        <a class="sidenav-item ui-import-clipboard" tabindex="-1" data-toggle="modal" data-target="#clipboardModal">
+            <i class="ph ph-clipboard-text"></i>
+            <span>Clipboard</span>
+        </a>
+        
+    </div>
+
+    <div class="row ui-content mode-view" style="" theme="light">
+    
+    <div class="ui-edit-area unselectable ui-resizable" style="display: none;">
+        <textarea id="textit" data-1p-ignore="" data-lpignore="true" data-form-type="other" data-bwignore="" style="display: none;"></textarea><div><div class="CodeMirror cm-s-neo-dark CodeMirror-wrap CodeMirror-overlayscroll" translate="no" lang="en-US" style="height: 0px;"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" readonly="" tabindex="0" data-1p-ignore="" data-lpignore="true" data-form-type="other" data-bwignore="" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; min-height: 1em; outline: none;"></textarea></div><div class="CodeMirror-overlayscroll-horizontal" cm-not-content="true" style="display: none;"><div></div></div><div class="CodeMirror-overlayscroll-vertical" cm-not-content="true" style="display: block; bottom: 0px;"><div style="height: 10px; top: 0px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1" style="height: 0px;"><div class="CodeMirror-sizer" style="margin-left: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre class="CodeMirror-line-like"><span>xxxxxxxxxx</span></pre></div><div class="CodeMirror-measure"></div><div class="CodeMirror-other-cursors"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"><div class="CodeMirror-cursor" style="left: 0px; top: 0px; height: 0px;">&nbsp;</div></div><div class="cursor-menu"></div><div class="CodeMirror-code" role="presentation"></div></div></div></div><div style="position: absolute; top: 0px; left: 0px; margin-left: calc(-1 * var(--editor-gutter-fullwidth));"><a class="absolute left-[var(--editor-linenumber-width)]" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-0" data-state="closed" style="top: 0px;"></a></div></div><div style="position: absolute; height: 50px; width: 1px; border-bottom: 0px solid transparent;"></div><div class="CodeMirror-gutters" style="left: 0px;"><div class="CodeMirror-gutter CodeMirror-linenumbers-action"></div><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div><div class="CodeMirror-gutter CodeMirror-linenumbers-selected"></div><div class="CodeMirror-gutter authorship-gutters"></div><div class="CodeMirror-gutter CodeMirror-foldgutter"></div></div></div></div><div class="container-thin template-menu font-system-code text-text-subtle" style="margin-bottom: 26px; display: none;">
+  <div class="flex flex-col gap-6 p-4">
+    <div class="github-signin-sync" style="display: none">
+      <p class="menu-tip" data-i18n="github.sync.empty-note.sign-in-tip" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Sign in to import from GitHub:</p>
+      <button class="neo-btn menu-item ui-signin" data-toggle="modal" data-target=".signin-modal">
+        <span data-i18n="github.sync.empty-note.sign-in" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Sign in to HackMD</span>
+      </button>
+    </div>
+    <div class="github-sync flex flex-col gap-2" style="display: none">
+      <span class="menu-tip" data-i18n="github.sync.empty-note.sync-tip" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Link to GitHub:</span>
+      <span class="flex flex-row flex-wrap gap-2">
+        <button class="neo-btn menu-item ui-github-pull">
+          <i class="ph ph-arrow-down text-[20px] leading-[20px]"></i>
+          <span data-i18n="github.sync.pull-github" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Pull from GitHub</span>
+        </button>
+        <button class="neo-btn menu-item ui-github-push">
+          <i class="ph ph-arrow-up text-[20px] leading-[20px]"></i>
+          <span data-i18n="github.sync.push-github" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Push to GitHub</span>
+        </button>
+      </span>
+    </div>
+    <div class="-mb-2 flex flex-col gap-2">
+      <span class="menu-tip" data-i18n="template.menu-tip" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">Or start with a template:</span>
+      <span class="inline text-[0px]">
+        <span class="ui-template-menu-list inline"></span>
+        <button class="neo-btn menu-item more-template ui-more-template mr-2 mb-2" tabindex="-1" data-toggle="modal" data-target="#templateModal">
+          <span data-i18n="template.more-templates" data-i18n-options="{&quot;provider&quot;:&quot;GitHub&quot;}">More templates</span>
+          <i class="ph ph-caret-right text-[20px] leading-[20px]"></i>
+        </button>
+      </span>
+    </div>
+  </div>
+</div></div>
+        <div id="ui-vertical-tools" class="shrink-0 px-1.5 py-2.5 h-full border-0 border-l-1 border-solid border-border-default bg-background-subtler hidden-xs" style="display: none;"><div class="flex h-full w-6 flex-col text-icon-subtle"><button class="p-0 m-0 bg-transparent border-none text-5 leading-[20px] flex h-6 w-6 items-center justify-center rounded hocus:bg-element-bg-hover hocus:text-icon-emphasize" data-toggle="tooltip" data-placement="left" data-offset="0,5" data-original-title="Suggest edit"><i class="ph ph-pencil-simple-line"></i></button></div></div>
+        <div id="ui-edit-mode-portal" class="z-[1050] hidden-xs portal-enabled" style="display: none;"></div>
+    <div class="ui-resizable-handle ui-resizable-e" style="z-index: 1002; display: none;"><button class="btn btn-lg btn-default ui-sync-toggle" title="Toggle sync scrolling" data-i18n="[title]editor.toggle-sync-scrolling" style="display: none;"><i class="ph ph-link-simple"></i></button></div></div>
+    <!-- New ToC Slot Container for React Component - positioned as left sidebar for view area -->
+    <div class="toc-slot-container"></div>
+    
+    <div class="@container/editor-view relative h-fit ui-view-area has-[.ui-preview-infobar[style*='display:_none']]:h-full">
+        <div class="ui-infobar ui-preview-infobar unselectable hidden-print flex justify-between bg-background-default @container transition-transform duration-300 z-[6]" style="visibility: hidden;">
+            <small class="group/infobar-user-container flex items-start @xl:items-center flex-col @xl:flex-row gap-[14px] @xl:gap-0 pt-2 @xl:pt-0">
+                <span class="ui-owner-container">
+                    <span class="ui-owner hmd-dn">
+                         <a class="ui-user-icon small" target="_blank"></a>
+                        &nbsp;<span>Owned this note</span>
+                    </span>
+
+                    <span class="ui-owner-team hmd-dn">
+                         <a class="ui-user-icon small" target="_blank"></a>
+                        &nbsp;<span>Owned this note</span>
+                    </span>
+                </span>
+
+                <span class="flex">
+                    <span class="ui-lastchangeuser hmd-dn">
+                         <a class="ui-user-icon small" target="_blank"></a>
+                        <span class="ui-status-lastchange"></span>
+                    </span>
+
+                    <span class="ui-no-lastchangeuser hmd-dn">
+                         <i class="ph ph-clock w-4.5 inline-flex justify-center" style="width: 18px;"></i>
+                        <span class="ui-status-lastchange"></span>
+                    </span>
+
+                    <span class="ui-more-info" data-toggle="popover" style="display: none;">
+                         <i class="ph-fill ph-info text-text-subtler text-[13px] leading-[13px] p-[1.5px]" aria-hidden="true"></i>
+
+                        <div class="more-info-raw hmd-dn">
+                            <span class="ui-published-note note-status-row hmd-dn items-center gap-1.5 text-text-subtle [&amp;_a]:text-text-subtle [&amp;_a]:hocus:text-text-subtle">
+                                <i class="ph-fill ph-globe-hemisphere-west text-[20px] leading-lg" aria-hidden="true"></i>
+                                <span>Published</span>
+                            </span>
+
+                            <span class="ui-connectedGithub note-status-row hmd-dn text-text-subtle [&amp;_a]:text-text-subtle [&amp;_a]:hocus:text-text-subtle leading-lg">
+                                <span class="flex flex-row gap-1.5">
+                                    <i class="text-[20px] leading-lg w-5 text-center fa fa-github"></i>
+                                    <span>Linked with GitHub</span>
+                                </span>
+                                <span class="flex flex-row gap-1.5">
+                                    <span class="w-5"></span>
+                                    <a class="file-path" target="_blank"></a>
+                                </span>
+                            </span>
+                        </div>
+                    </span>
+                </span>
+
+                <span class="tw-hide group-has-[.ui-owner-container.hidden]/infobar-user-container:flex @xl:group-has-[.ui-owner-container.hidden]/infobar-user-container:tw-hide h-[22px]" aria-hidden="true"></span>
+            </small>
+
+            <span class="flex items-center gap-0.5 h-fit relative">
+                <span id="ui-edit-mode-header-guided-comment-button" class="absolute right-0 translate-y-10 mx-1.5 @xl:relative @xl:translate-y-0" style="display: none;"></span>
+                
+                    <span class="ui-signin community-button ui-like has-count" data-toggle="tooltip" data-placement="bottom" data-offset="0,5" title="" data-original-title="Like">
+                        <i class="ph ph-heart"></i>
+                    <span class="count">1</span>
+                    </span>
+                    <span class="ui-signin community-button ui-bookmark" data-toggle="tooltip" data-placement="bottom" data-offset="0,5" title="" data-original-title="Bookmark">
+                        <i class="ph ph-bookmark-simple"></i>
+                    </span>
+                
+                
+                <span class="ui-notification dropdown pull-right" style="display: none;">
+                    <span id="notificationLabel" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <div class="ui-notification-status community-button" title="" data-toggle="tooltip" data-placement="bottom" data-offset="0,5" data-original-title="Subscribe">
+                            <i class="ph-fill ph-bell"></i>
+                        </div>
+                    </span>
+                    <ul class="dropdown-menu" aria-labelledby="notificationLabel">
+                        <li class="ui-notification-watch notification-menu-item">
+                            <i class="ph ph-check"></i>
+                            <i class="ph-fill ph-bell"></i>
+                            <div class="info">
+                                <div class="title">
+                                    Any changes
+                                </div>
+                                <div class="description">
+                                    Be notified of any changes
+                                </div>
+                            </div>
+                        </li>
+                        <li class="ui-notification-mention notification-menu-item">
+                            <i class="ph ph-check"></i>
+                            <i class="ph ph-at"></i>
+                            <div class="info">
+                                <div class="title">
+                                    Mention me
+                                </div>
+                                <div class="description">
+                                    Be notified of mention me
+                                </div>
+                            </div>
+                        </li>
+                        <li class="divider"></li>
+                        <!--
+                            <li class="ui-notification-list notification-menu-item"><span><a href="#"><i class="fa fa-list-ul fa-fw"></i>My subscribed list</a></span></li>
+                        -->
+                        <li class="ui-notification-unsubscribe notification-menu-item">
+                            <i class="ph ph-bell-slash"></i>
+                            <div class="info">
+                                <div class="title">
+                                    Unsubscribe
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <span class="ui-notification-subscribe community-button" title="" data-toggle="tooltip" data-placement="bottom" data-original-title="Subscribe">
+                        <i class="ph ph-bell"></i>
+                    </span>
+                </span>
+                
+                
+                    <div class="visible-xs" style="margin-top: 10px;"></div>
+                
+
+                <span class="ui-view-theme-select-root"><button class="rounded p-2.5 text-lg font-normal leading-sm flex bg-transparent text-text-default border border-solid border-transparent hocus:bg-element-bg-hover hocus:text-text-emphasize hover:border-element-bg-hover focus:shadow-[0_0_0_2px_#77777733] focus:border-element-border-hover disabled:bg-transparent disabled:hocus:bg-transparent disabled:hocus:border-transparent disabled:text-element-text-disabled disabled:hocus:text-element-text-disabled community-button ui-view-theme gap-0.5 focus:p-[9px] !p-[9px]" data-toggle="tooltip" data-placement="bottom" data-offset="0,5" data-original-title="Select theme to preview" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-2" data-state="closed"><i class="ph ph-paint-brush"></i></button></span>
+                <span class="ui-right-panel-toggle-container" data-unread-comment="false" data-unread-suggest-edit="false" data-unread-citation="false"><div class="open-comments open-comments-panel"><button class="m-0 border-none ui-open-comments relative flex h-[36px] items-center gap-1 p-2.5 bg-transparent text-normal leading-normal text-text-default rounded hover:bg-element-bg-hover hover:text-text-emphasize" data-state="closed"><span class="inline-flex ph" aria-hidden="true" style="width: 16px; height: 16px; font-size: 16px; line-height: 16px;"><svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M21 27C20.4477 27 20 26.5523 20 26L20 6C20 5.44772 20.4477 5 21 5C21.5523 5 22 5.44772 22 6L22 26C22 26.5523 21.5523 27 21 27Z" fill="currentColor"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M29 25C29 26.1046 28.1046 27 27 27L5 27C3.89543 27 3 26.1046 3 25L3 7C3 5.89543 3.89543 5 5 5L27 5C28.1046 5 29 5.89543 29 7L29 25ZM5 25L27 25L27 7L5 7L5 25Z" fill="currentColor"></path></svg></span></button></div></span>
+            </span>
+        </div>
+
+        <div class="ui-infobar unselectable hidden-print w-full !h-0" style="visibility: hidden;">
+            <div class="ui-comment-app" id="hackmd-app">
+                <div id="comment-app"></div>
+            </div><div id="hmd-submenu-portal"></div>
+        </div>
+        <div class="ui-comment-app"><div id="comments-panel-portal" style="display: none" theme="dark"></div></div>
+
+        <div id="doc" class="markdown-body container-fluid" data-hard-breaks="false" lang="en-US"><h1 class="part" data-startline="1" data-endline="1" id="當AI-帶來思考外包x認知負債，要如何不讓AI-奴役你---柯仁傑-David-Ko敏捷三叔公" data-id="當AI-帶來思考外包x認知負債，要如何不讓AI-奴役你---柯仁傑-David-Ko敏捷三叔公"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E7%95%B6AI-%E5%B8%B6%E4%BE%86%E6%80%9D%E8%80%83%E5%A4%96%E5%8C%85x%E8%AA%8D%E7%9F%A5%E8%B2%A0%E5%82%B5%EF%BC%8C%E8%A6%81%E5%A6%82%E4%BD%95%E4%B8%8D%E8%AE%93AI-%E5%A5%B4%E5%BD%B9%E4%BD%A0---%E6%9F%AF%E4%BB%81%E5%82%91-David-Ko%E6%95%8F%E6%8D%B7%E4%B8%89%E5%8F%94%E5%85%AC" title="當AI-帶來思考外包x認知負債，要如何不讓AI-奴役你---柯仁傑-David-Ko敏捷三叔公"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="2" data-size="50">當AI 帶來思考外包x認知負債，要如何不讓AI 奴役你 - 柯仁傑 (David Ko/敏捷三叔公)</span></h1><div class="alert alert-warning">
+<p><span data-position="11" data-size="18">Loading embed note</span></p>
+</div><h2 class="part" data-startline="5" data-endline="5" id="筆記區" data-id="筆記區"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E7%AD%86%E8%A8%98%E5%8D%80" title="筆記區"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="92" data-size="3">筆記區</span></h2><h2 class="part" data-startline="7" data-endline="7" id="GenAI-帶來的認知問題" data-id="GenAI-帶來的認知問題"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#GenAI-%E5%B8%B6%E4%BE%86%E7%9A%84%E8%AA%8D%E7%9F%A5%E5%95%8F%E9%A1%8C" title="GenAI-帶來的認知問題"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="100" data-size="13">GenAI 帶來的認知問題</span></h2><p class="part" data-startline="8" data-endline="8" data-position="114" data-size="0"><img src="https://hackmd.io/_uploads/r1C9QBqMMe.jpg" alt="PXL_20260625_053311465.MP (1)" class="offline-handled error-handled" data-position="114" data-size="75" loading="lazy"></p><blockquote class="raw part" data-startline="9" data-endline="9">
+<p data-position="192" data-size="0"><span data-position="192" data-size="5">越來越發散</span></p>
+</blockquote><blockquote class="raw part" data-startline="11" data-endline="11">
+<p data-position="201" data-size="0"><span data-position="201" data-size="26">產品越大，人的認知會跟產品全貌有落差 -&gt; 認知落差</span></p>
+</blockquote><p class="part" data-startline="13" data-endline="13" data-position="229" data-size="0"><span data-position="229" data-size="26">產品程式現狀 &lt;-&gt; 人對於產品程式現狀，中間的落差</span></p><p class="part" data-startline="15" data-endline="15" data-position="257" data-size="0"><span data-position="257" data-size="24">因為 LLM 的增強的關係，開始出現跟不上的內容</span></p><blockquote class="raw part" data-startline="17" data-endline="17">
+<p data-position="285" data-size="0"><span data-position="285" data-size="17">讓你的思考外包，變笨是唯一的結果？</span></p>
+</blockquote><p class="part" data-startline="19" data-endline="19" data-position="304" data-size="0"><span data-position="304" data-size="9">刻痕、烙印的重要性</span></p><p class="part" data-startline="22" data-endline="23" data-position="316" data-size="0"><span data-position="316" data-size="6">什麼是認知？</span>
+<span data-position="323" data-size="18">從接收訊息到做出反應，中間所有的過程</span></p><p class="part" data-startline="25" data-endline="25" data-position="343" data-size="0"><span data-position="343" data-size="21">認知負債：沒搞懂但卻立刻就有成品之間的落差</span></p><p class="part" data-startline="27" data-endline="27" data-position="366" data-size="0"><span data-position="366" data-size="16">有了AI之後，認知過程就會變了調</span></p><blockquote class="raw part" data-startline="28" data-endline="28">
+<p data-position="385" data-size="0"><span data-position="385" data-size="41">一杯咖啡，聞不到咖啡香、不知道自己是冰還熱、不知道上次拉肚子了沒、不知道要點冰還熱</span></p>
+</blockquote><h2 class="part" data-startline="31" data-endline="31" id="傳統錯誤的解法" data-id="傳統錯誤的解法"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E5%82%B3%E7%B5%B1%E9%8C%AF%E8%AA%A4%E7%9A%84%E8%A7%A3%E6%B3%95" title="傳統錯誤的解法"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="432" data-size="7">傳統錯誤的解法</span></h2><ul class="part" data-startline="33" data-endline="56" data-position="441" data-size="0">
+<li class="raw" data-startline="33" data-endline="51" data-position="443" data-size="0">
+<p data-position="441" data-size="0"><span data-position="443" data-size="31">將團隊職責切分得越細，員工需要學習的東西就越少，認知負荷就越低</span></p>
+<blockquote class="raw">
+<p data-position="482" data-size="0"><span data-position="482" data-size="10">依照「職能」區分團隊</span></p>
+</blockquote>
+<ul data-position="498" data-size="0">
+<li class="raw" data-startline="37" data-endline="37" data-position="500" data-size="0"><span data-position="500" data-size="34">案例：導入 Scrum，但卻按職能拆團隊，原本職責廣泛的團隊被分割了</span></li>
+<li class="raw" data-startline="38" data-endline="38" data-position="541" data-size="0"><span data-position="541" data-size="40">需求量大、複雜後，這些小團隊就動不起來了，容易彼此互卡，依賴關係導致交付時間變長</span></li>
+<li class="raw" data-startline="39" data-endline="39" data-position="588" data-size="0"><span data-position="588" data-size="29">軟體組件無法整合，整合DevOps,DevSecOps團隊</span></li>
+<li class="raw" data-startline="40" data-endline="40" data-position="624" data-size="0"><span data-position="624" data-size="15">沒人驗證整體品質，增加QA團隊</span></li>
+<li class="raw" data-startline="41" data-endline="41" data-position="646" data-size="0"><span data-position="646" data-size="13">產品不符需求，增加客戶支援</span></li>
+<li class="raw" data-startline="42" data-endline="43" data-position="666" data-size="0"><span data-position="666" data-size="7">產生踢皮球效應</span></li>
+</ul>
+<blockquote class="raw">
+<p data-position="681" data-size="0"><span data-position="681" data-size="10">多專案併發與情境切換</span></p>
+</blockquote>
+<ul data-position="697" data-size="0">
+<li class="raw" data-startline="46" data-endline="46" data-position="699" data-size="0"><span data-position="699" data-size="35">資源利用率的迷思，為了確保每個組件團隊「有事做」，公司同時啟動多個計畫</span></li>
+<li class="raw" data-startline="47" data-endline="48" data-position="741" data-size="0"><span data-position="741" data-size="6">導致吼叫效應</span>
+<blockquote class="raw">
+<p data-position="758" data-size="0"><span data-position="758" data-size="11">叫得夠大聲才爭得到資源</span></p>
+</blockquote>
+</li>
+<li class="raw" data-startline="49" data-endline="49" data-position="776" data-size="0"><span data-position="776" data-size="11">產生許多無效的管理會議</span></li>
+<li class="raw" data-startline="50" data-endline="51" data-position="794" data-size="0"><span data-position="794" data-size="17">分工求生，全端工程師變成孤單工程師</span></li>
+</ul>
+</li>
+<li class="raw" data-startline="52" data-endline="56" data-position="815" data-size="0">
+<p data-position="813" data-size="0"><span data-position="815" data-size="27">把 LLM/AI 當成中樞，把弄懂全局的工作交給 AI</span></p>
+<ul data-position="847" data-size="0">
+<li class="raw" data-startline="53" data-endline="53" data-position="849" data-size="0"><span data-position="849" data-size="19">但這其實也是泰勒(Taylor)的老路</span></li>
+<li class="raw" data-startline="54" data-endline="54" data-position="875" data-size="0"><span data-position="875" data-size="9">可能會付出四個代價</span></li>
+<li class="raw" data-startline="55" data-endline="56" data-position="891" data-size="0"><img src="https://hackmd.io/_uploads/Hy6OmrcMfx.jpg" alt="PXL_20260625_055051865.MP (1)" class="offline-handled error-handled" data-position="891" data-size="75" loading="lazy"></li>
+</ul>
+</li>
+</ul><h2 class="part" data-startline="57" data-endline="57" id="持續學習和回饋才是正解" data-id="持續學習和回饋才是正解"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E6%8C%81%E7%BA%8C%E5%AD%B8%E7%BF%92%E5%92%8C%E5%9B%9E%E9%A5%8B%E6%89%8D%E6%98%AF%E6%AD%A3%E8%A7%A3" title="持續學習和回饋才是正解"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="971" data-size="11">持續學習和回饋才是正解</span></h2><ul class="part" data-startline="59" data-endline="76" data-position="984" data-size="0">
+<li class="raw" data-startline="59" data-endline="61" data-position="986" data-size="0">
+<p data-position="984" data-size="0"><span data-position="986" data-size="25">Spaced Repetition：穩定知識的固著</span></p>
+<ul data-position="1016" data-size="0">
+<li class="raw" data-startline="60" data-endline="61" data-position="1018" data-size="0"><img src="https://hackmd.io/_uploads/BJwoUS9Mzx.jpg" alt="PXL_20260625_055139230.MP (1)" class="offline-handled error-handled" data-position="1018" data-size="75" loading="lazy"></li>
+</ul>
+</li>
+<li class="raw" data-startline="62" data-endline="66" data-position="1097" data-size="0">
+<p data-position="1095" data-size="0"><span data-position="1097" data-size="30">多團隊 Product Backlog Refinement</span></p>
+<ul data-position="1132" data-size="0">
+<li class="raw" data-startline="63" data-endline="63" data-position="1134" data-size="0"><span data-position="1134" data-size="8">LeSS 的概念</span></li>
+<li class="raw" data-startline="64" data-endline="64" data-position="1149" data-size="0"><span data-position="1149" data-size="5">從實例解釋</span></li>
+<li class="raw" data-startline="65" data-endline="66" data-position="1161" data-size="0"><img src="https://hackmd.io/_uploads/S1tWXB5zze.jpg" alt="IMG_8200" class="offline-handled error-handled" data-position="1161" data-size="54" loading="lazy"></li>
+</ul>
+</li>
+<li class="raw" data-startline="67" data-endline="69" data-position="1219" data-size="0">
+<p data-position="1217" data-size="0"><span data-position="1219" data-size="7">傳話遊戲的死穴</span></p>
+<ul data-position="1231" data-size="0">
+<li class="raw" data-startline="68" data-endline="69" data-position="1233" data-size="0"><span data-position="1233" data-size="21">新角色：Product Developer</span>
+<ul data-position="1263" data-size="0">
+<li class="raw" data-startline="69" data-endline="69" data-position="1265" data-size="0"><span data-position="1265" data-size="19">工程師直接和客戶溝通，了解到第一手需求</span></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="raw" data-startline="70" data-endline="70" data-position="1287" data-size="0">
+<p data-position="1285" data-size="0"><span data-position="1287" data-size="22">End to end 的 ownership</span></p>
+</li>
+<li class="raw" data-startline="71" data-endline="71" data-position="1312" data-size="0">
+<p data-position="1310" data-size="0"><span data-position="1312" data-size="16">Pair Programming</span></p>
+</li>
+<li class="raw" data-startline="72" data-endline="76" data-position="1331" data-size="0">
+<p data-position="1329" data-size="0"><span data-position="1331" data-size="21">LLM/AI 時代可以怎麼做，減少認知負債</span></p>
+<ul data-position="1357" data-size="0">
+<li class="raw" data-startline="73" data-endline="74" data-position="1359" data-size="0"><img src="https://hackmd.io/_uploads/HJatIH5zMe.jpg" alt="PXL_20260625_055923380.MP" class="offline-handled error-handled" data-position="1359" data-size="71" loading="lazy">
+<img src="https://hackmd.io/_uploads/HkaYUBqMMe.jpg" alt="PXL_20260625_060112477.MP" class="offline-handled error-handled" data-position="1431" data-size="71" loading="lazy"></li>
+<li class="raw" data-startline="75" data-endline="76" data-position="1509" data-size="0"><span data-position="1509" data-size="13">簡單來說就是要記下 ADR</span></li>
+</ul>
+</li>
+</ul><p class="part" data-startline="77" data-endline="77" data-position="1524" data-size="0"><span data-position="1524" data-size="34">AI 只是落實的角色，整體需求、架構或是 flow的設計還是取決在人</span></p><ul class="part" data-startline="78" data-endline="81" data-position="1559" data-size="0">
+<li class="raw" data-startline="78" data-endline="79" data-position="1561" data-size="0"><span data-position="1561" data-size="37">設計有信心的 Harness Engineering（人設計，AI 執行）</span>
+<blockquote class="raw">
+<p data-position="1605" data-size="0"><span data-position="1605" data-size="38">可能比較接近市面上的 Loop Engineering 或 Workflow</span></p>
+</blockquote>
+</li>
+<li class="raw" data-startline="80" data-endline="81" data-position="1646" data-size="0"><span data-position="1646" data-size="19">做完還是要看，但不是全看，是挑重要的看</span></li>
+</ul><h2 class="part" data-startline="82" data-endline="82" id="如何衡量認知負債的程度" data-id="如何衡量認知負債的程度"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E5%A6%82%E4%BD%95%E8%A1%A1%E9%87%8F%E8%AA%8D%E7%9F%A5%E8%B2%A0%E5%82%B5%E7%9A%84%E7%A8%8B%E5%BA%A6" title="如何衡量認知負債的程度"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="1670" data-size="11">如何衡量認知負債的程度</span></h2><p class="part" data-startline="84" data-endline="84" data-position="1683" data-size="0"><strong data-position="1683" data-size="0"><span data-position="1685" data-size="18">如果接手者舉步維艱，代表認知債務極高</span></strong></p><p class="part" data-startline="87" data-endline="87" data-position="1708" data-size="0"><span data-position="1708" data-size="34">Team Topologies 的指標很好用，雖然三叔公不喜歡這本書</span></p><p class="part" data-startline="89" data-endline="89" data-position="1744" data-size="0"><span data-position="1744" data-size="33">LLM/AI 的產生速度超快，但能守意圖和驗證的還是只有人類辦得到</span></p><blockquote class="raw part" data-startline="91" data-endline="91">
+<p data-position="1781" data-size="0"><span data-position="1781" data-size="174">"Once, men turned their thinking over to machines in the hope that this would set them free. But that only permitted other men with machines to enslave them." — Frank Herbert</span></p>
+</blockquote><p class="part" data-startline="93" data-endline="93" data-position="1957" data-size="0"><span data-position="1957" data-size="17">真正的自由，來自於仍保有的思考能力</span></p><h2 class="part" data-startline="95" data-endline="95" id="討論區" data-id="討論區"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E8%A8%8E%E8%AB%96%E5%8D%80" title="討論區"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="1979" data-size="3">討論區</span></h2><blockquote class="raw part" data-startline="96" data-endline="96">
+<p data-position="1985" data-size="0"><span data-position="1985" data-size="8">歡迎在此進行討論</span></p>
+</blockquote><p class="part" data-startline="98" data-endline="98" data-position="1995" data-size="0"><span data-position="1995" data-size="28">因為一個片段看完整部電影 -&gt; 因為一個需求開了整家公司</span></p><blockquote class="raw part" data-startline="100" data-endline="100">
+<p data-position="2027" data-size="0"><span data-position="2027" data-size="20">老闆總是試著讓所有成員很忙，感同身受..</span></p>
+</blockquote><p class="part" data-startline="102" data-endline="104" data-position="2049" data-size="0"><span data-position="2049" data-size="15">技術課程裡面的勸世文，頗有收穫</span><span class="smartypants" data-position="2064" data-size="3">…</span><br>
+<span data-position="2069" data-size="40">希望有機會看到完整的投影片跟無法參與的公司同事分享，不要到時候被AI統治變成奴隸</span><span class="smartypants" data-position="2109" data-size="3">…</span><br>
+<span data-position="2114" data-size="11">雖然現在本來就是奴隸了</span><span class="smartypants" data-position="2125" data-size="3">…</span></p><h2 class="part" data-startline="106" data-endline="106" id="相關連結" data-id="相關連結"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#%E7%9B%B8%E9%97%9C%E9%80%A3%E7%B5%90" title="相關連結"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="2133" data-size="4">相關連結</span></h2><ul class="part" data-startline="107" data-endline="109" data-position="2138" data-size="0">
+<li class="raw" data-startline="107" data-endline="107" data-position="2140" data-size="0"><a href="https://devopsdays.tw/" target="_blank" rel="noopener ugc nofollow" done=""><span data-position="2141" data-size="27">DevOpsDays Taipei 2026 官方網站</span></a></li>
+<li class="raw" data-startline="108" data-endline="109" data-position="2196" data-size="0"><a href="https://devopsdays.tw/2026/agenda" target="_blank" rel="noopener ugc nofollow" done=""><span data-position="2197" data-size="26">DevOpsDays Taipei 2026 議程表</span></a></li>
+</ul><h6 class="part" data-startline="110" data-endline="110" id="tags-DevOpsDays-Taipei-2026-DevOpsDays-Taipei-2026-共筆-2026-共筆-DE-會議室-DevOps新手-Newbie-DevOps老司機-DevOps-Veteran-IT人員--偏開發-IT--DEV-經營決策者-Decision-maker" data-id="tags-DevOpsDays-Taipei-2026-DevOpsDays-Taipei-2026-共筆-2026-共筆-DE-會議室-DevOps新手-Newbie-DevOps老司機-DevOps-Veteran-IT人員--偏開發-IT--DEV-經營決策者-Decision-maker"><a class="anchor hidden-xs" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#tags-DevOpsDays-Taipei-2026-DevOpsDays-Taipei-2026-%E5%85%B1%E7%AD%86-2026-%E5%85%B1%E7%AD%86-DE-%E6%9C%83%E8%AD%B0%E5%AE%A4-DevOps%E6%96%B0%E6%89%8B-Newbie-DevOps%E8%80%81%E5%8F%B8%E6%A9%9F-DevOps-Veteran-IT%E4%BA%BA%E5%93%A1--%E5%81%8F%E9%96%8B%E7%99%BC-IT--DEV-%E7%B6%93%E7%87%9F%E6%B1%BA%E7%AD%96%E8%80%85-Decision-maker" title="tags-DevOpsDays-Taipei-2026-DevOpsDays-Taipei-2026-共筆-2026-共筆-DE-會議室-DevOps新手-Newbie-DevOps老司機-DevOps-Veteran-IT人員--偏開發-IT--DEV-經營決策者-Decision-maker"><span class="octicon octicon-link ph ph-link-simple-horizontal"></span></a><span data-position="2272" data-size="6">tags: </span><code data-position="2279" data-size="22">DevOpsDays Taipei 2026</code><span data-position="2302" data-size="1"> </span><code data-position="2304" data-size="25">DevOpsDays Taipei 2026 共筆</code><span data-position="2330" data-size="1"> </span><code data-position="2332" data-size="4">2026</code><span data-position="2337" data-size="1"> </span><code data-position="2339" data-size="2">共筆</code><span data-position="2342" data-size="1"> </span><code data-position="2344" data-size="6">DE 會議室</code><span data-position="2351" data-size="1"> </span><code data-position="2353" data-size="17">DevOps新手 (Newbie)</code><span data-position="2371" data-size="1"> </span><code data-position="2373" data-size="26">DevOps老司機 (DevOps Veteran)</code><span data-position="2400" data-size="1"> </span><code data-position="2402" data-size="21">IT人員 / 偏開發 (IT / DEV)</code><span data-position="2424" data-size="1"> </span><code data-position="2426" data-size="22">經營決策者 (Decision maker)</code></h6></div>
+        <div id="editor-settings-root"></div>
+
+        <section class="absolute top-0 bottom-0 left-0 right-0 z-50 overflow-hidden slide-preview-container" style="display: none;">
+            <link rel="stylesheet" href="https://assets.hackmd.io/build/reveal.js/dist/theme/defaultTheme.css" id="theme">
+            <div class="h-full reveal">
+                <div class="slides" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- Legacy ToC (kept for backward compatibility with scrollspy, but hidden visually) -->
+        <div class="ui-toc dropup unselectable hidden-print" style="display:none; visibility: hidden;">
+            <div class="pull-left dropdown">
+                <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="https://hackmd.io/WNSBbOJATt62iNShdB5nsg#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of Contents">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel" lang="en-US">
+                </ul>
+            </div>
+        </div>
+        <div class="toc-placeholder hidden"></div>
+        <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:51px;display:none; visibility: hidden;" lang="en-US"></div>
+        <div id="floating-toolbar" class="relative mt-[32px] h-5 md:fixed md:mt-0 md:h-0" style="display: none;"><div><a class="pointer-events-none fixed hidden" type="button" aria-haspopup="dialog" aria-expanded="true" aria-controls="radix-3" data-state="open"></a></div></div>
+        <div id="floating-tools-root-wrapper"><div></div></div>
+    </div>
+</div>
+<!-- clipboard modal -->
+
+<!-- basic use modal -->
+
+<!-- team locked modal -->
+
+<!-- locked modal -->
+
+<!-- limit modal -->
+
+<!-- gist import modal -->
+
+<!-- snippet import modal -->
+
+<!-- snippet export modal -->
+
+<!-- delete modal -->
+
+
+<!-- template notes modal -->
+
+
+<!-- create template modal -->
+
+
+<!-- delete template modal -->
+
+
+<!-- refresh modal -->
+
+
+<!-- signin modal -->
+
+
+
+<!-- help modal -->
+
+
+<!-- revision modal -->
+
+
+<!-- message modal -->
+
+
+<!-- feedback modal -->
+
+
+<!-- feedback success modal -->
+
+
+<!-- action modal -->
+
+
+<!-- action modal -->
+
+
+<!-- transfer modal -->
+
+
+
+    <!-- github signin modal -->
+
+
+    <!-- github sync modal -->
+
+
+<!-- github sync pull modal -->
+
+
+<!-- github synced settings modal -->
+
+
+<!-- loading modal -->
+
+
+<!-- push failed modal -->
+
+<!-- push success modal -->
+
+
+<div class="publish-limiter"></div>
+
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager (noscript) -->
+
+<!-- End Google Tag Manager (noscript) -->
+
+
+
+ 
+
+
+
+
+
+
+<div style="position: absolute; width: 0px; height: 0px; overflow: hidden;"><span style="position: absolute; width: auto; padding: 0px; white-space: pre; letter-spacing: 0px; font-size: 13.3333px; font-family: Arial; font-weight: 400; text-transform: none;">Select a repo</span></div><div class="ReactModalPortal"></div><div class="ReactModalPortal note-settings"></div><div class="ReactModalPortal"></div><span></span><div class="ReactModalPortal"></div><div id="toasts-container" class="toasts-container"><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div></div><div id="toasts-container-top" class="toasts-container-top"><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div><div><div class="pointer-events-auto ml-auto mr-auto flex w-fit flex-col justify-end"></div></div></div><div class="ReactModalPortal"></div><div><div class="fixed left-0 top-0 z-[1998] h-[100dvh] w-[100dvw] transition-opacity duration-300 bg-[#fff]/80 pointer-events-none opacity-0" theme="light"></div></div><div></div><div class="ReactModalPortal"></div><div class="ReactModalPortal"></div><div class="ReactModalPortal"></div><div></div><div class="ReactModalPortal"></div><div data-radix-popper-content-wrapper="" style="position: fixed; left: 0px; top: 0px; transform: translate(0px, 8px); min-width: max-content; z-index: auto; --radix-popper-available-width: 1889px; --radix-popper-available-height: 142px; --radix-popper-anchor-width: 0px; --radix-popper-anchor-height: 0px; --radix-popper-transform-origin: 0% 0px;"><div data-side="bottom" data-align="start" data-state="open" role="dialog" id="radix-3" class="z-[1001] rounded-lg border border-solid border-border-default select-none bg-background-default shadow-[0_3px_15px_0_#00000026] hidden" tabindex="-1" style="--radix-popover-content-transform-origin: var(--radix-popper-transform-origin); --radix-popover-content-available-width: var(--radix-popper-available-width); --radix-popover-content-available-height: var(--radix-popper-available-height); --radix-popover-trigger-width: var(--radix-popper-anchor-width); --radix-popover-trigger-height: var(--radix-popper-anchor-height);"><div class="ui-floating-toolbar-popover flex flex-row p-[7px]"><button class="rounded text-normal font-normal leading-normal flex bg-transparent text-text-default border border-solid border-transparent hocus:bg-element-bg-hover hocus:text-text-emphasize hover:border-element-bg-hover focus:shadow-[0_0_0_2px_#77777733] focus:border-element-border-hover disabled:bg-transparent disabled:hocus:bg-transparent disabled:hocus:border-transparent disabled:text-element-text-disabled disabled:hocus:text-element-text-disabled ui-selection-popover-comment ui-floating-toolbar-comment gap-1 p-[7px]" data-state="closed"><i class="inline-flex ph ph-chat-circle-dots" aria-hidden="true" style="width: 20px; height: 20px; font-size: 20px; line-height: 20px;"></i>Comment</button><button class="rounded text-normal font-normal leading-normal flex bg-transparent text-text-default border border-solid border-transparent hocus:bg-element-bg-hover hocus:text-text-emphasize hover:border-element-bg-hover focus:shadow-[0_0_0_2px_#77777733] focus:border-element-border-hover disabled:bg-transparent disabled:hocus:bg-transparent disabled:hocus:border-transparent disabled:text-element-text-disabled disabled:hocus:text-element-text-disabled ui-selection-popover-suggest-edit ui-floating-toolbar-suggest-edit p-[7px]" data-state="closed"><i class="inline-flex ph ph-pencil-simple-line" aria-hidden="true" style="width: 20px; height: 20px; font-size: 20px; line-height: 20px;"></i></button><span class="ml-1 flex border-0 border-l border-solid border-background-subtle pr-1"></span><button class="rounded text-normal font-normal leading-normal flex bg-transparent text-text-default border border-solid border-transparent hocus:bg-element-bg-hover hocus:text-text-emphasize hover:border-element-bg-hover focus:shadow-[0_0_0_2px_#77777733] focus:border-element-border-hover disabled:bg-transparent disabled:hocus:bg-transparent disabled:hocus:border-transparent disabled:text-element-text-disabled disabled:hocus:text-element-text-disabled ui-floating-toolbar-copy-link p-[7px]" data-state="closed"><i class="inline-flex ph ph-link" aria-hidden="true" style="width: 20px; height: 20px; font-size: 20px; line-height: 20px;"></i></button><button class="rounded text-normal font-normal leading-normal flex bg-transparent text-text-default border border-solid border-transparent hocus:bg-element-bg-hover hocus:text-text-emphasize hover:border-element-bg-hover focus:shadow-[0_0_0_2px_#77777733] focus:border-element-border-hover disabled:bg-transparent disabled:hocus:bg-transparent disabled:hocus:border-transparent disabled:text-element-text-disabled disabled:hocus:text-element-text-disabled ui-floating-toolbar-paragraph-bookmark p-[7px]" data-state="closed"><span class="inline-flex ph" aria-hidden="true" style="width: 20px; height: 20px; font-size: 20px; line-height: 20px;"><svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.58579 4.58579C9.96086 4.21071 10.4696 4 11 4H25C25.5304 4 26.0391 4.21071 26.4142 4.58579C26.7893 4.96086 27 5.46957 27 6V28C27 28.3635 26.8027 28.6984 26.4848 28.8746C26.1668 29.0509 25.7783 29.0407 25.47 28.848L18 24.1792L10.53 28.848C10.2217 29.0407 9.83319 29.0509 9.51523 28.8746C9.19728 28.6984 9 28.3635 9 28V6C9 5.46957 9.21071 4.96086 9.58579 4.58579ZM25 6H11L11 26.1958L17.47 22.152C17.7943 21.9493 18.2057 21.9493 18.53 22.152L25 26.1958V6Z" fill="currentColor"></path><path d="M5 5C5 4.44772 5.44772 4 6 4C6.55228 4 7 4.44772 7 5V28C7 28.5523 6.55228 29 6 29C5.44772 29 5 28.5523 5 28V5Z" fill="currentColor"></path></svg></span></button></div></div></div><div class="ReactModalPortal"></div><span data-radix-focus-guard="" tabindex="0" style="outline: none; opacity: 0; position: fixed; pointer-events: none;"></span><div></div><div><div></div></div><div></div></div></div>
+
+
+
+
+    
+    
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager (noscript) -->
+
+<!-- End Google Tag Manager (noscript) -->
+
+
+
+ 
+
+
+
+</body></html>]]></description>
+</item>
 <item>
 <title>@shop_of_one73 的 Threads 貼文</title>
 <link>https://www.threads.com/@shop_of_one73/post/DaB3zK0E4uG?xmt=AQG05qaeiZ9XZbi50a_vJH8z7325TDKox5tzQa9i3zsDx2W94vU9eCp6o6i1YQrISBmTDG4&amp;slof=1</link>
