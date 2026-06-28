@@ -6,7 +6,21 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Sun, 28 Jun 2026 05:25:45 +0000</lastBuildDate>
+<lastBuildDate>Sun, 28 Jun 2026 07:13:45 +0000</lastBuildDate>
+<item>
+<title>@chrisincite 的 Threads 貼文</title>
+<link>https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&amp;slof=1</guid>
+<pubDate>Sun, 28 Jun 2026 05:41:37 +0000</pubDate>
+<description><![CDATA[]]></description>
+</item>
+<item>
+<title>@chrisincite 的 Threads 貼文</title>
+<link>https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&amp;slof=1</guid>
+<pubDate>Sun, 28 Jun 2026 05:40:12 +0000</pubDate>
+<description><![CDATA[]]></description>
+</item>
 <item>
 <title>@futurecommerce_official 的 Threads 貼文</title>
 <link>https://www.threads.com/@futurecommerce_official/post/DZBN7QgjEe5?xmt=AQG08TR9VgeI5-xwmRzmUKxz5W_D5cfG-jNBWhX0g8qYvUHAGsIAlj61i-iMt-TOp2dBjV35&amp;slof=1</link>
@@ -9335,28 +9349,6 @@ Addy Osmani 最近分享的 agent-skills 這個 repo 就有這感覺，把開發
 3. Build：最特別的是一次只做一小塊完整功能，支援 feature flag 和 rollback 的設計的incremental-implementation skill，其他包含 context-engineering、TDD、frontend-ui-engineering、api-and-interface-design
 4. Verify：有 browser-testing-with-devtools 可以透過 Chrome DevTools MCP 讓 agent 直接看到瀏覽器裡的 DOM、console log、網路請求和效能數據。以及系統化的五步驟 debug 流程：重現 → 定位 → 簡化 → 修復 → 加防護（debugging-and-error-recovery）
 5. Review：五個維度的 code review——正確性、可讀性、架構、安全、效能，還可以用不同 model 交叉 review（code-review-and-</p>]]></description>
-</item>
-<item>
-<title>facebook.com 分享連結</title>
-<link>https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW</link>
-<guid isPermaLink="true">https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW</guid>
-<pubDate>Thu, 07 May 2026 03:40:54 +0000</pubDate>
-<description><![CDATA[<p><em>Facebook</em></p>]]></description>
-</item>
-<item>
-<title>比Ollama還快上4.2倍？！榨乾 Mac 的新玩具來啦！</title>
-<link>https://www.facebook.com/largitdata/posts/pfbid034TxjYsEtfXg5vfFiAMw1VMRTJLW1d8jx7wdK4UM1BTuTuC5H1LVjypHTvxmBXhbUl</link>
-<guid isPermaLink="true">https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW</guid>
-<pubDate>Thu, 07 May 2026 03:40:46 +0000</pubDate>
-<description><![CDATA[<p><img src="https://www.facebook.com/photo/?fbid=1491559172983474&amp;set=a.474737791332289" alt="" /></p><p><em>LargitData - 大數軟體 · Facebook</em></p><p>比Ollama還快上4.2倍？！榨乾 Mac 的新玩具來啦！
-
-Rapid-MLX以MLX框架為底層，善用 Metal 運算核心與統一記憶體零拷貝存取，18 個模型中有 16 個拿下推論冠軍。
-
-最亮眼的是針對Qwen3.5設計快取加速技巧。Qwen3.5採混合架構，其中75%是RNN結構，傳統KV Cache每次都得重算；Rapid-MLX 在系統提示這個固定不變的位置，把RNN內部狀態整個拍照存下來，下次請求只要0.1毫秒就能還原快照，把Qwen3-Coder-Next的首字延遲從0.68 秒壓到0.14秒，快了4.8倍。
-
-另一個亮點是工具呼叫可靠性。內建 17 種解析器與自動恢復機制，當4-bit量化模型在多輪呼叫後格式崩壞，引擎會自動把純文字還原成結構化 tool_calls，確保 100% 成功率。
-
-各種機型都能跑：16GB MacBook Air跑Qwen3.5-4B 4bit達158 tok/s；64GB Mac Mini能流暢執行 Qwen3.5-35B-A3B 8bit維持80 tok/s；128GB 以上的Mac Studio則能挑戰Qwen3.5-122B。</p>]]></description>
 </item>
 </channel>
 </rss>

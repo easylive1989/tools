@@ -2,6 +2,24 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&slof=1",
+      "message_id": "1520665455348551821",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1520665455348551821",
+      "shared_at": "2026-06-28T05:41:37.153000+00:00",
+      "title": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&slof=1",
+      "url": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&slof=1"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&slof=1",
+      "message_id": "1520665100737056929",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1520665100737056929",
+      "shared_at": "2026-06-28T05:40:12.607000+00:00",
+      "title": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&slof=1",
+      "url": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@futurecommerce_official/post/DZBN7QgjEe5?xmt=AQG08TR9VgeI5-xwmRzmUKxz5W_D5cfG-jNBWhX0g8qYvUHAGsIAlj61i-iMt-TOp2dBjV35&slof=1",
       "message_id": "1520655110869352468",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1520655110869352468",
@@ -1892,35 +1910,9 @@
       "shared_at": "2026-05-07T03:41:24.459000+00:00",
       "title": "工程師的日常開發，不管專案大小，流程大概都長這樣：",
       "url": "https://www.facebook.com/thingsaboutwebdev/posts/pfbid02Xr5U3r8b9L9Ev3GUGXEDgLA7vJB1NWtF8GDC7dShLW9b3wUmoaQtEu9ziq1gCrbil?locale=zh_TW"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
-      "message_id": "1501790906943148235",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1501790906943148235",
-      "og_site_name": "Facebook",
-      "og_type": "article",
-      "og_url": "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
-      "shared_at": "2026-05-07T03:40:54.141000+00:00",
-      "title": "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW",
-      "url": "https://www.facebook.com/groups/Udemy.co3.tw/permalink/4546614865576923?locale=zh_TW"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW",
-      "message_id": "1501790876135981237",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1501790876135981237",
-      "og_description": "比Ollama還快上4.2倍？！榨乾 Mac 的新玩具來啦！\n\nRapid-MLX以MLX框架為底層，善用 Metal 運算核心與統一記憶體零拷貝存取，18 個模型中有 16 個拿下推論冠軍。\n\n最亮眼的是針對Qwen3.5設計快取加速技巧。Qwen3.5採混合架構，其中75%是RNN結構，傳統KV Cache每次都得重算；Rapid-MLX 在系統提示這個固定不變的位置，把RNN內部狀態整個拍照存下來，下次請求只要0.1毫秒就能還原快照，把Qwen3-Coder-Next的首字延遲從0.68 秒壓到0.14秒，快了4.8倍。\n\n另一個亮點是工具呼叫可靠性。內建 17 種解析器與自動恢復機制，當4-bit量化模型在多輪呼叫後格式崩壞，引擎會自動把純文字還原成結構化 tool_calls，確保 100% 成功率。\n\n各種機型都能跑：16GB MacBook Air跑Qwen3.5-4B 4bit達158 tok/s；64GB Mac Mini能流暢執行 Qwen3.5-35B-A3B 8bit維持80 tok/s；128GB 以上的Mac Studio則能挑戰Qwen3.5-122B。",
-      "og_image": "https://www.facebook.com/photo/?fbid=1491559172983474&set=a.474737791332289",
-      "og_site_name": "LargitData - 大數軟體 · Facebook",
-      "og_type": "article",
-      "og_url": "https://www.facebook.com/largitdata/posts/pfbid034TxjYsEtfXg5vfFiAMw1VMRTJLW1d8jx7wdK4UM1BTuTuC5H1LVjypHTvxmBXhbUl",
-      "shared_at": "2026-05-07T03:40:46.796000+00:00",
-      "title": "比Ollama還快上4.2倍？！榨乾 Mac 的新玩具來啦！",
-      "url": "https://www.facebook.com/largitdata/posts/pfbid0zXNH6U7fiVpXir4Dg3wHPatYxasFyiPD6GEmvjDe5tsrrEJBicCfNRYera3Wjf9yl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1520655110869352468",
+  "last_message_id": "1520665455348551821",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1986,6 +1978,8 @@
     "https://www.threads.com/@ccctsai_/post/DYHmjtHgVHY?xmt=AQG0gDwiEpBPqrVj1ehPRDZE8cJn9VEp93pK7vSxdgHddRHPVdCsR8o1ovVWo15ubzzW2uw&slof=1",
     "https://www.threads.com/@cheese_bash/post/DZKh9bjmU1b?xmt=AQG0bfUiDA_GvjYz0RJLD_v8-nmjjk3VY8tjcfoVCdQ_Cim3hnYw1Wi-W6UzUh6MOp3piXXV&slof=1",
     "https://www.threads.com/@chia.hsun301/post/DZ35sjrkwTy?xmt=AQG0m9Z1jGDi3rs9539QZ89gNAEdeeHeQln8GN_J3W1YaUq56ysw1GAeTMf54Ob0EN3UJieV&slof=1",
+    "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG03gOzmxhnzX_7N1AZ6sY0bvAs6EdC1B0ldTrMfssO4pjnzNEbq0lzte7OLN1Q8WMXfVbt&slof=1",
+    "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&slof=1",
     "https://www.threads.com/@ci.fullstack/post/DYH_K6vnSWf?xmt=AQG09I4BVlF-aioYAaHS819X7qQDODAGVEAkR3Mn0DPQ0N2GnM1vHObHyz7PmAVckc1ktOA&slof=1",
     "https://www.threads.com/@ci.fullstack/post/DZnL0BSk0m-?xmt=AQG0tDILcnr2xnXNtA5p7Ev_PmW5SKh_VQ-9WvNYfzHreoUBdsVS2WwrUVzPhkfOkKAi5wA&slof=1",
     "https://www.threads.com/@crazyaitools_/post/DYFNwSrkowT?xmt=AQG0lpNiyxQxjMqRPhUiHQCZornT9lniBBDjZvq25RlSjCBDuJVXlZC8ZV8dld36fMbSYko&slof=1",
