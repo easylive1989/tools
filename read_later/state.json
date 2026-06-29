@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@easyanythinghk/post/DaKZuXiAAYn?xmt=AQG0BgAAUHyKEoI2yPiOqZV7ZYxjoA9CbzesVLvw_53ifJqw-_WPNMWYBIG2v0Yowbw5uIIj&slof=1",
+      "message_id": "1521122237678092409",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1521122237678092409",
+      "shared_at": "2026-06-29T11:56:42.547000+00:00",
+      "title": "https://www.threads.com/@easyanythinghk/post/DaKZuXiAAYn?xmt=AQG0BgAAUHyKEoI2yPiOqZV7ZYxjoA9CbzesVLvw_53ifJqw-_WPNMWYBIG2v0Yowbw5uIIj&slof=1",
+      "url": "https://www.threads.com/@easyanythinghk/post/DaKZuXiAAYn?xmt=AQG0BgAAUHyKEoI2yPiOqZV7ZYxjoA9CbzesVLvw_53ifJqw-_WPNMWYBIG2v0Yowbw5uIIj&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1",
       "message_id": "1521007923159896104",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1521007923159896104",
@@ -1891,23 +1900,9 @@
       "shared_at": "2026-05-07T03:42:19.030000+00:00",
       "title": "前 OpenAI 及 Tesla 核心成員 Andrej Karpathy 承認自己從去年12月開始就沒自己寫過code，近期接受 No Priors Podcast 訪談，分享他對 agent 時代的第一手觀察。從親身經歷的「AI  狂熱」狀態，到對自動化研究、開源生態與教育未來的深度思考，這場對話涵蓋了當前 AI 發展最前沿的諸多議題。",
       "url": "https://www.facebook.com/intleconobserve/posts/pfbid0KGfULDWvA53GRacB6jVSkvCfRs7rggJHQQDocNrYNyPiHYVaE5AjXAkvYdzwnRJxl?locale=zh_TW"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/javitong/posts/pfbid0C9xc9a1hgsPYUHcCszLL6sidjbodDuyNbrH9eECiZUpDACtHNzj5u82ZxT8849EHl?locale=zh_TW",
-      "message_id": "1501791062992097441",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1501791062992097441",
-      "og_description": "Claude Code 51 萬行洩漏：我們真的看見了一個 Agent OS 長什麼樣子  ，其實要說技術還好，雖然也是神仙打架級別，但設計哲學更是精妙。\n\n最近大家應該都有看到「Claude Code 原始碼意外裸奔」的新聞。  \n有趣的是，這次洩漏不只是一則八卦也不是愚人節玩笑🤣，更等於免費送了一份「生產等級 AI Agent 系統的完整工程實作範本」——對正在做 Agent 開發的人來說，這可能比任何一篇技術博文都更有參考價值，畢竟平常哪有機會這樣近距離觀摩別人的產品內臟。  \n下面用比較白話的方式，整理幾個最值得關注的重點。\n\n◆ 這次洩漏到底是怎麼回事？  \n\n不是駭客入侵，而是 npm 發布包意外夾帶了一個超大的 source map 檔案，裡面的 sourcesContent 直接包含完整 TypeScript 原始碼，等於把設計圖一起打包出門。  \n3 月 31 日早上，安全研究員 Chaofan Shou 在 X 上公開了這個發現，貼文在幾小時內累積千萬等級觀看。研究者從中重建出超過 51 萬行生產級程式碼，約 1900 個檔案，包含完整的 Agent runtime、工具系統、多 Agent 調度、安全與權限架構。  \n官方緊急下架重發，但程式碼已被多方備份，鏡像 repo 在短時間內累積數萬顆星與 fork。  \n\n換句話說，這不只是「有趣的 bug」，更像是：  \nAnthropic 不小心把他們對「AI Agent 應該長什麼樣子」的設計哲學，完整攤在桌上給大家看，還貼心附上檔案結構，方便全世界做讀書會。 ＃失誤者還在X上道歉說他被辭退了 （希望被辭退不是真的\n\n◆ Claude Code 不是一個 CLI 工具，而是一個 Agent Operating System  \n\n很多人第一眼以為 Claude Code 就是「把 Claude 接到 terminal 的 coding 助手」，結果打開目錄會發現整個世界觀不一樣。  \n整個系統大致可以拆成五層：入口層、Runtime 層、Engine 層、工具與能力層、基礎設施層，同一套 Agent runtime 同時服務 CLI、MCP 協議、SDK、IDE 插件。  \n近 1,900 個檔案，核心模組包含 QueryEngine.ts（約 4.6 萬行）、Tool.ts（約 2.9 萬行）",
-      "og_image": "https://www.facebook.com/javitong/posts/pfbid02G6Z4by8vduXtyiyoMDQvQvYBkQDGAqpdzLgEiBLJgg7Wo5cZXvFC1gKY85UyAsPbl",
-      "og_site_name": "Si Javitong · Facebook",
-      "og_type": "article",
-      "og_url": "https://www.facebook.com/javitong/posts/pfbid02G6Z4by8vduXtyiyoMDQvQvYBkQDGAqpdzLgEiBLJgg7Wo5cZXvFC1gKY85UyAsPbl",
-      "shared_at": "2026-05-07T03:41:31.346000+00:00",
-      "title": "Claude Code 51 萬行洩漏：我們真的看見了一個 Agent OS 長什麼樣子  ，其實要說技術還好，雖然也是神仙打架級別，但設計哲學更是精妙。",
-      "url": "https://www.facebook.com/javitong/posts/pfbid0C9xc9a1hgsPYUHcCszLL6sidjbodDuyNbrH9eECiZUpDACtHNzj5u82ZxT8849EHl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1521007923159896104",
+  "last_message_id": "1521122237678092409",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1984,6 +1979,7 @@
     "https://www.threads.com/@darkseoking/post/DZ9h4pTE-F4?xmt=AQG06RHII5uxto6erZIQ6E9tFrX2AeojQsA4VN5AKFztMML7-6AGZ_AAJyTOFZVlfepHmQQ&slof=1",
     "https://www.threads.com/@dontsleepinmyarms/post/DaBFzGnmYuM?xmt=AQG0RK0eb0FAAJKF7gCj_CydYndepVUtHcPnjIO7S5TdxY67mzuZkkipjs9rNyKGDBLYdCs3&slof=1",
     "https://www.threads.com/@drtotalcare/post/DYOja0xkVGk?xmt=AQG0oi-WK9M6IbTE_im1a_ASTjo3pqcOxKIiel-6Kfgeic_rgSfX6cSP1Ewukv0Wt9OOLgl8&slof=1",
+    "https://www.threads.com/@easyanythinghk/post/DaKZuXiAAYn?xmt=AQG0BgAAUHyKEoI2yPiOqZV7ZYxjoA9CbzesVLvw_53ifJqw-_WPNMWYBIG2v0Yowbw5uIIj&slof=1",
     "https://www.threads.com/@ekcheungai/post/DZ4eLT7DU9m?xmt=AQG0MPUj8jEfqpp0yaURQ3Pp57qbIqQHTYTt78MlZTfra76liAGvb3F9uevdwuABgy5XI5E&slof=1",
     "https://www.threads.com/@et.tang.ai/post/DYeQKnXFbfP?xmt=AQG0mCmrcHH2-7C-Qubv6cXkmUmlTtLEAfK_Ulg23XREsg6ab5DmrMJRMM46jP_LstxV9wA4&slof=1",
     "https://www.threads.com/@fiafia.ai/post/DZZJd85koHd?xmt=AQG0ZXXVkuW5HP2jMXC21bi9SWKmEHzXwpmIU-VhGGXrGjKTX5fq5RULVWT6-7F4EGgCdg0c&slof=1",
