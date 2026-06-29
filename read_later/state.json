@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@ailogora/post/DaJ9yCfGKci?xmt=AQG0mu1PtuDRleStTNF9gdXvxHCsyLgDvepSFX39scdFejuCpUcNZ_Gv-GaKlVa5nX5X1nsS&slof=1",
+      "message_id": "1521278627809988840",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1521278627809988840",
+      "shared_at": "2026-06-29T22:18:08.860000+00:00",
+      "title": "https://www.threads.com/@ailogora/post/DaJ9yCfGKci?xmt=AQG0mu1PtuDRleStTNF9gdXvxHCsyLgDvepSFX39scdFejuCpUcNZ_Gv-GaKlVa5nX5X1nsS&slof=1",
+      "url": "https://www.threads.com/@ailogora/post/DaJ9yCfGKci?xmt=AQG0mu1PtuDRleStTNF9gdXvxHCsyLgDvepSFX39scdFejuCpUcNZ_Gv-GaKlVa5nX5X1nsS&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@easyanythinghk/post/DaKZuXiAAYn?xmt=AQG0BgAAUHyKEoI2yPiOqZV7ZYxjoA9CbzesVLvw_53ifJqw-_WPNMWYBIG2v0Yowbw5uIIj&slof=1",
       "message_id": "1521122237678092409",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1521122237678092409",
@@ -1886,23 +1895,9 @@
       "shared_at": "2026-05-07T03:43:09.606000+00:00",
       "title": "三年前讓我在休耕期破戒推薦的一本書《數值化之鬼》的作者安藤廣大要來台灣開課了。",
       "url": "https://www.facebook.com/gipi.net/posts/pfbid02PQNyZ5uALVpgEJshbVMDYyp2seXWQZpQKF6n5TrAimqUDMTnZEJbwxwgZQjL71MLl?locale=zh_TW"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/intleconobserve/posts/pfbid0KGfULDWvA53GRacB6jVSkvCfRs7rggJHQQDocNrYNyPiHYVaE5AjXAkvYdzwnRJxl?locale=zh_TW",
-      "message_id": "1501791262993285181",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1501791262993285181",
-      "og_description": "前 OpenAI 及 Tesla 核心成員 Andrej Karpathy 承認自己從去年12月開始就沒自己寫過code，近期接受 No Priors Podcast 訪談，分享他對 agent 時代的第一手觀察。從親身經歷的「AI  狂熱」狀態，到對自動化研究、開源生態與教育未來的深度思考，這場對話涵蓋了當前 AI 發展最前沿的諸多議題。\n\n---\n#從親手寫程式到「指揮 agent」\n\nKarpathy 坦言，自去年 12 月起，他的工作方式發生了根本性的轉變。「我大概從去年 12 月開始就沒有親手打過一行程式碼了，這是一個極其巨大的改變。」他說，在那之前，他的工作模式大約是八成自己寫、兩成交給 agent，但如今這個比例已經完全翻轉，甚至遠不止於此。\n\n這個改變讓他陷入一種他自稱的「AI 狂熱」（AI psychosis）狀態。「因為個人所能達到的成就出現了巨大的解鎖，你原本受限於自己的打字速度，但現在透過這些 agent，這個瓶頸已經消失了。」他描述自己每天都在思索：什麼是可能的？還有哪些邊界尚未被探索？「因為這一切在本質上仍是未知領域。」\n\n他提到工程師 Peter Steinberg 的工作方式令他印象深刻。Peter 在螢幕前同時開著多個 Codex agent，每個 agent 負責一個獨立的 repo，大約花 20 分鐘完成一個任務，他在這些 agent 之間穿梭，分配工作、審核成果。\n\n「你可以以更宏觀的層次行動，不再是寫這一行、寫這個函式，而是：這是一個新功能，交給 agent 1；這是另一個不會干擾的新功能，交給 agent 2，然後盡力審查它們的產出。」\n\n#Token吞吐量：新時代的「GPU 使用率」\n\nKarpathy 把管理 agent 的感受比擬為他讀博士班時看 GPU 使用率的焦慮感。「我如果看到訂閱額度還有剩，就代表我沒有把 token 吞吐量最大化，這讓我感到不安。」他說，如果一個 agent 的額度用完了，就立刻切換到另一個服務繼續跑，目標是讓計算資源持續被充分利用。\n\n這種思維轉變意味著在這個新系統中，人本身才是效率的瓶頸。「這反而讓人很有動力，因為你還有成長空間，每次找到新的使用方式就會有新的解鎖，所以才會讓人如此上癮。」\n\n#Agent的人格：Claude vs. Codex\n\nKarpathy 特別強調 agent ",
-      "og_image": "https://www.facebook.com/photo/?fbid=1459439448874012&set=a.258716148946354",
-      "og_site_name": "IEObserve 國際經濟觀察 · Facebook",
-      "og_type": "article",
-      "og_url": "https://www.facebook.com/intleconobserve/posts/pfbid02NjJQDy4wHMw1uKCrcpZvWL799zj4AoJxNfEb1Mjrt3uLhbQBguaTBymnhSfj2QPKl",
-      "shared_at": "2026-05-07T03:42:19.030000+00:00",
-      "title": "前 OpenAI 及 Tesla 核心成員 Andrej Karpathy 承認自己從去年12月開始就沒自己寫過code，近期接受 No Priors Podcast 訪談，分享他對 agent 時代的第一手觀察。從親身經歷的「AI  狂熱」狀態，到對自動化研究、開源生態與教育未來的深度思考，這場對話涵蓋了當前 AI 發展最前沿的諸多議題。",
-      "url": "https://www.facebook.com/intleconobserve/posts/pfbid0KGfULDWvA53GRacB6jVSkvCfRs7rggJHQQDocNrYNyPiHYVaE5AjXAkvYdzwnRJxl?locale=zh_TW"
     }
   ],
-  "last_message_id": "1521122237678092409",
+  "last_message_id": "1521278627809988840",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1941,6 +1936,7 @@
     "https://www.threads.com/@ai.alter/post/DZCoB6IjtUr?xmt=AQG01D2PO6YNRRGuM5csgf67XYhOCnqrQsML6syVE_i4F9K7TtkJHJ8wP6X_D5Ou9nXpNgeO&slof=1",
     "https://www.threads.com/@ai9_studio/post/DZxvXG2D_lI?xmt=AQG0JjW1gBT1e9gPz2BZKnT8TihP07MCfPZShLq1rdXrwqB7SsxzudutG4686Tqu_ye9aVGv&slof=1",
     "https://www.threads.com/@aicreateaworld/post/DZKpnjKD3cX?xmt=AQG0w0fi_MvRhUib27fWoDOOwmXkmNqkdxMlcfIyNxTMZG0JfHdT19t5UIa61MTOGeI4uR0&slof=1",
+    "https://www.threads.com/@ailogora/post/DaJ9yCfGKci?xmt=AQG0mu1PtuDRleStTNF9gdXvxHCsyLgDvepSFX39scdFejuCpUcNZ_Gv-GaKlVa5nX5X1nsS&slof=1",
     "https://www.threads.com/@aiposthub/post/DYj7XniCLWc?xmt=AQG0bQNk5KVrnm-Hw7Cfq3uFI3sR_e4oPpwkGyOZ3C8REGchknXNQYi7FT8NZDTdFaxA5TbO&slof=1",
     "https://www.threads.com/@aiposthub/post/DZbk8sQEeLq?xmt=AQG0F-d7w-_YKkEuEmXBbTVftdU32qQm1k0dF0eB8w-M-h05uxApy4IrlKwV5UqIiCuL-M4&slof=1",
     "https://www.threads.com/@aiposthub/post/DZckBkaETbr?xmt=AQG0oKDQqFHy1x1MxPppWi2KoPcBzQs0TaXk2QkKoGcOTN31a3MiwjZwE7KlzzGpFNU5nMs&slof=1",
