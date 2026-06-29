@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1",
+      "message_id": "1521007923159896104",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1521007923159896104",
+      "shared_at": "2026-06-29T04:22:27.842000+00:00",
+      "title": "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1",
+      "url": "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@chrisincite/post/DaHZ0ejm0o4?xmt=AQG0NjlPwem4wBvmOcV6Aloepw9hOq_BfRx_oEzA7raZnPB2FB3cY_OOBWeBWpkrZ3Edm6M&slof=1",
       "message_id": "1520665455348551821",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1520665455348551821",
@@ -1896,23 +1905,9 @@
       "shared_at": "2026-05-07T03:41:31.346000+00:00",
       "title": "Claude Code 51 萬行洩漏：我們真的看見了一個 Agent OS 長什麼樣子  ，其實要說技術還好，雖然也是神仙打架級別，但設計哲學更是精妙。",
       "url": "https://www.facebook.com/javitong/posts/pfbid0C9xc9a1hgsPYUHcCszLL6sidjbodDuyNbrH9eECiZUpDACtHNzj5u82ZxT8849EHl?locale=zh_TW"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/thingsaboutwebdev/posts/pfbid02Xr5U3r8b9L9Ev3GUGXEDgLA7vJB1NWtF8GDC7dShLW9b3wUmoaQtEu9ziq1gCrbil?locale=zh_TW",
-      "message_id": "1501791034106183812",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1501791034106183812",
-      "og_description": "工程師的日常開發，不管專案大小，流程大概都長這樣：\n\n釐清需求 → 拆任務 → 實作 → 驗證 → code review → 部署\n\n問題是，這個流程裡的每一步「該做到什麼程度」，依據每個人的習慣差異非常之大。新人或 AI agent 拿到任務，最常做的事就是跳過前面幾步直接開始寫 code。開發流程中的各階段都有其作用，如果有一個流程能讓各階段都能完好的進行，那對於產出品質絕對會有很大的幫助。\n\nhttps://github.com/addyosmani/agent-skills\n\nAddy Osmani 最近分享的 agent-skills 這個 repo 就有這感覺，把開發流程拆成六個階段、19 個 skill：\n\n1. Define：透過發散和收斂思考把模糊想法變成具體提案（idea-refine），再寫成結構化的 spec，用 gated workflow（Specify → Plan → Tasks → Implement）確保每個階段都要人確認才能往下走（spec-driven-development）\n2. Plan：把 spec 拆成可獨立驗證的小任務，每個任務有明確的完成條件和依賴順序，而且要小到 agent 可以可靠地一次完成（planning-and-task-breakdown）\n3. Build：最特別的是一次只做一小塊完整功能，支援 feature flag 和 rollback 的設計的incremental-implementation skill，其他包含 context-engineering、TDD、frontend-ui-engineering、api-and-interface-design\n4. Verify：有 browser-testing-with-devtools 可以透過 Chrome DevTools MCP 讓 agent 直接看到瀏覽器裡的 DOM、console log、網路請求和效能數據。以及系統化的五步驟 debug 流程：重現 → 定位 → 簡化 → 修復 → 加防護（debugging-and-error-recovery）\n5. Review：五個維度的 code review——正確性、可讀性、架構、安全、效能，還可以用不同 model 交叉 review（code-review-and-",
-      "og_image": "https://external-bos5-1.xx.fbcdn.net/emg1/v/t13/10855852511000609701?url=https%3A%2F%2Fopengraph.githubassets.com%2F78eb28d619bb9827217f705417c9926dd5dd577ad0113c3dc26485eb33e15294%2Faddyosmani%2Fagent-skills&fb_obo=1&utld=githubassets.com&stp=c0.5000x0.5000f_dst-jpg_flffffff_p500x261_q75_tt6&_nc_gid=glZFekg3nlIE7ceLvdDL5Q&_nc_oc=AdrLrpW8wtuX-evkxVezgHpxJoarMYaKn14YJWQssZvG9xpBsxrLQO2ucTRQy1yDlwM&ccb=13-1&oh=06_Q3_AAQoEgv5f2jGHZjnkjKCsnzNGENBf4_1hB8PZec6LWUD_&oe=6A28F820&_nc_sid=c97757",
-      "og_site_name": "網頁開發雜記 · Facebook",
-      "og_type": "article",
-      "og_url": "https://www.facebook.com/thingsaboutwebdev/posts/pfbid0UPb2QQhdPrYCDKSSfF8naHRsiZnqLEseC9pFDo7oKi9Rdo62kw1Zm8zNcbd1cSiWl",
-      "shared_at": "2026-05-07T03:41:24.459000+00:00",
-      "title": "工程師的日常開發，不管專案大小，流程大概都長這樣：",
-      "url": "https://www.facebook.com/thingsaboutwebdev/posts/pfbid02Xr5U3r8b9L9Ev3GUGXEDgLA7vJB1NWtF8GDC7dShLW9b3wUmoaQtEu9ziq1gCrbil?locale=zh_TW"
     }
   ],
-  "last_message_id": "1520665455348551821",
+  "last_message_id": "1521007923159896104",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2018,6 +2013,7 @@
     "https://www.threads.com/@imjaylin/post/DZJp3rhk0Mk?xmt=AQG0bdyOj8knVsKtpvZFUahQAX509vP7chCJuDfKFrvAk8lGNjqPF-zuROvF15-GfH2iFach&slof=1",
     "https://www.threads.com/@jarvis.inno/post/DZPtNNbiSRq?xmt=AQG0vJSb9ZpmwXnVTpJiNBWWnhQOPjHKCLBSFdn-V5pBPDrD4QPk-iU-NW0DZigTow0QrcZp&slof=1",
     "https://www.threads.com/@javayhu/post/DZ6FAATj9ni?xmt=AQG0rBFi3hy0b_hAy7OPNesNLLSgODiauEZOu2LMByXBReYjCHKCZuQsy7EZCnBl3tJB_U7_&slof=1",
+    "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1",
     "https://www.threads.com/@js020305378/post/DZcxNZoEpUz?xmt=AQG0KF1a_7wFGa4THGKh_3g7K5YIeY-CgDe-c3fnTTvSp38IbycbZVB3QmIUb7HQcjbLyUQ&slof=1",
     "https://www.threads.com/@judy_yoyo/post/DYoCsrYkb4Z?xmt=AQG0Saw4BNx016qlvQR68D7I29MPt--GuhIQEYCQMFyE1vaPwI35mSJGY9DWGXZQI65p7Zg&slof=1",
     "https://www.threads.com/@k4lok.s/post/DZXi1WUkbX1?xmt=AQG0txzaJhnmYDQUfavp396lINUCEHUd2K6wfueF3_pNtqJ0MNuS1W0xS7CmuPDu8jAlULge&slof=1",
