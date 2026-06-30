@@ -6,7 +6,14 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Mon, 29 Jun 2026 22:20:47 +0000</lastBuildDate>
+<lastBuildDate>Tue, 30 Jun 2026 00:20:56 +0000</lastBuildDate>
+<item>
+<title>@rich_jaron 的 Threads 貼文</title>
+<link>https://www.threads.com/@rich_jaron/post/DaK1fn9k0IT?xmt=AQG01zQEm9cV4Wbgl8DcvY_lNMMTyRqhJ8t5Z_svHV_-5ThbYPwVyNIurTQiogldjMvEbYkt&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@rich_jaron/post/DaK1fn9k0IT?xmt=AQG01zQEm9cV4Wbgl8DcvY_lNMMTyRqhJ8t5Z_svHV_-5ThbYPwVyNIurTQiogldjMvEbYkt&amp;slof=1</guid>
+<pubDate>Mon, 29 Jun 2026 23:02:16 +0000</pubDate>
+<description><![CDATA[]]></description>
+</item>
 <item>
 <title>@ailogora 的 Threads 貼文</title>
 <link>https://www.threads.com/@ailogora/post/DaJ9yCfGKci?xmt=AQG0mu1PtuDRleStTNF9gdXvxHCsyLgDvepSFX39scdFejuCpUcNZ_Gv-GaKlVa5nX5X1nsS&amp;slof=1</link>
@@ -9252,49 +9259,6 @@ Simon Willison 上週寫了一篇關於 Red/Green TDD 用在 coding agent 上的
 這帶出真正值得追問的幾件事：
 
 如果「寫測試」變成核心技能，軟體人才的估值邏</p>]]></description>
-</item>
-<item>
-<title>三年前讓我在休耕期破戒推薦的一本書《數值化之鬼》的作者安藤廣大要來台灣開課了。</title>
-<link>https://www.facebook.com/gipi.net/posts/pfbid02PVXipp6ZS9mo2aHEB5shB3REzzMBnF2aFtSvjPGxcqqspi37uvNUtdA5zyKEhwHLl</link>
-<guid isPermaLink="true">https://www.facebook.com/gipi.net/posts/pfbid02PQNyZ5uALVpgEJshbVMDYyp2seXWQZpQKF6n5TrAimqUDMTnZEJbwxwgZQjL71MLl?locale=zh_TW</guid>
-<pubDate>Thu, 07 May 2026 03:43:09 +0000</pubDate>
-<description><![CDATA[<p><img src="https://scontent-lax3-2.xx.fbcdn.net/v/t45.1600-4/640972115_122183738990429682_5411334475186636843_n.jpg?stp=c107.0.1325.2048a_cp0_dst-jpg_q75_sh2.08_spS444_tt6&amp;cstp=mx1325x2048&amp;ctp=s480x480&amp;_nc_cat=100&amp;ccb=1-7&amp;_nc_sid=f0a831&amp;_nc_ohc=lGZI_8hzBnIQ7kNvwH6eagd&amp;_nc_oc=AdribQ9MHdcs7pOtdKAixNPhoMtfBjcKRbG_RGO8Cw01iaOpB5t5b4RSL2D17YQyikI&amp;_nc_zt=1&amp;_nc_ht=scontent-lax3-2.xx&amp;_nc_gid=yJZMvhDsVdR-0QGY8fn-KA&amp;_nc_ss=7c289&amp;oh=00_Af98XlZnUBbgXucQuYA2DZ_VjUQZk7Xilu1tXh3B2b9E4A&amp;oe=6A2CFDB9" alt="" /></p><p><em>游舒帆 · Facebook</em></p><p>三年前讓我在休耕期破戒推薦的一本書《數值化之鬼》的作者安藤廣大要來台灣開課了。
-
-我本身是個數據派，當初對於書中所提到的「數字能夠斷開情緒」、「數字能讓我們維持客觀」、「數字能讓彼此取得共識」等觀念我特別有感。
-
-還記得我在演講與課程中經常問大家：「為什麼營收與客戶滿意度無法比較？」
-
-最常得到的答案是：「兩個本來就是不同的東西。」
-
-不過有時也會有人回問：「難道只有營收重要，滿意度不重要嗎？」
-
-而這兩個回覆的背後，其實反應出來的議題就是「缺乏共識」。
-
-營收與滿意度為什麼無法比較？從數學與邏輯的角度來回答，我的答案是：「單位不同。」
-
-身高與體重單位不同，所以無法比較，若要讓兩者有關連性，但兩者能否有關係？可以的，你可以用 BMI 這個數值來讓兩者產生關係。當你要降低 BMI 數值時，你可以選擇增加身高，或者降低體重。
-
-藉由引入另一個數值來讓兩個不同單位的數值產生關連，你就可以「選擇」要改變哪個數值。可以選擇，意味著可以「決策」。
-
-我也經常會問一個問題：「一個人 170 公分是高還是矮？」
-
-聽眾腦袋中冒出的念頭可能是「要看男生還女生」、「可能跟年紀有關」、「看台灣人還是歐美人士」。聽到這些回覆我很高興，因為大家都清楚一件事 - 一個數值單獨存在，沒有比較是沒有意義的。
-
-對台灣/成年/男性來說，170 公分略低平均值，稱不上高，但對台灣/成年/女性來說，170 公分則高於平均將近 10 公分。
-
-跟誰比？這是所謂的「比較基準(Baseline)」的議題。
-
-不同的比較基準，會得出不一樣的答案。看目標達成率，是跟目標相比，看成長率，是跟上一期相比，看年複合成長則是跟去年比，看 YoY 則是與去年同期比。不同的比較基準，呈現的管理議題是不同的。
-
-還記得有一年有位行銷團隊的成員問我：「我們 YoY 成長了兩倍多，為什麼你不在意，你只看目標達成率？」
-
-我告訴他：「因為去年我們連行銷團隊都沒有，今年我們不只組建了四人團隊，還投入了數百萬的行銷預算，YoY 成長是正常的，但我更關注總體名單數，平均 CPL。因為那才是我們今年努力要看到的成果。」
-
-在不同的管理情境下，你看待數字的角度會有所不同。
-
-那營收與滿意度到底能不能比較呢？可以的，但要換算成相同的單位。我的建議是統一換算成金額。
-
-舉例來說，業務提出一個能帶動 5,000 萬收入的一次性專案，而客服則提出一</p>]]></description>
 </item>
 </channel>
 </rss>
