@@ -6,7 +6,14 @@
 <atom:link href="https://tools.paul-learning.dev/read_later/feed.xml" rel="self" type="application/rss+xml" />
 <description>URLs shared in Discord, ready for your RSS reader.</description>
 <language>zh-tw</language>
-<lastBuildDate>Tue, 30 Jun 2026 02:59:32 +0000</lastBuildDate>
+<lastBuildDate>Tue, 30 Jun 2026 05:18:02 +0000</lastBuildDate>
+<item>
+<title>@0xspeter 的 Threads 貼文</title>
+<link>https://www.threads.com/@0xspeter/post/DaMXmzGk13L?xmt=AQG0PI0fFrEmJLNWcMPzICwik_KA0gIekI4NOkt6guL7-VUE6GTDZbuUlQ5ldcwEsDHoyCDq&amp;slof=1</link>
+<guid isPermaLink="true">https://www.threads.com/@0xspeter/post/DaMXmzGk13L?xmt=AQG0PI0fFrEmJLNWcMPzICwik_KA0gIekI4NOkt6guL7-VUE6GTDZbuUlQ5ldcwEsDHoyCDq&amp;slof=1</guid>
+<pubDate>Tue, 30 Jun 2026 05:15:36 +0000</pubDate>
+<description><![CDATA[]]></description>
+</item>
 <item>
 <title>@rich_jaron 的 Threads 貼文</title>
 <link>https://www.threads.com/@rich_jaron/post/DaK1fn9k0IT?xmt=AQG01zQEm9cV4Wbgl8DcvY_lNMMTyRqhJ8t5Z_svHV_-5ThbYPwVyNIurTQiogldjMvEbYkt&amp;slof=1</link>
@@ -9230,35 +9237,6 @@ URL: <a href="https://x.com/InvestLikeBest/status/2054534694134579427">https://x
 <guid isPermaLink="true">https://www.threads.com/@moth.ai/post/DX_FszeCorQ?xmt=AQG06lC2Cbo0BVT_8P7utYVnNdev2EBuvc-LADgTYAC6kfu0LxtrzvOn7ov8VJjJhAiO8oZj&amp;slof=1</guid>
 <pubDate>Thu, 07 May 2026 05:11:49 +0000</pubDate>
 <description><![CDATA[]]></description>
-</item>
-<item>
-<title>當 TDD 不再是品質保證，而是 AI 的操控介面</title>
-<link>https://www.facebook.com/modeerf/posts/pfbid0SakCur9zAGXrZPBHAAkY7Q532tBT2f9uoadGZaxXXM7xKt8WTsQELQCgxVzbYZ1ol</link>
-<guid isPermaLink="true">https://www.facebook.com/modeerf/posts/pfbid0SyYzCmXntBJzS8kzqQXTQokVM9aC3QjMrorrgyJmZ6dQzEjuge3CKLCqdhz191Pgl?locale=zh_TW</guid>
-<pubDate>Thu, 07 May 2026 03:43:20 +0000</pubDate>
-<description><![CDATA[<p><em>劉詩雁 · Facebook</em></p><p>當 TDD 不再是品質保證，而是 AI 的操控介面
-
-Simon Willison 上週寫了一篇關於 Red/Green TDD 用在 coding agent 上的短文，核心主張很直覺：先寫測試、確認失敗、再讓 AI 寫到通過，這樣 coding agent 就不會亂寫一通。文章寫得清楚，觀察也對。但我覺得它卡在一個常見的盲點：它把 TDD 當作一種「品質保證手段」在講，卻沒追問一個更根本的問題，當你用測試來驅動 AI 寫程式，你其實正在重新定義「寫程式」這件事本身的價值結構。
-
-表面上看，這是一篇關於 prompt engineering 的技巧文。但從產業經濟的角度看，這更像是一個訊號：軟體開發的價值正在從「生成程式碼」遷移到「定義驗收條件」。
-
-先拆解 TDD 在 AI 語境下到底改變了什麼。傳統的 TDD 是開發者自律的工具，你先想清楚行為規格，再動手實作，避免寫出不必要的東西。但當執行實作的不是人而是 coding agent，TDD 的角色就從「自律工具」變成了「控制介面」。測試不再只是驗證程式對不對，它變成了你跟 AI 溝通「我到底要什麼」的唯一精確語言。
-
-這件事的意義比看起來大得多。過去十年，軟體工程師的核心產出是程式碼。程式碼是資產，寫得好的程式碼有維護性、可擴展性，這些是工程師薪資的錨點。但如果 coding agent 能在幾秒內生成程式碼，而且只要測試寫得夠好就能保證品質，那「寫程式碼」這個動作的邊際價值會被壓到趨近於零。剩下來有價值的，是寫測試的能力——更精確地說，是把模糊的商業需求翻譯成可執行驗收條件的能力。
-
-用一個粗暴的算法來感受這件事：
-
-- 傳統模式下，一個功能的開發時間分配：需求釐清 20%、寫測試 15%、寫實作 50%、debug 15%
-
-- AI 輔助模式下（沒有 TDD）：需求釐清 20%、寫實作 0%（AI 生成）、review AI 產出 + debug 60%
-
-- AI + Red/Green TDD 模式：需求釐清 30%、寫測試 40%、AI 實作 5%、驗證通過 25%
-
-注意那個結構性的翻轉：實作時間從佔一半壓縮到近乎消失，但「定義什麼叫做對」的時間從 35% 膨脹到 70%。開發者的工作內容沒有消失，但重心徹底搬家了。
-
-這帶出真正值得追問的幾件事：
-
-如果「寫測試」變成核心技能，軟體人才的估值邏</p>]]></description>
 </item>
 </channel>
 </rss>
