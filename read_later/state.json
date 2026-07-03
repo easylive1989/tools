@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@jacob_cp314/post/DaUhL5lgQAU?xmt=AQG0X_yMxHRzOS7CKPvgNS19eF72gH7O60BRExGuI04dsB77hpYESKZP5rN5irY1Q-mrpQk&slof=1",
+      "message_id": "1522574603195519068",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1522574603195519068",
+      "shared_at": "2026-07-03T12:07:53.470000+00:00",
+      "title": "https://www.threads.com/@jacob_cp314/post/DaUhL5lgQAU?xmt=AQG0X_yMxHRzOS7CKPvgNS19eF72gH7O60BRExGuI04dsB77hpYESKZP5rN5irY1Q-mrpQk&slof=1",
+      "url": "https://www.threads.com/@jacob_cp314/post/DaUhL5lgQAU?xmt=AQG0X_yMxHRzOS7CKPvgNS19eF72gH7O60BRExGuI04dsB77hpYESKZP5rN5irY1Q-mrpQk&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@kikitataysi/post/DaU06QFFLsw?xmt=AQG02a-gbBkP8zjUlY3NJ3fu4w-yEA8PLigo_QPec4SRDCmvBoVeLHYN5zclm1LuKuhjpGDE&slof=1",
       "message_id": "1522558067307188368",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1522558067307188368",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-05-11T04:23:36.446000+00:00",
       "title": "Threads",
       "url": "https://www.threads.com/@s3lf_du3l/post/DYKVmvRD4gR?xmt=AQG0FS2WdsGmj0Ge1bVJP8C53qg1kt5zGI5Xlf0IKBRHSrOYkzcjeNjcI_A2w7MDhKqcMas&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@ccctsai_/post/DYHmjtHgVHY?xmt=AQG0gDwiEpBPqrVj1ehPRDZE8cJn9VEp93pK7vSxdgHddRHPVdCsR8o1ovVWo15ubzzW2uw&slof=1",
-      "message_id": "1502809912424792144",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1502809912424792144",
-      "shared_at": "2026-05-09T23:10:03.980000+00:00",
-      "title": "Threads",
-      "url": "https://www.threads.com/@ccctsai_/post/DYHmjtHgVHY?xmt=AQG0gDwiEpBPqrVj1ehPRDZE8cJn9VEp93pK7vSxdgHddRHPVdCsR8o1ovVWo15ubzzW2uw&slof=1"
     }
   ],
-  "last_message_id": "1522558067307188368",
+  "last_message_id": "1522574603195519068",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2003,6 +2003,7 @@
     "https://www.threads.com/@ihower/post/DaCbEvCmu4K?xmt=AQG0KrNKtKo8Km8TyvqrwbDcmW-p3LjC9lbnEo-f03pGPGU6Ffhx1vFffhEOvZpB08EUsIAW&slof=1",
     "https://www.threads.com/@imgebu/post/DaOe3NxEz00?xmt=AQG0xzvLSS5tqxzn50jkkrvChbkLSrzAdLURbjRtJl7s29dIGapZhxdbAHYeOP1PIIr90qFz&slof=1",
     "https://www.threads.com/@imjaylin/post/DZJp3rhk0Mk?xmt=AQG0bdyOj8knVsKtpvZFUahQAX509vP7chCJuDfKFrvAk8lGNjqPF-zuROvF15-GfH2iFach&slof=1",
+    "https://www.threads.com/@jacob_cp314/post/DaUhL5lgQAU?xmt=AQG0X_yMxHRzOS7CKPvgNS19eF72gH7O60BRExGuI04dsB77hpYESKZP5rN5irY1Q-mrpQk&slof=1",
     "https://www.threads.com/@jarvis.inno/post/DZPtNNbiSRq?xmt=AQG0vJSb9ZpmwXnVTpJiNBWWnhQOPjHKCLBSFdn-V5pBPDrD4QPk-iU-NW0DZigTow0QrcZp&slof=1",
     "https://www.threads.com/@javayhu/post/DZ6FAATj9ni?xmt=AQG0rBFi3hy0b_hAy7OPNesNLLSgODiauEZOu2LMByXBReYjCHKCZuQsy7EZCnBl3tJB_U7_&slof=1",
     "https://www.threads.com/@javayhu/post/DaJ2lB7FHrT?xmt=AQG07vH4SypwcpfD3OFks12CNxfErgVGg1Dtn4UK086FcE7a1JGEArE0ZzzuSWdG51rMG-aC&slof=1",
