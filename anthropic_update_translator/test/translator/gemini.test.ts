@@ -78,43 +78,4 @@ describe("GeminiTranslator", () => {
     const t = new GeminiTranslator("KEY", "gemini-2.5-flash");
     await expect(t.translate("ab")).rejects.toBeInstanceOf(TranslationError);
   });
-
-  it("translateArticle 用文章 prompt 並回傳譯文", async () => {
-    let capturedBody = "";
-    vi.stubGlobal(
-      "fetch",
-      vi.fn((_url: string, init: RequestInit) => {
-        capturedBody = init.body as string;
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({ candidates: [{ content: { parts: [{ text: "翻好的長文章內容" }] } }] }),
-            { status: 200 },
-          ),
-        );
-      }),
-    );
-
-    const t = new GeminiTranslator("KEY", "gemini-2.5-flash");
-    const out = await t.translateArticle("# Title\n\nLong body paragraph.");
-
-    expect(out).toBe("翻好的長文章內容");
-    expect(JSON.parse(capturedBody).contents[0].parts[0].text).toContain("Long body paragraph.");
-  });
-
-  it("translateArticle 不套用 10 倍長度上限", async () => {
-    const longOut = "中".repeat(500);
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(
-            JSON.stringify({ candidates: [{ content: { parts: [{ text: longOut }] } }] }),
-            { status: 200 },
-          ),
-        ),
-      ),
-    );
-    const t = new GeminiTranslator("KEY", "gemini-2.5-flash");
-    await expect(t.translateArticle("ab")).resolves.toBe(longOut);
-  });
 });

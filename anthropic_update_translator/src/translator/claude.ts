@@ -1,11 +1,4 @@
-import {
-  buildArticlePrompt,
-  buildPrompt,
-  TranslationError,
-  validateArticleTranslation,
-  validateTranslation,
-  type Translator,
-} from "./types";
+import { buildPrompt, TranslationError, validateTranslation, type Translator } from "./types";
 
 const TIMEOUT_MS = 10_000;
 const MAX_TOKENS = 2048;
@@ -20,12 +13,6 @@ export class ClaudeTranslator implements Translator {
   async translate(text: string): Promise<string> {
     const translated = await this.request(buildPrompt(text));
     validateTranslation(text, translated);
-    return translated.trim();
-  }
-
-  async translateArticle(markdown: string): Promise<string> {
-    const translated = await this.request(buildArticlePrompt(markdown));
-    validateArticleTranslation(translated);
     return translated.trim();
   }
 

@@ -1,11 +1,4 @@
-import {
-  buildArticlePrompt,
-  buildPrompt,
-  TranslationError,
-  validateArticleTranslation,
-  validateTranslation,
-  type Translator,
-} from "./types";
+import { buildPrompt, TranslationError, validateTranslation, type Translator } from "./types";
 
 interface WorkersAiTextOutput {
   response?: string;
@@ -17,12 +10,6 @@ export class WorkersAiTranslator implements Translator {
   async translate(text: string): Promise<string> {
     const translated = await this.run(buildPrompt(text));
     validateTranslation(text, translated);
-    return translated.trim();
-  }
-
-  async translateArticle(markdown: string): Promise<string> {
-    const translated = await this.run(buildArticlePrompt(markdown));
-    validateArticleTranslation(translated);
     return translated.trim();
   }
 

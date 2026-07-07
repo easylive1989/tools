@@ -16,7 +16,6 @@ function env(overrides: Partial<Env>): Env {
     CLAUDE_MODEL: "claude-haiku-4-5-20251001",
     KV: {} as KVNamespace,
     WORKERSAI_MODEL: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-    HACKMD_API_TOKEN: "HM",
     AI: {} as Ai,
     ...overrides,
   };

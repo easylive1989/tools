@@ -9,7 +9,6 @@ export interface Env {
   GEMINI_MODEL: string;
   CLAUDE_MODEL: string;
   WORKERSAI_MODEL: string;
-  HACKMD_API_TOKEN: string;
 
   AI: Ai;
   KV: KVNamespace;

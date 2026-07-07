@@ -32,11 +32,11 @@ Active workflows (triggered on schedule + `workflow_dispatch`):
 - `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
 - `update-read-later.yml` — polls the read_later Discord channel and rebuilds `read_later/feed.xml` (cron: every 2h); commits state back
 - `update-eat-later.yml` — polls the eat_later Discord channel, extracts restaurant info via Gemini, writes to Notion (cron: every 2h); commits `eat_later/state.json` back
-- `deploy-anthropic-translator.yml` — deploys the Anthropic update translator Cloudflare Worker (cron: every 5 min); also translates linked anthropic.com articles to HackMD notes via Workers AI
+- `deploy-anthropic-translator.yml` — deploys the Anthropic update translator Cloudflare Worker (cron: every 5 min)
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
-Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_READ_LATER_CHANNEL_ID`, `GEMINI_API_KEY`, `HACK_MD_API_KEY`.
+Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_READ_LATER_CHANNEL_ID`, `GEMINI_API_KEY`.
 
 ## Environment Variables
 

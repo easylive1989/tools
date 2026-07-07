@@ -32,12 +32,4 @@ describe("State", () => {
     await state.clearRetryCount("abc");
     expect(await state.getRetryCount("abc")).toBe(0);
   });
-
-  it("getHackMdLink 預設為 null,set 後可取回", async () => {
-    const kv = new MemoryKV();
-    const state = new State(asKV(kv));
-    expect(await state.getHackMdLink("101")).toBeNull();
-    await state.setHackMdLink("101", "https://hackmd.io/@x/abc");
-    expect(await state.getHackMdLink("101")).toBe("https://hackmd.io/@x/abc");
-  });
 });
