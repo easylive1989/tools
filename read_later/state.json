@@ -2,6 +2,24 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.facebook.com/share/r/1PUbY9WPNf/?mibextid=wwXIfr",
+      "message_id": "1525803511906828412",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1525803511906828412",
+      "shared_at": "2026-07-12T09:58:25.297000+00:00",
+      "title": "https://www.facebook.com/share/r/1PUbY9WPNf/?mibextid=wwXIfr",
+      "url": "https://www.facebook.com/share/r/1PUbY9WPNf/?mibextid=wwXIfr"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.facebook.com/share/1bCghuGLTh/?mibextid=wwXIfr",
+      "message_id": "1525803140593487922",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1525803140593487922",
+      "shared_at": "2026-07-12T09:56:56.769000+00:00",
+      "title": "https://www.facebook.com/share/1bCghuGLTh/?mibextid=wwXIfr",
+      "url": "https://www.facebook.com/share/1bCghuGLTh/?mibextid=wwXIfr"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@el_howeed/post/Darw513Dy-L?xmt=AQG0oZBAlOyOqCNsHeZ7WwgAYz6q7Dnug7HsSjrWGvCH5YRzMXW3dCgDuivqRLgOxhcmqi4&slof=1",
       "message_id": "1525774901955268638",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1525774901955268638",
@@ -1854,27 +1872,9 @@
       "shared_at": "2026-05-22T23:32:24.357000+00:00",
       "title": "Threads",
       "url": "https://www.threads.com/@alex_wang.dev/post/DYpI6zQkiG5?xmt=AQG0iddyVSrl5pkwjZ9YvsHCv4FhpZ_fqs3cqORZKyb1xPHTYvtllQQkTMEYmIpWWKfXtF8p&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@yeeggg_/post/DYoff8uEklX?xmt=AQG05VMlruV8JpB6XsDCylpHOpReGM7luQcMnOkRJq-OPBqmRSc60iF9mduHnv4MOjg7qS9v&slof=1",
-      "message_id": "1507327927463972905",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1507327927463972905",
-      "shared_at": "2026-05-22T10:23:02.706000+00:00",
-      "title": "Threads",
-      "url": "https://www.threads.com/@yeeggg_/post/DYoff8uEklX?xmt=AQG05VMlruV8JpB6XsDCylpHOpReGM7luQcMnOkRJq-OPBqmRSc60iF9mduHnv4MOjg7qS9v&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@judy_yoyo/post/DYoCsrYkb4Z?xmt=AQG0Saw4BNx016qlvQR68D7I29MPt--GuhIQEYCQMFyE1vaPwI35mSJGY9DWGXZQI65p7Zg&slof=1",
-      "message_id": "1507237713647108157",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1507237713647108157",
-      "shared_at": "2026-05-22T04:24:34.056000+00:00",
-      "title": "Threads",
-      "url": "https://www.threads.com/@judy_yoyo/post/DYoCsrYkb4Z?xmt=AQG0Saw4BNx016qlvQR68D7I29MPt--GuhIQEYCQMFyE1vaPwI35mSJGY9DWGXZQI65p7Zg&slof=1"
     }
   ],
-  "last_message_id": "1525774901955268638",
+  "last_message_id": "1525803511906828412",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1894,9 +1894,11 @@
     "https://www.facebook.com/modeerf/posts/pfbid0SyYzCmXntBJzS8kzqQXTQokVM9aC3QjMrorrgyJmZ6dQzEjuge3CKLCqdhz191Pgl?locale=zh_TW",
     "https://www.facebook.com/share/18hmEoXkQB/?mibextid=wwXIfr",
     "https://www.facebook.com/share/1BXW9nGMCc/?mibextid=wwXIfr",
+    "https://www.facebook.com/share/1bCghuGLTh/?mibextid=wwXIfr",
     "https://www.facebook.com/share/p/18rpZemkt1/?mibextid=wwXIfr",
     "https://www.facebook.com/share/p/1BXAugkQFF/?mibextid=wwXIfr",
     "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr",
+    "https://www.facebook.com/share/r/1PUbY9WPNf/?mibextid=wwXIfr",
     "https://www.facebook.com/share/v/18HhqPpUf4/?mibextid=wwXIfr",
     "https://www.facebook.com/thingsaboutwebdev/posts/pfbid02Xr5U3r8b9L9Ev3GUGXEDgLA7vJB1NWtF8GDC7dShLW9b3wUmoaQtEu9ziq1gCrbil?locale=zh_TW",
     "https://www.instagram.com/p/DZq6NhXmk6I/",
