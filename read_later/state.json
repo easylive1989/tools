@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/@andy.talking/post/DZu0lMAAGE0?xmt=AQG0kVvKotcx_jy6ijUlC9i3euSuiOK0WS1zdrr3tNWPZPhJL_0e9grKKeDCCfBv9ial2jQ&slof=1",
+      "message_id": "1527273484584095784",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1527273484584095784",
+      "shared_at": "2026-07-16T11:19:34.094000+00:00",
+      "title": "https://www.threads.com/@andy.talking/post/DZu0lMAAGE0?xmt=AQG0kVvKotcx_jy6ijUlC9i3euSuiOK0WS1zdrr3tNWPZPhJL_0e9grKKeDCCfBv9ial2jQ&slof=1",
+      "url": "https://www.threads.com/@andy.talking/post/DZu0lMAAGE0?xmt=AQG0kVvKotcx_jy6ijUlC9i3euSuiOK0WS1zdrr3tNWPZPhJL_0e9grKKeDCCfBv9ial2jQ&slof=1"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/@brecht/post/Da0TsUyEoEK?xmt=AQG0fSHL9yOOg39c2Nzv3P1MQKIN_okv-E1DfvMxrMhNG-OABM5MFtPBhrUKzboNxZAlREN5&slof=1",
       "message_id": "1526985036430315680",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1526985036430315680",
@@ -1869,18 +1878,9 @@
       "shared_at": "2026-05-28T01:43:04.026000+00:00",
       "title": "GitHub - anthropics/knowledge-work-plugins: Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork",
       "url": "https://github.com/anthropics/knowledge-work-plugins"
-    },
-    {
-      "author": "Paul Wu",
-      "message_excerpt": "https://www.youtube.com/watch?v=gdrPkpXuNks",
-      "message_id": "1509345920632885260",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1509345920632885260",
-      "shared_at": "2026-05-28T00:01:49.770000+00:00",
-      "title": "- YouTube",
-      "url": "https://www.youtube.com/watch?v=gdrPkpXuNks"
     }
   ],
-  "last_message_id": "1526985036430315680",
+  "last_message_id": "1527273484584095784",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1942,6 +1942,7 @@
     "https://www.threads.com/@amie1128___/post/DZUCPHsGAnL?xmt=AQG0OFUUR1bmpPZQLOoKJx9nTOhoSCLQFQNl9TwdNrQvrOD2Wg6660Nb2BEog6tpGBR946yL&slof=1",
     "https://www.threads.com/@anderson.murmur/post/DaA8EprIIyN?xmt=AQG0Etl11dM6a272nB8kbj-0AtzYQOo5g6Y2pPs_GyMdUJcyZDrr_E7-JafgZ-KEDQbNC8A6&slof=1",
     "https://www.threads.com/@andrewshih1210/post/DaRQ1afk69n?xmt=AQG0VGRriYXOjjprddldPM6fDVCOoKRF0wzlQVRqG0cwXMUIh6STe5hznO7GNFCnLpkeOq_u&slof=1",
+    "https://www.threads.com/@andy.talking/post/DZu0lMAAGE0?xmt=AQG0kVvKotcx_jy6ijUlC9i3euSuiOK0WS1zdrr3tNWPZPhJL_0e9grKKeDCCfBv9ial2jQ&slof=1",
     "https://www.threads.com/@aoyamaa._/post/DYtX1dRkZWv?xmt=AQG06XJ-PrcjA7UqJKjKddito0DMpOOb_OZTXfe_a8yDR059RXAsMRPse9Q7zIzL6TxuIPiT&slof=1",
     "https://www.threads.com/@apptradingtw/post/DaReimHGIm5?xmt=AQG0qEx_2ADp50h10bM0Vf9EzThCoSaCppM3NL2XveGd3Cw32aVBcp7uAxLNWoJx4FjF_CD9&slof=1",
     "https://www.threads.com/@ariescar0326/post/DXJbWD_jDGB?xmt=AQG0lKOIZ8xRrzwU9xfpH3Uzt54mSKptS4_ABIhNSjPNHA",
