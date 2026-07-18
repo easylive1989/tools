@@ -24,7 +24,7 @@ from docx import Document
 from pdf2docx import Converter
 
 
-AGY_MODEL = "gemini-3.5-flash-high"
+AGY_MODEL = "Gemini 3.5 Flash (High)"
 TARGET_LANG = "Traditional Chinese"
 MAX_WORKERS = 5
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*[mGKHFABCDJKsuhl]|\r")

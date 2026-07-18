@@ -288,7 +288,7 @@ actor AgyRunner {
         return await withCheckedContinuation { continuation in
             let proc = Process()
             proc.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            proc.arguments = ["agy", "--model", "gemini-3.5-flash-high", "--prompt", prompt]
+            proc.arguments = ["agy", "--model", "Gemini 3.5 Flash (High)", "--prompt", prompt]
             proc.environment = env
 
             let outPipe = Pipe()
