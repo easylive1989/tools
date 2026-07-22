@@ -5,9 +5,11 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from common.gemini import GeminiClient
 from common.notion import NotionApi
 from notifier import DiscordNotifier
 from scraper import ThreadPost, search_threads
+from translator import Translator, is_chinese
 
 KEYWORDS_DB_ID = "37e8303f78f7807196e8dfa2bfdeb96e"
 SEEN_POSTS_DB_ID = "37e8303f78f780d79770e6cd32c881f4"
@@ -65,6 +67,23 @@ def record_seen_post(notion: NotionApi, keyword: str, post: ThreadPost) -> None:
     resp.raise_for_status()
 
 
+def build_translator() -> Translator | None:
+    if not os.environ.get("GOOGLE_API_KEY"):
+        print("Warning: GOOGLE_API_KEY not set, translation disabled.", file=sys.stderr)
+        return None
+    return Translator(GeminiClient(model_name="flash"))
+
+
+def translate_if_needed(translator: Translator | None, post: ThreadPost) -> str | None:
+    if translator is None or not post.content or is_chinese(post.content):
+        return None
+    try:
+        return translator.translate_to_chinese(post.content)
+    except Exception as e:
+        print(f"  Translate error for {post.post_id}: {e}", file=sys.stderr)
+        return None
+
+
 def main() -> None:
     hour = datetime.now(ZoneInfo("Asia/Taipei")).hour
     if 0 <= hour < 10:
@@ -87,6 +106,8 @@ def main() -> None:
     seen_ids = fetch_seen_post_ids(notion)
     print(f"Loaded {len(seen_ids)} seen post IDs from Notion.")
 
+    translator = build_translator()
+
     for keyword, webhook_url in keywords:
         print(f"Searching: {keyword}")
         try:
@@ -100,8 +121,9 @@ def main() -> None:
         for post in posts:
             if post.post_id in seen_ids:
                 continue
+            translation = translate_if_needed(translator, post)
             try:
-                notifier.notify(keyword, post)
+                notifier.notify(keyword, post, translation)
                 record_seen_post(notion, keyword, post)
                 seen_ids.add(post.post_id)
                 new_count += 1

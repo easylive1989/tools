@@ -40,6 +40,7 @@ jobs:
 
             # 寫入 env file（每次部署更新，確保 secret 最新）
             echo 'NOTION_SECRET=${{ secrets.NOTION_SECRET }}' > /etc/threads-monitor.env
+            echo 'GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}' >> /etc/threads-monitor.env
             chmod 600 /etc/threads-monitor.env
 
             # 建立執行包裝腳本

@@ -1,2 +1,4 @@
 playwright==1.60.0
 requests>=2.31
+google-genai>=1.0
+tenacity>=8.0
