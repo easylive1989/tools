@@ -2,6 +2,33 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BA1HzdD7RV/",
+      "message_id": "1546851991161151519",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1546851991161151519",
+      "shared_at": "2026-09-08T11:57:33.813000+00:00",
+      "title": "https://www.threads.com/share/BA1HzdD7RV/",
+      "url": "https://www.threads.com/share/BA1HzdD7RV/"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BAfx01TEfM/",
+      "message_id": "1546850406468952155",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1546850406468952155",
+      "shared_at": "2026-09-08T11:51:15.993000+00:00",
+      "title": "https://www.threads.com/share/BAfx01TEfM/",
+      "url": "https://www.threads.com/share/BAfx01TEfM/"
+    },
+    {
+      "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/_s4S-O5n2/",
+      "message_id": "1546823507810459722",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1546823507810459722",
+      "shared_at": "2026-09-08T10:04:22.853000+00:00",
+      "title": "https://www.threads.com/share/_s4S-O5n2/",
+      "url": "https://www.threads.com/share/_s4S-O5n2/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BCANu8T4PY/",
       "message_id": "1545692515930476606",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1545692515930476606",
@@ -1858,36 +1885,9 @@
       "shared_at": "2026-06-13T14:22:07.096000+00:00",
       "title": "https://www.threads.com/@leadingmrk/post/DZhl6R8IKbh?xmt=AQG0sM8YtIrlVUEFGIggvyXkizY87O-8XoMihwgj8mh7Yg",
       "url": "https://www.threads.com/@leadingmrk/post/DZhl6R8IKbh?xmt=AQG0sM8YtIrlVUEFGIggvyXkizY87O-8XoMihwgj8mh7Yg"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/share/p/18rpZemkt1/?mibextid=wwXIfr",
-      "message_id": "1515311679930499102",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515311679930499102",
-      "shared_at": "2026-06-13T11:07:37.625000+00:00",
-      "title": "https://www.facebook.com/share/p/18rpZemkt1/?mibextid=wwXIfr",
-      "url": "https://www.facebook.com/share/p/18rpZemkt1/?mibextid=wwXIfr"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.facebook.com/share/v/18HhqPpUf4/?mibextid=wwXIfr",
-      "message_id": "1515310787697180813",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515310787697180813",
-      "shared_at": "2026-06-13T11:04:04.900000+00:00",
-      "title": "https://www.facebook.com/share/v/18HhqPpUf4/?mibextid=wwXIfr",
-      "url": "https://www.facebook.com/share/v/18HhqPpUf4/?mibextid=wwXIfr"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@kai_ch_chen/post/DZe9TaKE_oE?xmt=AQG0gMKYeri1fWnF1adK0Y3-XyIEsns5y0c-PRmrxGJuV0gLDXlkYs24P-di74hhlepDRsk&slof=1",
-      "message_id": "1515028267571347486",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515028267571347486",
-      "shared_at": "2026-06-12T16:21:26.853000+00:00",
-      "title": "https://www.threads.com/@kai_ch_chen/post/DZe9TaKE_oE?xmt=AQG0gMKYeri1fWnF1adK0Y3-XyIEsns5y0c-PRmrxGJuV0gLDXlkYs24P-di74hhlepDRsk&slof=1",
-      "url": "https://www.threads.com/@kai_ch_chen/post/DZe9TaKE_oE?xmt=AQG0gMKYeri1fWnF1adK0Y3-XyIEsns5y0c-PRmrxGJuV0gLDXlkYs24P-di74hhlepDRsk&slof=1"
     }
   ],
-  "last_message_id": "1545692515930476606",
+  "last_message_id": "1546851991161151519",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2184,6 +2184,7 @@
     "https://www.threads.com/@yuqi._.0313/post/DbIyJ6nE7tf?xmt=AQG0yuZTu7eXdWQz1oojYmsZfKls8n6-7h4ESxEzj_mRBF9zkvx8jH6mmrHFmVGz1YaI1Gke&slof=1",
     "https://www.threads.com/@yuri.learns/post/DaGE2U0CbmW?xmt=AQG0rvc1tPYLQMwDQZvEHyH51nqhTbzMdD7sMkGi3-erl1wPKhenX3iyo3Af44_5tXgFCejC&slof=1",
     "https://www.threads.com/@yushengli1105/post/DYcZJGLmrT5?xmt=AQG0goVmiO8-gGZfoZr-SDO2y0Kp_RpbnIFH252Y4nUR2c-4psneQ80YyOdaaa0nYEr-FytK&slof=1",
+    "https://www.threads.com/share/BA1HzdD7RV/",
     "https://www.threads.com/share/BALKTppscA/",
     "https://www.threads.com/share/BAOqU_xM9V/",
     "https://www.threads.com/share/BAPb0rKKsH/",
@@ -2196,11 +2197,13 @@
     "https://www.threads.com/share/BAX2BVhz5g/",
     "https://www.threads.com/share/BAYeOZW5KZ/",
     "https://www.threads.com/share/BAaM14UZDs/",
+    "https://www.threads.com/share/BAfx01TEfM/",
     "https://www.threads.com/share/BAyoyDWD_Q/",
     "https://www.threads.com/share/BCANu8T4PY/",
     "https://www.threads.com/share/_6Aa5xn8o/",
     "https://www.threads.com/share/_dZJHLjnk/",
     "https://www.threads.com/share/_kKFQY39h/",
+    "https://www.threads.com/share/_s4S-O5n2/",
     "https://www.youtube.com/watch?v=IlqJqcl8ONE",
     "https://www.youtube.com/watch?v=gdrPkpXuNks",
     "https://www.youtube.com/watch?v=ozVTJm3n2U4",
