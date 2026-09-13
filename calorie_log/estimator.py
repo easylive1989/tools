@@ -38,6 +38,8 @@ SCHEMA = {
 
 SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 REFERENCE_PATH = Path(__file__).with_name("food_calorie_reference.md")
+MODEL = "gpt-5.6-terra"
+REASONING_EFFORT = "medium"
 
 
 @dataclass(frozen=True)
@@ -103,7 +105,8 @@ def estimate(images: list[Path], description: str, *, timeout: int = 180) -> Est
         output_path = Path(workdir) / "estimate.json"
         schema_path.write_text(json.dumps(SCHEMA, ensure_ascii=False), encoding="utf-8")
         command = [
-            codex, "exec", "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only",
+            codex, "exec", "--model", MODEL, "--config", f"model_reasoning_effort={REASONING_EFFORT}",
+            "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only",
             "--output-schema", str(schema_path), "--output-last-message", str(output_path),
             "-C", workdir,
         ]

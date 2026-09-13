@@ -43,6 +43,8 @@ def test_estimate_sends_images_and_description_to_codex(tmp_path):
     assert "Q0500401" in captured["prompt"]
     assert "每 100 克" in captured["prompt"]
     assert "--sandbox" in captured["command"]
+    assert captured["command"][captured["command"].index("--model") + 1] == "gpt-5.6-terra"
+    assert captured["command"][captured["command"].index("--config") + 1] == "model_reasoning_effort=medium"
     assert "DISCORD_BOT_TOKEN" not in captured["env"]
     assert "NOTION_SECRET" not in captured["env"]
 
@@ -71,6 +73,8 @@ def test_text_only_meal_uses_codex_without_image(tmp_path):
 
     assert result.total_kcal == 300
     assert "--image" not in captured["command"]
+    assert captured["command"][captured["command"].index("--model") + 1] == "gpt-5.6-terra"
+    assert captured["command"][captured["command"].index("--config") + 1] == "model_reasoning_effort=medium"
     assert "蛋黃酥" in captured["prompt"]
     assert "一般單份" in captured["prompt"]
     assert "284.3 kcal" in captured["prompt"]
