@@ -28,7 +28,7 @@ jobs:
 
       - name: Test calorie logger
         run: |
-          python -m pip install --disable-pip-version-check -r calorie_log/requirements.txt pytest
+          python -m pip install --disable-pip-version-check -r calorie_log/requirements.txt -r eat_later/requirements.txt
           python -m pytest calorie_log/tests eat_later/tests -q
 
       - name: Check deployment secrets
