@@ -33,15 +33,13 @@ jobs:
 
       - name: Check deployment secrets
         env:
-          ORACLE_VM_HOST: ${{ secrets.ORACLE_VM_HOST }}
-          ORACLE_VM_USER: ${{ secrets.ORACLE_VM_USER }}
-          ORACLE_VM_SSH_KEY: ${{ secrets.ORACLE_VM_SSH_KEY }}
-          ORACLE_VM_KNOWN_HOSTS: ${{ secrets.ORACLE_VM_KNOWN_HOSTS }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
         run: |
           missing=0
-          for name in ORACLE_VM_HOST ORACLE_VM_USER ORACLE_VM_SSH_KEY ORACLE_VM_KNOWN_HOSTS DISCORD_BOT_TOKEN NOTION_SECRET; do
+          for name in VPS_HOST VPS_SSH_KEY DISCORD_BOT_TOKEN NOTION_SECRET; do
             if [ -z "${!name}" ]; then
               echo "::error::Missing GitHub Actions secret: $name"
               missing=1
@@ -51,26 +49,31 @@ jobs:
 
       - name: Configure SSH
         env:
-          ORACLE_VM_SSH_KEY: ${{ secrets.ORACLE_VM_SSH_KEY }}
-          ORACLE_VM_KNOWN_HOSTS: ${{ secrets.ORACLE_VM_KNOWN_HOSTS }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
           umask 077
-          printf '%s\n' "$ORACLE_VM_SSH_KEY" > "$RUNNER_TEMP/oracle_vm_key"
-          printf '%s\n' "$ORACLE_VM_KNOWN_HOSTS" > "$RUNNER_TEMP/oracle_vm_known_hosts"
+          printf '%s\n' "$VPS_SSH_KEY" > "$RUNNER_TEMP/vps_key"
+          if [ -n "$VPS_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/vps_known_hosts"
+          else
+            ssh-keyscan -H -T 10 "$VPS_HOST" > "$RUNNER_TEMP/vps_known_hosts"
+          fi
+          test -s "$RUNNER_TEMP/vps_known_hosts"
 
-      - name: Deploy to Oracle VM
+      - name: Deploy to Hetzner VPS
         env:
-          ORACLE_VM_HOST: ${{ secrets.ORACLE_VM_HOST }}
-          ORACLE_VM_USER: ${{ secrets.ORACLE_VM_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
         run: |
-          remote="$ORACLE_VM_USER@$ORACLE_VM_HOST"
-          ssh_opts=(-i "$RUNNER_TEMP/oracle_vm_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/oracle_vm_known_hosts")
+          remote="root@$VPS_HOST"
+          ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
 
-          ssh "${ssh_opts[@]}" "$remote" 'mkdir -p ~/tools/calorie_log ~/tools/common'
-          tar -cf - calorie_log/*.py calorie_log/run.sh calorie_log/deploy_vm.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
-            | ssh "${ssh_opts[@]}" "$remote" 'cd ~/tools && tar -xf -'
+          ssh "${ssh_opts[@]}" "$remote" 'mkdir -p /opt/calorie-log/calorie_log /opt/calorie-log/common'
+          tar -cf - calorie_log/*.py calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
+            | ssh "${ssh_opts[@]}" "$remote" 'cd /opt/calorie-log && tar -xf -'
 
           python - <<'PY'
           import os
@@ -84,7 +87,7 @@ jobs:
           destination.write_text('\n'.join(lines) + '\n', encoding='utf-8')
           destination.chmod(0o600)
           PY
-          scp "${ssh_opts[@]}" "$RUNNER_TEMP/calorie-log.env" "$remote:tools/calorie_log/.env.new"
-          ssh "${ssh_opts[@]}" "$remote" 'chmod 600 ~/tools/calorie_log/.env.new && sh ~/tools/calorie_log/deploy_vm.sh'
+          ssh "${ssh_opts[@]}" "$remote" 'umask 077; cat > /opt/calorie-log/calorie_log/.env.new' < "$RUNNER_TEMP/calorie-log.env"
+          ssh "${ssh_opts[@]}" "$remote" 'sh /opt/calorie-log/calorie_log/deploy_vps.sh'
 
           ssh "${ssh_opts[@]}" "$remote" 'systemctl is-active --quiet calorie-log.timer'
