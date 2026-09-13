@@ -1,6 +1,6 @@
 # Discord 餐點熱量紀錄
 
-這個工具在 Hetzner VPS 上執行。它讀取 Discord「餐點紀錄」頻道的新訊息；純文字餐點或照片都能觸發。若附多張照片，只取第一張。工具呼叫 VPS 本機的 Codex CLI 估算整餐熱量，直接寫入 Notion「每餐紀錄」，並在成功處理的 Discord 訊息加上 ✅，不發文字回覆。原始照片會上傳到該筆 Notion 記錄。從原始餐點訊息開啟的公開 thread 可以補充吃了什麼；工具會用原始內容和所有補充文字重新估算、更新同一筆 Notion 記錄，並在最新補充訊息加上 ✅。估算屬粗估，不適合當成精確營養數據。
+這個工具在 Hetzner VPS 上執行。它讀取 Discord「餐點紀錄」頻道的新訊息；純文字餐點或照片都能觸發。若附多張照片，只取第一張。工具呼叫 VPS 本機的 Codex CLI 估算整餐熱量，直接寫入 Notion「每餐紀錄」，並在成功處理的 Discord 訊息加上 ✅，不發文字回覆。原始照片會上傳到該筆 Notion 記錄。從原始餐點訊息開啟的公開 thread 可以補充吃了什麼；工具會用原始內容和所有補充文字重新估算、更新同一筆 Notion 記錄，並在最新補充訊息加上 ✅。每次估算都會讀取 [食物熱量參考表](food_calorie_reference.md)，對照食藥署樣品資料與實際產品標示，再依份量和烹調方式調整。估算屬粗估，不適合當成精確營養數據。
 
 ## 環境
 
@@ -23,6 +23,8 @@ CI 會在 `master` 分支的 `calorie_log/`、`common/notion.py` 或部署 workf
 選用 `VPS_KNOWN_HOSTS` 可放入事先驗證過的 SSH host key，讓 CI 固定比對；未設定時 CI 會在每次部署前用 `ssh-keyscan` 取得主機目前的 key。
 
 CI 會把程式同步到 VPS 的 `/opt/calorie-log`、建立 Python 虛擬環境、安裝並啟用 systemd timer。若 `root` 已登入 Codex CLI，部署時會立即執行一次；否則 timer 會每分鐘重試，直到登入完成。VPS 的 `/opt/calorie-log/.env` 權限為 `600`，不會進 Git。
+
+熱量參考表會隨每次部署複製到 VPS。修改 `calorie_log/food_calorie_reference.md` 後推送到 `master`，CI 會執行測試並部署；下一次估算便會讀取更新後的表。新增數值時應保留食品樣品名稱、每 100 克或每份的單位與原始來源，避免把生食、熟食或不同品牌視為同一數值。
 
 在 Hetzner VPS 用 `root` 執行 `codex login` 與 `codex login status`。完成登入後可執行 `systemctl start calorie-log.service` 立即測試。
 

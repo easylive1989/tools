@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from calorie_log.estimator import estimate
 
 
@@ -37,6 +39,9 @@ def test_estimate_sends_images_and_description_to_codex(tmp_path):
     assert result.items[0].portion == "一碗"
     assert captured["command"][captured["command"].index("--image") + 1] == str(image)
     assert "吃了一碗雞肉飯" in captured["prompt"]
+    assert "食物熱量對照表" in captured["prompt"]
+    assert "Q0500401" in captured["prompt"]
+    assert "每 100 克" in captured["prompt"]
     assert "--sandbox" in captured["command"]
     assert "DISCORD_BOT_TOKEN" not in captured["env"]
     assert "NOTION_SECRET" not in captured["env"]
@@ -68,3 +73,15 @@ def test_text_only_meal_uses_codex_without_image(tmp_path):
     assert "--image" not in captured["command"]
     assert "蛋黃酥" in captured["prompt"]
     assert "一般單份" in captured["prompt"]
+    assert "284.3 kcal" in captured["prompt"]
+
+
+def test_estimate_requires_reference_file(tmp_path):
+    codex = tmp_path / "codex"
+    codex.write_text("fake")
+    with patch("calorie_log.estimator.shutil.which", return_value=str(codex)), \
+         patch("calorie_log.estimator.REFERENCE_PATH", tmp_path / "missing.md"), \
+         patch("calorie_log.estimator.subprocess.run") as run:
+        with pytest.raises(RuntimeError, match="無法讀取食物熱量參考表"):
+            estimate([], "蛋黃酥")
+    run.assert_not_called()

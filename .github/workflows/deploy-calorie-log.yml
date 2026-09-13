@@ -72,7 +72,7 @@ jobs:
           ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
 
           ssh "${ssh_opts[@]}" "$remote" 'mkdir -p /opt/calorie-log/calorie_log /opt/calorie-log/common'
-          tar -cf - calorie_log/*.py calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
+          tar -cf - calorie_log/*.py calorie_log/food_calorie_reference.md calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
             | ssh "${ssh_opts[@]}" "$remote" 'cd /opt/calorie-log && tar -xf -'
 
           python - <<'PY'
