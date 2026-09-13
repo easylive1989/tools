@@ -40,3 +40,31 @@ def test_estimate_sends_images_and_description_to_codex(tmp_path):
     assert "--sandbox" in captured["command"]
     assert "DISCORD_BOT_TOKEN" not in captured["env"]
     assert "NOTION_SECRET" not in captured["env"]
+
+
+def test_text_only_meal_uses_codex_without_image(tmp_path):
+    codex = tmp_path / "codex"
+    codex.write_text("fake")
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured["command"] = command
+        captured["prompt"] = kwargs["input"]
+        output = Path(command[command.index("--output-last-message") + 1])
+        output.write_text(json.dumps({
+            "meal_name": "蛋黃酥",
+            "items": [{"name": "蛋黃酥", "portion": "一個", "kcal": 300}],
+            "total_kcal": 300,
+            "assumptions": "以一般大小的一個估算",
+            "confidence": "low",
+        }), encoding="utf-8")
+        return type("Result", (), {"returncode": 0})()
+
+    with patch("calorie_log.estimator.shutil.which", return_value=str(codex)), \
+         patch("calorie_log.estimator.subprocess.run", side_effect=fake_run):
+        result = estimate([], "蛋黃酥")
+
+    assert result.total_kcal == 300
+    assert "--image" not in captured["command"]
+    assert "蛋黃酥" in captured["prompt"]
+    assert "一般單份" in captured["prompt"]

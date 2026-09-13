@@ -1,6 +1,6 @@
 # Discord 餐點熱量紀錄
 
-這個工具在 Hetzner VPS 上執行。它讀取 Discord「餐點紀錄」頻道的新訊息，選取每則訊息的第一張食物照片與文字說明，呼叫 VPS 本機的 Codex CLI 估算整餐熱量，並寫入 Notion「每餐紀錄」。照片會上傳到該筆 Notion 記錄。從原始餐點訊息開啟的公開 thread 可以補充吃了什麼；工具會用原始照片和所有補充文字重新估算，更新同一筆 Notion 記錄。估算屬粗估，不適合當成精確營養數據。
+這個工具在 Hetzner VPS 上執行。它讀取 Discord「餐點紀錄」頻道的新訊息；純文字餐點或照片都能觸發。若附多張照片，只取第一張。工具呼叫 VPS 本機的 Codex CLI 估算整餐熱量，直接寫入 Notion「每餐紀錄」，並在成功處理的 Discord 訊息加上 ✅，不發文字回覆。原始照片會上傳到該筆 Notion 記錄。從原始餐點訊息開啟的公開 thread 可以補充吃了什麼；工具會用原始內容和所有補充文字重新估算、更新同一筆 Notion 記錄，並在最新補充訊息加上 ✅。估算屬粗估，不適合當成精確營養數據。
 
 ## 環境
 
@@ -32,7 +32,7 @@ CI 會把程式同步到 VPS 的 `/opt/calorie-log`、建立 Python 虛擬環境
 /opt/calorie-log/calorie_log/run.sh
 ```
 
-第一次成功執行會把目前最新 Discord 訊息設為起點，只處理之後的新訊息。若要首次補登既有訊息，可在 VPS 執行 `/opt/calorie-log/.venv/bin/python /opt/calorie-log/calorie_log/discord_runner.py --backfill`。systemd timer 每分鐘執行一次。處理進度存於 `calorie_log/state.json`，已排除 Git 追蹤。
+第一次成功執行會把目前最新 Discord 訊息設為起點，只處理之後的新訊息。這次加入純文字支援時，會自動檢查最近兩天、最新 100 則訊息，補登舊版略過的純文字餐點。若要首次補登更早的既有訊息，可在 VPS 執行 `/opt/calorie-log/.venv/bin/python /opt/calorie-log/calorie_log/discord_runner.py --backfill`。systemd timer 每分鐘執行一次。處理進度存於 `calorie_log/state.json`，已排除 Git 追蹤。
 
 照片若有可讀取的拍攝時間，會用拍攝時間；否則用 Discord 訊息時間。所有時間都轉成台灣時間。餐別區間是早餐 05:00–10:59、午餐 11:00–15:59、晚餐 16:00–20:59，其餘為點心。
 

@@ -14,8 +14,9 @@ import os
 import sys
 import tempfile
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import requests
 from PIL import Image
@@ -24,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from common.notion import NotionApi
 from calorie_log.estimator import estimate
-from calorie_log.meal_time import choose_meal_time, meal_type_at, parse_discord_time
+from calorie_log.meal_time import TAIPEI, choose_meal_time, meal_type_at, parse_discord_time
 from calorie_log.notion_writer import write
 
 
@@ -92,6 +93,20 @@ class DiscordClient:
             thread for thread in payload.get("threads", [])
             if thread.get("parent_id") == channel_id and thread.get("type") == 11
         ]
+
+    def react(self, channel_id: str, message_id: str, emoji: str) -> None:
+        self.request(
+            "PUT",
+            f"/channels/{channel_id}/messages/{message_id}/reactions/{quote(emoji, safe='')}/@me",
+        )
+
+
+def is_meal_message(message: dict) -> bool:
+    return (
+        not (message.get("author") or {}).get("bot")
+        and message.get("type", 0) in (0, 19)
+        and bool(first_image(message) or (message.get("content") or "").strip())
+    )
 
 def first_image(message: dict) -> dict | None:
     for attachment in message.get("attachments", []):
@@ -184,26 +199,92 @@ def update_active_threads(
         try:
             parent = discord.get_message(channel_id, parent_id)
             attachment = first_image(parent)
-            if not attachment:
-                raise ValueError("原始餐點訊息沒有照片")
             with tempfile.TemporaryDirectory(prefix="discord-meal-thread-") as temp:
                 directory = Path(temp)
-                photo = download_image(attachment, directory)
-                model_photo = codex_image(photo, directory)
+                photo = download_image(attachment, directory) if attachment else None
+                model_images = [codex_image(photo, directory)] if photo else []
                 description = combined_description(parent, messages)
-                result = estimate([model_photo], description)
-                eaten_at = choose_meal_time(photo, parse_discord_time(parent["timestamp"]))
+                result = estimate(model_images, description)
+                message_time = parse_discord_time(parent["timestamp"])
+                eaten_at = (
+                    choose_meal_time(photo, message_time) if photo
+                    else message_time.astimezone(TAIPEI)
+                )
                 write(
                     result, description, [], notion, data_source_id, eaten_at,
                     meal_type_at(eaten_at), include_photos=False,
                     source_message_id=parent_id, update_existing=True,
                 )
+            discord.react(parent_id, latest_id, "✅")
             tracked[parent_id] = latest_id
             save_state(state)
             LOG.info("Updated meal from thread %s through %s", parent_id, latest_id)
         except Exception:
             LOG.exception("Failed to update meal from thread %s", parent_id)
             continue
+
+
+def record_meal_message(
+    discord: DiscordClient, notion: NotionApi, channel_id: str,
+    data_source_id: str, state: dict, message: dict, *, advance_cursor: bool,
+) -> bool:
+    message_id = message["id"]
+    attachment = first_image(message)
+    description = (message.get("content") or "").strip()
+    try:
+        with tempfile.TemporaryDirectory(prefix="discord-meal-") as temp:
+            directory = Path(temp)
+            photo = download_image(attachment, directory) if attachment else None
+            model_images = [codex_image(photo, directory)] if photo else []
+            result = estimate(model_images, description)
+            message_time = parse_discord_time(message["timestamp"])
+            eaten_at = (
+                choose_meal_time(photo, message_time) if photo
+                else message_time.astimezone(TAIPEI)
+            )
+            write(
+                result, description, [photo] if photo else [], notion,
+                data_source_id, eaten_at, meal_type_at(eaten_at),
+                include_photos=bool(photo), source_message_id=message_id,
+            )
+        discord.react(channel_id, message_id, "✅")
+        if advance_cursor:
+            state["last_message_id"] = message_id
+        state.setdefault("threads", {})[message_id] = "0"
+        save_state(state)
+        LOG.info("Recorded Discord message %s", message_id)
+    except Exception:
+        LOG.exception("Failed to process Discord message %s", message_id)
+        return False
+    return True
+
+
+def backfill_recent_text(
+    discord: DiscordClient, notion: NotionApi, channel_id: str,
+    data_source_id: str, state: dict, last_id: str,
+) -> bool:
+    """Recover recent text meals skipped by the old photo-only version once."""
+    if state.get("text_only_backfill_v1"):
+        return True
+    recent = discord.request(
+        "GET", f"/channels/{channel_id}/messages", params={"limit": 100},
+    ).json()
+    cutoff = datetime.now(timezone.utc) - timedelta(days=2)
+    for message in sorted(recent, key=lambda item: int(item["id"])):
+        if int(message["id"]) > int(last_id):
+            continue
+        if not is_meal_message(message) or first_image(message):
+            continue
+        if parse_discord_time(message["timestamp"]) < cutoff:
+            continue
+        if not record_meal_message(
+            discord, notion, channel_id, data_source_id, state, message,
+            advance_cursor=False,
+        ):
+            return False
+    state["text_only_backfill_v1"] = True
+    save_state(state)
+    return True
 
 
 def run_once(*, backfill: bool = False) -> None:
@@ -224,38 +305,26 @@ def run_once(*, backfill: bool = False) -> None:
         save_state(state)
         LOG.info("Initial cursor set; future messages will be processed")
         return
+    if last_id is not None and not backfill_recent_text(
+        discord, notion, channel_id, data_source_id, state, last_id,
+    ):
+        raise RuntimeError("補登先前略過的文字餐點失敗")
     messages = discord.messages_since(channel_id, last_id)
 
     for message in messages:
         message_id = message["id"]
-        if (message.get("author") or {}).get("bot"):
+        if not is_meal_message(message):
             state["last_message_id"] = message_id
             save_state(state)
             continue
-        attachment = first_image(message)
-        if not attachment:
-            state["last_message_id"] = message_id
-            save_state(state)
-            continue
-        try:
-            with tempfile.TemporaryDirectory(prefix="discord-meal-") as temp:
-                directory = Path(temp)
-                photo = download_image(attachment, directory)
-                model_photo = codex_image(photo, directory)
-                description = (message.get("content") or "").strip()
-                result = estimate([model_photo], description)
-                eaten_at = choose_meal_time(photo, parse_discord_time(message["timestamp"]))
-                write(
-                    result, description, [photo], notion, data_source_id, eaten_at,
-                    meal_type_at(eaten_at), source_message_id=message_id,
-                )
-            state["last_message_id"] = message_id
-            state.setdefault("threads", {})[message_id] = "0"
-            save_state(state)
-            LOG.info("Recorded Discord message %s", message_id)
-        except Exception:
-            LOG.exception("Failed to process Discord message %s", message_id)
-            return  # Keep the cursor here so a later run can retry.
+        if not record_meal_message(
+            discord, notion, channel_id, data_source_id, state, message,
+            advance_cursor=True,
+        ):
+            raise RuntimeError(f"處理 Discord 餐點訊息 {message_id} 失敗")
+    if backfill and not state.get("text_only_backfill_v1"):
+        state["text_only_backfill_v1"] = True
+        save_state(state)
     update_active_threads(discord, notion, channel_id, data_source_id, state)
 
 

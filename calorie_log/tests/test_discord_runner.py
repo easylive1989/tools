@@ -3,8 +3,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from calorie_log.discord_runner import (
-    DiscordClient, combined_description, first_image, supplementary_messages,
-    run_once, update_active_threads,
+    DiscordClient, backfill_recent_text, combined_description, first_image,
+    record_meal_message, supplementary_messages, run_once, update_active_threads,
 )
 from calorie_log.estimator import Estimate, FoodItem
 
@@ -69,7 +69,32 @@ def test_thread_supplements_update_the_original_meal(tmp_path):
     assert write_mock.call_args.kwargs["update_existing"] is True
     assert write_mock.call_args.kwargs["source_message_id"] == "123"
     assert state["threads"]["123"] == "124"
-    discord.reply.assert_not_called()
+    discord.react.assert_called_once_with("123", "124", "✅")
+
+
+def test_text_only_thread_supplement_updates_same_meal():
+    discord = Mock()
+    discord.active_public_threads.return_value = [{"id": "123"}]
+    discord.messages_since.return_value = [
+        {"id": "124", "type": 0, "content": "其實吃了兩個", "author": {"bot": False}},
+    ]
+    discord.get_message.return_value = {
+        "id": "123", "content": "蛋黃酥", "timestamp": "2026-09-13T07:16:00Z",
+        "attachments": [],
+    }
+    state = {"threads": {"123": "0"}}
+    estimate_result = Estimate(
+        "蛋黃酥兩個", (FoodItem("蛋黃酥", "兩個", 600),), 600, "", "low"
+    )
+    with patch("calorie_log.discord_runner.estimate", return_value=estimate_result) as estimate_mock, \
+         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal") as write_mock, \
+         patch("calorie_log.discord_runner.save_state"):
+        update_active_threads(discord, Mock(), "channel", "source", state)
+
+    assert estimate_mock.call_args.args[0] == []
+    assert "其實吃了兩個" in estimate_mock.call_args.args[1]
+    assert write_mock.call_args.kwargs["update_existing"] is True
+    discord.react.assert_called_once_with("123", "124", "✅")
 
 
 def test_supplements_ignore_bot_and_starter_messages():
@@ -85,12 +110,13 @@ def test_supplements_ignore_bot_and_starter_messages():
 def test_recorded_meal_is_tracked_for_future_thread_updates():
     discord = Mock()
     discord.messages_since.return_value = [
-        {"id": "101", "content": "文字訊息", "attachments": [], "author": {"bot": False}},
+        {"id": "101", "content": "蛋黃酥", "timestamp": "2026-09-13T07:16:00Z",
+         "attachments": [], "author": {"bot": False}},
         {"id": "102", "content": "一份午餐", "timestamp": "2026-09-13T04:00:00Z",
          "attachments": [{"filename": "meal.jpg", "content_type": "image/jpeg", "url": "photo"}],
          "author": {"bot": False}},
     ]
-    state = {"last_message_id": "100"}
+    state = {"last_message_id": "100", "text_only_backfill_v1": True}
     estimate_result = Estimate(
         "午餐", (FoodItem("午餐", "一份", 500),), 500, "", "medium"
     )
@@ -110,10 +136,63 @@ def test_recorded_meal_is_tracked_for_future_thread_updates():
          patch("calorie_log.discord_runner.download_image", side_effect=fake_download), \
          patch("calorie_log.discord_runner.estimate", return_value=estimate_result), \
          patch("calorie_log.discord_runner.choose_meal_time", return_value=datetime(2026, 9, 13, 12, tzinfo=timezone.utc)), \
-         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal"), \
+         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal") as write_mock, \
          patch("calorie_log.discord_runner.update_active_threads"):
         run_once()
 
     assert state["last_message_id"] == "102"
-    assert state["threads"] == {"102": "0"}
-    discord.reply.assert_not_called()
+    assert state["threads"] == {"101": "0", "102": "0"}
+    assert write_mock.call_count == 2
+    assert write_mock.call_args_list[0].kwargs["include_photos"] is False
+    assert discord.react.call_count == 2
+
+
+def test_one_time_backfill_records_recent_skipped_text_without_moving_cursor():
+    discord = Mock()
+    discord.request.return_value.json.return_value = [
+        {"id": "102", "content": "之後的新訊息", "timestamp": "2026-09-13T07:17:00Z",
+         "attachments": [], "author": {"bot": False}},
+        {"id": "101", "content": "蛋黃酥", "timestamp": "2026-09-13T07:16:00Z",
+         "attachments": [], "author": {"bot": False}},
+    ]
+    state = {"last_message_id": "101"}
+    estimate_result = Estimate(
+        "蛋黃酥", (FoodItem("蛋黃酥", "一個", 300),), 300, "一般大小", "low"
+    )
+    with patch("calorie_log.discord_runner.datetime") as clock_mock, \
+         patch("calorie_log.discord_runner.estimate", return_value=estimate_result), \
+         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal") as write_mock, \
+         patch("calorie_log.discord_runner.save_state"):
+        clock_mock.now.return_value = datetime(2026, 9, 13, 8, tzinfo=timezone.utc)
+        assert backfill_recent_text(discord, Mock(), "channel", "source", state, "101") is True
+
+    assert state["last_message_id"] == "101"
+    assert state["text_only_backfill_v1"] is True
+    assert state["threads"]["101"] == "0"
+    assert write_mock.call_count == 1
+    discord.react.assert_called_once_with("channel", "101", "✅")
+
+
+def test_reaction_failure_keeps_text_meal_pending_for_retry():
+    discord = Mock()
+    discord.react.side_effect = RuntimeError("missing reaction permission")
+    state = {"last_message_id": "100"}
+    message = {
+        "id": "101", "content": "蛋黃酥", "timestamp": "2026-09-13T07:16:00Z",
+        "attachments": [], "author": {"bot": False},
+    }
+    estimate_result = Estimate(
+        "蛋黃酥", (FoodItem("蛋黃酥", "一個", 300),), 300, "一般大小", "low"
+    )
+    with patch("calorie_log.discord_runner.estimate", return_value=estimate_result), \
+         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal") as write_mock, \
+         patch("calorie_log.discord_runner.save_state") as save_mock:
+        ok = record_meal_message(
+            discord, Mock(), "channel", "source", state, message,
+            advance_cursor=True,
+        )
+
+    assert ok is False
+    assert state["last_message_id"] == "100"
+    write_mock.assert_called_once()
+    save_mock.assert_not_called()
