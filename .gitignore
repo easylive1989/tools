@@ -22,6 +22,8 @@ build/
 mp3/
 client_secret*
 output.txt
+calorie_log/state.json
+calorie_log/state.tmp
 
 # OS generated files
 .DS_Store

@@ -1,10 +1,62 @@
 import json
+import mimetypes
+from pathlib import Path
 import requests
 
 # https://developers.notion.com/reference/intro
 class NotionApi:
-    def __init__(self, token):
+    def __init__(self, token, version="2022-06-28"):
         self.token = token
+        self.version = version
+
+    def get_data_source(self, data_source_id: str):
+        return requests.get(
+            f"https://api.notion.com/v1/data_sources/{data_source_id}",
+            headers=self.__header(), timeout=30,
+        )
+
+    def query_data_source(self, data_source_id: str, body: dict):
+        return requests.post(
+            f"https://api.notion.com/v1/data_sources/{data_source_id}/query",
+            json=body, headers=self.__header(), timeout=30,
+        )
+
+    def create_page_in_data_source(self, data_source_id: str, properties: dict):
+        return requests.post(
+            "https://api.notion.com/v1/pages",
+            json={
+                "parent": {"type": "data_source_id", "data_source_id": data_source_id},
+                "properties": properties,
+            },
+            headers=self.__header(), timeout=30,
+        )
+
+    def upload_file(self, path: str | Path) -> str:
+        """Upload a file up to 20 MiB and return its Notion file upload ID."""
+        path = Path(path)
+        if path.stat().st_size > 20 * 1024 * 1024:
+            raise ValueError(f"圖片超過 Notion 單次上傳上限 20 MiB：{path.name}")
+        content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        created = requests.post(
+            "https://api.notion.com/v1/file_uploads",
+            json={"mode": "single_part", "filename": path.name, "content_type": content_type},
+            headers=self.__header(), timeout=30,
+        )
+        created.raise_for_status()
+        file_id = created.json()["id"]
+        with path.open("rb") as file:
+            sent = requests.post(
+                f"https://api.notion.com/v1/file_uploads/{file_id}/send",
+                headers={
+                    "Authorization": f"Bearer {self.token}",
+                    "Notion-Version": self.version,
+                },
+                files={"file": (path.name, file, content_type)}, timeout=90,
+            )
+        sent.raise_for_status()
+        if sent.json().get("status") != "uploaded":
+            raise RuntimeError(f"Notion 圖片尚未上傳完成：{path.name}")
+        return file_id
 
     def query_database(self, database_id: str, body: dict):
         return requests.post(
@@ -17,7 +69,8 @@ class NotionApi:
         return requests.patch(
             f"https://api.notion.com/v1/pages/{page_id}",
             data = json.dumps(properties),
-            headers = self.__header()
+            headers = self.__header(),
+            timeout=30,
         )
 
     def create_page(self, database_id: str, properties: dict):
@@ -120,6 +173,6 @@ class NotionApi:
     def __header(self) -> dict:
         return {
             "Content-type": "application/json",
-            "Notion-Version": "2022-06-28",
+            "Notion-Version": self.version,
             "Authorization": f"Bearer {self.token}"
         }
