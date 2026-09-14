@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BAbp42E4xq/",
+      "message_id": "1548870116882776238",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1548870116882776238",
+      "shared_at": "2026-09-14T01:36:52.480000+00:00",
+      "title": "https://www.threads.com/share/BAbp42E4xq/",
+      "url": "https://www.threads.com/share/BAbp42E4xq/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BAIh9AHwjm/",
       "message_id": "1547393528449994763",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1547393528449994763",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-15T00:43:52.833000+00:00",
       "title": "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1",
       "url": "https://www.threads.com/@pan_0709/post/DZkmMSXgcOw?xmt=AQG03yrPyCmDlamLW7OCngUXPL8y01IQiBJFuhK67BgbggwDZy33YmwCpbc17yKcfOU56ezI&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@vava_ai_artist/post/DZjM1pJk9_l?xmt=AQG0Vym1XPxxlT7d9QxIKJo-drv-jhvVyrdPm1HzeYjkwv8H-0x63g6NkU0umyI2gzYgEGzm&slof=1",
-      "message_id": "1515575968989712487",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515575968989712487",
-      "shared_at": "2026-06-14T04:37:49.047000+00:00",
-      "title": "https://www.threads.com/@vava_ai_artist/post/DZjM1pJk9_l?xmt=AQG0Vym1XPxxlT7d9QxIKJo-drv-jhvVyrdPm1HzeYjkwv8H-0x63g6NkU0umyI2gzYgEGzm&slof=1",
-      "url": "https://www.threads.com/@vava_ai_artist/post/DZjM1pJk9_l?xmt=AQG0Vym1XPxxlT7d9QxIKJo-drv-jhvVyrdPm1HzeYjkwv8H-0x63g6NkU0umyI2gzYgEGzm&slof=1"
     }
   ],
-  "last_message_id": "1547393528449994763",
+  "last_message_id": "1548870116882776238",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2198,6 +2198,7 @@
     "https://www.threads.com/share/BAX2BVhz5g/",
     "https://www.threads.com/share/BAYeOZW5KZ/",
     "https://www.threads.com/share/BAaM14UZDs/",
+    "https://www.threads.com/share/BAbp42E4xq/",
     "https://www.threads.com/share/BAfx01TEfM/",
     "https://www.threads.com/share/BAyoyDWD_Q/",
     "https://www.threads.com/share/BCANu8T4PY/",
