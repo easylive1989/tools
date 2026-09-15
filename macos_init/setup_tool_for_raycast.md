@@ -2,7 +2,8 @@
 
 將以下目錄加入 Raycast Script Commands：
 
-- `/Users/paulwu/Documents/Github/tools/translate`
+- `/Users/paulps/Documents/Github/tools/translate`
+- `/Users/paulps/Documents/Github/tools/cnyes_news`
 
 ## 步驟
 

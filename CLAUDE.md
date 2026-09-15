@@ -26,6 +26,15 @@ file-translation button that delegates to `translate/file_translator.py` —
 a `uv run` script that translates `.docx` / `.pdf` via the local `gemini` CLI
 and writes `<stem>_translated.docx` next to the source.
 
+## cnyes_news (鉅亨網台股新聞 Raycast Script Command)
+
+Raycast Node.js script (`cnyes_news/cnyes_news.js`) that fetches real-time Taiwan stock news from cnYES via public endpoints without requiring any API keys.
+
+## cnyes_extension (鉅亨網台股新聞 Raycast 原生 Extension)
+
+React + TypeScript Raycast Extension (`cnyes_extension/`) with dual-pane List + Detail view, Markdown H1 headers, news summaries, and instant browser opening on Enter.
+
+
 ## GitHub Actions
 
 Active workflows (triggered on schedule + `workflow_dispatch`):
