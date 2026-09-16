@@ -100,6 +100,35 @@ class DiscordClient:
             f"/channels/{channel_id}/messages/{message_id}/reactions/{quote(emoji, safe='')}/@me",
         )
 
+    def send_message(self, channel_or_thread_id: str, content: str) -> dict:
+        return self.request(
+            "POST",
+            f"/channels/{channel_or_thread_id}/messages",
+            json={"content": content},
+        ).json()
+
+    def get_or_create_thread(self, channel_id: str, message_id: str, name: str) -> str:
+        trimmed_name = (name.strip() or "熱量估算")[:100]
+        try:
+            response = self.request(
+                "POST",
+                f"/channels/{channel_id}/messages/{message_id}/threads",
+                json={"name": trimmed_name},
+            )
+            return response.json().get("id", message_id)
+        except requests.HTTPError as exc:
+            if exc.response is not None:
+                if exc.response.status_code == 409:
+                    return message_id
+                if exc.response.status_code == 400:
+                    try:
+                        err_data = exc.response.json()
+                    except Exception:
+                        err_data = {}
+                    if err_data.get("code") == 160004:
+                        return message_id
+            raise
+
 
 def is_meal_message(message: dict) -> bool:
     return (
@@ -181,6 +210,13 @@ def combined_description(parent: dict, supplements: list[dict]) -> str:
     return "\n".join(pieces)
 
 
+def format_calorie_reply(estimate: Estimate) -> str:
+    meal_name = estimate.meal_name.strip() or "餐點"
+    kcal = estimate.total_kcal
+    kcal_str = str(int(kcal)) if kcal.is_integer() else f"{kcal:.1f}"
+    return f"【{meal_name}】預估總熱量：{kcal_str} kcal"
+
+
 def update_active_threads(
     discord: DiscordClient, notion: NotionApi, channel_id: str,
     data_source_id: str, state: dict,
@@ -215,6 +251,7 @@ def update_active_threads(
                     meal_type_at(eaten_at), include_photos=False,
                     source_message_id=parent_id, update_existing=True,
                 )
+            discord.send_message(parent_id, format_calorie_reply(result))
             discord.react(parent_id, latest_id, "✅")
             tracked[parent_id] = latest_id
             save_state(state)
@@ -247,6 +284,8 @@ def record_meal_message(
                 data_source_id, eaten_at, meal_type_at(eaten_at),
                 include_photos=bool(photo), source_message_id=message_id,
             )
+        thread_id = discord.get_or_create_thread(channel_id, message_id, result.meal_name)
+        discord.send_message(thread_id, format_calorie_reply(result))
         discord.react(channel_id, message_id, "✅")
         if advance_cursor:
             state["last_message_id"] = message_id
