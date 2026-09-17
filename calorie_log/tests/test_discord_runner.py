@@ -4,10 +4,86 @@ from unittest.mock import Mock, patch
 
 from calorie_log.discord_runner import (
     DiscordClient, backfill_recent_text, combined_description, first_image,
-    format_calorie_reply, record_meal_message, supplementary_messages, run_once,
-    update_active_threads,
+    format_calorie_reply, is_advice_request, is_meal_message,
+    record_meal_message, supplementary_messages, run_once, update_active_threads,
 )
 from calorie_log.estimator import Estimate, FoodItem
+
+
+def test_advice_request_is_answered_without_creating_a_meal_record():
+    message = {
+        "id": "101", "content": "建議：我今晚想吃炸雞，可以嗎？",
+        "timestamp": "2026-09-17T12:00:00Z", "attachments": [],
+        "author": {"bot": False},
+    }
+    assert is_advice_request(message)
+    assert not is_meal_message(message)
+    discord = Mock()
+    discord.messages_since.return_value = [message]
+    discord.reply.return_value = "202"
+    notion = Mock()
+    state = {"last_message_id": "100", "text_only_backfill_v1": True}
+
+    with patch.dict("calorie_log.discord_runner.os.environ", {
+        "DISCORD_BOT_TOKEN": "token", "NOTION_SECRET": "token",
+    }), patch("calorie_log.discord_runner.DiscordClient", return_value=discord), \
+         patch("calorie_log.discord_runner.NotionApi", return_value=notion), \
+         patch("calorie_log.discord_runner.load_state", return_value=state), \
+         patch("calorie_log.discord_runner.save_state"), \
+         patch("calorie_log.discord_runner.recent_meals") as history_mock, \
+         patch("calorie_log.discord_runner.advise", return_value="可以搭配青菜與無糖飲料。") as advice_mock, \
+         patch("calorie_log.discord_runner.write") as write_mock, \
+         patch("calorie_log.discord_runner.update_active_threads"):
+        run_once()
+
+    history_mock.assert_called_once()
+    assert advice_mock.call_args.args[1] == "我今晚想吃炸雞，可以嗎？"
+    discord.reply.assert_called_once_with("1548580916765401088", "101", "可以搭配青菜與無糖飲料。")
+    write_mock.assert_not_called()
+    assert state["last_message_id"] == "101"
+    assert state["advice_replies"] == {"101": "202"}
+
+
+def test_discord_advice_reply_is_a_non_mentioning_idempotent_reply():
+    client = DiscordClient("fake-token")
+    client.request = Mock(return_value=Mock(json=lambda: {"id": "202"}))
+    assert client.reply("channel", "101", "可以適量吃。") == "202"
+    payload = client.request.call_args.kwargs["json"]
+    assert payload["message_reference"]["message_id"] == "101"
+    assert payload["allowed_mentions"] == {"parse": [], "replied_user": False}
+    assert payload["nonce"] == "101" and payload["enforce_nonce"] is True
+
+
+def test_planned_food_is_advice_but_completed_food_is_a_meal():
+    planned = {"content": "我打算吃炸雞，怎麼搭配？", "author": {"bot": False}}
+    recent_question = {"content": "我最近飲食怎麼樣", "author": {"bot": False}}
+    completed = {"content": "本來想吃炸雞，最後吃了牛肉麵", "author": {"bot": False}}
+    forced_record = {"content": "記錄：吃了雞腿便當，熱量多少？", "author": {"bot": False}}
+    assert is_advice_request(planned) and not is_meal_message(planned)
+    assert is_advice_request(recent_question) and not is_meal_message(recent_question)
+    assert not is_advice_request(completed) and is_meal_message(completed)
+    assert not is_advice_request(forced_record) and is_meal_message(forced_record)
+
+
+def test_advice_in_a_meal_thread_does_not_reestimate_or_move_main_cursor():
+    discord = Mock()
+    discord.active_public_threads.return_value = [{"id": "123"}]
+    discord.messages_since.return_value = [
+        {"id": "124", "content": "我想吃蛋黃酥，可以嗎？", "author": {"bot": False}},
+    ]
+    discord.get_message.return_value = {"id": "123", "content": "午餐便當", "attachments": []}
+    discord.reply.return_value = "125"
+    state = {"last_message_id": "200", "threads": {"123": "0"}}
+    with patch("calorie_log.discord_runner.recent_meals"), \
+         patch("calorie_log.discord_runner.advise", return_value="可以考慮一個小份量。") as advice_mock, \
+         patch("calorie_log.discord_runner.write") as write_mock, \
+         patch("calorie_log.discord_runner.save_state"):
+        update_active_threads(discord, Mock(), "channel", "source", state)
+    assert "午餐便當" in advice_mock.call_args.args[1]
+    discord.reply.assert_called_once_with("123", "124", "可以考慮一個小份量。")
+    write_mock.assert_not_called()
+    assert state["last_message_id"] == "200"
+    assert state["advice_replies"] == {"124": "125"}
 
 
 def test_first_image_ignores_non_images_and_uses_one_photo():

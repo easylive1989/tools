@@ -11,6 +11,7 @@ import json
 import logging
 import mimetypes
 import os
+import re
 import sys
 import tempfile
 import time
@@ -27,6 +28,7 @@ from common.notion import NotionApi
 from calorie_log.estimator import estimate
 from calorie_log.meal_time import TAIPEI, choose_meal_time, meal_type_at, parse_discord_time
 from calorie_log.notion_writer import write
+from calorie_log.nutrition_advisor import advise, recent_meals
 
 
 LOG = logging.getLogger(__name__)
@@ -35,6 +37,22 @@ STATE_PATH = Path(__file__).resolve().parent / "state.json"
 DEFAULT_DATA_SOURCE_ID = "76b1e061-2f4f-4bee-a8b2-3c361dc6a1dd"
 DEFAULT_CHANNEL_ID = "1548580916765401088"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
+ADVICE_PREFIXES = ("建議：", "建議:")
+MEAL_PREFIXES = ("記錄：", "記錄:")
+PLANNED_FOOD = re.compile(
+    r"想(?:要)?(?:吃|喝|點)|打算(?:吃|喝|點)|考慮(?:吃|喝|點)|"
+    r"準備(?:吃|喝|點)|預計(?:吃|喝|點)|可能會(?:吃|喝|點)|"
+    r"(?:可以|能|該|要不要|適合)(?:吃|喝|點)|(?:吃|喝|點)什麼"
+)
+ADVICE_QUERY = re.compile(
+    r"(?:請|幫我|給我|有沒有).{0,10}(?:建議|推薦|分析)|"
+    r"(?:最近|這週|今天).{0,12}(?:飲食|吃得).{0,10}(?:如何|怎麼樣|怎樣)|"
+    r"(?:怎麼|如何)(?:吃|搭配|選|點)"
+)
+PAST_DECISION = re.compile(
+    r"(?:本來|原本|一開始).{0,30}(?:想|打算|考慮|準備)(?:吃|喝|點).{0,30}"
+    r"(?:最後|結果|後來).{0,12}(?:吃了|喝了|點了)"
+)
 
 
 class DiscordClient:
@@ -129,11 +147,47 @@ class DiscordClient:
                         return message_id
             raise
 
+    def reply(self, channel_id: str, message_id: str, content: str) -> str:
+        response = self.request("POST", f"/channels/{channel_id}/messages", json={
+            "content": content,
+            "nonce": message_id,
+            "enforce_nonce": True,
+            "allowed_mentions": {"parse": [], "replied_user": False},
+            "message_reference": {
+                "message_id": message_id,
+                "channel_id": channel_id,
+                "fail_if_not_exists": True,
+            },
+        })
+        return response.json()["id"]
+
+
+def is_advice_request(message: dict) -> bool:
+    if (message.get("author") or {}).get("bot") or message.get("type", 0) not in (0, 19):
+        return False
+    content = (message.get("content") or "").strip()
+    if content.startswith(MEAL_PREFIXES):
+        return False
+    if content.startswith(ADVICE_PREFIXES):
+        return True
+    if "?" in content or "？" in content or ADVICE_QUERY.search(content):
+        return True
+    return bool(PLANNED_FOOD.search(content) and not PAST_DECISION.search(content))
+
+
+def advice_question(message: dict) -> str:
+    content = (message.get("content") or "").strip()
+    for prefix in ADVICE_PREFIXES:
+        if content.startswith(prefix):
+            return content[len(prefix):].strip()
+    return content
+
 
 def is_meal_message(message: dict) -> bool:
     return (
         not (message.get("author") or {}).get("bot")
         and message.get("type", 0) in (0, 19)
+        and not is_advice_request(message)
         and bool(first_image(message) or (message.get("content") or "").strip())
     )
 
@@ -199,8 +253,43 @@ def supplementary_messages(messages: list[dict]) -> list[dict]:
         message for message in messages
         if not (message.get("author") or {}).get("bot")
         and message.get("type", 0) in (0, 19)
+        and not is_advice_request(message)
         and (message.get("content") or "").strip()
     ]
+
+
+def answer_advice_message(
+    discord: DiscordClient, notion: NotionApi, channel_id: str,
+    data_source_id: str, state: dict, message: dict, *,
+    advance_cursor: bool = True, context_message: dict | None = None,
+) -> bool:
+    message_id = message["id"]
+    try:
+        days = int(os.environ.get("NUTRITION_LOOKBACK_DAYS", "7"))
+        history = recent_meals(notion, data_source_id, days=days)
+        attachment = first_image(message) or (first_image(context_message) if context_message else None)
+        question = advice_question(message)
+        if context_message:
+            context = (context_message.get("content") or "").strip()
+            question = f"此問題位於一則餐點的討論串。原餐點說明：{context or '未提供'}\n目前問題：{question}"
+        with tempfile.TemporaryDirectory(prefix="discord-food-advice-") as temp:
+            directory = Path(temp)
+            photo = download_image(attachment, directory) if attachment else None
+            images = [codex_image(photo, directory)] if photo else []
+            reply = advise(
+                images, question, history, lookback_days=days,
+                profile=os.environ.get("NUTRITION_PROFILE", ""),
+            )
+        reply_id = discord.reply(channel_id, message_id, reply)
+        state.setdefault("advice_replies", {})[message_id] = reply_id
+        if advance_cursor:
+            state["last_message_id"] = message_id
+        save_state(state)
+        LOG.info("Answered nutrition question %s with %s", message_id, reply_id)
+    except Exception:
+        LOG.exception("Failed to answer nutrition question %s", message_id)
+        return False
+    return True
 
 
 def combined_description(parent: dict, supplements: list[dict]) -> str:
@@ -226,39 +315,47 @@ def update_active_threads(
         parent_id = thread["id"]  # A public thread shares its starter message ID.
         if parent_id not in tracked:
             continue
-        messages = supplementary_messages(discord.messages_since(parent_id, None))
-        if not messages:
-            continue
-        latest_id = messages[-1]["id"]
-        if int(latest_id) <= int(tracked[parent_id]):
-            continue
-        try:
-            parent = discord.get_message(channel_id, parent_id)
-            attachment = first_image(parent)
-            with tempfile.TemporaryDirectory(prefix="discord-meal-thread-") as temp:
-                directory = Path(temp)
-                photo = download_image(attachment, directory) if attachment else None
-                model_images = [codex_image(photo, directory)] if photo else []
-                description = combined_description(parent, messages)
-                result = estimate(model_images, description)
-                message_time = parse_discord_time(parent["timestamp"])
-                eaten_at = (
-                    choose_meal_time(photo, message_time) if photo
-                    else message_time.astimezone(TAIPEI)
-                )
-                write(
-                    result, description, [], notion, data_source_id, eaten_at,
-                    meal_type_at(eaten_at), include_photos=False,
-                    source_message_id=parent_id, update_existing=True,
-                )
-            discord.send_message(parent_id, format_calorie_reply(result))
-            discord.react(parent_id, latest_id, "✅")
-            tracked[parent_id] = latest_id
-            save_state(state)
-            LOG.info("Updated meal from thread %s through %s", parent_id, latest_id)
-        except Exception:
-            LOG.exception("Failed to update meal from thread %s", parent_id)
-            continue
+        all_messages = discord.messages_since(parent_id, None)
+        messages = supplementary_messages(all_messages)
+        parent = None
+        if messages and int(messages[-1]["id"]) > int(tracked[parent_id]):
+            latest_id = messages[-1]["id"]
+            try:
+                parent = discord.get_message(channel_id, parent_id)
+                attachment = first_image(parent)
+                with tempfile.TemporaryDirectory(prefix="discord-meal-thread-") as temp:
+                    directory = Path(temp)
+                    photo = download_image(attachment, directory) if attachment else None
+                    model_images = [codex_image(photo, directory)] if photo else []
+                    description = combined_description(parent, messages)
+                    result = estimate(model_images, description)
+                    message_time = parse_discord_time(parent["timestamp"])
+                    eaten_at = (
+                        choose_meal_time(photo, message_time) if photo
+                        else message_time.astimezone(TAIPEI)
+                    )
+                    write(
+                        result, description, [], notion, data_source_id, eaten_at,
+                        meal_type_at(eaten_at), include_photos=False,
+                        source_message_id=parent_id, update_existing=True,
+                    )
+                discord.send_message(parent_id, format_calorie_reply(result))
+                discord.react(parent_id, latest_id, "✅")
+                tracked[parent_id] = latest_id
+                save_state(state)
+                LOG.info("Updated meal from thread %s through %s", parent_id, latest_id)
+            except Exception:
+                LOG.exception("Failed to update meal from thread %s", parent_id)
+                continue
+        for question in all_messages:
+            if not is_advice_request(question) or question["id"] in state.get("advice_replies", {}):
+                continue
+            if parent is None:
+                parent = discord.get_message(channel_id, parent_id)
+            answer_advice_message(
+                discord, notion, parent_id, data_source_id, state, question,
+                advance_cursor=False, context_message=parent,
+            )
 
 
 def record_meal_message(
@@ -352,6 +449,12 @@ def run_once(*, backfill: bool = False) -> None:
 
     for message in messages:
         message_id = message["id"]
+        if is_advice_request(message):
+            if not answer_advice_message(
+                discord, notion, channel_id, data_source_id, state, message,
+            ):
+                raise RuntimeError(f"處理 Discord 飲食問題 {message_id} 失敗")
+            continue
         if not is_meal_message(message):
             state["last_message_id"] = message_id
             save_state(state)

@@ -67,12 +67,14 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+          NUTRITION_PROFILE: ${{ secrets.NUTRITION_PROFILE }}
+          NUTRITION_LOOKBACK_DAYS: ${{ vars.NUTRITION_LOOKBACK_DAYS }}
         run: |
           remote="root@$VPS_HOST"
           ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
 
           ssh "${ssh_opts[@]}" "$remote" 'mkdir -p /opt/calorie-log/calorie_log /opt/calorie-log/common'
-          tar -cf - calorie_log/*.py calorie_log/food_calorie_reference.md calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
+          tar -cf - calorie_log/*.py calorie_log/food_calorie_reference.md calorie_log/nutrition_advisor_prompt.md calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
             | ssh "${ssh_opts[@]}" "$remote" 'cd /opt/calorie-log && tar -xf -'
 
           python - <<'PY'
@@ -84,6 +86,11 @@ jobs:
               f'export {name}={shlex.quote(os.environ[name])}'
               for name in ('DISCORD_BOT_TOKEN', 'NOTION_SECRET')
           ]
+          lines.extend(
+              f'export {name}={shlex.quote(os.environ[name])}'
+              for name in ('NUTRITION_PROFILE', 'NUTRITION_LOOKBACK_DAYS')
+              if os.environ.get(name)
+          )
           destination.write_text('\n'.join(lines) + '\n', encoding='utf-8')
           destination.chmod(0o600)
           PY
