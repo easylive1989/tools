@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BAOlo92B4V/",
+      "message_id": "1550115354737639477",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1550115354737639477",
+      "shared_at": "2026-09-17T12:05:00.320000+00:00",
+      "title": "https://www.threads.com/share/BAOlo92B4V/",
+      "url": "https://www.threads.com/share/BAOlo92B4V/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BBKvlmz2XG/",
       "message_id": "1550001781235515445",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1550001781235515445",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-15T10:37:54.968000+00:00",
       "title": "https://www.facebook.com/share/p/1BXAugkQFF/?mibextid=wwXIfr",
       "url": "https://www.facebook.com/share/p/1BXAugkQFF/?mibextid=wwXIfr"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1",
-      "message_id": "1515881012280692806",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1515881012280692806",
-      "shared_at": "2026-06-15T00:49:57.035000+00:00",
-      "title": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1",
-      "url": "https://www.threads.com/@vava_ai_artist/post/DZlc58IgcMr?xmt=AQG0srVHfVLMD584fNqjYHsPr3Cr2UYZQXeshJOQF_Rwab6pO40GKXHe5GrikACSlUC9Py7U&slof=1"
     }
   ],
-  "last_message_id": "1550001781235515445",
+  "last_message_id": "1550115354737639477",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2188,6 +2188,7 @@
     "https://www.threads.com/share/BAIh9AHwjm/",
     "https://www.threads.com/share/BALKTppscA/",
     "https://www.threads.com/share/BAMLydyqrK/",
+    "https://www.threads.com/share/BAOlo92B4V/",
     "https://www.threads.com/share/BAOqU_xM9V/",
     "https://www.threads.com/share/BAPb0rKKsH/",
     "https://www.threads.com/share/BASIW9xG2H/",
