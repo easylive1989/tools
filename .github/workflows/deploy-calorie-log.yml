@@ -69,6 +69,8 @@ jobs:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NUTRITION_PROFILE: ${{ secrets.NUTRITION_PROFILE }}
           NUTRITION_LOOKBACK_DAYS: ${{ vars.NUTRITION_LOOKBACK_DAYS }}
+          NUTRITION_WEEKLY_DAY: ${{ vars.NUTRITION_WEEKLY_DAY }}
+          NUTRITION_WEEKLY_HOUR: ${{ vars.NUTRITION_WEEKLY_HOUR }}
         run: |
           remote="root@$VPS_HOST"
           ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
@@ -88,7 +90,8 @@ jobs:
           ]
           lines.extend(
               f'export {name}={shlex.quote(os.environ[name])}'
-              for name in ('NUTRITION_PROFILE', 'NUTRITION_LOOKBACK_DAYS')
+              for name in ('NUTRITION_PROFILE', 'NUTRITION_LOOKBACK_DAYS',
+                           'NUTRITION_WEEKLY_DAY', 'NUTRITION_WEEKLY_HOUR')
               if os.environ.get(name)
           )
           destination.write_text('\n'.join(lines) + '\n', encoding='utf-8')

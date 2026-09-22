@@ -29,6 +29,7 @@ from calorie_log.estimator import estimate
 from calorie_log.meal_time import TAIPEI, choose_meal_time, meal_type_at, parse_discord_time
 from calorie_log.notion_writer import write
 from calorie_log.nutrition_advisor import advise, recent_meals
+from calorie_log.weekly_advice import send_weekly_advice
 
 
 LOG = logging.getLogger(__name__)
@@ -146,6 +147,21 @@ class DiscordClient:
                     if err_data.get("code") == 160004:
                         return message_id
             raise
+
+    def send_weekly_report(self, channel_id: str, content: str, key: str, after_id: str) -> str:
+        # Nonces only deduplicate recent requests. Also recover a delivered
+        # outbox message after a restart, even days after the original send.
+        bot_id = self.request("GET", "/users/@me").json()["id"]
+        marker = f"\n\n週報編號：{key}"
+        for message in self.messages_since(channel_id, after_id):
+            if ((message.get("author") or {}).get("id") == bot_id
+                    and (message.get("content") or "").endswith(marker)):
+                return message["id"]
+        response = self.request("POST", f"/channels/{channel_id}/messages", json={
+            "content": content, "nonce": key, "enforce_nonce": True,
+            "allowed_mentions": {"parse": []},
+        })
+        return response.json()["id"]
 
     def reply(self, channel_id: str, message_id: str, content: str) -> str:
         response = self.request("POST", f"/channels/{channel_id}/messages", json={
@@ -440,6 +456,7 @@ def run_once(*, backfill: bool = False) -> None:
         state["last_message_id"] = latest_id or "0"
         save_state(state)
         LOG.info("Initial cursor set; future messages will be processed")
+        send_weekly_advice(discord, notion, channel_id, data_source_id, state, save_state)
         return
     if last_id is not None and not backfill_recent_text(
         discord, notion, channel_id, data_source_id, state, last_id,
@@ -468,6 +485,7 @@ def run_once(*, backfill: bool = False) -> None:
         state["text_only_backfill_v1"] = True
         save_state(state)
     update_active_threads(discord, notion, channel_id, data_source_id, state)
+    send_weekly_advice(discord, notion, channel_id, data_source_id, state, save_state)
 
 
 def main() -> int:

@@ -35,7 +35,10 @@ def test_recent_meals_uses_a_bounded_window_and_paginates():
     )
     assert [meal.name for meal in history.records] == ["便當", "湯麵"]
     assert history.records[0].description == "雞腿便當"
-    assert notion.query_data_source.call_args_list[0].args[1]["filter"]["property"] == "時間"
+    assert notion.query_data_source.call_args_list[0].args[1]["filter"] == {"and": [
+        {"property": "時間", "date": {"on_or_after": "2026-09-10T12:00:00+08:00"}},
+        {"property": "時間", "date": {"before": "2026-09-17T12:00:00+08:00"}},
+    ]}
     assert notion.query_data_source.call_args_list[1].args[1]["start_cursor"] == "page-2"
 
 

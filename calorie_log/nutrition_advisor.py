@@ -57,7 +57,10 @@ def recent_meals(
     truncated = False
     while len(records) < limit:
         body: dict = {
-            "filter": {"property": "時間", "date": {"on_or_after": cutoff.isoformat()}},
+            "filter": {"and": [
+                {"property": "時間", "date": {"on_or_after": cutoff.isoformat()}},
+                {"property": "時間", "date": {"before": current.isoformat()}},
+            ]},
             "sorts": [{"property": "時間", "direction": "descending"}],
             "page_size": min(100, limit - len(records)),
         }

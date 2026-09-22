@@ -12,6 +12,14 @@
 
 可選用 GitHub Actions secret `NUTRITION_PROFILE` 保存個人飲食限制、過敏、飲食目標等文字；可選用 repository variable `NUTRITION_LOOKBACK_DAYS` 改變回看天數，預設 7。前者若涉及醫囑，仍需以醫師或持照營養師的指示為準。Bot 需要在頻道具備發送訊息及讀取歷史訊息權限。
 
+## 每週自動飲食回顧
+
+部署後預設於每週一早上 08:00（臺灣時間），在 Discord「餐點紀錄」頻道發送一則飲食回顧。內容根據排定時間往前 7 天的 Notion 餐點紀錄，引用實際餐點，整理值得維持的習慣及下週可嘗試的 2–3 個具體調整；沿用 `NUTRITION_PROFILE` 個人限制。週報固定回看 7 天，不受即時問答的 `NUTRITION_LOOKBACK_DAYS` 影響。
+
+首次啟用或修改時間後，從下一個排定時間開始。沿用現有每分鐘執行的 systemd timer，通常於排定時間後的一輪執行送出。停機後僅補最近一期；整週沒有紀錄則略過，紀錄不足不推定沒吃。發送前保存待送內容，失敗後重試；重啟時會檢查 Bot 已發送的週報編號，避免因發送成功但狀態未寫回而重複發送。
+
+可用 GitHub repository variables `NUTRITION_WEEKLY_DAY`（0=週一，…，6=週日；預設 0）及 `NUTRITION_WEEKLY_HOUR`（臺灣時間 0–23；預設 8）調整，再執行部署。週報進度與待送內容保存在既有的 `calorie_log/state.json`。
+
 ## 環境
 
 - Hetzner VPS 須可使用 `root` SSH 登入，並安裝 Python 3.10+ 與 `python3-venv`。
