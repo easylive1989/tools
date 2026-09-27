@@ -1,0 +1,35 @@
+name: Sync Notion Portfolio
+
+on:
+  schedule:
+    # UTC 00:15 / 12:15 = Asia/Taipei 08:15 / 20:15.
+    - cron: '15 0,12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-notion-portfolio
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r notion_portfolio/requirements.txt
+      - name: Test FIFO accounting and reconciliation
+        run: python -m unittest discover -s notion_portfolio/tests -v
+      - name: Synchronize realized gains and holdings
+        env:
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+          NOTION_TRADES_DATA_SOURCE_ID: ${{ secrets.NOTION_TRADES_DATA_SOURCE_ID }}
+          NOTION_PROFIT_DATA_SOURCE_ID: ${{ secrets.NOTION_PROFIT_DATA_SOURCE_ID }}
+          NOTION_HOLDINGS_DATA_SOURCE_ID: ${{ secrets.NOTION_HOLDINGS_DATA_SOURCE_ID }}
+        run: python notion_portfolio/sync.py --apply
