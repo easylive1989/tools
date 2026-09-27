@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/_z4Mb4aJ9/",
+      "message_id": "1553802620462694491",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1553802620462694491",
+      "shared_at": "2026-09-27T16:16:52.975000+00:00",
+      "title": "https://www.threads.com/share/_z4Mb4aJ9/",
+      "url": "https://www.threads.com/share/_z4Mb4aJ9/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BBWbd6rHfj/",
       "message_id": "1553705534769729616",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1553705534769729616",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-15T23:53:57.357000+00:00",
       "title": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG038FdOhUEfMT0eGH9R-M78ffvpG2Z_Y2P2JcG5IEpoFScO9PcprjoFSywlrYVOS3-nkBk&slof=1",
       "url": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG038FdOhUEfMT0eGH9R-M78ffvpG2Z_Y2P2JcG5IEpoFScO9PcprjoFSywlrYVOS3-nkBk&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG0VmY_0A4GJRB0AXZAatyqAHvwT1Yny8NRKZgU5nMyxQTTIuaj85CDg8iI0bOQqzvt2BQJ&slof=1",
-      "message_id": "1516229201462820915",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516229201462820915",
-      "shared_at": "2026-06-15T23:53:31.805000+00:00",
-      "title": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG0VmY_0A4GJRB0AXZAatyqAHvwT1Yny8NRKZgU5nMyxQTTIuaj85CDg8iI0bOQqzvt2BQJ&slof=1",
-      "url": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG0VmY_0A4GJRB0AXZAatyqAHvwT1Yny8NRKZgU5nMyxQTTIuaj85CDg8iI0bOQqzvt2BQJ&slof=1"
     }
   ],
-  "last_message_id": "1553705534769729616",
+  "last_message_id": "1553802620462694491",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2212,6 +2212,7 @@
     "https://www.threads.com/share/_kKFQY39h/",
     "https://www.threads.com/share/_s4S-O5n2/",
     "https://www.threads.com/share/_yk4hoUXl/",
+    "https://www.threads.com/share/_z4Mb4aJ9/",
     "https://www.youtube.com/watch?v=IlqJqcl8ONE",
     "https://www.youtube.com/watch?v=gdrPkpXuNks",
     "https://www.youtube.com/watch?v=ozVTJm3n2U4",
