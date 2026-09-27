@@ -173,7 +173,7 @@ def result_properties(item):
         "買進成本": number(item["basis"]), "買進費用（含稅）": number(item["buy_fees"]),
         "賣出金額": number(item["proceeds"]), "賣出費用（含稅）": number(item["sell_fees"]),
         "盈虧": select("▲ 獲利" if item["profit"] > 0 else "▼ 虧損" if item["profit"] < 0 else "— 損益兩平"),
-        "成本報酬率": number(item["profit"] / cost) if cost else {"number": None},
+        "成本報酬率": number(money(item["profit"] / cost * 100) / 100) if cost else {"number": None},
     }
 
 
@@ -182,7 +182,7 @@ def desired_rows(result):
     for sale in result["sales"]:
         t = sale["trade"]
         profits[PREFIX + "sale:" + t.id] = result_properties(sale) | {
-            "Name": title(f"{t.name}｜{t.day}"), "類型": select("賣出明細"),
+            "Name": title(t.name), "類型": select("賣出明細"),
             "股票代號": rich(t.code), "券商": select(t.broker), "賣出日期": date(t.date),
             "年度": rich(t.day[:4]), "賣出股數": number(t.quantity), "賣出價格": number(t.price),
             "賣出筆數": number(1), "獲利筆數": number(int(sale["profit"] > 0)),
