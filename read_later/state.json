@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BBWbd6rHfj/",
+      "message_id": "1553705534769729616",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1553705534769729616",
+      "shared_at": "2026-09-27T09:51:05.942000+00:00",
+      "title": "https://www.threads.com/share/BBWbd6rHfj/",
+      "url": "https://www.threads.com/share/BBWbd6rHfj/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/_yk4hoUXl/",
       "message_id": "1550361548713762826",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1550361548713762826",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-15T23:53:31.805000+00:00",
       "title": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG0VmY_0A4GJRB0AXZAatyqAHvwT1Yny8NRKZgU5nMyxQTTIuaj85CDg8iI0bOQqzvt2BQJ&slof=1",
       "url": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG0VmY_0A4GJRB0AXZAatyqAHvwT1Yny8NRKZgU5nMyxQTTIuaj85CDg8iI0bOQqzvt2BQJ&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@kai_ch_chen/post/DZmu0SYk5Fb?xmt=AQG0Od2BgbizYKpAZrBt5lrLyEPVKzDh3n7tUteCHe_LbOMGl_PTsJkuE1SOWAj5w2vNSvRA&slof=1",
-      "message_id": "1516047301100175431",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516047301100175431",
-      "shared_at": "2026-06-15T11:50:43.379000+00:00",
-      "title": "https://www.threads.com/@kai_ch_chen/post/DZmu0SYk5Fb?xmt=AQG0Od2BgbizYKpAZrBt5lrLyEPVKzDh3n7tUteCHe_LbOMGl_PTsJkuE1SOWAj5w2vNSvRA&slof=1",
-      "url": "https://www.threads.com/@kai_ch_chen/post/DZmu0SYk5Fb?xmt=AQG0Od2BgbizYKpAZrBt5lrLyEPVKzDh3n7tUteCHe_LbOMGl_PTsJkuE1SOWAj5w2vNSvRA&slof=1"
     }
   ],
-  "last_message_id": "1550361548713762826",
+  "last_message_id": "1553705534769729616",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2205,6 +2205,7 @@
     "https://www.threads.com/share/BAfx01TEfM/",
     "https://www.threads.com/share/BAyoyDWD_Q/",
     "https://www.threads.com/share/BBKvlmz2XG/",
+    "https://www.threads.com/share/BBWbd6rHfj/",
     "https://www.threads.com/share/BCANu8T4PY/",
     "https://www.threads.com/share/_6Aa5xn8o/",
     "https://www.threads.com/share/_dZJHLjnk/",
