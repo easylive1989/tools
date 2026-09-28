@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.facebook.com/share/r/1DMC76nzg3/?mibextid=wwXIfr",
+      "message_id": "1553951654490148884",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1553951654490148884",
+      "shared_at": "2026-09-28T02:09:05.456000+00:00",
+      "title": "https://www.facebook.com/share/r/1DMC76nzg3/?mibextid=wwXIfr",
+      "url": "https://www.facebook.com/share/r/1DMC76nzg3/?mibextid=wwXIfr"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/_z4Mb4aJ9/",
       "message_id": "1553802620462694491",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1553802620462694491",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-16T00:01:39.222000+00:00",
       "title": "https://www.threads.com/@94eheima/post/DZnyeiTEufr?xmt=AQG0eXvH4ohMstqr2eRy0GywYJc2K45W6yg2brtXeOc81USjtyVHyPQcXHQQGmwSChC4bWk&slof=1",
       "url": "https://www.threads.com/@94eheima/post/DZnyeiTEufr?xmt=AQG0eXvH4ohMstqr2eRy0GywYJc2K45W6yg2brtXeOc81USjtyVHyPQcXHQQGmwSChC4bWk&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG038FdOhUEfMT0eGH9R-M78ffvpG2Z_Y2P2JcG5IEpoFScO9PcprjoFSywlrYVOS3-nkBk&slof=1",
-      "message_id": "1516229308635549748",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516229308635549748",
-      "shared_at": "2026-06-15T23:53:57.357000+00:00",
-      "title": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG038FdOhUEfMT0eGH9R-M78ffvpG2Z_Y2P2JcG5IEpoFScO9PcprjoFSywlrYVOS3-nkBk&slof=1",
-      "url": "https://www.threads.com/@bboy_anlee/post/DZnadk0jKSC?xmt=AQG038FdOhUEfMT0eGH9R-M78ffvpG2Z_Y2P2JcG5IEpoFScO9PcprjoFSywlrYVOS3-nkBk&slof=1"
     }
   ],
-  "last_message_id": "1553802620462694491",
+  "last_message_id": "1553951654490148884",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -1916,6 +1916,7 @@
     "https://www.facebook.com/share/p/18rpZemkt1/?mibextid=wwXIfr",
     "https://www.facebook.com/share/p/1BGtDa6GTi/?mibextid=wwXIfr",
     "https://www.facebook.com/share/p/1BXAugkQFF/?mibextid=wwXIfr",
+    "https://www.facebook.com/share/r/1DMC76nzg3/?mibextid=wwXIfr",
     "https://www.facebook.com/share/r/1HCdNe9Zb7/?mibextid=wwXIfr",
     "https://www.facebook.com/share/r/1PUbY9WPNf/?mibextid=wwXIfr",
     "https://www.facebook.com/share/v/18HhqPpUf4/?mibextid=wwXIfr",
