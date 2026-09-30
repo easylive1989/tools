@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/_6dXgeRTU/",
+      "message_id": "1554809743388835882",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1554809743388835882",
+      "shared_at": "2026-09-30T10:58:49.792000+00:00",
+      "title": "https://www.threads.com/share/_6dXgeRTU/",
+      "url": "https://www.threads.com/share/_6dXgeRTU/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.facebook.com/share/r/1DMC76nzg3/?mibextid=wwXIfr",
       "message_id": "1553951654490148884",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1553951654490148884",
@@ -1876,18 +1885,9 @@
       "shared_at": "2026-06-16T01:29:11.375000+00:00",
       "title": "https://www.threads.com/@shawn.chan123/post/DZoF9gxGNIk?xmt=AQG01FEzoBm4mG4NvMYHDOXi8Rn0HFzQdXLlu8Zb5Gj6wP_z4jLvNcJhK9VC71h3tTgSgquL&slof=1",
       "url": "https://www.threads.com/@shawn.chan123/post/DZoF9gxGNIk?xmt=AQG01FEzoBm4mG4NvMYHDOXi8Rn0HFzQdXLlu8Zb5Gj6wP_z4jLvNcJhK9VC71h3tTgSgquL&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@94eheima/post/DZnyeiTEufr?xmt=AQG0eXvH4ohMstqr2eRy0GywYJc2K45W6yg2brtXeOc81USjtyVHyPQcXHQQGmwSChC4bWk&slof=1",
-      "message_id": "1516231245837635715",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516231245837635715",
-      "shared_at": "2026-06-16T00:01:39.222000+00:00",
-      "title": "https://www.threads.com/@94eheima/post/DZnyeiTEufr?xmt=AQG0eXvH4ohMstqr2eRy0GywYJc2K45W6yg2brtXeOc81USjtyVHyPQcXHQQGmwSChC4bWk&slof=1",
-      "url": "https://www.threads.com/@94eheima/post/DZnyeiTEufr?xmt=AQG0eXvH4ohMstqr2eRy0GywYJc2K45W6yg2brtXeOc81USjtyVHyPQcXHQQGmwSChC4bWk&slof=1"
     }
   ],
-  "last_message_id": "1553951654490148884",
+  "last_message_id": "1554809743388835882",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2209,6 +2209,7 @@
     "https://www.threads.com/share/BBWbd6rHfj/",
     "https://www.threads.com/share/BCANu8T4PY/",
     "https://www.threads.com/share/_6Aa5xn8o/",
+    "https://www.threads.com/share/_6dXgeRTU/",
     "https://www.threads.com/share/_dZJHLjnk/",
     "https://www.threads.com/share/_kKFQY39h/",
     "https://www.threads.com/share/_s4S-O5n2/",
