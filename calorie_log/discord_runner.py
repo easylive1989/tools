@@ -38,6 +38,7 @@ STATE_PATH = Path(__file__).resolve().parent / "state.json"
 DEFAULT_DATA_SOURCE_ID = "76b1e061-2f4f-4bee-a8b2-3c361dc6a1dd"
 DEFAULT_CHANNEL_ID = "1548580916765401088"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
+MAX_ATTEMPTS = 3
 ADVICE_PREFIXES = ("建議：", "建議:")
 MEAL_PREFIXES = ("記錄：", "記錄:")
 PLANNED_FOOD = re.compile(
@@ -278,6 +279,7 @@ def answer_advice_message(
     discord: DiscordClient, notion: NotionApi, channel_id: str,
     data_source_id: str, state: dict, message: dict, *,
     advance_cursor: bool = True, context_message: dict | None = None,
+    reraise: bool = False,
 ) -> bool:
     message_id = message["id"]
     try:
@@ -304,6 +306,8 @@ def answer_advice_message(
         LOG.info("Answered nutrition question %s with %s", message_id, reply_id)
     except Exception:
         LOG.exception("Failed to answer nutrition question %s", message_id)
+        if reraise:
+            raise
         return False
     return True
 
@@ -377,6 +381,7 @@ def update_active_threads(
 def record_meal_message(
     discord: DiscordClient, notion: NotionApi, channel_id: str,
     data_source_id: str, state: dict, message: dict, *, advance_cursor: bool,
+    reraise: bool = False,
 ) -> bool:
     message_id = message["id"]
     attachment = first_image(message)
@@ -407,6 +412,8 @@ def record_meal_message(
         LOG.info("Recorded Discord message %s", message_id)
     except Exception:
         LOG.exception("Failed to process Discord message %s", message_id)
+        if reraise:
+            raise
         return False
     return True
 
@@ -439,6 +446,29 @@ def backfill_recent_text(
     return True
 
 
+def skip_after_repeated_failure(
+    discord: DiscordClient, channel_id: str, state: dict, message_id: str,
+    error: Exception,
+) -> bool:
+    """Count a failed attempt; on the last one, tell the user and move past the message."""
+    attempts = state.setdefault("failed_attempts", {})
+    attempts[message_id] = attempts.get(message_id, 0) + 1
+    if attempts[message_id] < MAX_ATTEMPTS:
+        save_state(state)
+        return False
+    reason = f"{type(error).__name__}: {error}"[:300]
+    discord.react(channel_id, message_id, "❌")
+    discord.reply(
+        channel_id, message_id,
+        f"這則處理失敗 {MAX_ATTEMPTS} 次，已略過。\n原因：{reason}\n重新貼一次即可重試。",
+    )
+    del attempts[message_id]
+    state["last_message_id"] = message_id
+    save_state(state)
+    LOG.warning("Gave up on Discord message %s after %s attempts", message_id, MAX_ATTEMPTS)
+    return True
+
+
 def run_once(*, backfill: bool = False) -> None:
     token = os.environ.get("DISCORD_BOT_TOKEN")
     channel_id = os.environ.get("DISCORD_CALORIE_CHANNEL_ID", DEFAULT_CHANNEL_ID)
@@ -466,21 +496,29 @@ def run_once(*, backfill: bool = False) -> None:
 
     for message in messages:
         message_id = message["id"]
-        if is_advice_request(message):
-            if not answer_advice_message(
-                discord, notion, channel_id, data_source_id, state, message,
-            ):
-                raise RuntimeError(f"處理 Discord 飲食問題 {message_id} 失敗")
-            continue
-        if not is_meal_message(message):
+        advice = is_advice_request(message)
+        if not advice and not is_meal_message(message):
             state["last_message_id"] = message_id
             save_state(state)
             continue
-        if not record_meal_message(
-            discord, notion, channel_id, data_source_id, state, message,
-            advance_cursor=True,
-        ):
-            raise RuntimeError(f"處理 Discord 餐點訊息 {message_id} 失敗")
+        try:
+            if advice:
+                answer_advice_message(
+                    discord, notion, channel_id, data_source_id, state, message,
+                    reraise=True,
+                )
+            else:
+                record_meal_message(
+                    discord, notion, channel_id, data_source_id, state, message,
+                    advance_cursor=True, reraise=True,
+                )
+        except Exception as error:
+            if not skip_after_repeated_failure(discord, channel_id, state, message_id, error):
+                kind = "飲食問題" if advice else "餐點訊息"
+                raise RuntimeError(f"處理 Discord {kind} {message_id} 失敗") from None
+    if state.pop("failed_attempts", None):
+        # Nothing is pending once the loop finishes, so leftover counts are stale.
+        save_state(state)
     if backfill and not state.get("text_only_backfill_v1"):
         state["text_only_backfill_v1"] = True
         save_state(state)

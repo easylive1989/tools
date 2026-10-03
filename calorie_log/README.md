@@ -20,6 +20,10 @@
 
 可用 GitHub repository variables `NUTRITION_WEEKLY_DAY`（0=週一，…，6=週日；預設 0）及 `NUTRITION_WEEKLY_HOUR`（臺灣時間 0–23；預設 8）調整，再執行部署。週報進度與待送內容保存在既有的 `calorie_log/state.json`。
 
+## 處理失敗時
+
+主頻道的餐點或飲食詢問若處理失敗，下一分鐘會重試；暫時性的連線問題通常在這時就恢復，不會有任何通知。同一則訊息連續失敗 3 次後，Bot 會在該訊息加上 ❌、回覆失敗原因並略過，繼續處理後面的訊息。重新貼一次即可重試。若連失敗通知都送不出去，訊息會保留到通知成功為止。Thread 內的補充訊息不受這個上限影響。
+
 ## 環境
 
 - VPS 須可使用 `ubuntu` 帳號 SSH 登入，該帳號具備免密碼 `sudo`，並安裝 Python 3.10+ 與 `python3-venv`。

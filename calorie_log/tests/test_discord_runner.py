@@ -1,6 +1,9 @@
+import copy
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
+
+import pytest
 
 from calorie_log.discord_runner import (
     DiscordClient, backfill_recent_text, combined_description, first_image,
@@ -387,3 +390,146 @@ def test_thread_reply_failure_keeps_meal_pending_for_retry():
     write_mock.assert_called_once()
     discord.react.assert_not_called()
     save_mock.assert_not_called()
+
+
+class StateStore:
+    """Stands in for state.json so a test can span several timer runs."""
+
+    def __init__(self, state: dict):
+        self.saved = copy.deepcopy(state)
+
+    def load(self) -> dict:
+        return copy.deepcopy(self.saved)
+
+    def save(self, state: dict) -> None:
+        self.saved = copy.deepcopy(state)
+
+
+def timer_run(discord, store, *, estimate=None, advise=None):
+    with patch.dict("calorie_log.discord_runner.os.environ", {
+            "DISCORD_BOT_TOKEN": "token", "NOTION_SECRET": "token",
+         }), \
+         patch("calorie_log.discord_runner.DiscordClient", return_value=discord), \
+         patch("calorie_log.discord_runner.NotionApi"), \
+         patch("calorie_log.discord_runner.load_state", side_effect=store.load), \
+         patch("calorie_log.discord_runner.save_state", side_effect=store.save), \
+         patch("calorie_log.discord_runner.estimate", side_effect=estimate), \
+         patch("calorie_log.discord_runner.recent_meals", return_value=[]), \
+         patch("calorie_log.discord_runner.advise", side_effect=advise), \
+         patch("calorie_log.discord_runner.write", return_value="https://www.notion.so/meal") as write_mock, \
+         patch("calorie_log.discord_runner.update_active_threads"), \
+         patch("calorie_log.discord_runner.send_weekly_advice"):
+        run_once()
+    return write_mock
+
+
+def text_meal(message_id: str, content: str) -> dict:
+    return {
+        "id": message_id, "content": content, "timestamp": "2026-09-29T14:38:00Z",
+        "attachments": [], "author": {"bot": False},
+    }
+
+
+def codex_times_out(images, description):
+    raise RuntimeError("codex 逾時")
+
+
+def test_meal_failing_three_runs_in_a_row_is_flagged_and_skipped():
+    discord = Mock()
+    discord.messages_since.return_value = [text_meal("101", "煎魚便當")]
+    store = StateStore({"last_message_id": "100", "text_only_backfill_v1": True})
+
+    for _ in range(2):
+        with pytest.raises(RuntimeError):
+            timer_run(discord, store, estimate=codex_times_out)
+    discord.react.assert_not_called()
+    discord.reply.assert_not_called()
+    assert store.saved["last_message_id"] == "100"
+
+    timer_run(discord, store, estimate=codex_times_out)
+
+    discord.react.assert_called_once_with("1548580916765401088", "101", "❌")
+    channel_id, message_id, notice = discord.reply.call_args.args
+    assert (channel_id, message_id) == ("1548580916765401088", "101")
+    assert "codex 逾時" in notice
+    assert store.saved["last_message_id"] == "101"
+
+
+def test_messages_after_a_skipped_one_are_still_processed():
+    discord = Mock()
+    discord.messages_since.return_value = [
+        text_meal("101", "壞掉的訊息"), text_meal("102", "蛋黃酥"),
+    ]
+    store = StateStore({"last_message_id": "100", "text_only_backfill_v1": True})
+
+    def estimate(images, description):
+        if description == "壞掉的訊息":
+            raise RuntimeError("codex 逾時")
+        return Estimate("蛋黃酥", (FoodItem("蛋黃酥", "一個", 300),), 300, "", "low")
+
+    for _ in range(2):
+        with pytest.raises(RuntimeError):
+            timer_run(discord, store, estimate=estimate)
+    write_mock = timer_run(discord, store, estimate=estimate)
+
+    assert write_mock.call_count == 1
+    assert write_mock.call_args.kwargs["source_message_id"] == "102"
+    discord.react.assert_any_call("1548580916765401088", "102", "✅")
+    assert store.saved["last_message_id"] == "102"
+
+
+def test_success_after_a_transient_failure_leaves_no_failure_count_behind():
+    discord = Mock()
+    discord.messages_since.return_value = [text_meal("101", "蛋黃酥")]
+    store = StateStore({"last_message_id": "100", "text_only_backfill_v1": True})
+    recovered = Estimate("蛋黃酥", (FoodItem("蛋黃酥", "一個", 300),), 300, "", "low")
+
+    with pytest.raises(RuntimeError):
+        timer_run(discord, store, estimate=codex_times_out)
+    assert store.saved["failed_attempts"] == {"101": 1}
+
+    discord.messages_since.return_value = [text_meal("101", "蛋黃酥")]
+    timer_run(discord, store, estimate=lambda images, description: recovered)
+
+    assert store.saved["last_message_id"] == "101"
+    assert not store.saved.get("failed_attempts")
+    discord.reply.assert_not_called()
+
+
+def test_advice_question_failing_three_runs_in_a_row_is_flagged_and_skipped():
+    discord = Mock()
+    discord.messages_since.return_value = [text_meal("101", "建議：今晚怎麼吃？")]
+    store = StateStore({"last_message_id": "100", "text_only_backfill_v1": True})
+
+    def advise(*args, **kwargs):
+        raise RuntimeError("codex 逾時")
+
+    for _ in range(2):
+        with pytest.raises(RuntimeError):
+            timer_run(discord, store, advise=advise)
+    discord.reply.assert_not_called()
+
+    timer_run(discord, store, advise=advise)
+
+    discord.react.assert_called_once_with("1548580916765401088", "101", "❌")
+    assert "codex 逾時" in discord.reply.call_args.args[2]
+    assert store.saved["last_message_id"] == "101"
+    assert "101" not in store.saved.get("advice_replies", {})
+
+
+def test_message_stays_pending_while_the_failure_notice_cannot_be_sent():
+    discord = Mock()
+    discord.messages_since.return_value = [text_meal("101", "煎魚便當")]
+    discord.react.side_effect = RuntimeError("Discord 無法連線")
+    store = StateStore({"last_message_id": "100", "text_only_backfill_v1": True})
+
+    for _ in range(3):
+        with pytest.raises(RuntimeError):
+            timer_run(discord, store, estimate=codex_times_out)
+    assert store.saved["last_message_id"] == "100"
+
+    discord.react.side_effect = None
+    timer_run(discord, store, estimate=codex_times_out)
+
+    discord.reply.assert_called_once()
+    assert store.saved["last_message_id"] == "101"
