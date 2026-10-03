@@ -15,11 +15,11 @@ set -a
 set +a
 
 if ! command -v codex >/dev/null 2>&1; then
-  echo "Hetzner VPS 上找不到 codex CLI；請先以 $(id -un) 帳號安裝並登入。" >&2
+  echo "VPS 上找不到 codex CLI；請先以 $(id -un) 帳號安裝並登入。" >&2
   exit 1
 fi
 if ! codex login status >/dev/null 2>&1; then
-  echo "Hetzner VPS 上的 codex CLI 尚未登入；請先以 $(id -un) 帳號完成登入。" >&2
+  echo "VPS 上的 codex CLI 尚未登入；請先以 $(id -un) 帳號完成登入。" >&2
   exit 1
 fi
 

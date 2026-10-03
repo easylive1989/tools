@@ -19,6 +19,8 @@ concurrency:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      VPS_USER: ubuntu
     steps:
       - uses: actions/checkout@v4
 
@@ -62,7 +64,7 @@ jobs:
           fi
           test -s "$RUNNER_TEMP/vps_known_hosts"
 
-      - name: Deploy to Hetzner VPS
+      - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
@@ -72,10 +74,10 @@ jobs:
           NUTRITION_WEEKLY_DAY: ${{ vars.NUTRITION_WEEKLY_DAY }}
           NUTRITION_WEEKLY_HOUR: ${{ vars.NUTRITION_WEEKLY_HOUR }}
         run: |
-          remote="root@$VPS_HOST"
+          remote="$VPS_USER@$VPS_HOST"
           ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
 
-          ssh "${ssh_opts[@]}" "$remote" 'mkdir -p /opt/calorie-log/calorie_log /opt/calorie-log/common'
+          ssh "${ssh_opts[@]}" "$remote" 'sudo install -d -o "$(id -un)" -g "$(id -gn)" /opt/calorie-log && mkdir -p /opt/calorie-log/calorie_log /opt/calorie-log/common'
           tar -cf - calorie_log/*.py calorie_log/food_calorie_reference.md calorie_log/nutrition_advisor_prompt.md calorie_log/run.sh calorie_log/deploy_vps.sh calorie_log/requirements.txt common/__init__.py common/notion.py \
             | ssh "${ssh_opts[@]}" "$remote" 'cd /opt/calorie-log && tar -xf -'
 

@@ -3,11 +3,12 @@ set -eu
 
 ROOT="/opt/calorie-log"
 SERVICE_NAME="calorie-log"
+RUN_USER="$(id -un)"
 export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 trap 'rm -f "$ROOT/calorie_log/.env.new"' EXIT
 
-if [ "$(id -u)" -ne 0 ]; then
-  echo "Hetzner 部署腳本需要以 root 執行。" >&2
+if ! sudo -n true 2>/dev/null; then
+  echo "部署帳號 $RUN_USER 需要免密碼 sudo 才能安裝 systemd 排程。" >&2
   exit 1
 fi
 
@@ -27,8 +28,8 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-User=root
-Environment=HOME=/root
+User=$RUN_USER
+Environment=HOME=$HOME
 WorkingDirectory=$ROOT
 ExecStart=$ROOT/calorie_log/run.sh
 TimeoutStartSec=600
@@ -50,14 +51,14 @@ Unit=$SERVICE_NAME.service
 WantedBy=timers.target
 EOF
 
-install -m 644 "$ROOT/calorie_log/$SERVICE_NAME.service" "/etc/systemd/system/$SERVICE_NAME.service"
-install -m 644 "$ROOT/calorie_log/$SERVICE_NAME.timer" "/etc/systemd/system/$SERVICE_NAME.timer"
-systemctl daemon-reload
-systemctl enable --now "$SERVICE_NAME.timer"
+sudo install -m 644 "$ROOT/calorie_log/$SERVICE_NAME.service" "/etc/systemd/system/$SERVICE_NAME.service"
+sudo install -m 644 "$ROOT/calorie_log/$SERVICE_NAME.timer" "/etc/systemd/system/$SERVICE_NAME.timer"
+sudo systemctl daemon-reload
+sudo systemctl enable --now "$SERVICE_NAME.timer"
 if command -v codex >/dev/null 2>&1 && codex login status >/dev/null 2>&1; then
-  systemctl start "$SERVICE_NAME.service"
+  sudo systemctl start "$SERVICE_NAME.service"
 else
-  echo "Codex CLI 尚未安裝或登入；排程已啟用，完成 root 帳號登入後會自動開始處理。"
+  echo "Codex CLI 尚未安裝或登入；排程已啟用，完成 $RUN_USER 帳號登入後會自動開始處理。"
 fi
 
 echo "已部署 $SERVICE_NAME.timer；使用 journalctl -u $SERVICE_NAME.service 查看執行結果。"
