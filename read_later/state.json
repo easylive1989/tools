@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BAXU27qUna/",
+      "message_id": "1556172566534823997",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1556172566534823997",
+      "shared_at": "2026-10-04T05:14:12.150000+00:00",
+      "title": "https://www.threads.com/share/BAXU27qUna/",
+      "url": "https://www.threads.com/share/BAXU27qUna/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BAYSST2xVB/",
       "message_id": "1555966041375379586",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1555966041375379586",
@@ -1882,18 +1891,9 @@
       "shared_at": "2026-06-16T10:07:26.553000+00:00",
       "title": "https://www.threads.com/@peter_career_hack/post/DZowGCJCPeD?xmt=AQG0YZ6pLxSdW1SOlw01CC1IsVmlOOgzZO7YRlbwiqKI4WJxfaEknrgNltGt0NWGJcavIZ0&slof=1",
       "url": "https://www.threads.com/@peter_career_hack/post/DZowGCJCPeD?xmt=AQG0YZ6pLxSdW1SOlw01CC1IsVmlOOgzZO7YRlbwiqKI4WJxfaEknrgNltGt0NWGJcavIZ0&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@strawmoon/post/DZmnsIyFA83?xmt=AQG0S3smxyfrZ7Ig3iYKPlitaSLOchvcGHY-aTEzwnsijQGgtOYu8qjlFuwWjyUsUss6qMu0&slof=1",
-      "message_id": "1516294947739799664",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516294947739799664",
-      "shared_at": "2026-06-16T04:14:46.939000+00:00",
-      "title": "https://www.threads.com/@strawmoon/post/DZmnsIyFA83?xmt=AQG0S3smxyfrZ7Ig3iYKPlitaSLOchvcGHY-aTEzwnsijQGgtOYu8qjlFuwWjyUsUss6qMu0&slof=1",
-      "url": "https://www.threads.com/@strawmoon/post/DZmnsIyFA83?xmt=AQG0S3smxyfrZ7Ig3iYKPlitaSLOchvcGHY-aTEzwnsijQGgtOYu8qjlFuwWjyUsUss6qMu0&slof=1"
     }
   ],
-  "last_message_id": "1555966041375379586",
+  "last_message_id": "1556172566534823997",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2206,6 +2206,7 @@
     "https://www.threads.com/share/BAWW-5YkIy/",
     "https://www.threads.com/share/BAWlJxtO4z/",
     "https://www.threads.com/share/BAX2BVhz5g/",
+    "https://www.threads.com/share/BAXU27qUna/",
     "https://www.threads.com/share/BAYSST2xVB/",
     "https://www.threads.com/share/BAYeOZW5KZ/",
     "https://www.threads.com/share/BAaM14UZDs/",
