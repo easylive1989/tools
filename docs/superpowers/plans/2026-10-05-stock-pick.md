@@ -15,7 +15,7 @@
 - Discord 頻道：`1556684804731179070`；時區：`Asia/Taipei`。
 - Notion data source：`3ea8303f-78f7-801f-9742-000b47c34230`，API 版本 `2025-09-03`。
 - Notion `Name` 格式：`代號 官方名稱`，例如 `3293 鈊象`、`7731 火星生技*`。`備註` 不寫入。
-- Codex：`gpt-5.6-terra`，`model_reasoning_effort=low`，`--sandbox read-only`。子行程環境變數要移除 `DISCORD_BOT_TOKEN`、`NOTION_SECRET`。
+- Codex：`gpt-5.6-terra`，`model_reasoning_effort=medium`（low 會讀錯罕見字），`--sandbox read-only`。子行程環境變數要移除 `DISCORD_BOT_TOKEN`、`NOTION_SECRET`。
 - 執行期依賴只有 `requests>=2.31,<3`；測試另裝 `pytest`。
 - 測試一律在 repo 根目錄用 `python3 -m pytest` 執行。測試檔名要全 repo 唯一（不加 `__init__.py`，避免和其他工具的 `tests/` 撞名）。
 - 使用者看得到的訊息（Discord 回覆、錯誤）用繁體中文，程式識別字用英文。

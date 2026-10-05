@@ -69,7 +69,7 @@ common/
 
 ### Codex 呼叫
 
-沿用 calorie_log 的方式：`codex exec --model gpt-5.6-terra --config model_reasoning_effort=low --output-schema <schema> --output-last-message <file> --image <每張圖>`。schema 限定輸出 `{"names": string[]}`。逾時 180 秒。
+沿用 calorie_log 的方式：`codex exec --model gpt-5.6-terra --config model_reasoning_effort=medium --output-schema <schema> --output-last-message <file> --image <每張圖>`。schema 限定輸出 `{"names": string[]}`。逾時 180 秒。
 
 ## Error Handling 與 Discord 回饋
 
