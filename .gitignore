@@ -25,6 +25,8 @@ client_secret*
 output.txt
 calorie_log/state.json
 calorie_log/state.tmp
+stock_pick/state.json
+stock_pick/state.tmp
 
 # OS generated files
 .DS_Store

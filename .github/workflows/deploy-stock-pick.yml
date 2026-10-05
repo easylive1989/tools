@@ -1,0 +1,96 @@
+name: Deploy Stock Pick
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'stock_pick/**'
+      - 'common/discord.py'
+      - 'common/notion.py'
+      - '.github/workflows/deploy-stock-pick.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-stock-pick
+  cancel-in-progress: false
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      VPS_USER: ubuntu
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Test stock pick logger
+        run: |
+          python -m pip install --disable-pip-version-check -r stock_pick/requirements.txt pytest
+          python -m pytest stock_pick/tests common/tests -q
+
+      - name: Check deployment secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+        run: |
+          missing=0
+          for name in VPS_HOST VPS_SSH_KEY DISCORD_BOT_TOKEN NOTION_SECRET; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing GitHub Actions secret: $name"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Configure SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          printf '%s\n' "$VPS_SSH_KEY" > "$RUNNER_TEMP/vps_key"
+          if [ -n "$VPS_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/vps_known_hosts"
+          else
+            ssh-keyscan -H -T 10 "$VPS_HOST" > "$RUNNER_TEMP/vps_known_hosts"
+          fi
+          test -s "$RUNNER_TEMP/vps_known_hosts"
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+        run: |
+          remote="$VPS_USER@$VPS_HOST"
+          ssh_opts=(-i "$RUNNER_TEMP/vps_key" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/vps_known_hosts")
+
+          ssh "${ssh_opts[@]}" "$remote" 'sudo install -d -o "$(id -un)" -g "$(id -gn)" /opt/stock-pick && mkdir -p /opt/stock-pick/stock_pick /opt/stock-pick/common'
+          tar -cf - stock_pick/*.py stock_pick/run.sh stock_pick/deploy_vps.sh stock_pick/requirements.txt common/__init__.py common/notion.py common/discord.py \
+            | ssh "${ssh_opts[@]}" "$remote" 'cd /opt/stock-pick && tar -xf -'
+
+          python - <<'PY'
+          import os
+          import shlex
+          from pathlib import Path
+          destination = Path(os.environ['RUNNER_TEMP']) / 'stock-pick.env'
+          lines = [
+              f'export {name}={shlex.quote(os.environ[name])}'
+              for name in ('DISCORD_BOT_TOKEN', 'NOTION_SECRET')
+          ]
+          destination.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          destination.chmod(0o600)
+          PY
+          ssh "${ssh_opts[@]}" "$remote" 'umask 077; cat > /opt/stock-pick/stock_pick/.env.new' < "$RUNNER_TEMP/stock-pick.env"
+          ssh "${ssh_opts[@]}" "$remote" 'sh /opt/stock-pick/stock_pick/deploy_vps.sh'
+
+          ssh "${ssh_opts[@]}" "$remote" 'systemctl is-active --quiet stock-pick.timer'

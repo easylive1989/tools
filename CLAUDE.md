@@ -19,6 +19,14 @@ Scripts in subdirectories add the repo root to `sys.path` so `from common.X impo
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 ```
 
+## stock_pick (智選股截圖 → Notion)
+
+Polls Discord channel `1556684804731179070` every 5 minutes on oracle-arm (`/opt/stock-pick`,
+`stock-pick.timer`). Codex CLI reads stock names from each screenshot; official TWSE/TPEx quotes
+supply the code and that day's close (興櫃 = last trade); rows go to Notion「智選股當天入場」.
+Shared Discord client: `common/discord.py`. Deployed by `deploy-stock-pick.yml`.
+Design: `docs/superpowers/specs/2026-10-05-stock-pick-design.md`.
+
 ## translate (隨身翻譯 + 檔案翻譯)
 
 SwiftUI app (`translate/translator.swift`) for selection-based translation, plus a
