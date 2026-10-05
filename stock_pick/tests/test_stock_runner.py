@@ -43,6 +43,7 @@ def env(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "write", fakes.write)
     monkeypatch.setattr(runner, "fetch_quotes", fakes.fetch)
     monkeypatch.setattr(runner, "read_names", fakes.read)
+    monkeypatch.setattr(runner, "is_trading_day", Mock(return_value=True))
     runner.save_state({"last_message_id": "100", "attempts": {}})
     return fakes
 
@@ -69,9 +70,18 @@ def test_logs_every_stock_and_reacts_ok(env):
 def test_post_from_the_close_on_uses_that_taipei_day(monkeypatch):
     previous = Mock()
     monkeypatch.setattr(runner, "previous_trading_day", previous)
+    monkeypatch.setattr(runner, "is_trading_day", Mock(return_value=True))
     assert runner.pick_day(screenshot(timestamp="2026-10-05T05:30:00Z")) == DAY  # 13:30
     assert runner.pick_day(screenshot(timestamp="2026-10-05T15:59:00Z")) == DAY  # 23:59
     previous.assert_not_called()
+
+
+def test_post_on_a_market_holiday_uses_the_latest_trading_day(monkeypatch):
+    trading = Mock(return_value=False)
+    monkeypatch.setattr(runner, "is_trading_day", trading)
+    monkeypatch.setattr(runner, "previous_trading_day", Mock(return_value=date(2026, 10, 2)))
+    assert runner.pick_day(screenshot(timestamp="2026-10-03T07:00:00Z")) == date(2026, 10, 2)  # 週六 15:00
+    trading.assert_called_once_with(date(2026, 10, 3))
 
 
 def test_post_before_the_close_uses_the_previous_trading_day(monkeypatch):

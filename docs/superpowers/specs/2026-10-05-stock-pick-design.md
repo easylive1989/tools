@@ -26,7 +26,7 @@
 |---|---|---|
 | Name | title | `代號 官方名稱`，例如 `3293 鈊象`、`7731 火星生技*`（興櫃官方名稱本身帶 `*`） |
 | 進場價格 | number | 選股日期的官方收盤價；興櫃用當日最後成交價 |
-| 選股日期 | date | 台灣時間 13:30 以後貼的圖：貼圖當天；13:30 以前貼的：前一個交易日（只存日期） |
+| 選股日期 | date | 貼圖時已收盤的最近一個交易日：交易日 13:30 以後貼的算當天，其餘（13:30 以前、週末、休市日）算前一個交易日（只存日期） |
 | 備註 | multi_select | 不寫入 |
 | Created time | created_time | Notion 自動記錄寫入時間 |
 
@@ -56,7 +56,7 @@ common/
 
 1. **載入 state。** 沒有 `last_message_id` 時（第一次執行），把它設成頻道目前最新的訊息 id，存檔後結束，不處理歷史。
 2. **抓新訊息。** 取 `last_message_id` 之後的訊息，從舊到新處理。只處理「非 bot、至少有一個圖片附件」的訊息；其他訊息直接推進 `last_message_id`。
-3. **選股日期。** 訊息 timestamp 轉 `Asia/Taipei`。13:30（收盤）以後貼的，`D` = 當天；13:30 以前貼的（例如半夜過後才貼），`D` = 前一個交易日。交易日取自證交所月度大盤統計 `https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date={該月1日}&response=json`，當月找不到就往前一個月找。（2026-10-06 使用者決定加入 13:30 規則。）
+3. **選股日期。** 訊息 timestamp 轉 `Asia/Taipei`。當天是交易日且 13:30（收盤）以後貼的，`D` = 當天；其餘（13:30 以前，例如半夜過後才貼；或週末、休市日貼的），`D` = 前一個交易日。當天是否交易看週末與證交所休市日 `https://www.twse.com.tw/rwd/zh/holidaySchedule/holidaySchedule?date={年}0101&response=json`（名稱以「交易日」結尾的列只是說明，例如「國曆新年開始交易日」，照常交易）。交易日取自證交所月度大盤統計 `https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?date={該月1日}&response=json`，當月找不到就往前一個月找。（2026-10-06 使用者決定加入 13:30 規則，並讓假日貼的圖也算最近一個交易日。）
 4. **抓官方行情**（同一輪只抓一次，所有訊息共用）：
    - 上市：`https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?date={D:%Y%m%d}&response=json&type=ALLBUT0999`，取有「證券代號、證券名稱、收盤價」欄位的表。
    - 上櫃：`https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes`，欄位 `SecuritiesCompanyCode`、`CompanyName`、`Close`、`Date`（民國年）。

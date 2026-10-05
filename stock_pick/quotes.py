@@ -15,6 +15,8 @@ import requests
 TWSE_DAILY = "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
 # Monthly market summary: one row per trading day, so it doubles as a trading calendar.
 TWSE_CALENDAR = "https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK"
+# Yearly market holidays; it also lists notes such as「國曆新年開始交易日」, which still trade.
+TWSE_HOLIDAYS = "https://www.twse.com.tw/rwd/zh/holidaySchedule/holidaySchedule"
 TPEX_OTC = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
 TPEX_ESB = "https://www.tpex.org.tw/openapi/v1/tpex_esb_latest_statistics"
 HEADERS = {"User-Agent": "Mozilla/5.0 (stock-pick-logger)", "Accept": "application/json"}
@@ -104,6 +106,21 @@ def fetch_quotes(day: date) -> MarketQuotes:
         days={"上市": day if twse is not None else None, "上櫃": otc_day, "興櫃": esb_day},
         by_name=by_name,
     )
+
+
+def is_trading_day(day: date) -> bool:
+    """Whether TWSE trades on `day`, known ahead of time (unlike the market summary)."""
+    if day.weekday() >= 5:
+        return False
+    payload = _get_json(TWSE_HOLIDAYS, {"date": f"{day.year}0101", "response": "json"})
+    if not isinstance(payload, dict) or str(payload.get("stat")).upper() != "OK":
+        raise ValueError(f"{day.year} 年休市日資料格式不正確")
+    closed = {
+        date.fromisoformat(str(row[0]).strip())
+        for row in payload.get("data") or []
+        if not str(row[1]).strip().endswith("交易日")
+    }
+    return day not in closed
 
 
 def previous_trading_day(day: date) -> date:

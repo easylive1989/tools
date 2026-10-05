@@ -5,7 +5,7 @@ import pytest
 
 from stock_pick.quotes import (
     PASSED, READY, TPEX_OTC, TWSE_DAILY, WAITING, Quote, fetch_quotes, match,
-    parse_tpex, parse_twse, previous_trading_day, quote_status, roc_date,
+    is_trading_day, parse_tpex, parse_twse, previous_trading_day, quote_status, roc_date,
 )
 
 DAY = date(2026, 10, 5)
@@ -57,6 +57,39 @@ def test_previous_trading_day_skips_the_weekend():
 def test_previous_trading_day_looks_back_into_the_previous_month():
     with patch("stock_pick.quotes._get_json", side_effect=fake_calendar):
         assert previous_trading_day(date(2026, 10, 1)) == date(2026, 9, 30)
+
+
+HOLIDAYS_2026 = {"stat": "ok", "fields": ["日期", "名稱", "說明"], "data": [
+    ["2026-01-01", "中華民國開國紀念日", "依規定放假1日。"],
+    ["2026-01-02", "國曆新年開始交易日", "國曆新年開始交易。"],
+    ["2026-02-11", "農曆春節前最後交易日", "農曆春節前最後交易。\r\n"],
+    ["2026-02-12", "市場無交易，僅辦理結算交割作業", ""],
+    ["2026-10-09", "國慶日", "國慶日為10月10日適逢星期六，於10月9日（星期五）補假。"],
+]}
+
+
+def fake_holidays(url, params=None):
+    assert params["date"] == "20260101"
+    return HOLIDAYS_2026
+
+
+@pytest.mark.parametrize(("day", "expected"), [
+    (date(2026, 10, 6), True),    # 一般週二
+    (date(2026, 10, 9), False),   # 國慶日補假（週五）
+    (date(2026, 2, 12), False),   # 市場無交易，僅辦理結算交割
+    (date(2026, 1, 2), True),     # 開始交易日只是說明，照常交易
+    (date(2026, 2, 11), True),    # 最後交易日照常交易
+])
+def test_is_trading_day_reads_the_twse_holiday_schedule(day, expected):
+    with patch("stock_pick.quotes._get_json", side_effect=fake_holidays):
+        assert is_trading_day(day) is expected
+
+
+def test_weekends_are_never_trading_days_without_asking_twse():
+    with patch("stock_pick.quotes._get_json") as get:
+        assert is_trading_day(date(2026, 10, 3)) is False
+        assert is_trading_day(date(2026, 10, 4)) is False
+    get.assert_not_called()
 
 
 def test_previous_trading_day_gives_up_without_any_trading_day():

@@ -22,7 +22,8 @@ from common.discord import DiscordClient
 from common.notion import NotionApi
 from stock_pick.notion_writer import write
 from stock_pick.quotes import (
-    PASSED, WAITING, MarketQuotes, fetch_quotes, match, previous_trading_day, quote_status,
+    PASSED, WAITING, MarketQuotes, fetch_quotes, is_trading_day, match, previous_trading_day,
+    quote_status,
 )
 from stock_pick.reader import SUPPORTED_EXTENSIONS, read_names
 
@@ -61,9 +62,9 @@ def posted_at(message: dict) -> datetime:
 
 
 def pick_day(message: dict) -> date:
-    """Screenshots posted before the close show the previous trading day's picks."""
+    """The latest trading day that had closed when the screenshot was posted."""
     local = posted_at(message).astimezone(TAIPEI)
-    if local.time() >= MARKET_CLOSE:
+    if local.time() >= MARKET_CLOSE and is_trading_day(local.date()):
         return local.date()
     return previous_trading_day(local.date())
 
