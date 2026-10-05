@@ -150,6 +150,18 @@ def test_retries_failures_then_gives_up_on_the_third(env):
     assert runner.load_state() == {"last_message_id": "200", "attempts": {}}
 
 
+def test_waiting_resets_the_failure_count(env):
+    env.fetch.side_effect = [RuntimeError("TPEx 502"), NOT_PUBLISHED] * 3 + [QUOTES]
+    env.discord.messages_since.return_value = [screenshot()]
+    for _ in range(6):
+        runner.run_once(NOW)
+    env.discord.react.assert_not_called()
+
+    runner.run_once(NOW)
+    env.discord.react.assert_called_once_with(runner.CHANNEL_ID, "200", "✅")
+    assert runner.load_state() == {"last_message_id": "200", "attempts": {}}
+
+
 def test_skips_text_and_bot_messages(env):
     text = {"id": "150", "type": 0, "timestamp": "2026-10-05T14:00:00+00:00",
             "author": {"bot": False}, "content": "今天大漲", "attachments": []}

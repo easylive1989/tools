@@ -152,6 +152,9 @@ def run_once(now: datetime | None = None) -> None:
                     return
                 outcome = Outcome(REACTION_ERROR, f"處理失敗（已試 {MAX_ATTEMPTS} 次）：{describe(exc)}")
             if outcome is None:
+                # Waiting breaks a failure streak: only consecutive failures give up.
+                if state["attempts"].pop(message_id, None) is not None:
+                    save_state(state)
                 LOG.info("message %s: waiting for %s quotes", message_id, pick_day(message))
                 return
             discord.react(CHANNEL_ID, message_id, outcome.emoji)
