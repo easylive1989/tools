@@ -1,0 +1,106 @@
+from datetime import date
+from unittest.mock import patch
+
+import pytest
+
+from stock_pick.quotes import (
+    PASSED, READY, TPEX_OTC, TWSE_DAILY, WAITING, Quote, fetch_quotes, match,
+    parse_tpex, parse_twse, quote_status, roc_date,
+)
+
+DAY = date(2026, 10, 5)
+TWSE_PAYLOAD = {
+    "stat": "OK",
+    "date": "20261005",
+    "tables": [
+        {"fields": ["指數", "收盤指數"], "data": [["發行量加權股價指數", "49,712.04"]]},
+        {"fields": ["證券代號", "證券名稱", "成交股數", "收盤價"], "data": [
+            ["1477", "聚陽", "1,000", "197.50"],
+            ["2485", "兆赫  ", "2,000", "44.60"],
+            ["9999", "停牌股", "0", "--"],
+            ["2330", "台積電", "9,000", "1,234.50"],
+        ]},
+    ],
+}
+OTC_ROWS = [
+    {"Date": "1151005", "SecuritiesCompanyCode": "3293", "CompanyName": "鈊象", "Close": "794.00"},
+    {"Date": "1151005", "SecuritiesCompanyCode": "5452", "CompanyName": "佶優", "Close": "30.00"},
+]
+ESB_ROWS = [
+    {"Date": "1151005", "SecuritiesCompanyCode": "7731", "CompanyName": "火星生技*", "LatestPrice": "4.51"},
+    {"Date": "1151005", "SecuritiesCompanyCode": "1260", "CompanyName": "富味鄉", "LatestPrice": ""},
+]
+
+
+def test_roc_date_converts_minguo_year():
+    assert roc_date("1151005") == date(2026, 10, 5)
+    assert roc_date("991231") == date(2010, 12, 31)
+
+
+def test_parse_twse_reads_the_closing_table_and_cleans_names():
+    quotes = {quote.name: quote for quote in parse_twse(TWSE_PAYLOAD, DAY)}
+    assert quotes["兆赫"] == Quote("2485", "兆赫", "上市", 44.6)
+    assert quotes["台積電"].price == 1234.5
+    assert quotes["停牌股"].price is None
+
+
+def test_parse_twse_returns_none_when_the_day_is_not_published():
+    assert parse_twse({"stat": "很抱歉，沒有符合條件的資料!"}, DAY) is None
+
+
+def test_parse_twse_rejects_a_different_day():
+    with pytest.raises(ValueError, match="日期不符"):
+        parse_twse({**TWSE_PAYLOAD, "date": "20261002"}, DAY)
+
+
+def test_parse_tpex_returns_latest_day_and_quotes():
+    day, quotes = parse_tpex(ESB_ROWS, "興櫃", "LatestPrice")
+    assert day == DAY
+    assert quotes[0] == Quote("7731", "火星生技*", "興櫃", 4.51)
+    assert quotes[1].price is None
+
+
+def test_fetch_quotes_merges_three_markets():
+    def fake_get(url, params=None):
+        if url == TWSE_DAILY:
+            assert params["date"] == "20261005"
+            return TWSE_PAYLOAD
+        return OTC_ROWS if url == TPEX_OTC else ESB_ROWS
+
+    with patch("stock_pick.quotes._get_json", side_effect=fake_get):
+        quotes = fetch_quotes(DAY)
+
+    assert quotes.days == {"上市": DAY, "上櫃": DAY, "興櫃": DAY}
+    assert quotes.by_name["聚陽"] == Quote("1477", "聚陽", "上市", 197.5)
+    assert quotes.by_name["鈊象"].market == "上櫃"
+    assert quotes.by_name["火星生技*"].code == "7731"
+
+
+def test_fetch_quotes_marks_unpublished_twse_day_as_none():
+    def fake_get(url, params=None):
+        if url == TWSE_DAILY:
+            return {"stat": "很抱歉，沒有符合條件的資料!"}
+        return OTC_ROWS if url == TPEX_OTC else ESB_ROWS
+
+    with patch("stock_pick.quotes._get_json", side_effect=fake_get):
+        assert fetch_quotes(DAY).days["上市"] is None
+
+
+@pytest.mark.parametrize(("days", "expected"), [
+    ({"上市": DAY, "上櫃": DAY, "興櫃": DAY}, READY),
+    ({"上市": None, "上櫃": DAY, "興櫃": DAY}, WAITING),
+    ({"上市": DAY, "上櫃": date(2026, 10, 2), "興櫃": DAY}, WAITING),
+    ({"上市": None, "上櫃": date(2026, 10, 6), "興櫃": date(2026, 10, 6)}, PASSED),
+])
+def test_quote_status(days, expected):
+    assert quote_status(days, DAY) == expected
+
+
+def test_match_ignores_whitespace_and_reports_missing_names():
+    by_name = {
+        "群益證": Quote("6005", "群益證", "上市", 33.0),
+        "富味鄉": Quote("1260", "富味鄉", "興櫃", None),
+    }
+    found, missing = match(["群益 證", "群益　證", "富味鄉", "鈊像"], by_name)
+    assert found == [Quote("6005", "群益證", "上市", 33.0)] * 2
+    assert missing == ["富味鄉", "鈊像"]
