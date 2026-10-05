@@ -5,7 +5,7 @@ import pytest
 
 from stock_pick.quotes import (
     PASSED, READY, TPEX_OTC, TWSE_DAILY, WAITING, Quote, fetch_quotes, match,
-    parse_tpex, parse_twse, quote_status, roc_date,
+    parse_tpex, parse_twse, previous_trading_day, quote_status, roc_date,
 )
 
 DAY = date(2026, 10, 5)
@@ -35,6 +35,34 @@ ESB_ROWS = [
 def test_roc_date_converts_minguo_year():
     assert roc_date("1151005") == date(2026, 10, 5)
     assert roc_date("991231") == date(2010, 12, 31)
+    assert roc_date("115/10/05") == date(2026, 10, 5)
+
+
+TRADING_DAYS = {
+    "20261001": {"stat": "OK", "data": [["115/10/01", "1"], ["115/10/02", "1"], ["115/10/05", "1"]]},
+    "20260901": {"stat": "OK", "data": [["115/09/29", "1"], ["115/09/30", "1"]]},
+}
+
+
+def fake_calendar(url, params=None):
+    return TRADING_DAYS.get(params["date"], {"stat": "很抱歉，沒有符合條件的資料!"})
+
+
+def test_previous_trading_day_skips_the_weekend():
+    with patch("stock_pick.quotes._get_json", side_effect=fake_calendar):
+        assert previous_trading_day(date(2026, 10, 5)) == date(2026, 10, 2)
+        assert previous_trading_day(date(2026, 10, 6)) == date(2026, 10, 5)
+
+
+def test_previous_trading_day_looks_back_into_the_previous_month():
+    with patch("stock_pick.quotes._get_json", side_effect=fake_calendar):
+        assert previous_trading_day(date(2026, 10, 1)) == date(2026, 9, 30)
+
+
+def test_previous_trading_day_gives_up_without_any_trading_day():
+    with patch("stock_pick.quotes._get_json", side_effect=fake_calendar):
+        with pytest.raises(ValueError, match="之前的交易日"):
+            previous_trading_day(date(2026, 8, 3))
 
 
 def test_parse_twse_reads_the_closing_table_and_cleans_names():

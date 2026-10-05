@@ -12,7 +12,7 @@ import os
 import sys
 import tempfile
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -21,13 +21,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from common.discord import DiscordClient
 from common.notion import NotionApi
 from stock_pick.notion_writer import write
-from stock_pick.quotes import PASSED, WAITING, MarketQuotes, fetch_quotes, match, quote_status
+from stock_pick.quotes import (
+    PASSED, WAITING, MarketQuotes, fetch_quotes, match, previous_trading_day, quote_status,
+)
 from stock_pick.reader import SUPPORTED_EXTENSIONS, read_names
 
 LOG = logging.getLogger(__name__)
 CHANNEL_ID = "1556684804731179070"
 STATE_PATH = Path(__file__).resolve().parent / "state.json"
 TAIPEI = ZoneInfo("Asia/Taipei")
+MARKET_CLOSE = time(13, 30)
 MAX_ATTEMPTS = 3
 MAX_WAIT = timedelta(hours=12)
 REACTION_OK, REACTION_PARTIAL, REACTION_ERROR = "✅", "⚠️", "❌"
@@ -58,7 +61,11 @@ def posted_at(message: dict) -> datetime:
 
 
 def pick_day(message: dict) -> date:
-    return posted_at(message).astimezone(TAIPEI).date()
+    """Screenshots posted before the close show the previous trading day's picks."""
+    local = posted_at(message).astimezone(TAIPEI)
+    if local.time() >= MARKET_CLOSE:
+        return local.date()
+    return previous_trading_day(local.date())
 
 
 def image_attachments(message: dict) -> list[dict]:
@@ -87,10 +94,9 @@ def download_images(discord: DiscordClient, message: dict, directory: Path) -> l
     return paths
 
 
-def log_message(message: dict, discord: DiscordClient, notion: NotionApi,
+def log_message(message: dict, day: date, discord: DiscordClient, notion: NotionApi,
                 quotes: MarketQuotes, now: datetime) -> Outcome | None:
     """Log one screenshot message; None means the day's quotes are not out yet."""
-    day = pick_day(message)
     status = quote_status(quotes.days, day)
     if status == WAITING:
         if now - posted_at(message) < MAX_WAIT:
@@ -142,7 +148,7 @@ def run_once(now: datetime | None = None) -> None:
                 day = pick_day(message)
                 if day not in quotes_by_day:
                     quotes_by_day[day] = fetch_quotes(day)
-                outcome = log_message(message, discord, notion, quotes_by_day[day], now)
+                outcome = log_message(message, day, discord, notion, quotes_by_day[day], now)
             except Exception as exc:
                 attempts = state["attempts"].get(message_id, 0) + 1
                 state["attempts"][message_id] = attempts
@@ -155,7 +161,7 @@ def run_once(now: datetime | None = None) -> None:
                 # Waiting breaks a failure streak: only consecutive failures give up.
                 if state["attempts"].pop(message_id, None) is not None:
                     save_state(state)
-                LOG.info("message %s: waiting for %s quotes", message_id, pick_day(message))
+                LOG.info("message %s: waiting for %s quotes", message_id, day)
                 return
             discord.react(CHANNEL_ID, message_id, outcome.emoji)
             if outcome.reply:

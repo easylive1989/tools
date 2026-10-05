@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
 import requests
 
 TWSE_DAILY = "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
+# Monthly market summary: one row per trading day, so it doubles as a trading calendar.
+TWSE_CALENDAR = "https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK"
 TPEX_OTC = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
 TPEX_ESB = "https://www.tpex.org.tw/openapi/v1/tpex_esb_latest_statistics"
 HEADERS = {"User-Agent": "Mozilla/5.0 (stock-pick-logger)", "Accept": "application/json"}
@@ -48,7 +50,7 @@ def to_price(value: object) -> float | None:
 
 
 def roc_date(value: object) -> date:
-    found = re.fullmatch(r"(\d{2,3})(\d{2})(\d{2})", str(value).strip())
+    found = re.fullmatch(r"(\d{2,3})(\d{2})(\d{2})", str(value).strip().replace("/", ""))
     if not found:
         raise ValueError(f"無法解析民國日期：{value!r}")
     return date(int(found[1]) + 1911, int(found[2]), int(found[3]))
@@ -102,6 +104,20 @@ def fetch_quotes(day: date) -> MarketQuotes:
         days={"上市": day if twse is not None else None, "上櫃": otc_day, "興櫃": esb_day},
         by_name=by_name,
     )
+
+
+def previous_trading_day(day: date) -> date:
+    """Latest TWSE trading day strictly before `day`."""
+    month = day.replace(day=1)
+    for _ in range(2):  # the longest holiday break never spans a whole month
+        payload = _get_json(TWSE_CALENDAR, {"date": f"{month:%Y%m%d}", "response": "json"})
+        if isinstance(payload, dict) and str(payload.get("stat")).upper() == "OK":
+            earlier = [roc_date(row[0]) for row in payload.get("data") or []]
+            earlier = [value for value in earlier if value < day]
+            if earlier:
+                return max(earlier)
+        month = (month - timedelta(days=1)).replace(day=1)
+    raise ValueError(f"找不到 {day} 之前的交易日")
 
 
 def quote_status(days: dict[str, date | None], day: date) -> str:

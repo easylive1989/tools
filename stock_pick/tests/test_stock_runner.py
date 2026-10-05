@@ -66,9 +66,28 @@ def test_logs_every_stock_and_reacts_ok(env):
     assert runner.load_state() == {"last_message_id": "200", "attempts": {}}
 
 
-def test_pick_day_uses_taipei_date_after_midnight():
-    assert runner.pick_day(screenshot(timestamp="2026-10-05T16:10:00+00:00")) == date(2026, 10, 6)
-    assert runner.pick_day(screenshot(timestamp="2026-10-05T15:59:00Z")) == DAY
+def test_post_from_the_close_on_uses_that_taipei_day(monkeypatch):
+    previous = Mock()
+    monkeypatch.setattr(runner, "previous_trading_day", previous)
+    assert runner.pick_day(screenshot(timestamp="2026-10-05T05:30:00Z")) == DAY  # 13:30
+    assert runner.pick_day(screenshot(timestamp="2026-10-05T15:59:00Z")) == DAY  # 23:59
+    previous.assert_not_called()
+
+
+def test_post_before_the_close_uses_the_previous_trading_day(monkeypatch):
+    previous = Mock(side_effect=lambda day: {date(2026, 10, 6): DAY, DAY: date(2026, 10, 2)}[day])
+    monkeypatch.setattr(runner, "previous_trading_day", previous)
+    assert runner.pick_day(screenshot(timestamp="2026-10-05T16:10:00Z")) == DAY  # 10/6 00:10
+    assert runner.pick_day(screenshot(timestamp="2026-10-05T05:29:00Z")) == date(2026, 10, 2)  # 13:29
+
+
+def test_screenshot_after_midnight_is_logged_for_the_previous_trading_day(env, monkeypatch):
+    monkeypatch.setattr(runner, "previous_trading_day", Mock(return_value=DAY))
+    env.discord.messages_since.return_value = [screenshot(timestamp="2026-10-05T16:10:00Z")]
+    runner.run_once(datetime(2026, 10, 5, 16, 15, tzinfo=timezone.utc))
+    env.fetch.assert_called_once_with(DAY)
+    assert all(call.args[2] == DAY for call in env.write.call_args_list)
+    env.discord.react.assert_called_once_with(runner.CHANNEL_ID, "200", "✅")
 
 
 def test_downloads_every_image_in_the_message(env):
