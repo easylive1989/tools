@@ -124,6 +124,17 @@ def describe(exc: Exception) -> str:
     return f"{type(exc).__name__}: {exc}"[:300]
 
 
+def gave_up(state: dict, message_id: str) -> bool:
+    """Count a failure for the message; True once it has failed MAX_ATTEMPTS times in a row."""
+    attempts = state["attempts"].get(message_id, 0) + 1
+    state["attempts"][message_id] = attempts
+    LOG.exception("message %s failed (attempt %d/%d)", message_id, attempts, MAX_ATTEMPTS)
+    if attempts < MAX_ATTEMPTS:
+        save_state(state)
+        return False
+    return True
+
+
 def run_once(now: datetime | None = None) -> None:
     token = os.environ.get("DISCORD_BOT_TOKEN")
     notion_secret = os.environ.get("NOTION_SECRET")
@@ -151,11 +162,7 @@ def run_once(now: datetime | None = None) -> None:
                     quotes_by_day[day] = fetch_quotes(day)
                 outcome = log_message(message, day, discord, notion, quotes_by_day[day], now)
             except Exception as exc:
-                attempts = state["attempts"].get(message_id, 0) + 1
-                state["attempts"][message_id] = attempts
-                LOG.exception("message %s failed (attempt %d/%d)", message_id, attempts, MAX_ATTEMPTS)
-                if attempts < MAX_ATTEMPTS:
-                    save_state(state)
+                if not gave_up(state, message_id):
                     return
                 outcome = Outcome(REACTION_ERROR, f"處理失敗（已試 {MAX_ATTEMPTS} 次）：{describe(exc)}")
             if outcome is None:
@@ -164,9 +171,15 @@ def run_once(now: datetime | None = None) -> None:
                     save_state(state)
                 LOG.info("message %s: waiting for %s quotes", message_id, day)
                 return
-            discord.react(CHANNEL_ID, message_id, outcome.emoji)
-            if outcome.reply:
-                discord.reply(CHANNEL_ID, message_id, outcome.reply)
+            try:
+                discord.react(CHANNEL_ID, message_id, outcome.emoji)
+                if outcome.reply:
+                    discord.reply(CHANNEL_ID, message_id, outcome.reply)
+            except Exception:
+                # Rows are already in Notion; without Discord there is no one to tell.
+                if not gave_up(state, message_id):
+                    return
+                LOG.error("message %s: Discord feedback failed %d times, skipping", message_id, MAX_ATTEMPTS)
             LOG.info("message %s: %s %s", message_id, outcome.emoji, outcome.reply or "")
         state["attempts"].pop(message_id, None)
         state["last_message_id"] = message_id

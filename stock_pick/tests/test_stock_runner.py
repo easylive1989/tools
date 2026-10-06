@@ -191,6 +191,18 @@ def test_waiting_resets_the_failure_count(env):
     assert runner.load_state() == {"last_message_id": "200", "attempts": {}}
 
 
+def test_gives_up_when_discord_feedback_keeps_failing(env):
+    env.discord.react.side_effect = RuntimeError("403 Missing Permissions")
+    env.discord.messages_since.return_value = [screenshot()]
+    runner.run_once(NOW)
+    runner.run_once(NOW)
+    assert runner.load_state() == {"last_message_id": "100", "attempts": {"200": 2}}
+
+    runner.run_once(NOW)
+    assert env.read.call_count == 3
+    assert runner.load_state() == {"last_message_id": "200", "attempts": {}}
+
+
 def test_skips_text_and_bot_messages(env):
     text = {"id": "150", "type": 0, "timestamp": "2026-10-05T14:00:00+00:00",
             "author": {"bot": False}, "content": "今天大漲", "attachments": []}
