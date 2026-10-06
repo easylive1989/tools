@@ -7,6 +7,7 @@ come from here. 興櫃 has no official close, so its latest trade price stands i
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -39,8 +40,8 @@ class MarketQuotes:
 
 
 def normalize_name(name: object) -> str:
-    """Drop every kind of whitespace, including full-width spaces."""
-    return "".join(str(name).split())
+    """Unify full/half-width forms (－KY → -KY) and drop every kind of whitespace."""
+    return "".join(unicodedata.normalize("NFKC", str(name)).split())
 
 
 def to_price(value: object) -> float | None:
@@ -151,7 +152,11 @@ def match(names: list[str], by_name: dict[str, Quote]) -> tuple[list[Quote], lis
     found: list[Quote] = []
     missing: list[str] = []
     for name in names:
-        quote = by_name.get(normalize_name(name))
+        key = normalize_name(name)
+        quote = by_name.get(key)
+        if quote is None and not key.endswith("*"):
+            # Codex sometimes leaves off the「*」that some 興櫃 names carry.
+            quote = by_name.get(key + "*")
         if quote is None or quote.price is None:
             missing.append(name)
         else:

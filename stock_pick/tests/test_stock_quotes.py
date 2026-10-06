@@ -157,6 +157,20 @@ def test_quote_status(days, expected):
     assert quote_status(days, DAY) == expected
 
 
+def test_match_treats_full_width_and_half_width_alike():
+    by_name = {"亞德客-KY": Quote("1590", "亞德客-KY", "上市", 300.0)}
+    found, missing = match(["亞德客－KY", "亞德客-ＫＹ"], by_name)
+    assert [quote.code for quote in found] == ["1590", "1590"]
+    assert missing == []
+
+
+def test_match_adds_the_emerging_star_codex_left_off():
+    star = Quote("7731", "火星生技*", "興櫃", 4.51)
+    found, missing = match(["火星生技"], {"火星生技*": star})
+    assert found == [star]
+    assert missing == []
+
+
 def test_match_ignores_whitespace_and_reports_missing_names():
     by_name = {
         "群益證": Quote("6005", "群益證", "上市", 33.0),
