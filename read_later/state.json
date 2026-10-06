@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/_olm27Ntq/",
+      "message_id": "1556811710105653352",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1556811710105653352",
+      "shared_at": "2026-10-05T23:33:55.852000+00:00",
+      "title": "https://www.threads.com/share/_olm27Ntq/",
+      "url": "https://www.threads.com/share/_olm27Ntq/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BAXU27qUna/",
       "message_id": "1556172566534823997",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1556172566534823997",
@@ -1882,18 +1891,9 @@
       "shared_at": "2026-06-17T01:36:43.387000+00:00",
       "title": "https://www.threads.com/@weirong615/post/DZqwT9qCTax?xmt=AQG09ZUMLHwjK5pMyYa2Oy0J3I1E8rUyX0DS2d_AUAvvvhhNb7Sp79Q5DsIgZ40KVwLcf3K4&slof=1",
       "url": "https://www.threads.com/@weirong615/post/DZqwT9qCTax?xmt=AQG09ZUMLHwjK5pMyYa2Oy0J3I1E8rUyX0DS2d_AUAvvvhhNb7Sp79Q5DsIgZ40KVwLcf3K4&slof=1"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@peter_career_hack/post/DZowGCJCPeD?xmt=AQG0YZ6pLxSdW1SOlw01CC1IsVmlOOgzZO7YRlbwiqKI4WJxfaEknrgNltGt0NWGJcavIZ0&slof=1",
-      "message_id": "1516383697593438298",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516383697593438298",
-      "shared_at": "2026-06-16T10:07:26.553000+00:00",
-      "title": "https://www.threads.com/@peter_career_hack/post/DZowGCJCPeD?xmt=AQG0YZ6pLxSdW1SOlw01CC1IsVmlOOgzZO7YRlbwiqKI4WJxfaEknrgNltGt0NWGJcavIZ0&slof=1",
-      "url": "https://www.threads.com/@peter_career_hack/post/DZowGCJCPeD?xmt=AQG0YZ6pLxSdW1SOlw01CC1IsVmlOOgzZO7YRlbwiqKI4WJxfaEknrgNltGt0NWGJcavIZ0&slof=1"
     }
   ],
-  "last_message_id": "1556172566534823997",
+  "last_message_id": "1556811710105653352",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2220,6 +2220,7 @@
     "https://www.threads.com/share/_6dXgeRTU/",
     "https://www.threads.com/share/_dZJHLjnk/",
     "https://www.threads.com/share/_kKFQY39h/",
+    "https://www.threads.com/share/_olm27Ntq/",
     "https://www.threads.com/share/_s4S-O5n2/",
     "https://www.threads.com/share/_yk4hoUXl/",
     "https://www.threads.com/share/_z4Mb4aJ9/",
