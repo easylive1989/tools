@@ -1,0 +1,15 @@
+{
+  "name": "urgent-bell",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "老婆用 LINE 傳急事，老公手機一定會響，確認後回報給她",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "logs": "wrangler tail",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

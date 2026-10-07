@@ -42,6 +42,14 @@ Raycast Node.js script (`cnyes_news/cnyes_news.js`) that fetches real-time Taiwa
 
 React + TypeScript Raycast Extension (`cnyes_extension/`) with dual-pane List + Detail view, Markdown H1 headers, news summaries, and instant browser opening on Enter.
 
+## urgent_bell (老公急事鈴)
+
+Cloudflare Worker (`urgent_bell/src/worker.js`): a message to a dedicated LINE official account
+becomes a Bark push on the iPhone, repeated via a Durable Object alarm until the notification is
+tapped (`/ack`), which LINE-pushes「老公看到了」back. Deployed by `deploy-urgent-bell.yml`
+(`wrangler deploy`, then `wrangler secret bulk` from `URGENT_BELL_*` GitHub Secrets).
+Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LINE/Bark).
+
 
 ## GitHub Actions
 
@@ -53,6 +61,8 @@ Active workflows (triggered on schedule + `workflow_dispatch`):
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
 Required secrets: `NOTION_SECRET`, `DISCORD_*_WEBHOOK_URL`, `GOOGLE_API_KEY`, `DISCORD_BOT_TOKEN`, `DISCORD_READ_LATER_CHANNEL_ID`.
+`deploy-urgent-bell.yml` also needs `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `URGENT_BELL_LINE_CHANNEL_SECRET`,
+`URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN`, `URGENT_BELL_BARK_KEY`, `URGENT_BELL_CALLBACK_SECRET` (`URGENT_BELL_WIFE_USER_ID` optional).
 
 ## Environment Variables
 

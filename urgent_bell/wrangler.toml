@@ -1,0 +1,31 @@
+name = "urgent-bell"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+# 沒點開通知時，每隔幾秒再提醒一次（最少 30 秒）
+RETRY_SECONDS = "300"
+# 最多持續提醒多久（秒）；時間到會用 LINE 告訴老婆。3600 = 1 小時
+EXPIRE_SECONDS = "3600"
+# 通知標題
+ALERT_TITLE = "老婆找你"
+# 通知等級：active（一般）/ timeSensitive（時效性，可穿過專注模式）/ critical（穿透靜音，等同電話）
+BARK_LEVEL = "timeSensitive"
+# Bark 鈴聲名稱，例如 "minuet"、"bell"；留空就用 Bark 預設
+BARK_SOUND = ""
+# "1" = 鈴聲連續響 30 秒
+BARK_CALL = "0"
+# Bark 伺服器；用官方的就不用改，自架的話換成你的網址
+BARK_SERVER = "https://api.day.app"
+
+# 計時與重複提醒用（免費方案可用 SQLite 型 Durable Object）
+[[durable_objects.bindings]]
+name = "ALERTS"
+class_name = "AlertState"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AlertState"]
+
+[observability]
+enabled = true
