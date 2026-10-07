@@ -10,7 +10,7 @@ Cloudflare Worker（這個專案）
    │  用 Bark 推播
    ▼
 老公（iPhone / Bark App）
-   │  沒點開就每 5 分鐘再推一次
+   │  沒點開就每 2 分鐘再推一次
    ▼
 點開通知 → 開啟確認頁 → LINE 回報老婆：「老公 15:30 看到了 ✅」
 1 小時都沒點開 → LINE 告訴老婆：「急的話直接打電話給他」
@@ -125,7 +125,7 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 1. 在官方帳號後台的「加入好友」頁找到 QR code，**用你自己的 LINE 加好友**，隨便傳一句話。
 2. 應該會：
    - LINE 回「收到，已經通知老公了 🔔」
-   - iPhone 上的 Bark 響起；不理它的話，5 分鐘後會再響（標題變成「第 2 次提醒」）
+   - iPhone 上的 Bark 響起；不理它的話，2 分鐘後會再響（標題變成「第 2 次提醒」）
    - **點一下通知** → 開啟確認頁，顯示「✅ 已經告訴老婆你看到了」
    - LINE 收到「老公 HH:MM 看到了 ✅」
 
@@ -169,7 +169,7 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 
 | 設定 | 預設 | 說明 |
 |---|---|---|
-| `RETRY_SECONDS` | `300` | 沒點開時多久再提醒一次（秒，最少 30） |
+| `RETRY_SECONDS` | `120` | 沒點開時多久再提醒一次（秒，最少 30） |
 | `EXPIRE_SECONDS` | `3600` | 最多持續提醒多久（秒），時間到會告訴老婆 |
 | `ALERT_TITLE` | `老婆找你` | 通知標題 |
 | `BARK_LEVEL` | `timeSensitive` | `active`：一般通知；`timeSensitive`：可穿過專注模式；`critical`：穿透靜音，等同電話 |
