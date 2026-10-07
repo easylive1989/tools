@@ -2,6 +2,15 @@
   "items": [
     {
       "author": "Paul CH",
+      "message_excerpt": "https://www.threads.com/share/BAtcPI9vi6/",
+      "message_id": "1557427437695012944",
+      "message_link": "https://discord.com/channels/@me/1501760423442251896/1557427437695012944",
+      "shared_at": "2026-10-07T16:20:36.749000+00:00",
+      "title": "https://www.threads.com/share/BAtcPI9vi6/",
+      "url": "https://www.threads.com/share/BAtcPI9vi6/"
+    },
+    {
+      "author": "Paul CH",
       "message_excerpt": "https://www.threads.com/share/BAdbgSRz5m/",
       "message_id": "1557060543645229117",
       "message_link": "https://discord.com/channels/@me/1501760423442251896/1557060543645229117",
@@ -1882,18 +1891,9 @@
       "shared_at": "2026-06-17T17:11:03.921000+00:00",
       "title": "谷歌资深工程师断言：代码审查已死！当AI产出翻4倍，程序员如何保住饭碗？ - YouTube",
       "url": "https://youtube.com/watch?v=j5x5SLW0xGQ&si=Ze88J-0iuTNq7Eg7"
-    },
-    {
-      "author": "Paul CH",
-      "message_excerpt": "https://www.threads.com/@__i.change/post/DZrmDbOmiMs?xmt=AQG0qHoxd2w-gCJ0E4jLnPI1N9qKOJaJbaQDpCMc2O_CQjcpDZox-SNgShp_vhvfaWDqaYMn&slof=1",
-      "message_id": "1516746246457528370",
-      "message_link": "https://discord.com/channels/@me/1501760423442251896/1516746246457528370",
-      "shared_at": "2026-06-17T10:08:04.938000+00:00",
-      "title": "https://www.threads.com/@__i.change/post/DZrmDbOmiMs?xmt=AQG0qHoxd2w-gCJ0E4jLnPI1N9qKOJaJbaQDpCMc2O_CQjcpDZox-SNgShp_vhvfaWDqaYMn&slof=1",
-      "url": "https://www.threads.com/@__i.change/post/DZrmDbOmiMs?xmt=AQG0qHoxd2w-gCJ0E4jLnPI1N9qKOJaJbaQDpCMc2O_CQjcpDZox-SNgShp_vhvfaWDqaYMn&slof=1"
     }
   ],
-  "last_message_id": "1557060543645229117",
+  "last_message_id": "1557427437695012944",
   "seen_urls": [
     "https://cpojer.net/posts/modern-engineering-values",
     "https://github.com/ParthJadhav/app-store-screenshots",
@@ -2213,6 +2213,7 @@
     "https://www.threads.com/share/BAbp42E4xq/",
     "https://www.threads.com/share/BAdbgSRz5m/",
     "https://www.threads.com/share/BAfx01TEfM/",
+    "https://www.threads.com/share/BAtcPI9vi6/",
     "https://www.threads.com/share/BAyoyDWD_Q/",
     "https://www.threads.com/share/BBKvlmz2XG/",
     "https://www.threads.com/share/BBWbd6rHfj/",
