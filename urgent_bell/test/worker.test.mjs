@@ -6,6 +6,11 @@ import worker, { AlertState } from '../src/worker.js';
 const ORIGIN = 'https://urgent-bell.example.workers.dev';
 const WIFE = 'Uwife000000000000000000000000000';
 const STRANGER = 'Ustranger0000000000000000000000';
+const DISCORD = 'https://discord.com/api/webhooks/123/webhook-token';
+
+// LINE 內容 API 的回應（每次呼叫產生新的 Response）
+const content = (status, bytes = new Uint8Array([1, 2, 3]), headers = { 'content-type': 'image/jpeg' }) => () =>
+  new Response(status === 200 ? bytes : null, { status, headers: status === 200 ? headers : {} });
 
 // ---------- mocks ----------
 
@@ -25,6 +30,8 @@ class MockStorage {
 let calls;
 let barkResponse;
 let lineStatus;
+let contentResponses;
+let discordStatuses;
 let env;
 let obj;
 
@@ -33,6 +40,8 @@ beforeEach(() => {
   calls = [];
   barkResponse = { code: 200, message: 'success' };
   lineStatus = 200;
+  contentResponses = [content(200)];
+  discordStatuses = [204];
 
   env = {
     LINE_CHANNEL_SECRET: 'line-secret',
@@ -46,6 +55,7 @@ beforeEach(() => {
     BARK_SOUND: '',
     BARK_CALL: '0',
     BARK_SERVER: 'https://api.day.app',
+    CONTENT_RETRY_MS: '0',
   };
   const storage = new MockStorage();
   obj = new AlertState({ storage }, env);
@@ -61,8 +71,20 @@ beforeEach(() => {
     if (call.url.startsWith('https://api.day.app/')) {
       return new Response(JSON.stringify(barkResponse), { status: barkResponse.code === 200 ? 200 : 400 });
     }
+    if (call.url.startsWith('https://api.line.me/v2/bot/profile/')) {
+      return new Response(JSON.stringify({ displayName: '小美' }), { status: lineStatus });
+    }
     if (call.url.startsWith('https://api.line.me/')) {
       return new Response('{}', { status: lineStatus });
+    }
+    if (call.url.startsWith('https://api-data.line.me/')) {
+      const next = contentResponses.length > 1 ? contentResponses.shift() : contentResponses[0];
+      return next();
+    }
+    if (call.url === DISCORD) {
+      if ((init.method || 'GET') === 'GET') return Response.json({ guild_id: 'G1', channel_id: 'C1' });
+      const status = discordStatuses.length > 1 ? discordStatuses.shift() : discordStatuses[0];
+      return new Response(status === 204 ? null : '{"message":"nope"}', { status });
     }
     throw new Error(`unexpected fetch ${call.url}`);
   };
@@ -99,6 +121,13 @@ const lineCalls = (path) =>
   calls.filter((c) => c.url === `https://api.line.me/v2/bot/${path}`).map((c) => JSON.parse(c.init.body));
 
 const openAck = (key = 'cb-secret') => worker.fetch(new Request(`${ORIGIN}/ack?key=${key}`), env, { waitUntil() {} });
+
+const mediaEvent = (type) => ({ ...textEvent(WIFE, ''), message: { type, id: 'm1' } });
+const contentCalls = () => calls.filter((c) => c.url.startsWith('https://api-data.line.me/'));
+const discordPosts = () => calls.filter((c) => c.url === DISCORD && c.init.method === 'POST');
+const discordPayload = (c) =>
+  JSON.parse(c.init.body instanceof FormData ? c.init.body.get('payload_json') : c.init.body);
+const mediaSig = (id) => createHmac('sha256', env.CALLBACK_SECRET).update(`media:${id}`).digest('base64url');
 
 // ---------- webhook ----------
 
@@ -278,4 +307,93 @@ test('ack still stops reminders when LINE push fails, and says so', async () => 
 test('unknown paths 404', async () => {
   const res = await worker.fetch(new Request(`${ORIGIN}/nope`), env, { waitUntil() {} });
   assert.equal(res.status, 404);
+});
+
+// ---------- Discord ----------
+
+test('with Discord: Bark only says there is a message, the full text goes to Discord', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  await sendWebhook([textEvent(WIFE, '小孩發燒了 @everyone')]);
+
+  assert.equal(barkCalls()[0].body, '有新訊息，點開後到 Discord 看');
+  const posts = discordPosts();
+  assert.equal(posts.length, 1);
+  const payload = discordPayload(posts[0]);
+  assert.equal(payload.content, '**小美** 15:30\n小孩發燒了 @everyone');
+  assert.deepEqual(payload.allowed_mentions, { parse: [] });
+});
+
+test('image is downloaded from LINE and uploaded to Discord as a file', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  await sendWebhook([mediaEvent('image')]);
+
+  const [contentCall] = contentCalls();
+  assert.equal(contentCall.url, 'https://api-data.line.me/v2/bot/message/m1/content');
+  assert.equal(contentCall.init.headers.Authorization, 'Bearer line-token');
+
+  const [post] = discordPosts();
+  const file = post.init.body.get('files[0]');
+  assert.equal(file.name, 'image-m1.jpg');
+  assert.equal(file.size, 3);
+  assert.match(discordPayload(post).content, /照片/);
+});
+
+test('video still transcoding (202) is retried before uploading', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  contentResponses = [content(202), content(202), content(200, new Uint8Array(5), { 'content-type': 'video/mp4' })];
+  await sendWebhook([mediaEvent('video')]);
+
+  assert.equal(contentCalls().length, 3);
+  assert.equal(discordPosts()[0].init.body.get('files[0]').name, 'video-m1.mp4');
+});
+
+test('media too large for Discord falls back to a signed /media link', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  contentResponses = [
+    content(200, new Uint8Array(1), { 'content-type': 'video/mp4', 'content-length': String(20 * 1024 * 1024) }),
+  ];
+  await sendWebhook([mediaEvent('video')]);
+
+  const posts = discordPosts();
+  assert.equal(posts.length, 1);
+  assert.ok(!(posts[0].init.body instanceof FormData));
+  assert.ok(discordPayload(posts[0]).content.includes(`${ORIGIN}/media/m1?sig=${mediaSig('m1')}`));
+});
+
+test('a rejected Discord upload falls back to the link', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  discordStatuses = [413, 204];
+  await sendWebhook([mediaEvent('audio')]);
+
+  const posts = discordPosts();
+  assert.equal(posts.length, 2);
+  assert.ok(posts[0].init.body instanceof FormData);
+  assert.match(discordPayload(posts[1]).content, /\/media\/m1\?sig=/);
+});
+
+test('Bark and the LINE reply still go out when Discord is down', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  discordStatuses = [500];
+  await sendWebhook([textEvent(WIFE, 'x')]);
+
+  assert.equal(barkCalls().length, 1);
+  assert.match(lineCalls('message/reply')[0].messages[0].text, /已經通知老公/);
+});
+
+test('/media streams LINE content only with a valid signature', async () => {
+  const bad = await worker.fetch(new Request(`${ORIGIN}/media/m1?sig=nope`), env, { waitUntil() {} });
+  assert.equal(bad.status, 403);
+  assert.equal(contentCalls().length, 0);
+
+  const res = await worker.fetch(new Request(`${ORIGIN}/media/m1?sig=${mediaSig('m1')}`), env, { waitUntil() {} });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'image/jpeg');
+  assert.deepEqual(new Uint8Array(await res.arrayBuffer()), new Uint8Array([1, 2, 3]));
+});
+
+test('ack page links to the Discord channel from the webhook', async () => {
+  env.DISCORD_WEBHOOK_URL = DISCORD;
+  await sendWebhook([textEvent(WIFE, 'x')]);
+  const html = await (await openAck()).text();
+  assert.match(html, /href="https:\/\/discord\.com\/channels\/G1\/C1"/);
 });

@@ -1,18 +1,18 @@
 # 老公急事鈴 🔔（免費版）
 
-老婆用 LINE 傳急事，老公的 iPhone 一定會響；老公點開通知後，她的 LINE 會收到「老公看到了」。
+老婆用 LINE 傳急事，老公的 iPhone 一定會響；完整訊息（文字、照片、影片、語音、檔案）轉貼到 Discord 頻道；老公點開通知後，她的 LINE 會收到「老公看到了」。
 
 ```
 老婆（Android / LINE）
    │  傳訊息給「老公急事鈴」官方帳號
    ▼
 Cloudflare Worker（這個專案）
-   │  用 Bark 推播
+   │  用 Bark 推播「有新訊息」，同時把完整訊息轉貼到 Discord
    ▼
 老公（iPhone / Bark App）
    │  沒點開就每 2 分鐘再推一次
    ▼
-點開通知 → 開啟確認頁 → LINE 回報老婆：「老公 15:30 看到了 ✅」
+點開通知 → 開啟確認頁 → LINE 回報老婆：「老公 15:30 看到了 ✅」→ 按「打開 Discord」看完整訊息
 1 小時都沒點開 → LINE 告訴老婆：「急的話直接打電話給他」
 ```
 
@@ -27,6 +27,7 @@ Cloudflare Worker（這個專案）
 | Bark App（iPhone） | 老公 | 免費、開源 |
 | LINE 官方帳號 | 老婆傳訊息的對象 | 免費「輕用量」方案：每月 200 則主動推播。只有「看到了」和「還沒看到」會用到額度 |
 | Cloudflare 帳號 | 跑這支程式 | 免費方案就夠（含計時用的 Durable Object） |
+| Discord 頻道 + webhook | 老公看完整訊息 | 免費；附件上限 10 MB，超過會改貼下載連結 |
 | 電腦上的 Node.js 18 以上 | 部署用 | 免費 |
 
 老婆的 Android 手機**不用裝任何東西**，只要在 LINE 加一個好友。
@@ -60,6 +61,12 @@ Cloudflare Worker（這個專案）
    - 自動回應訊息：**關閉**
    - Webhook：**開啟**
 
+## 步驟 2.5：Discord webhook
+
+1. 開一個只有你看得到的 Discord 頻道（例如私人伺服器裡的 `#老婆急事`）。
+2. 頻道設定 → **整合 → Webhook → 新 Webhook** → **複製 Webhook 網址** → `DISCORD_WEBHOOK_URL`
+3. iPhone 裝好 Discord App 並登入；確認頁的「打開 Discord」按鈕會直接開到這個頻道。
+
 ## 步驟 3：部署到 Cloudflare
 
 用 GitHub Actions（`.github/workflows/deploy-urgent-bell.yml`）部署：push 到 `master` 且有改到 `urgent_bell/` 時會自動跑，也可以手動觸發。流程是測試 → 部署 Worker → 把 GitHub Secrets 同步成 Worker 的 secrets。
@@ -81,6 +88,7 @@ gh secret set URGENT_BELL_LINE_CHANNEL_SECRET        # 步驟 2 的 Channel secr
 gh secret set URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN  # 步驟 2 的 Channel access token
 gh secret set URGENT_BELL_BARK_KEY                   # 步驟 1 的 Bark key
 openssl rand -hex 16 | gh secret set URGENT_BELL_CALLBACK_SECRET  # 自動產生一串亂碼
+gh secret set URGENT_BELL_DISCORD_WEBHOOK_URL        # 步驟 2.5 的 webhook 網址
 ```
 
 **3-3. 部署**
@@ -106,6 +114,7 @@ npx wrangler secret put LINE_CHANNEL_ACCESS_TOKEN
 npx wrangler secret put BARK_KEY
 openssl rand -hex 16                    # 產生一串亂碼，複製起來
 npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
+npx wrangler secret put DISCORD_WEBHOOK_URL
 ```
 
 注意：之後只要 GitHub Actions 跑一次，就會用 GitHub Secrets 覆蓋這裡設定的值。
@@ -125,11 +134,12 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 1. 在官方帳號後台的「加入好友」頁找到 QR code，**用你自己的 LINE 加好友**，隨便傳一句話。
 2. 應該會：
    - LINE 回「收到，已經通知老公了 🔔」
-   - iPhone 上的 Bark 響起；不理它的話，2 分鐘後會再響（標題變成「第 2 次提醒」）
-   - **點一下通知** → 開啟確認頁，顯示「✅ 已經告訴老婆你看到了」
+   - iPhone 上的 Bark 響起，內容是「有新訊息，點開後到 Discord 看」；不理它的話，2 分鐘後會再響（標題變成「第 2 次提醒」）
+   - Discord 頻道出現你傳的訊息；傳照片、影片、語音會變成附件
+   - **點一下通知** → 開啟確認頁，顯示「✅ 已經告訴老婆你看到了」和「打開 Discord 看完整訊息」按鈕
    - LINE 收到「老公 HH:MM 看到了 ✅」
 
-四個都有出現就代表整條路是通的。
+五個都有出現就代表整條路是通的。
 
 ## 步驟 5：給老婆
 
@@ -141,7 +151,13 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 
 ## 怎麼「確認」
 
-**點通知**就是確認：會打開一個網頁，同時告訴老婆你看到了，網頁上也會顯示她的訊息和「打開 LINE」按鈕。
+**點通知**就是確認：會打開一個網頁，同時告訴老婆你看到了。網頁上有「打開 Discord 看完整訊息」和「打開 LINE 回她」兩個按鈕（LINE 沒辦法直接開到某個好友的聊天室，只能開到聊天列表，建議把她的聊天室釘選在最上面）。
+
+## 完整訊息在 Discord
+
+- 文字、位置（附 Google 地圖連結）直接貼在頻道。
+- 照片、影片、語音、檔案從 LINE 下載後當附件上傳。超過 10 MB 或 LINE 還在轉檔的，改貼一個 `https://urgent-bell.paul-learning.dev/media/...` 下載連結（每個檔案各自簽章，只能看那一個檔案）。LINE 只保留這些檔案一段時間，重要的記得自己存下來。
+- Discord 掛掉時 Bark 一樣會響，確認頁也會顯示訊息摘要。
 
 把通知滑掉**不算**確認，它會繼續提醒。這是故意的：滑掉不代表你看過了。
 
@@ -152,7 +168,7 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 ## 給老婆的說明（可以直接傳給她）
 
 > 我做了一個「老公急事鈴」，在 LINE 裡面。
-> 有需要我**盡快看到**的事，就傳到那裡，我手機會一直提醒，直到我點開為止。
+> 有需要我**盡快看到**的事，就傳到那裡，我手機會一直提醒，直到我點開為止。文字、照片、影片、語音都可以傳。
 > - 它回「已經通知老公了」→ 送出成功
 > - 它回「老公 xx:xx 看到了」→ 我真的看到了
 > - 它回「還沒點開通知」或「通知沒有送出去」→ 直接打電話給我
@@ -193,9 +209,11 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 | 她收到「通知沒有送出去」 | `BARK_KEY` 貼錯（只要中間那段，不含網址和斜線） |
 | 點開通知了但她沒收到「看到了」 | LINE access token 錯，或本月 200 則推播額度用完（確認頁會顯示「回報失敗」） |
 | iPhone 沒響 | Bark 的時效性通知沒開、專注模式沒放行；或手機在靜音模式（只會震動，這是設計） |
+| Bark 有響但 Discord 沒有訊息 | `DISCORD_WEBHOOK_URL` 貼錯或 webhook 被刪掉；log 會有 `Discord post failed` |
+| 確認頁沒有「打開 Discord」按鈕 | 同上，Worker 讀不到 webhook 對應的頻道 |
 
 ## 開發
 
 ```bash
-npm test     # 用模擬的 LINE / Bark API 跑過整個流程（含重複提醒、確認、逾時）
+npm test     # 用模擬的 LINE / Bark / Discord API 跑過整個流程（含重複提醒、確認、逾時、附件）
 ```
