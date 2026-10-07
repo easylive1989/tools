@@ -270,38 +270,25 @@ test('ack with wrong key is rejected', async () => {
   assert.equal(calls.length, 0);
 });
 
-test('ack stops reminders, tells wife with Taipei time, shows her message', async () => {
+test('ack stops reminders and shows her message without messaging her back', async () => {
   await sendWebhook([textEvent(WIFE, '<b>幫我買牛奶</b>')]);
   calls = [];
-  // 2026-10-07 07:30 UTC = 15:30 台北
-  mock.timers.enable({ apis: ['Date'], now: 1791358200000 });
 
   const res = await openAck();
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.match(html, /已經告訴老婆你看到了/);
+  assert.match(html, /已停止提醒/);
   assert.match(html, /&lt;b&gt;幫我買牛奶&lt;\/b&gt;/); // escaped
 
-  const pushes = lineCalls('message/push');
-  assert.equal(pushes.length, 1);
-  assert.equal(pushes[0].to, WIFE);
-  assert.equal(pushes[0].messages[0].text, '老公 15:30 看到了 ✅');
+  assert.equal(lineCalls('message/push').length, 0);
   assert.equal(await obj.storage.get('pending'), undefined);
   assert.equal(obj.storage.alarm, null);
 
-  // 再點一次：不會重複通知
+  // 再點一次：沒有待確認的訊息
   calls = [];
   const again = await openAck();
   assert.match(await again.text(), /沒有待確認的訊息/);
   assert.equal(calls.length, 0);
-});
-
-test('ack still stops reminders when LINE push fails, and says so', async () => {
-  await sendWebhook([textEvent(WIFE, 'x')]);
-  lineStatus = 500;
-  const html = await (await openAck()).text();
-  assert.match(html, /回報失敗/);
-  assert.equal(await obj.storage.get('pending'), undefined);
 });
 
 test('unknown paths 404', async () => {

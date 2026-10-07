@@ -6,7 +6,7 @@
  *   → 用 Bark 推播到老公的 iPhone（時效性通知，可穿過專注模式，但不穿透靜音）
  *   → 完整訊息（文字、照片、影片、語音、檔案）轉貼到 Discord 頻道，Bark 只顯示「有新訊息」
  *   → 沒點開就每隔幾分鐘再推一次（Durable Object 的 alarm 負責計時）
- *   → 老公點開通知 → 開啟 /ack 頁面 → 用 LINE 告訴老婆「老公看到了」，頁面上有按鈕打開 Discord
+ *   → 老公點開通知 → 開啟 /ack 頁面 → 停止提醒，頁面上有按鈕打開 Discord（不自動回報老婆，由老公自己回）
  *   → 超過時間都沒點開 → 用 LINE 告訴老婆「急的話直接打電話」
  *
  * Secrets（用 `npx wrangler secret put <NAME>` 設定）：
@@ -179,7 +179,6 @@ async function handleEvent(event, env, origin) {
       [
         '這裡是老公急事鈴 🔔',
         '有需要他盡快看到的事，就傳到這裡。',
-        '他點開通知後，我會跟妳說「他看到了」。',
         '真的很緊急（安全、健康）還是直接打電話喔！',
       ].join('\n'),
     );
@@ -204,7 +203,7 @@ async function handleEvent(event, env, origin) {
     env,
     event.replyToken,
     ok
-      ? '收到，已經通知老公了 🔔\n他點開通知後我會跟妳說。'
+      ? '收到，已經通知老公了 🔔'
       : '通知沒有送出去 😢\n有急事請直接打電話給他。',
   );
 
@@ -370,22 +369,16 @@ async function handleAck(env, url) {
     return htmlPage('沒有待確認的訊息', '<h1>👌</h1><p>目前沒有待確認的訊息，可能已經確認過了。</p>');
   }
 
-  const time = formatTaipeiTime(Date.now());
-  const [pushed, discordUrl] = await Promise.all([
-    linePush(env, pending.userId, `老公 ${time} 看到了 ✅`),
-    discordChannelUrl(env),
-  ]);
-
-  const status = pushed
-    ? '<h1>✅ 已經告訴老婆你看到了</h1>'
-    : '<h1>⚠️ 回報失敗</h1><p>提醒已經停止，但沒能通知她，請直接回她 LINE。</p>';
+  // 不自動回報「看到了」，由老公自己回她
+  const discordUrl = await discordChannelUrl(env);
   const discordButton = discordUrl
     ? `<a class="btn discord" href="${escapeHtml(discordUrl)}">打開 Discord 看完整訊息</a>`
     : '';
 
   return htmlPage(
     '老婆找你',
-    `${status}
+    `<h1>✅ 已停止提醒</h1>
+     <p>她不會收到自動通知，記得回她。</p>
      <blockquote>${escapeHtml(pending.text)}</blockquote>
      ${discordButton}
      <a class="btn" href="https://line.me/R/nv/chat">打開 LINE 回她</a>`,
