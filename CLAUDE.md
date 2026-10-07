@@ -46,7 +46,8 @@ React + TypeScript Raycast Extension (`cnyes_extension/`) with dual-pane List + 
 
 Cloudflare Worker (`urgent_bell/src/worker.js`): a message to a dedicated LINE official account
 becomes a Bark push on the iPhone, repeated via a Durable Object alarm until the notification is
-tapped (`/ack`), which LINE-pushes「老公看到了」back. Deployed by `deploy-urgent-bell.yml`
+tapped (`/ack`), which LINE-pushes「老公看到了」back. Served at custom domain
+`urgent-bell.paul-learning.dev` (`workers_dev = false`). Deployed by `deploy-urgent-bell.yml`
 (`wrangler deploy`, then `wrangler secret bulk` from `URGENT_BELL_*` GitHub Secrets).
 Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LINE/Bark).
 

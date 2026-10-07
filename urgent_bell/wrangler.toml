@@ -2,6 +2,10 @@ name = "urgent-bell"
 main = "src/worker.js"
 compatibility_date = "2026-09-01"
 
+# 用自己的網域；Cloudflare 會自動建 DNS 記錄和憑證。關掉 *.workers.dev 網址，只留這一個入口
+routes = [{ pattern = "urgent-bell.paul-learning.dev", custom_domain = true }]
+workers_dev = false
+
 [vars]
 # 沒點開通知時，每隔幾秒再提醒一次（最少 30 秒）
 RETRY_SECONDS = "300"

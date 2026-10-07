@@ -66,8 +66,8 @@ Cloudflare Worker（這個專案）
 
 **3-1. Cloudflare 準備（只做一次）**
 
-1. 登入 [Cloudflare dashboard](https://dash.cloudflare.com) → **Workers & Pages**。第一次進來會要你設定 `workers.dev` 子網域，先設好，不然 CI 部署會失敗。
-2. 同一頁右側可以看到 **Account ID** → `CLOUDFLARE_ACCOUNT_ID`
+1. Worker 掛在 `urgent-bell.paul-learning.dev`（`wrangler.toml` 的 `routes`），`paul-learning.dev` 要在同一個 Cloudflare 帳號裡。部署時 Cloudflare 會自動建 DNS 記錄和憑證。
+2. 登入 [Cloudflare dashboard](https://dash.cloudflare.com) → **Workers & Pages**，右側可以看到 **Account ID** → `CLOUDFLARE_ACCOUNT_ID`
 3. 右上頭像 → **My Profile → API Tokens → Create Token**，選 **Edit Cloudflare Workers** 範本建立 → `CLOUDFLARE_API_TOKEN`
 
 **3-2. 設定 GitHub Secrets**
@@ -92,7 +92,7 @@ gh workflow run deploy-urgent-bell.yml
 gh run watch
 ```
 
-部署完在 Actions log 的「Deploy worker」步驟會看到網址，例如 `https://urgent-bell.<你的子網域>.workers.dev`。
+部署完 Worker 的網址是 `https://urgent-bell.paul-learning.dev`，打開會看到 `urgent-bell is running`。
 
 <details>
 <summary>不用 GitHub Actions，直接從電腦部署</summary>
@@ -116,7 +116,7 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 
 最後回 LINE Developers Console → **Messaging API** 分頁：
 
-- **Webhook URL** 填 `https://urgent-bell.<你的子網域>.workers.dev/line/webhook`
+- **Webhook URL** 填 `https://urgent-bell.paul-learning.dev/line/webhook`
 - 按 **Verify**，要看到 Success
 - 打開 **Use webhook**
 
