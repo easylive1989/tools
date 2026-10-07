@@ -1,7 +1,7 @@
 /**
  * 老公急事鈴（免費版：LINE + Bark + Cloudflare Workers）
  *
- * 老婆在 LINE 傳訊息給專用官方帳號
+ * 老婆在 LINE 傳訊息給專用官方帳號（任何人一對一傳訊息都當成老婆）
  *   → 這支 Worker 收到 LINE webhook
  *   → 用 Bark 推播到老公的 iPhone（時效性通知，可穿過專注模式，但不穿透靜音）
  *   → 沒點開就每隔幾分鐘再推一次（Durable Object 的 alarm 負責計時）
@@ -13,7 +13,6 @@
  *   LINE_CHANNEL_ACCESS_TOKEN  LINE Messaging API 的 Channel access token
  *   BARK_KEY                   Bark App 裡的推播 key
  *   CALLBACK_SECRET            自己產生的一串亂碼，保護確認網址
- *   WIFE_USER_ID               老婆的 LINE userId（還沒設定前是「設定模式」）
  *
  * Vars（在 wrangler.toml 調整）：
  *   RETRY_SECONDS   沒點開時多久再提醒一次（秒，最少 30）
@@ -59,11 +58,12 @@ export class AlertState {
 
     // 開始一個新的提醒（取代還沒確認的舊提醒）
     if (pathname === '/start') {
-      const { text, origin } = await request.json();
+      const { text, origin, userId } = await request.json();
       const now = Date.now();
       const pending = {
         text,
         origin,
+        userId,
         count: 1,
         firstSentAt: now,
         expireAt: now + expireSeconds(this.env) * 1000,
@@ -99,7 +99,7 @@ export class AlertState {
       const minutes = Math.round((pending.expireAt - pending.firstSentAt) / 60000);
       await linePush(
         this.env,
-        this.env.WIFE_USER_ID,
+        pending.userId,
         `他 ${minutes} 分鐘內都還沒點開通知 😥\n如果很急，直接打電話給他吧。`,
       );
       return;
@@ -159,19 +159,6 @@ async function handleEvent(event, env, origin) {
   if (event.source?.type !== 'user') return;
   const userId = event.source.userId;
 
-  // 設定模式：還沒設定 WIFE_USER_ID 時，回覆對方的 userId
-  if (!env.WIFE_USER_ID) {
-    console.log(`[setup] LINE userId: ${userId}`);
-    await lineReply(env, event.replyToken, ['🔧 設定模式', '請把下面這串 ID 傳給老公：', userId].join('\n'));
-    return;
-  }
-
-  // 不是老婆就不理會（但留下 log，換人設定時可以用 `npm run logs` 看到對方的 ID）
-  if (userId !== env.WIFE_USER_ID) {
-    console.log(`[ignored] LINE userId: ${userId}`);
-    return;
-  }
-
   if (event.type === 'follow') {
     await lineReply(
       env,
@@ -193,7 +180,7 @@ async function handleEvent(event, env, origin) {
   try {
     const res = await alertStub(env).fetch('https://alert/start', {
       method: 'POST',
-      body: JSON.stringify({ text, origin }),
+      body: JSON.stringify({ text, origin, userId }),
     });
     ok = (await res.json()).ok === true;
   } catch (err) {
@@ -245,7 +232,7 @@ async function handleAck(env, url) {
   }
 
   const time = formatTaipeiTime(Date.now());
-  const pushed = await linePush(env, env.WIFE_USER_ID, `老公 ${time} 看到了 ✅`);
+  const pushed = await linePush(env, pending.userId, `老公 ${time} 看到了 ✅`);
 
   const status = pushed
     ? '<h1>✅ 已經告訴老婆你看到了</h1>'

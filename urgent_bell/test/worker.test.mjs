@@ -39,7 +39,6 @@ beforeEach(() => {
     LINE_CHANNEL_ACCESS_TOKEN: 'line-token',
     BARK_KEY: 'barkkey',
     CALLBACK_SECRET: 'cb-secret',
-    WIFE_USER_ID: WIFE,
     RETRY_SECONDS: '300',
     EXPIRE_SECONDS: '3600',
     ALERT_TITLE: '老婆找你',
@@ -115,13 +114,11 @@ test('LINE webhook verify (empty events) returns 200', async () => {
   assert.equal(calls.length, 0);
 });
 
-test('setup mode replies with the sender userId and does not alert', async () => {
-  env.WIFE_USER_ID = '';
-  await sendWebhook([textEvent(WIFE, 'hi')]);
-  const replies = lineCalls('message/reply');
-  assert.equal(replies.length, 1);
-  assert.match(replies[0].messages[0].text, new RegExp(WIFE));
-  assert.equal(barkCalls().length, 0);
+test('any one-on-one sender triggers an alert', async () => {
+  await sendWebhook([textEvent(STRANGER, 'hi')]);
+  assert.equal(barkCalls().length, 1);
+  assert.equal((await obj.storage.get('pending')).userId, STRANGER);
+  assert.match(lineCalls('message/reply')[0].messages[0].text, /已經通知老公/);
 });
 
 test('wife text → Bark push, alarm scheduled, confirmation reply', async () => {
@@ -178,11 +175,8 @@ test('non-text messages are described; long text is truncated', async () => {
   assert.ok(body.endsWith('…'));
 });
 
-test('strangers and group chats are ignored', async () => {
-  await sendWebhook([
-    textEvent(STRANGER, 'hello'),
-    { ...textEvent(WIFE, 'group msg'), source: { type: 'group', groupId: 'G1', userId: WIFE } },
-  ]);
+test('group chats are ignored', async () => {
+  await sendWebhook([{ ...textEvent(WIFE, 'group msg'), source: { type: 'group', groupId: 'G1', userId: WIFE } }]);
   assert.equal(calls.length, 0);
 });
 
@@ -226,9 +220,10 @@ test('a newer message replaces the pending one', async () => {
   mock.timers.enable({ apis: ['Date'], now: 0 });
   await sendWebhook([textEvent(WIFE, '第一則')]);
   mock.timers.setTime(60_000);
-  await sendWebhook([textEvent(WIFE, '第二則')]);
+  await sendWebhook([textEvent(STRANGER, '第二則')]);
   const pending = await obj.storage.get('pending');
   assert.equal(pending.text, '第二則');
+  assert.equal(pending.userId, STRANGER);
   assert.equal(pending.count, 1);
   assert.equal(obj.storage.alarm, 360_000);
 });
@@ -260,6 +255,7 @@ test('ack stops reminders, tells wife with Taipei time, shows her message', asyn
 
   const pushes = lineCalls('message/push');
   assert.equal(pushes.length, 1);
+  assert.equal(pushes[0].to, WIFE);
   assert.equal(pushes[0].messages[0].text, '老公 15:30 看到了 ✅');
   assert.equal(await obj.storage.get('pending'), undefined);
   assert.equal(obj.storage.alarm, null);

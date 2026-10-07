@@ -63,8 +63,6 @@ jobs:
         run: npx wrangler deploy
 
       # Runs after deploy because `wrangler secret bulk` needs the Worker to already exist.
-      # URGENT_BELL_WIFE_USER_ID is optional: left unset, the Worker stays in setup mode
-      # (or keeps whatever value was set earlier with `wrangler secret put`).
       - name: Upload worker secrets
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -73,7 +71,6 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN }}
           BARK_KEY: ${{ secrets.URGENT_BELL_BARK_KEY }}
           CALLBACK_SECRET: ${{ secrets.URGENT_BELL_CALLBACK_SECRET }}
-          WIFE_USER_ID: ${{ secrets.URGENT_BELL_WIFE_USER_ID }}
         run: |
           secrets_file="$RUNNER_TEMP/urgent-bell-secrets.json"
           trap 'rm -f "$secrets_file"' EXIT
@@ -82,12 +79,11 @@ jobs:
           import os
           import sys
           from pathlib import Path
-          names = ('LINE_CHANNEL_SECRET', 'LINE_CHANNEL_ACCESS_TOKEN', 'BARK_KEY',
-                   'CALLBACK_SECRET', 'WIFE_USER_ID')
+          names = ('LINE_CHANNEL_SECRET', 'LINE_CHANNEL_ACCESS_TOKEN', 'BARK_KEY', 'CALLBACK_SECRET')
           destination = Path(sys.argv[1])
           destination.touch(mode=0o600)
           destination.write_text(
-              json.dumps({name: os.environ[name] for name in names if os.environ.get(name)}),
+              json.dumps({name: os.environ[name] for name in names}),
               encoding='utf-8',
           )
           PY

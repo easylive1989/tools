@@ -83,8 +83,6 @@ gh secret set URGENT_BELL_BARK_KEY                   # 步驟 1 的 Bark key
 openssl rand -hex 16 | gh secret set URGENT_BELL_CALLBACK_SECRET  # 自動產生一串亂碼
 ```
 
-`URGENT_BELL_WIFE_USER_ID` 先不要設，步驟 4 才會用到。
-
 **3-3. 部署**
 
 ```bash
@@ -122,15 +120,10 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 
 ## 步驟 4：先用自己測試
 
-這時 `WIFE_USER_ID` 還沒設定，程式在「設定模式」，誰傳訊息就回覆對方的 LINE userId。
+不用設定誰是老婆：**任何人**一對一傳訊息給官方帳號都會觸發通知，「看到了」和逾時通知會回給傳訊息的那個人（群組訊息不處理）。
 
 1. 在官方帳號後台的「加入好友」頁找到 QR code，**用你自己的 LINE 加好友**，隨便傳一句話。
-2. 它會回你一串 `U` 開頭的 ID。先把它設成 `WIFE_USER_ID`，再重新部署一次：
-   ```bash
-   gh secret set URGENT_BELL_WIFE_USER_ID
-   gh workflow run deploy-urgent-bell.yml
-   ```
-3. 再傳一句話給官方帳號，應該會：
+2. 應該會：
    - LINE 回「收到，已經通知老公了 🔔」
    - iPhone 上的 Bark 響起；不理它的話，5 分鐘後會再響（標題變成「第 2 次提醒」）
    - **點一下通知** → 開啟確認頁，顯示「✅ 已經告訴老婆你看到了」
@@ -138,18 +131,11 @@ npx wrangler secret put CALLBACK_SECRET # 貼上剛剛的亂碼
 
 四個都有出現就代表整條路是通的。
 
-## 步驟 5：換成老婆
+## 步驟 5：給老婆
 
-1. 打開 log：Cloudflare dashboard → **Workers & Pages → urgent-bell → Logs**，或在電腦上 `npx wrangler login` 後跑 `npm run logs`。
-2. 請老婆用 LINE 掃 QR code 加好友，然後隨便傳一句話。
-3. log 裡會出現 `[ignored] LINE userId: U...`，這就是她的 ID。
-4. 換上她的 ID，再重新部署一次：
-   ```bash
-   gh secret set URGENT_BELL_WIFE_USER_ID
-   gh workflow run deploy-urgent-bell.yml
-   ```
+請老婆用 LINE 掃 QR code 加好友，就完成了。
 
-完成。之後只有她傳的訊息會觸發通知，其他人加好友傳訊息都會被忽略。
+官方帳號只有知道 ID 或 QR code 的人加得到。如果有陌生人加好友亂傳，也會讓你的手機響，到時候在官方帳號後台封鎖對方就好。
 
 ---
 
