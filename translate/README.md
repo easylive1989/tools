@@ -64,4 +64,4 @@ codesign --force --sign "Developer ID Application: Cheng Hua Wu (T9UXT366P9)" tr
 
 ## 翻譯規則
 
-固定將輸入翻譯成繁體中文（見 `translator.swift` 的 `SYSTEM_PROMPT`）。保留 Markdown 格式、換行結構不變。使用 Gemini 3.7 Flash 模型。
+固定將輸入翻譯成繁體中文（見 `translator.swift` 的 `SYSTEM_PROMPT`）。保留 Markdown 格式、換行結構不變。使用 Gemini 3.8 Flash 模型。
