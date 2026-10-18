@@ -47,10 +47,17 @@ Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LIN
 
 ## GitHub Actions
 
-Active workflows (triggered on schedule + `workflow_dispatch`):
-- `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
+Active workflows (all also support `workflow_dispatch`):
+
+Scheduled:
 - `update-read-later.yml` — polls the read_later Discord channel and rebuilds `read_later/feed.xml` (cron: every 2h); commits state back
 - `update-eat-later.yml` — polls the eat_later Discord channel, extracts restaurant info via Gemini, writes to Notion (cron: every 2h); commits `eat_later/state.json` back
+- `sync-notion-portfolio.yml` — recomputes FIFO cost from the Notion trades table and updates the 收益 / 持股 tables (cron: 08:15 and 20:15 Asia/Taipei)
+
+Deployed on push to `master` (path-filtered):
+- `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
+- `deploy-calorie-log.yml` — tests and deploys `calorie_log` to the oracle-arm VPS (`/opt/calorie-log`, systemd timer)
+- `deploy-urgent-bell.yml` — tests and deploys `urgent_bell` as a Cloudflare Worker (`urgent-bell.paul-learning.dev`)
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
@@ -59,8 +66,6 @@ Required secrets: `NOTION_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_API_KEY`, `FIREC
 `NOTION_TRADES_DATA_SOURCE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `URGENT_BELL_BARK_KEY`,
 `URGENT_BELL_CALLBACK_SECRET`, `URGENT_BELL_DISCORD_WEBHOOK_URL`, `URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN`,
 `URGENT_BELL_LINE_CHANNEL_SECRET`.
-`deploy-urgent-bell.yml` also needs `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `URGENT_BELL_LINE_CHANNEL_SECRET`,
-`URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN`, `URGENT_BELL_BARK_KEY`, `URGENT_BELL_CALLBACK_SECRET`, `URGENT_BELL_DISCORD_WEBHOOK_URL`.
 
 ## Environment Variables
 
