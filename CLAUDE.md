@@ -61,7 +61,6 @@ Scheduled:
 - `sync-notion-portfolio.yml` — recomputes FIFO cost from the Notion trades table and updates the 收益 / 持股 tables (cron: 08:15 and 20:15 Asia/Taipei)
 
 Deployed on push to `master` (path-filtered):
-- `deploy-pages.yml` — builds the travel apps and deploys to GitHub Pages (custom domain `tools.paul-learning.dev`)
 - `deploy-calorie-log.yml` — tests and deploys `calorie_log` to the oracle-arm VPS (`/opt/calorie-log`, systemd timer)
 - `deploy-urgent-bell.yml` — tests and deploys `urgent_bell` as a Cloudflare Worker (`urgent-bell.paul-learning.dev`)
 
