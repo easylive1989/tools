@@ -44,13 +44,19 @@ from LINE) is forwarded to a Discord webhook; media too big for Discord gets a s
 (`wrangler deploy`, then `wrangler secret bulk` from `URGENT_BELL_*` GitHub Secrets).
 Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LINE/Bark).
 
+## Read later (not in this repo)
+
+Links shared in the `待讀清單` Discord channel become RSS via the self-hosted RSSHub on oracle-arm
+(`~/rsshub`, `rss.paul-learning.dev`): route `/discord/channel/1501760423442251896?key=<ACCESS_KEY>`.
+`DISCORD_AUTHORIZATION` in `~/rsshub/.env` is a Discord **user** token — a bot token gets 403
+(code 40333) because RSSHub sends a browser User-Agent. The feed 401s when that token is invalidated
+(logout / password or 2FA change); refresh it in `.env` and `docker compose up -d --force-recreate rsshub`.
 
 ## GitHub Actions
 
 Active workflows (all also support `workflow_dispatch`):
 
 Scheduled:
-- `update-read-later.yml` — polls the read_later Discord channel and rebuilds `read_later/feed.xml` (cron: every 2h); commits state back
 - `update-eat-later.yml` — polls the eat_later Discord channel, extracts restaurant info via Gemini, writes to Notion (cron: every 2h); commits `eat_later/state.json` back
 - `sync-notion-portfolio.yml` — recomputes FIFO cost from the Notion trades table and updates the 收益 / 持股 tables (cron: 08:15 and 20:15 Asia/Taipei)
 
@@ -61,7 +67,7 @@ Deployed on push to `master` (path-filtered):
 
 The stock dashboard moved to a separate repo: <https://github.com/easylive1989/publixia> (`stock.paul-learning.dev`).
 
-Required secrets: `NOTION_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_API_KEY`, `FIRECRAWL_API_KEY`,
+Required secrets: `NOTION_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_API_KEY`,
 `VPS_HOST`, `VPS_SSH_KEY`, `NOTION_HOLDINGS_DATA_SOURCE_ID`, `NOTION_PROFIT_DATA_SOURCE_ID`,
 `NOTION_TRADES_DATA_SOURCE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `URGENT_BELL_BARK_KEY`,
 `URGENT_BELL_CALLBACK_SECRET`, `URGENT_BELL_DISCORD_WEBHOOK_URL`, `URGENT_BELL_LINE_CHANNEL_ACCESS_TOKEN`,
