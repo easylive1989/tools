@@ -44,6 +44,15 @@ from LINE) is forwarded to a Discord webhook; media too big for Discord gets a s
 (`wrangler deploy`, then `wrangler secret bulk` from `URGENT_BELL_*` GitHub Secrets).
 Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LINE/Bark).
 
+## invoice_ocr (進項發票本機辨識)
+
+`uv run` CLI (`invoice_ocr/invoice_ocr.py`): images/folders → CSV of 營業稅 401 進項 fields.
+E-invoices are read from the left QR code (zxing-cpp); everything else goes through PaddleOCR
+PP-OCRv5 on RapidOCR/onnxruntime, then rule-based field extraction in `invoice_fields.py`
+(pure functions, tested by `invoice_ocr/tests`). Models download once to `~/.cache/invoice_ocr/`
+(sha256-checked); the upstream dict has a stray empty 2nd line that must be dropped.
+A browser version (Claude/Gemini instead of OCR) lives in the blog repo at `/invoice-scanner/`.
+
 ## Read later (not in this repo)
 
 Links shared in the `待讀清單` Discord channel become RSS via the self-hosted RSSHub on oracle-arm
