@@ -72,6 +72,14 @@ def test_period_header_is_not_a_date_and_bad_year_is_fixed():
     assert r.total == 437
 
 
+def test_misread_subtotal_uses_last_one():
+    # 真實照片的 OCR 結果：小計被讀成小韵／小部／小新
+    r = extract_from_ocr(ocr("中華民國115年11-12月份", "收銀機統發票", "GH51204513", "纯：82627425",
+                             "2026-11-1409=20", "日用百貨 129%", "小韵 329", "日用百貨 -49页", "小部 280", "小新 521"))
+    assert (r.invoice_no, r.date, r.seller_tax_id, r.total) == ("GH51204513", "2026-11-14", "82627425", 521)
+    assert "total" in r.uncertain
+
+
 def test_invoice_no_with_ocr_letter_o():
     r = extract_from_ocr(ocr(("UB", "O8524853"), "統編：81007881"))
     assert r.invoice_no == "UB08524853"

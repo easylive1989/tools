@@ -127,12 +127,31 @@ def process(path: Path, deduct: int, debug: bool) -> Result:
     return extract_from_ocr(items, default_deduct=deduct)
 
 
+def _walk_images(root: Path) -> list[Path]:
+    """os.walk 版的 rglob：pathlib 的 rglob 遇到權限錯誤會安靜地當成空資料夾，這裡要把它講出來。"""
+    import os
+
+    found: list[Path] = []
+    denied: list[str] = []
+    for dirpath, _dirs, names in os.walk(root, onerror=lambda e: denied.append(e.filename)):
+        found += [Path(dirpath) / n for n in names if Path(n).suffix.lower() in IMAGE_EXTS and not n.startswith(".")]
+    for d in denied:
+        print(
+            f"沒有權限讀取 {d}。\n"
+            "  macOS 要允許你的終端機 App 存取這個位置：系統設定 → 隱私權與安全性 → 檔案與資料夾\n"
+            "  （或「完整磁碟取用權限」），把終端機 App 的「桌面／文件／下載項目」打開後重開終端機。\n"
+            "  也可以先把照片搬到其他資料夾，例如 ~/發票。",
+            file=sys.stderr,
+        )
+    return sorted(found)
+
+
 def collect(paths: list[str]) -> list[Path]:
     files: list[Path] = []
     for p in map(Path, paths):
         p = p.expanduser()
         if p.is_dir():
-            files += sorted(f for f in p.rglob("*") if f.suffix.lower() in IMAGE_EXTS)
+            files += _walk_images(p)
         elif p.exists():
             files.append(p)
         else:

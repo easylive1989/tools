@@ -362,6 +362,10 @@ def _find_total(rows: list[list[Line]], uncertain: list[str]) -> int | None:
                 if v is not None and (best is None or pri < best[0] or (pri == best[0] and v > best[1])):
                     best = (pri, v)
                 break
+        # 「小計」常被讀成「小韵」「小部」「小新」：小 + 任一字 + 數字。有好幾個小計時取最後一個
+        sub = re.fullmatch(r"小\S\s*\$?(-?\d[\d,]*)", t)
+        if sub and "-" not in sub[1] and (best is None or best[0] >= 3):
+            best = (3, int(sub[1].replace(",", "")))
         m = re.search(r"(\d[\d,]*)\s*TX|TX\s*\$?\s*(\d[\d,]*)", t)
         if m:
             v = int((m[1] or m[2]).replace(",", ""))
