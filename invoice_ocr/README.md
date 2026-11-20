@@ -3,6 +3,19 @@
 把發票照片丟進去，在本機用 PaddleOCR（PP-OCRv5）辨識，輸出營業稅 401 申報要用的欄位 CSV。
 不需要 API key，照片不會上傳。
 
+## 網頁介面（拖圖片進去）
+
+```bash
+uv run invoice_ocr/app.py          # 自動打開 http://127.0.0.1:8765
+```
+
+把照片拖進瀏覽器就會辨識，結果可以直接在卡片上改（黃框是規則猜的、紅框是檢查沒過），
+上方依申報期別即時加總，按「匯出 CSV」下載。資料存在瀏覽器 localStorage，重新整理不會不見。
+伺服器只綁 127.0.0.1，`--port` 換 port、`--no-browser` 不自動開瀏覽器。
+規則、驗證、CSV 都走 Python（`/api/analyze`、`/api/check`、`/api/csv`），頁面在 `ui.html`。
+
+## 指令列
+
 ```bash
 uv run invoice_ocr/invoice_ocr.py ~/Desktop/發票/ -o 進項.csv --company 12345678
 uv run invoice_ocr/invoice_ocr.py IMG_0001.HEIC IMG_0002.HEIC --debug   # 印出 OCR 讀到的每一列

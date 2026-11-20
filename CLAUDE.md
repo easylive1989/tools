@@ -47,6 +47,8 @@ Setup steps in `urgent_bell/README.md`; tests: `npm test` (node:test, mocked LIN
 ## invoice_ocr (進項發票本機辨識)
 
 `uv run` CLI (`invoice_ocr/invoice_ocr.py`): images/folders → CSV of 營業稅 401 進項 fields.
+`uv run invoice_ocr/app.py` serves a drag-and-drop page (`ui.html`) on 127.0.0.1:8765 (stdlib http.server;
+`/api/analyze` takes raw image bytes, `/api/check` and `/api/csv` re-run validation on edited records).
 E-invoices are read from the left QR code (zxing-cpp); everything else goes through PaddleOCR
 PP-OCRv5 on RapidOCR/onnxruntime, then rule-based field extraction in `invoice_fields.py`
 (pure functions, tested by `invoice_ocr/tests`). Models download once to `~/.cache/invoice_ocr/`

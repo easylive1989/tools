@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>進項發票辨識</title>
+<style>
+  :root {
+    --bg: #f5f4ef; --card: #fff; --ink: #1c1c1a; --muted: #6d6b65; --line: #e2e0d8;
+    --accent: #2f5d50; --accent-soft: #e3ece8; --warn: #a86b00; --warn-soft: #fbf1dc;
+    --bad: #b23a2a; --bad-soft: #f8e4e0; --ok: #2f7a4a; --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151514; --card: #201f1d; --ink: #ecebe5; --muted: #a09d95; --line: #37352f;
+      --accent: #7fb8a5; --accent-soft: #24332e; --warn-soft: #3a2f17; --bad-soft: #3d2420; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif; }
+  header { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .bar { max-width: 1180px; margin: 0 auto; padding: 12px 20px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  h1 { font-size: 18px; margin: 0 8px 0 0; }
+  .pill { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); }
+  .pill.ready { background: var(--accent-soft); color: var(--accent); }
+  .pill.err { background: var(--bad-soft); color: var(--bad); }
+  .spacer { flex: 1; }
+  label.inline { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  input, select, button { font: inherit; color: var(--ink); }
+  input, select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); min-width: 0; }
+  button { padding: 7px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.link { border: 0; background: none; color: var(--muted); padding: 4px 6px; }
+  button:disabled { opacity: .5; cursor: default; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px; display: grid; gap: 16px; }
+
+  #drop { border: 2px dashed var(--line); border-radius: var(--radius); background: var(--card); text-align: center;
+    padding: 56px 20px; cursor: pointer; transition: border-color .15s, background .15s; }
+  #drop.compact { padding: 16px; }
+  #drop b { display: block; font-size: 17px; margin-bottom: 4px; }
+  #drop span { color: var(--muted); font-size: 13px; }
+  body.dragging #drop { border-color: var(--accent); background: var(--accent-soft); }
+  body.dragging::after { content: "放開就開始辨識"; position: fixed; inset: 0; display: grid; place-items: center;
+    font-size: 24px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--bg) 70%, transparent);
+    border: 4px dashed var(--accent); pointer-events: none; z-index: 50; }
+
+  #summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .sum { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .sum h3 { margin: 0 0 6px; font-size: 14px; }
+  .sum dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 13px; }
+  .sum dt { color: var(--muted); } .sum dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    display: grid; grid-template-columns: 180px 1fr; gap: 16px; padding: 14px; }
+  .card.bad { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+  .thumb { width: 180px; height: 220px; object-fit: contain; background: var(--bg); border-radius: 8px; cursor: zoom-in; }
+  .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .head .name { font-weight: 600; overflow-wrap: anywhere; }
+  .tag { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
+  .tag.ok { background: var(--accent-soft); color: var(--ok); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 10px; }
+  .grid label { display: grid; gap: 2px; font-size: 12px; color: var(--muted); }
+  .grid label.wide { grid-column: span 2; }
+  .grid label.unsure input, .grid label.unsure select { border-color: var(--warn); background: var(--warn-soft); }
+  .grid label.error input, .grid label.error select { border-color: var(--bad); background: var(--bad-soft); }
+  .msgs { margin-top: 8px; font-size: 13px; }
+  .msgs .e { color: var(--bad); } .msgs .n { color: var(--muted); }
+  details { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  details pre { white-space: pre-wrap; background: var(--bg); padding: 8px 10px; border-radius: 8px; margin: 6px 0 0; max-height: 240px; overflow: auto; }
+  .pending { display: flex; align-items: center; gap: 12px; color: var(--muted); }
+  .spin { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: s 0.8s linear infinite; }
+  @keyframes s { to { transform: rotate(360deg); } }
+  dialog { border: 0; padding: 0; background: transparent; max-width: 95vw; max-height: 95vh; }
+  dialog::backdrop { background: rgba(0,0,0,.75); }
+  dialog img { max-width: 95vw; max-height: 95vh; display: block; border-radius: 8px; }
+  .hint { color: var(--muted); font-size: 12px; text-align: center; }
+  @media (max-width: 760px) {
+    .card { grid-template-columns: 1fr; } .thumb { width: 100%; height: 240px; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>進項發票辨識</h1>
+    <span class="pill" id="status">模型載入中…</span>
+    <span class="spacer"></span>
+    <label class="inline">公司統編 <input id="company" inputmode="numeric" maxlength="8" size="9" placeholder="12345678"></label>
+    <label class="inline">預設扣抵
+      <select id="deduct"><option value="1">1 進貨及費用</option><option value="2">2 固定資產</option></select>
+    </label>
+    <button id="btnCsv" class="primary">匯出 CSV</button>
+    <button id="btnClear" class="link">清除全部</button>
+  </div>
+</header>
+
+<main>
+  <div id="drop" role="button" tabindex="0">
+    <b>把發票照片拖進來</b>
+    <span>或點這裡選擇檔案 · JPG / PNG / HEIC，可一次多張 · 一張照片只放一張發票</span>
+    <input type="file" id="file" accept="image/*,.heic,.heif" multiple hidden>
+  </div>
+  <section id="summary"></section>
+  <section id="list" style="display:grid; gap:12px"></section>
+  <p class="hint">電子發票讀 QR Code，其他用 PaddleOCR 在這台電腦上辨識，照片不會上傳。黃框是規則用猜的欄位，紅框是檢查沒過的欄位。</p>
+</main>
+
+<dialog id="viewer"><img alt=""></dialog>
+
+<script>
+// ---------- 狀態 ----------
+const KEY = 'invoice-ocr';
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(`${KEY}.${k}`)) ?? d; } catch { return d; } };
+const save = (k, v) => { try { localStorage.setItem(`${KEY}.${k}`, JSON.stringify(v)); } catch { /* 太大或不允許就算了 */ } };
+
+let items = load('items', []);          // {id, file, thumb, lines, record, check}
+const previews = new Map();             // id → 大圖（不存）
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n) => (n == null || n === '' ? '—' : Number(n).toLocaleString('zh-TW'));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+$('#company').value = load('company', '');
+$('#deduct').value = load('deduct', '1');
+$('#company').addEventListener('input', () => { save('company', $('#company').value.trim()); recheck(); });
+$('#deduct').addEventListener('change', () => save('deduct', $('#deduct').value));
+
+// ---------- 模型狀態 ----------
+async function poll() {
+  try {
+    const s = await (await fetch('/api/status')).json();
+    const el = $('#status');
+    if (s.error) { el.textContent = '模型載入失敗：' + s.error; el.className = 'pill err'; return; }
+    if (s.ready) { el.textContent = 'PaddleOCR 就緒'; el.className = 'pill ready'; return; }
+  } catch { $('#status').textContent = '連不到本機服務，請確認終端機裡的程式還在跑'; $('#status').className = 'pill err'; }
+  setTimeout(poll, 1000);
+}
+poll();
+
+// ---------- 拖放與選檔 ----------
+let dragDepth = 0;
+addEventListener('dragenter', (e) => { if (e.dataTransfer?.types.includes('Files')) { dragDepth++; document.body.classList.add('dragging'); } });
+addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+addEventListener('dragover', (e) => e.preventDefault());
+addEventListener('drop', (e) => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
+  enqueue([...(e.dataTransfer?.files ?? [])]);
+});
+$('#drop').addEventListener('click', () => $('#file').click());
+$('#drop').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') $('#file').click(); });
+$('#file').addEventListener('change', (e) => { enqueue([...e.target.files]); e.target.value = ''; });
+
+const queue = [];
+let running = false;
+function enqueue(files) {
+  const imgs = files.filter((f) => f.type.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp|tiff?|bmp)$/i.test(f.name));
+  if (!imgs.length) return;
+  for (const f of imgs) {
+    const it = { id: uid(), file: f.name, pending: true };
+    items.unshift(it); queue.push([it, f]);
+  }
+  render(); run();
+}
+async function run() {
+  if (running) return;
+  running = true;
+  while (queue.length) {
+    const [it, f] = queue.shift();
+    try {
+      const q = new URLSearchParams({ deduct: $('#deduct').value, company: $('#company').value.trim() });
+      const res = await fetch('/api/analyze?' + q, { method: 'POST', body: f });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || res.statusText);
+      Object.assign(it, { pending: false, record: j.record, lines: j.lines, thumb: j.thumb,
+        check: { errors: j.errors, deductible: j.deductible, reason: j.reason, period: j.period } });
+      previews.set(it.id, j.preview);
+    } catch (err) {
+      Object.assign(it, { pending: false, failed: String(err.message || err) });
+    }
+    persist(); render();
+  }
+  running = false;
+  recheck();
+}
+
+// ---------- 檢查與彙總（規則都在 Python 那邊） ----------
+let summary = {};
+let recheckTimer;
+function recheck() {
+  clearTimeout(recheckTimer);
+  recheckTimer = setTimeout(async () => {
+    const done = items.filter((i) => i.record);
+    try {
+      const res = await fetch('/api/check', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ company: $('#company').value.trim(), records: done.map((i) => i.record) }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error);
+      done.forEach((it, k) => { it.check = j.checks[k]; });
+      summary = j.summary;
+    } catch (err) { console.error(err); }
+    render();
+  }, 250);
+}
+function persist() { save('items', items.filter((i) => !i.pending).map(({ pending, ...rest }) => rest)); }
+
+// ---------- 畫面 ----------
+const FORMAT_OPTS = [['25', '25 三聯式收銀機／電子發票'], ['21', '21 三聯式／電子計算機'], ['22', '22 二聯式收銀機／其他憑證'], ['', '— 收據（不可扣抵）']];
+const DEDUCT_OPTS = [['1', '1 進貨及費用'], ['2', '2 固定資產'], ['0', '不可扣抵']];
+const TAX_OPTS = [['1', '1 應稅'], ['2', '2 零稅率'], ['3', '3 免稅']];
+const FIELDS = [
+  ['format_code', '格式代號', 'select', FORMAT_OPTS, 'wide'],
+  ['date', '發票日期', 'date'],
+  ['invoice_no', '發票號碼', 'text'],
+  ['seller_tax_id', '賣方統編', 'text'],
+  ['buyer_tax_id', '買方統編', 'text'],
+  ['seller_name', '賣方名稱', 'text', null, 'wide'],
+  ['sales_amount', '銷售額', 'num'],
+  ['tax', '稅額', 'num'],
+  ['total', '總計', 'num'],
+  ['tax_type', '課稅別', 'select', TAX_OPTS],
+  ['deduct_code', '扣抵代號', 'select', DEDUCT_OPTS],
+];
+
+function fieldHtml(it, [key, label, type, opts, cls]) {
+  const v = it.record[key];
+  const unsure = (it.record.uncertain || []).includes(key);
+  const err = it.check?.errors?.[key];
+  const c = [cls, unsure ? 'unsure' : '', err ? 'error' : ''].filter(Boolean).join(' ');
+  let input;
+  if (type === 'select') {
+    input = `<select data-k="${key}">${opts.map(([val, t]) => `<option value="${val}" ${String(v ?? '') === val ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+  } else {
+    const attrs = type === 'num' ? 'inputmode="numeric"' : type === 'date' ? 'type="date"' : '';
+    input = `<input data-k="${key}" ${attrs} value="${esc(v ?? '')}">`;
+  }
+  return `<label class="${c}" title="${esc(err || (unsure ? '規則用猜的，請確認' : ''))}">${label}${input}</label>`;
+}
+
+function cardHtml(it) {
+  if (it.pending) return `<div class="card"><div class="pending"><div class="spin"></div>辨識中…　${esc(it.file)}</div></div>`;
+  if (it.failed) return `<div class="card bad" data-id="${it.id}"><div></div><div><div class="head"><span class="name">${esc(it.file)}</span><span class="tag bad">失敗</span><span class="spacer"></span><button class="link" data-act="del">刪除</button></div><div class="msgs e">${esc(it.failed)}</div></div></div>`;
+  const r = it.record, ck = it.check || {};
+  const nErr = Object.keys(ck.errors || {}).length;
+  const nUnsure = (r.uncertain || []).length;
+  const dup = r.invoice_no && items.some((o) => o !== it && o.record?.invoice_no === r.invoice_no);
+  const tags = [
+    `<span class="tag">${r.source === 'qr' ? '電子發票 QR' : 'PaddleOCR'}</span>`,
+    ck.period ? `<span class="tag">${esc(ck.period)}</span>` : '',
+    nErr ? `<span class="tag bad">${nErr} 個問題</span>` : nUnsure ? `<span class="tag warn">${nUnsure} 欄要確認</span>` : '<span class="tag ok">OK</span>',
+    ck.deductible === false ? '<span class="tag warn">不可扣抵</span>' : '',
+    dup ? '<span class="tag bad">重複</span>' : '',
+  ].join('');
+  const msgs = [...Object.values(ck.errors || {}).map((m) => `<div class="e">• ${esc(m)}</div>`),
+    ...(ck.deductible === false ? [`<div class="n">• ${esc(ck.reason)}</div>`] : []),
+    ...(r.notes || []).map((m) => `<div class="n">• ${esc(m)}</div>`)].join('');
+  return `<div class="card ${nErr ? 'bad' : ''}" data-id="${it.id}">
+    <img class="thumb" src="${it.thumb || ''}" alt="${esc(it.file)}">
+    <div>
+      <div class="head"><span class="name">${esc(it.file)}</span>${tags}<span class="spacer"></span><button class="link" data-act="del">刪除</button></div>
+      <div class="grid">${FIELDS.map((f) => fieldHtml(it, f)).join('')}</div>
+      ${msgs ? `<div class="msgs">${msgs}</div>` : ''}
+      ${it.lines?.length ? `<details><summary>OCR 讀到的文字（${it.lines.length} 列）</summary><pre>${esc(it.lines.join('\n'))}</pre></details>` : ''}
+    </div></div>`;
+}
+
+function render() {
+  $('#drop').classList.toggle('compact', items.length > 0);
+  $('#list').innerHTML = items.map(cardHtml).join('');
+  $('#summary').innerHTML = Object.entries(summary).map(([p, s]) => `
+    <div class="sum"><h3>${esc(p)}　<span class="tag">${s.count} 張${s.non_deductible ? `・不可扣抵 ${s.non_deductible}` : ''}</span></h3>
+      <dl>
+        <dt>進貨及費用 銷售額</dt><dd>${fmt(s.expense[0])}</dd><dt>進貨及費用 稅額</dt><dd>${fmt(s.expense[1])}</dd>
+        ${s.asset[0] ? `<dt>固定資產 銷售額</dt><dd>${fmt(s.asset[0])}</dd><dt>固定資產 稅額</dt><dd>${fmt(s.asset[1])}</dd>` : ''}
+        <dt>進項總金額</dt><dd>${fmt(s.grand_total)}</dd>
+      </dl></div>`).join('');
+}
+
+// 編輯欄位：改完就重新檢查
+$('#list').addEventListener('change', (e) => {
+  const el = e.target.closest('[data-k]'); if (!el) return;
+  const it = items.find((i) => i.id === el.closest('.card').dataset.id); if (!it) return;
+  const k = el.dataset.k;
+  let v = el.value.trim();
+  if (['sales_amount', 'tax', 'total'].includes(k)) v = v === '' ? null : Number(v.replace(/[,\s$]/g, ''));
+  else if (['format_code', 'tax_type', 'deduct_code'].includes(k)) v = v === '' ? null : Number(v);
+  else if (k === 'invoice_no') v = v.toUpperCase().replace(/[-\s]/g, '') || null;
+  else v = v || null;
+  it.record[k] = v;
+  it.record.uncertain = (it.record.uncertain || []).filter((f) => f !== k); // 人看過就不算猜的
+  if (k === 'total' && it.record.tax_type === 1 && v != null && it.record.format_code) {
+    // 改總計時順手回推銷售額和稅額
+    it.record.sales_amount = Math.round(v / 1.05); it.record.tax = v - it.record.sales_amount;
+  }
+  persist(); recheck();
+});
+$('#list').addEventListener('click', (e) => {
+  const card = e.target.closest('.card'); if (!card) return;
+  const it = items.find((i) => i.id === card.dataset.id);
+  if (e.target.dataset.act === 'del') {
+    items = items.filter((i) => i !== it); previews.delete(it.id); persist(); recheck(); render();
+  } else if (e.target.classList.contains('thumb')) {
+    $('#viewer img').src = previews.get(it.id) || it.thumb; $('#viewer').showModal();
+  }
+});
+$('#viewer').addEventListener('click', () => $('#viewer').close());
+$('#btnClear').addEventListener('click', () => {
+  if (!items.length || !confirm(`清除全部 ${items.length} 筆？`)) return;
+  items = []; previews.clear(); summary = {}; persist(); render();
+});
+$('#btnCsv').addEventListener('click', async () => {
+  const done = items.filter((i) => i.record);
+  if (!done.length) return alert('還沒有資料');
+  const res = await fetch('/api/csv', { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ company: $('#company').value.trim(), records: done.map((i) => ({ ...i.record, file: i.file })) }) });
+  if (!res.ok) return alert('匯出失敗：' + (await res.text()));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await res.blob());
+  a.download = `進項發票-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+render(); recheck();
+</script>
+</body>
+</html>

@@ -91,12 +91,15 @@ def get_ocr():
     return _ocr
 
 
-def load_image(path: Path) -> np.ndarray:
-    if path.suffix.lower() in {".heic", ".heif"}:
-        from pillow_heif import register_heif_opener
+def load_image(src) -> np.ndarray:
+    """讀圖片：可以是路徑或 bytes（HEIC 也行），依 EXIF 轉正。"""
+    import io
 
-        register_heif_opener()
-    img = ImageOps.exif_transpose(Image.open(path)).convert("RGB")
+    from pillow_heif import register_heif_opener
+
+    register_heif_opener()
+    f = io.BytesIO(src) if isinstance(src, (bytes, bytearray)) else src
+    img = ImageOps.exif_transpose(Image.open(f)).convert("RGB")
     return np.asarray(img)
 
 
@@ -109,22 +112,27 @@ def read_qr(img: np.ndarray) -> str | None:
     return None
 
 
-def process(path: Path, deduct: int, debug: bool) -> Result:
-    img = load_image(path)
+def analyze(img: np.ndarray, deduct: int = 1) -> tuple[Result, list[str]]:
+    """辨識一張圖片，回傳 (結果, OCR 讀到的每一列文字)。電子發票走 QR Code，沒有 OCR 文字。"""
+    from invoice_fields import row_text, to_rows
+
     left = read_qr(img)
     if left:
         r = parse_einvoice(left)
         r.deduct_code = deduct
-        return r
+        return r, []
     out = get_ocr()(img[:, :, ::-1])  # RapidOCR 吃 BGR
     items = list(zip(out.boxes, out.txts, out.scores)) if out.txts else []
-    if debug:
-        from invoice_fields import row_text, to_rows
+    return extract_from_ocr(items, default_deduct=deduct), [row_text(row) for row in to_rows(items)]
 
+
+def process(path: Path, deduct: int, debug: bool) -> Result:
+    r, lines = analyze(load_image(path), deduct)
+    if debug and lines:
         print(f"  ── OCR {path.name}", file=sys.stderr)
-        for row in to_rows(items):
-            print("   ", row_text(row), file=sys.stderr)
-    return extract_from_ocr(items, default_deduct=deduct)
+        for line in lines:
+            print("   ", line, file=sys.stderr)
+    return r
 
 
 def _walk_images(root: Path) -> list[Path]:
