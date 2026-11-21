@@ -53,7 +53,6 @@ E-invoices are read from the left QR code (zxing-cpp); everything else goes thro
 PP-OCRv5 on RapidOCR/onnxruntime, then rule-based field extraction in `invoice_fields.py`
 (pure functions, tested by `invoice_ocr/tests`). Models download once to `~/.cache/invoice_ocr/`
 (sha256-checked); the upstream dict has a stray empty 2nd line that must be dropped.
-A browser version (Claude/Gemini instead of OCR) lives in the blog repo at `/invoice-scanner/`.
 
 ## Read later (not in this repo)
 
